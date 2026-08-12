@@ -1,0 +1,53 @@
+# dependências
+node_modules/
+.pnp
+.pnp.js
+
+# build
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# ambiente — NUNCA commitar segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# uploads e dados locais
+storage/
+uploads/
+!storage/.gitkeep
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testes / cobertura
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# sistema
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# prisma
+prisma/*.db
+prisma/*.db-journal
+
+# relatórios de ferramentas de segurança (podem conter trechos sensíveis)
+.security-scan/
+gitleaks-report.json
+semgrep-report.json
