@@ -23,44 +23,57 @@ não o contrário.
 
 ## O mundo visual
 
-Tinta violeta chapada sobre papel técnico frio. As referências são a etiqueta de
-patrimônio parafusada no equipamento, o laudo de calibração e o canhoto de
-romaneio — não o card com iconezinho arredondado.
+**Sala de instrumentação no escuro.** A luz vem do próprio equipamento ligado:
+violeta DTECH luminoso sobre quase-preto violeta. É coerente com a tela de login
+real da DTECH, que já é escura.
 
 Decisões que sustentam isso:
 
-- **O violeta da marca é tinta impressa**, campo sólido. Nunca gradiente
-  luminoso: degradê roxo-para-azul é a assinatura mais reconhecível de
-  interface gerada por IA, e a marca merece coisa melhor.
-- **Papel frio** (`#EFF0F4`), não creme. Creme é o off-white automático.
-- **Raio de 3px.** Documento técnico não tem canto de bolha.
+- **Fundo `#08040F`** — quase-preto puxado para o violeta, não cinza neutro. A
+  base pertence à mesma família da marca.
+- **A aurora de fundo é o único elemento decorativo do projeto**, e se justifica:
+  é a luz da sala. Anima apenas `transform`, nunca propriedade de layout.
 - **Monoespaçada carrega o registro técnico**: número de série, O.S., horário e
   valor. É de onde vem a personalidade — não de uma fonte da moda.
-- **Uma borda definida OU uma elevação**, nunca as duas no mesmo elemento.
+- **O brilho é funcional**, não halo decorativo: marca o que está ativo (etapa
+  travada, nó aceso, ação primária). Elemento inerte não brilha.
 
 ## O movimento
 
-Um só momento autoral, orquestrado: **a etapa travando na linha do tempo**, como
-um carimbo que assenta e não volta. É o que o objeto faz na vida real.
+Cinco camadas orquestradas, cada uma amarrada a um dado real:
+
+| Camada | O que faz | Por quê |
+|---|---|---|
+| Aurora | respira em ciclo de 26–32 s | a sala está ligada |
+| Título | revela linha a linha na abertura | dá tempo de ler a tese |
+| Linha do tempo | a etapa **trava** com pulso de luz | é o que o carimbo faz na vida real |
+| Esteira | a luz percorre o trilho e acende os nós | mostra a ordem dos avisos |
+| Contadores | sobem até o valor com desaceleração | o número vira leitura, não enfeite |
 
 Ease-out exponencial em tudo. Nada de bounce. O conteúdo é visível por padrão —
 o script melhora a entrada, não condiciona a existência. Com
-`prefers-reduced-motion`, a linha do tempo aparece pronta.
+`prefers-reduced-motion`, tudo aparece pronto e o feed para de rodar.
 
 ## Cores e contraste
 
-Todos os pares de texto passam em WCAG AA, medidos e não estimados:
+Todos os pares passam em WCAG AA, medidos com a fórmula de luminância relativa,
+não estimados a olho:
 
-| Papel | Cor | Contraste sobre branco |
+| Papel | Cor | Contraste |
 |---|---|---|
-| Marca / ação | `#4A0D8F` | 12,1:1 |
-| Atrasado, reprovado | `#A8203C` | 7,2:1 |
-| Aprovado, entregue | `#0F6B4F` | 6,5:1 |
-| Aguardando | `#8A5300` | 6,3:1 |
-| Ação primária | `#1B4FD8` | 6,7:1 |
+| Texto principal sobre fundo | `#F4F0FB` | 18,1:1 |
+| Texto secundário | `#B9AAD4` | 9,4:1 |
+| Texto terciário (piso) | `#8375A0` | 4,9:1 |
+| Violeta claro (destaque) | `#A78BFA` | 7,5:1 |
+| Ao vivo / aprovado | `#2DD4A0` | 10,7:1 |
+| Atrasado / reprovado | `#FB7185` | 7,5:1 |
+| Aguardando | `#FBBF24` | 12,2:1 |
+| Branco sobre botão primário | `#6D28D9` | 7,1:1 |
 
-Sobre superfície colorida o texto secundário é tingido com o tom da própria cor,
-nunca cinza — cinza sobre cor lava e perde legibilidade.
+O detalhe que se erra fácil no escuro: **superfície colorida clara pede tinta
+escura por cima, não branco**. Branco sobre o violeta `#8B5CF6` dá 3,4:1 e
+reprova; por isso o botão nasce no `#6D28D9`, e o verde de sucesso leva texto
+`#04231A`.
 
 ## Conteúdo
 

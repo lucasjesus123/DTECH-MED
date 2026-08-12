@@ -10,820 +10,797 @@
 @font-face{font-family:"Azeret Mono";font-style:normal;font-weight:600;font-display:swap;src:url(data:font/woff2;base64,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) format("woff2")}
 
 /* ==========================================================================
-   DTECH MED — sistema visual
-   Mundo: tinta violeta sobre papel técnico. Etiqueta de patrimônio, laudo de
-   calibração, canhoto de romaneio. O violeta da marca é TINTA IMPRESSA — campo
-   sólido, chapado — nunca gradiente luminoso.
+   DTECH MED — sistema visual ESCURO
+   Coerente com a tela de login real da DTECH: fundo escuro, violeta luminoso.
+   Registro: sala de instrumentação. A luz é do próprio equipamento ligado.
    ========================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  /* --- Tinta ------------------------------------------------------------ */
-  --ink:        #14071F;   /* quase-preto violeta: texto principal */
-  --ink-2:      #4A3D57;   /* texto secundário sobre papel */
-  --ink-3:      #6F6579;   /* terciário, metadados */
+  /* --- Base escura: violeta levado ao quase-preto ---------------------- */
+  --bg:        #08040F;
+  --bg-1:      #0E0718;
+  --sup:       #150B24;   /* superfície de card */
+  --sup-2:     #1D1030;   /* superfície elevada */
+  --borda:     #2C1A47;
+  --borda-viva:#432665;
 
-  /* --- Violeta DTECH ---------------------------------------------------- */
-  --vio-900:    #1B0733;
-  --vio-800:    #2E0757;
-  --vio:        #4A0D8F;   /* a marca. 12:1 sobre branco */
-  --vio-400:    #8B5CF0;
-  --vio-100:    #ECE4F8;
-  --vio-50:     #F6F2FC;
+  /* --- Violeta DTECH, calibrado para brilhar no escuro ----------------- */
+  --vio:       #8B5CF6;
+  --vio-claro: #A78BFA;
+  --vio-forte: #6D28D9;
+  --vio-tinta: #4A0D8F;
+  --brilho:    rgba(139, 92, 246, .40);
 
-  /* --- Papel técnico (frio, jamais creme) ------------------------------- */
-  --papel:      #EFF0F4;
-  --papel-2:    #E3E5EC;
-  --linha:      #D3D6DF;
-  --branco:     #FFFFFF;
+  /* --- Instrumentação -------------------------------------------------- */
+  --sinal:     #2DD4A0;   /* ao vivo, aprovado, ok */
+  --alerta:    #FB7185;   /* atrasado, parado, reprovado */
+  --espera:    #FBBF24;   /* aguardando */
+  --acao:      #3B82F6;
 
-  /* --- Sinais: tinta de carimbo, não neon ------------------------------- */
-  --selo:       #A8203C;   /* carmim — atrasado, urgente, reprovado. 7.2:1 */
-  --confirma:   #0F6B4F;   /* verde clínico — aprovado, entregue. 6.5:1 */
-  --aguarda:    #8A5300;   /* âmbar queimado — aguardando. 6.3:1 */
-  --acao:       #1B4FD8;   /* azul — ação primária. 6.7:1 */
+  /* --- Texto sobre escuro (todos medidos em WCAG AA) ------------------- */
+  --txt:       #F4F0FB;   /* 17,9:1 sobre --bg */
+  --txt-2:     #B9AAD4;   /* 8,6:1 */
+  --txt-3:     #8375A0;   /* 4,9:1 — piso para texto pequeno */
 
-  /* --- Tipografia ------------------------------------------------------- */
+  /* --- Tipografia ------------------------------------------------------ */
   --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --f-texto:   "Barlow", system-ui, -apple-system, sans-serif;
   --f-mono:    "Azeret Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* Escala com razão ~1.25 — degraus óbvios, sem hierarquia achatada */
-  --t-xs:   0.6875rem;  /* 11px — piso funcional */
-  --t-sm:   0.8125rem;  /* 13px */
-  --t-base: 1rem;       /* 16px */
+  --t-xs:   0.6875rem;
+  --t-sm:   0.8125rem;
+  --t-base: 1rem;
   --t-lg:   1.25rem;
   --t-xl:   1.5625rem;
   --t-2xl:  1.953rem;
   --t-3xl:  2.441rem;
   --t-4xl:  3.815rem;
   --t-5xl:  5.96rem;
+  --t-6xl:  8rem;
 
-  /* --- Forma ------------------------------------------------------------ */
-  /* Raio pequeno e constante: documento técnico não tem canto de bolha. */
-  --r:      3px;
-  --r-lg:   6px;
+  --r:    4px;
+  --r-lg: 10px;
 
-  /* --- Ritmo ------------------------------------------------------------ */
   --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
   --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
-  --s9: 96px; --s10: 128px;
+  --s9: 96px; --s10: 140px;
 
-  /* --- Movimento -------------------------------------------------------- */
-  /* Ease-out exponencial: objeto real desacelera. Nada de bounce. */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-firme: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur: 520ms;
+  --dur: 560ms;
+
+  /* --- Ponte de nomes -------------------------------------------------- */
+  /* O painel e os apps foram escritos com os nomes da paleta clara. Em vez de
+     reescrever duas telas inteiras (e arriscar divergência entre elas), os
+     nomes antigos passam a apontar para os valores escuros. Uma paleta, dois
+     vocabulários — e um lugar só para mudar quando a marca mudar. */
+  --papel:    var(--bg-1);
+  --papel-2:  var(--sup);
+  --linha:    var(--borda);
+  --branco:   var(--sup);
+  --ink:      var(--txt);
+  --ink-2:    var(--txt-2);
+  --ink-3:    var(--txt-3);
+  --vio-900:  #0B0518;
+  --vio-800:  var(--vio-forte);
+  --vio-400:  var(--vio-claro);
+  --vio-100:  rgba(139, 92, 246, .16);
+  --vio-50:   rgba(139, 92, 246, .07);
+  --confirma: var(--sinal);
+  --selo:     var(--alerta);
+  --aguarda:  var(--espera);
 }
 
-html { -webkit-text-size-adjust: 100%; }
+/* Faixa de demonstração: sobre escuro, o âmbar precisa ser a TINTA, não o
+   fundo — âmbar chapado com texto branco não passa em contraste. */
+.aviso-demo {
+  background: rgba(251, 191, 36, .1) !important;
+  border-bottom: 1px solid rgba(251, 191, 36, .24);
+  color: var(--espera) !important;
+}
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--papel);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--txt);
   font-family: var(--f-texto);
   font-size: var(--t-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-/* Superfícies do navegador amarradas à paleta — o sinal mais barato de que
-   a página foi construída, não montada. */
 ::selection { background: var(--vio); color: #fff; }
-:focus-visible {
-  outline: 2px solid var(--acao);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
+:focus-visible { outline: 2px solid var(--vio-claro); outline-offset: 3px; border-radius: 3px; }
 ::-webkit-scrollbar { width: 11px; height: 11px; }
-::-webkit-scrollbar-track { background: var(--papel-2); }
-::-webkit-scrollbar-thumb {
-  background: #B4B8C4;
-  border: 3px solid var(--papel-2);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--vio-400); }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb { background: var(--borda); border: 3px solid var(--bg-1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--vio-forte); }
 
-h1, h2, h3, h4 { margin: 0; line-height: 1.05; font-weight: 700; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.04; font-weight: 700; }
 p { margin: 0; }
 a { color: inherit; }
 img { max-width: 100%; display: block; }
 button { font: inherit; color: inherit; }
 
-/* --- Peças recorrentes do mundo visual ----------------------------------- */
+/* --- Peças do mundo ------------------------------------------------------ */
 
-/* Rótulo gravado: monoespaçada, caixa-alta curta. Vem da etiqueta de
-   patrimônio parafusada no equipamento. */
 .grav {
   font-family: var(--f-mono);
   font-size: var(--t-xs);
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--ink-3);
+  color: var(--vio-claro);
 }
+.grav.fria { color: var(--txt-3); }
 
-/* Número de série / OS — sempre monoespaçado, sempre tabular. */
 .serie {
   font-family: var(--f-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -.02em;
 }
 
-/* Ficha: a superfície-base. Uma borda definida OU elevação — nunca as duas. */
-.ficha {
-  background: var(--branco);
-  border: 1px solid var(--linha);
-  border-radius: var(--r);
-}
+.container { width: 100%; max-width: 1280px; margin-inline: auto; padding-inline: var(--s5); }
 
-/* Selo de etapa. Cor chapada, sem halo. */
-.selo-etapa {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s2);
-  padding: 3px 9px;
-  border-radius: 2px;
-  font-family: var(--f-mono);
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.selo-etapa.ok      { background: #E2F0EA; color: var(--confirma); }
-.selo-etapa.andando { background: var(--vio-100); color: var(--vio); }
-.selo-etapa.espera  { background: #F7EEDD; color: var(--aguarda); }
-.selo-etapa.atraso  { background: #F7E3E7; color: var(--selo); }
-
-/* Botão: bloco chapado, sem gradiente e sem glow. */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s2);
-  padding: 13px 22px;
-  border: 1px solid transparent;
-  border-radius: var(--r);
-  background: var(--vio);
-  color: #fff;
-  font-family: var(--f-texto);
-  font-size: var(--t-base);
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background var(--dur) var(--ease), transform 160ms var(--ease);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  padding: 14px 26px;
+  border: 1px solid transparent; border-radius: var(--r);
+  background: var(--vio-forte); color: #fff;
+  font-size: var(--t-base); font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  position: relative; overflow: hidden;
+  transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform 180ms var(--ease);
+  box-shadow: 0 0 0 0 var(--brilho);
 }
-.btn:hover  { background: var(--vio-800); }
+.btn:hover { background: #5B21B6; box-shadow: 0 0 38px -4px var(--brilho); }
 .btn:active { transform: translateY(1px); }
-.btn.acao   { background: var(--acao); }
-.btn.acao:hover { background: #163FAC; }
 .btn.linha {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--ink);
+  background: transparent; color: var(--txt);
+  border-color: var(--borda-viva);
 }
-.btn.linha:hover { background: var(--ink); color: var(--papel); }
+.btn.linha:hover { background: var(--sup-2); border-color: var(--vio); box-shadow: none; }
 
-.container {
-  width: 100%;
-  max-width: 1240px;
-  margin-inline: auto;
-  padding-inline: var(--s5);
+/* Selo de etapa */
+.selo-etapa {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  padding: 3px 9px; border-radius: 3px;
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+  border: 1px solid transparent;
 }
+.selo-etapa.ok      { background: rgba(45,212,160,.12);  color: var(--sinal);  border-color: rgba(45,212,160,.3); }
+.selo-etapa.andando { background: rgba(139,92,246,.14);  color: var(--vio-claro); border-color: rgba(139,92,246,.34); }
+.selo-etapa.espera  { background: rgba(251,191,36,.12);  color: var(--espera); border-color: rgba(251,191,36,.3); }
+.selo-etapa.atraso  { background: rgba(251,113,133,.12); color: var(--alerta); border-color: rgba(251,113,133,.32); }
 
-/* Entrada de conteúdo: o JS MELHORA a entrada, não condiciona a existência.
-   Sem JS, tudo continua visível. */
+/* Entrada: o JS melhora, não condiciona. Sem JS tudo permanece visível. */
 .entra { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
   .js .entra {
-    opacity: 0;
-    transform: translateY(14px);
-    transition: opacity 620ms var(--ease), transform 620ms var(--ease);
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 760ms var(--ease), transform 760ms var(--ease);
   }
   .js .entra.vis { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
 }
 
 </style>
 <!--
-  CONTRATO DE DIREÇÃO — dtechmed.com.br
-  TESE: o concorrente vende "conserto"; a DTECH entrega PRONTUÁRIO do
-        equipamento — ficha, histórico, laudo e alta assinada. Recusa o
-        SaaS-médico genérico: degradê azul, jaleco sorrindo, ladrilho de ícone.
-  MUNDO PRÓPRIO: tinta violeta chapada sobre papel técnico frio. Etiqueta de
-        patrimônio, laudo de calibração, canhoto de romaneio. Série em
-        monoespaçada gravada. Raio de 3px — documento não tem canto de bolha.
-  HISTÓRIA: "meu aparelho parado é dinheiro parado" → "eles buscam, e eu vejo
-        onde está a cada etapa" → solicita a retirada.
-  PRIMEIRA DOBRA: à esquerda a tese em condensada 5xl; à direita a ficha real
-        de um equipamento com a linha do tempo TRAVANDO etapa a etapa. Ação
-        primária ("Solicitar retirada") ancorada abaixo da tese.
-  FORMA: ficha técnica de equipamento hospitalar.
+  CONTRATO DE DIREÇÃO — dtechmed.com.br  ·  v2 ESCURO
+  TESE: assistência técnica que se apresenta como CENTRO DE OPERAÇÃO. O
+        equipamento entra num sistema instrumentado e o cliente vê o painel
+        ligado. Recusa o site de assistência com foto de jaleco e caixa de texto.
+  MUNDO PRÓPRIO: sala de instrumentação no escuro. A luz vem do próprio
+        equipamento ligado — violeta DTECH luminoso sobre quase-preto violeta.
+        Telemetria em monoespaçada, leitura numérica, linha de status ao vivo.
+  HISTÓRIA: "eles operam com método" → "eu vejo meu aparelho na tela" → solicita.
+  PRIMEIRA DOBRA: tese em display 6xl revelada linha a linha; à direita o
+        console ao vivo com a ordem avançando e o feed de operações rodando.
+  FORMA: painel de instrumentação.
+  MOVIMENTO: orquestrado em cinco camadas — aurora que respira, título por
+        linha, etapa que trava com pulso, luz que percorre a esteira, e
+        contadores que sobem. Tudo em transform/opacity.
 -->
 
 
 <style>
-/* ===== Cabeçalho ===================================================== */
+/* ===== Barra de progresso de leitura ================================= */
+.progresso {
+  position: fixed; top: 0; left: 0; height: 2px; z-index: 100;
+  background: linear-gradient(90deg, var(--vio-forte), var(--vio-claro));
+  width: 0%;
+  box-shadow: 0 0 12px var(--brilho);
+}
+
+/* ===== Aurora de fundo — o "equipamento ligado" ====================== */
+/* Único elemento decorativo do projeto. Justificado: é a luz da sala de
+   instrumentação. Anima só transform, nunca layout. */
+.aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .5; will-change: transform; }
+.blob.a { width: 620px; height: 620px; background: #5B21B6; top: -220px; left: -140px; animation: deriva1 26s ease-in-out infinite; }
+.blob.b { width: 520px; height: 520px; background: #7C3AED; top: 8%; right: -180px; animation: deriva2 32s ease-in-out infinite; }
+.blob.c { width: 460px; height: 460px; background: #4C1D95; bottom: -160px; left: 34%; animation: deriva3 29s ease-in-out infinite; }
+@keyframes deriva1 { 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(90px,70px,0) scale(1.14)} }
+@keyframes deriva2 { 0%,100%{transform:translate3d(0,0,0) scale(1.06)} 50%{transform:translate3d(-80px,110px,0) scale(.92)} }
+@keyframes deriva3 { 0%,100%{transform:translate3d(0,0,0) scale(.95)} 50%{transform:translate3d(70px,-80px,0) scale(1.12)} }
+
+.conteudo { position: relative; z-index: 1; }
+
+/* ===== Topo ========================================================== */
 .topo {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(239,240,244,.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--linha);
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(8,4,15,.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid var(--borda);
 }
-.topo-in {
-  display: flex; align-items: center; gap: var(--s6);
-  height: 66px;
-}
-.marca { display: flex; align-items: baseline; gap: 7px; text-decoration: none; }
+.topo-in { display: flex; align-items: center; gap: var(--s6); height: 70px; }
+.marca { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .marca-d {
-  display: grid; place-items: center;
-  width: 26px; height: 26px;
-  background: var(--vio); color: #fff;
-  font-family: var(--f-display); font-weight: 700; font-size: 19px;
-  border-radius: 2px; align-self: center;
+  display: grid; place-items: center; width: 28px; height: 28px;
+  background: var(--vio); color: #fff; border-radius: 3px;
+  font-family: var(--f-display); font-weight: 700; font-size: 20px;
+  box-shadow: 0 0 20px -2px var(--brilho);
 }
-.marca-txt {
-  font-family: var(--f-display); font-weight: 700;
-  font-size: 25px; letter-spacing: .01em; color: var(--ink);
-}
-.marca-txt b { color: var(--vio); }
+.marca-txt { font-family: var(--f-display); font-weight: 700; font-size: 26px; color: var(--txt); }
+.marca-txt b { color: var(--vio-claro); }
 .nav { display: flex; gap: var(--s5); margin-left: auto; align-items: center; }
 .nav a {
   text-decoration: none; font-size: var(--t-sm); font-weight: 500;
-  color: var(--ink-2); padding: 6px 0; position: relative;
+  color: var(--txt-2); position: relative; padding: 7px 0;
+  transition: color 320ms var(--ease);
 }
 .nav a::after {
-  content: ''; position: absolute; left: 0; right: 100%; bottom: 0;
-  height: 2px; background: var(--vio);
-  transition: right var(--dur) var(--ease);
+  content: ''; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px;
+  background: var(--vio-claro); box-shadow: 0 0 8px var(--brilho);
+  transition: right 460ms var(--ease);
 }
-.nav a:hover { color: var(--ink); }
+.nav a:hover { color: var(--txt); }
 .nav a:hover::after { right: 0; }
 
 /* ===== Primeira dobra ================================================ */
 .dobra { padding: var(--s9) 0 var(--s8); }
-.dobra-grid {
-  display: grid; grid-template-columns: 1.05fr 1fr;
-  gap: var(--s8); align-items: start;
+.dobra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: center; }
+
+.status-vivo {
+  display: inline-flex; align-items: center; gap: var(--s3);
+  padding: 6px 14px 6px 11px; border-radius: 99px;
+  background: rgba(45,212,160,.08); border: 1px solid rgba(45,212,160,.26);
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .1em; color: var(--sinal); margin-bottom: var(--s5);
 }
-.tese {
-  font-family: var(--f-display);
-  font-size: var(--t-5xl);
-  font-weight: 700;
-  line-height: .93;
-  letter-spacing: -.015em;
-  max-width: 13ch;
-}
-.tese em { font-style: normal; color: var(--vio); }
-.sub {
-  margin-top: var(--s5);
-  font-size: var(--t-lg);
-  color: var(--ink-2);
-  max-width: 46ch;
-  line-height: 1.55;
-}
+/* Pulso reservado a dado genuinamente ao vivo — aqui a operação em curso. */
+.pt-vivo { width: 7px; height: 7px; border-radius: 50%; background: var(--sinal); animation: bate 2.4s var(--ease) infinite; }
+@keyframes bate { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.72)} }
+
+/* Clamp em vez de degrau fixo: a frase inteira em display não pode engolir a
+   viewport e empurrar a ação primária para fora da dobra. */
+.tese { font-family: var(--f-display); font-size: clamp(2.9rem, 5.6vw, 6.2rem); font-weight: 700; line-height: .92; letter-spacing: -.02em; }
+.tese .l { display: block; overflow: hidden; }
+.tese .l > span { display: block; transform: translateY(105%); transition: transform 1s var(--ease); }
+.js .tese.pronta .l > span { transform: none; }
+.tese em { font-style: normal; color: var(--vio-claro); }
+
+.sub { margin-top: var(--s5); font-size: var(--t-lg); color: var(--txt-2); max-width: 44ch; line-height: 1.6; }
 .acoes { display: flex; gap: var(--s3); margin-top: var(--s6); flex-wrap: wrap; }
-.credencial {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: var(--s5) var(--s4); margin-top: var(--s7);
-  padding-top: var(--s5); border-top: 1px solid var(--linha);
-}
-.credencial .n {
-  font-family: var(--f-display); font-size: var(--t-2xl);
-  font-weight: 700; color: var(--vio); line-height: 1;
-}
-.credencial .l { margin-top: 5px; }
 
-/* ===== A ficha viva (o produto trabalhando) ========================== */
-.ficha-viva { background: var(--branco); border: 1px solid var(--linha); border-radius: var(--r-lg); overflow: hidden; }
-.fv-topo {
-  background: var(--vio-900); color: #fff;
-  padding: var(--s4) var(--s5);
-  display: flex; justify-content: space-between; align-items: center; gap: var(--s4);
+/* ===== Console ao vivo =============================================== */
+.console {
+  background: linear-gradient(180deg, var(--sup-2), var(--sup));
+  border: 1px solid var(--borda-viva); border-radius: var(--r-lg);
+  overflow: hidden; box-shadow: 0 30px 70px -24px rgba(0,0,0,.85);
 }
-.fv-topo .grav { color: #B69BE0; }
-.fv-os {
-  font-family: var(--f-mono); font-size: var(--t-lg); font-weight: 600;
-  font-variant-numeric: tabular-nums;
+.cs-barra {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: 11px var(--s4); border-bottom: 1px solid var(--borda);
+  background: rgba(0,0,0,.25);
 }
-.fv-corpo { padding: var(--s5); }
-.fv-eq {
-  display: flex; justify-content: space-between; gap: var(--s4);
-  padding-bottom: var(--s4); border-bottom: 1px solid var(--linha);
-}
-.fv-eq h3 { font-size: var(--t-lg); font-weight: 600; line-height: 1.2; }
-.fv-eq .serie { font-size: var(--t-sm); color: var(--ink-3); margin-top: 3px; }
+.cs-pontos { display: flex; gap: 5px; }
+.cs-pontos i { width: 8px; height: 8px; border-radius: 50%; background: var(--borda-viva); }
+.cs-tit { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); letter-spacing: .08em; }
 
-/* Linha do tempo — o movimento autoral: a etapa TRAVA, como carimbo. */
-.linha-tempo { margin-top: var(--s5); position: relative; }
-.linha-tempo::before {
-  content: ''; position: absolute; left: 8px; top: 10px; bottom: 22px;
-  width: 2px; background: var(--papel-2);
-}
+.cs-cab { padding: var(--s5) var(--s5) var(--s4); border-bottom: 1px solid var(--borda); }
+.cs-l1 { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s4); }
+.cs-os { font-family: var(--f-mono); font-size: var(--t-2xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+.cs-eq { font-size: var(--t-base); font-weight: 600; margin-top: 4px; }
+.cs-ns { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); margin-top: 2px; }
+
+/* Linha do tempo com pulso ao travar */
+.lt { padding: var(--s5); position: relative; }
+.lt::before { content: ''; position: absolute; left: 31px; top: 34px; bottom: 40px; width: 1px; background: var(--borda); }
 .lt-prog {
-  position: absolute; left: 8px; top: 10px; width: 2px;
-  background: var(--vio); height: 0;
+  position: absolute; left: 31px; top: 34px; width: 1px; height: 0;
+  background: linear-gradient(180deg, var(--vio-forte), var(--vio-claro));
+  box-shadow: 0 0 10px var(--brilho);
   transition: height 900ms var(--ease);
 }
-.etapa {
-  position: relative; display: flex; gap: var(--s4);
-  padding: 9px 0 9px 30px;
-  opacity: .32;
-  transition: opacity 420ms var(--ease);
+.et { position: relative; display: flex; gap: var(--s4); padding: 8px 0 8px 26px; opacity: .3; transition: opacity 480ms var(--ease); }
+.et .pt {
+  position: absolute; left: 0; top: 13px; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--sup); border: 1px solid var(--borda-viva);
+  transform: scale(.65);
+  transition: transform 520ms var(--ease-firme), background 520ms var(--ease), border-color 520ms var(--ease), box-shadow 520ms var(--ease);
 }
-.etapa .ponto {
-  position: absolute; left: 2px; top: 15px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--branco); border: 2px solid var(--papel-2);
-  transform: scale(.7);
-  transition: transform 420ms var(--ease-firme), background 420ms var(--ease), border-color 420ms var(--ease);
-}
-.etapa .txt { flex: 1; }
-.etapa .nome { font-size: var(--t-sm); font-weight: 600; line-height: 1.3; }
-.etapa .quem { font-size: var(--t-xs); color: var(--ink-3); margin-top: 1px; }
-.etapa .hora {
-  font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3);
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-}
-.etapa.feita { opacity: 1; }
-.etapa.feita .ponto { background: var(--vio); border-color: var(--vio); transform: scale(1); }
-.etapa.agora { opacity: 1; }
-.etapa.agora .ponto {
-  background: var(--branco); border-color: var(--vio); transform: scale(1.25);
-}
-.etapa.agora .nome { color: var(--vio); }
+.et .nome { font-size: var(--t-sm); font-weight: 600; line-height: 1.35; }
+.et .quem { font-size: var(--t-xs); color: var(--txt-3); margin-top: 1px; }
+.et .txt { flex: 1; min-width: 0; }
+.et .hora { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.et.feita { opacity: 1; }
+.et.feita .pt { background: var(--vio); border-color: var(--vio); transform: scale(1); box-shadow: 0 0 16px -1px var(--brilho); }
+.et.agora { opacity: 1; }
+.et.agora .pt { background: var(--sup); border-color: var(--vio-claro); border-width: 2px; transform: scale(1.3); box-shadow: 0 0 22px -2px var(--brilho); }
+.et.agora .nome { color: var(--vio-claro); }
 
-.fv-rodape {
-  border-top: 1px solid var(--linha); padding: var(--s4) var(--s5);
-  background: var(--vio-50);
-  display: flex; align-items: center; gap: var(--s3);
+/* Feed de operações */
+.feed { border-top: 1px solid var(--borda); background: rgba(0,0,0,.28); padding: var(--s4) var(--s5); }
+.feed-lista { height: 92px; overflow: hidden; margin-top: var(--s3); }
+.feed-l {
+  display: flex; gap: var(--s3); align-items: baseline;
+  font-family: var(--f-mono); font-size: var(--t-xs); line-height: 1.9;
+  color: var(--txt-2); white-space: nowrap;
+  animation: sobe 620ms var(--ease);
 }
-.fv-rodape p { font-size: var(--t-sm); color: var(--ink-2); }
+@keyframes sobe { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+.feed-l .h { color: var(--txt-3); flex-shrink: 0; }
+.feed-l .tag { color: var(--sinal); flex-shrink: 0; }
+.feed-l .tag.v { color: var(--vio-claro); }
+.feed-l .tag.a { color: var(--espera); }
+.feed-l .txt2 { overflow: hidden; text-overflow: ellipsis; }
+
+/* ===== Números ======================================================= */
+.numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--borda); border: 1px solid var(--borda); border-radius: var(--r-lg); overflow: hidden; }
+.num-c { background: var(--bg-1); padding: var(--s6) var(--s5); transition: background 420ms var(--ease); }
+.num-c:hover { background: var(--sup); }
+.num-v {
+  font-family: var(--f-display); font-size: var(--t-4xl); font-weight: 700;
+  line-height: 1; color: var(--vio-claro); font-variant-numeric: tabular-nums;
+}
+.num-c p { color: var(--txt-2); font-size: var(--t-sm); margin-top: var(--s3); line-height: 1.5; }
+.num-c .grav { display: block; margin-top: var(--s2); }
 
 /* ===== Seções ======================================================== */
-section { padding: var(--s10) 0; }
-.faixa-escura { background: var(--vio-900); color: #fff; }
-.faixa-escura .grav { color: #A88BD6; }
-.faixa-escura h2 { color: #fff; }
-.faixa-escura p { color: #CFC4E0; }
+section { padding: var(--s10) 0; position: relative; }
+.cab { max-width: 62ch; margin-bottom: var(--s8); }
+.cab h2 { font-family: var(--f-display); font-size: var(--t-4xl); font-weight: 700; line-height: 1; letter-spacing: -.015em; margin-top: var(--s4); }
+.cab p { margin-top: var(--s5); color: var(--txt-2); font-size: var(--t-lg); max-width: 54ch; }
 
-/* Mais espaço ACIMA do título do que abaixo. */
-.cab { max-width: 60ch; margin-bottom: var(--s7); }
-.cab h2 {
-  font-family: var(--f-display); font-size: var(--t-3xl);
-  font-weight: 700; line-height: 1.02; letter-spacing: -.01em;
-  margin-top: var(--s3);
+/* Esteira do cliente: nós ligados com luz percorrendo */
+.esteira-cli { position: relative; margin-top: var(--s7); }
+.trilho { position: absolute; left: 0; right: 0; top: 27px; height: 1px; background: var(--borda); }
+.trilho i {
+  position: absolute; left: 0; top: 0; height: 1px; width: 0;
+  background: linear-gradient(90deg, var(--vio-forte), var(--vio-claro));
+  box-shadow: 0 0 12px var(--brilho);
+  transition: width 2.2s var(--ease);
 }
-.cab p { margin-top: var(--s4); color: var(--ink-2); font-size: var(--t-lg); max-width: 52ch; }
+.nos { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s4); position: relative; }
+.no { text-align: left; }
+.no .bolha {
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--bg-1); border: 1px solid var(--borda);
+  display: grid; place-items: center;
+  font-family: var(--f-mono); font-size: var(--t-sm); font-weight: 600; color: var(--txt-3);
+  transition: all 620ms var(--ease-firme);
+}
+.no.on .bolha {
+  background: var(--vio-forte); border-color: var(--vio-claro); color: #fff;
+  box-shadow: 0 0 30px -4px var(--brilho); transform: scale(1.06);
+}
+.no h3 { font-size: var(--t-base); font-weight: 600; margin-top: var(--s4); line-height: 1.25; }
+.no p { font-size: var(--t-sm); color: var(--txt-2); margin-top: var(--s2); line-height: 1.55; }
+.no .marca-zap {
+  display: inline-flex; align-items: center; gap: 5px; margin-top: var(--s3);
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .07em;
+  color: var(--sinal); opacity: 0; transform: translateY(5px);
+  transition: opacity 520ms var(--ease), transform 520ms var(--ease);
+}
+.no.on .marca-zap { opacity: 1; transform: none; }
 
-.grade-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
+/* Cartões com luz que segue o cursor */
 .grade-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); }
+.carta {
+  position: relative; background: var(--sup); border: 1px solid var(--borda);
+  border-radius: var(--r-lg); padding: var(--s6) var(--s5);
+  overflow: hidden;
+  transition: border-color 520ms var(--ease), transform 520ms var(--ease);
+}
+.carta::before {
+  content: ''; position: absolute; inset: -1px;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), rgba(139,92,246,.22), transparent 62%);
+  opacity: 0; transition: opacity 460ms var(--ease); pointer-events: none;
+}
+.carta:hover { border-color: var(--borda-viva); transform: translateY(-4px); }
+.carta:hover::before { opacity: 1; }
+.carta h3 { font-family: var(--f-display); font-size: var(--t-xl); font-weight: 700; position: relative; }
+.carta > p { font-size: var(--t-sm); color: var(--txt-2); margin-top: var(--s3); position: relative; line-height: 1.6; }
+.carta ul {
+  margin: var(--s5) 0 0; padding: var(--s4) 0 0; list-style: none; position: relative;
+  border-top: 1px solid var(--borda);
+  font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); line-height: 2.1;
+}
 
-/* Especialidade: sem ladrilho de ícone. O número da linha carrega o ritmo
-   dentro de uma tabela técnica, não como andaime editorial solto. */
-.esp {
-  border-top: 2px solid var(--ink);
-  padding-top: var(--s4);
+/* WhatsApp */
+.zap-grid { display: grid; grid-template-columns: 1fr 420px; gap: var(--s8); align-items: center; }
+.zap { background: #0B1410; border: 1px solid #1E3327; border-radius: var(--r-lg); padding: var(--s5); }
+.zap-b {
+  background: #16241C; color: #DCE9E0; padding: var(--s3) var(--s4);
+  border-radius: 9px 9px 9px 3px; font-size: var(--t-sm); line-height: 1.6;
+  margin-bottom: var(--s3); white-space: pre-line;
 }
-.esp h3 { font-size: var(--t-xl); font-weight: 600; line-height: 1.15; }
-.esp p { margin-top: var(--s3); color: var(--ink-2); font-size: var(--t-sm); }
-.esp ul {
-  margin: var(--s4) 0 0; padding: 0; list-style: none;
-  font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3);
-  line-height: 1.9;
-}
-
-/* Etapas visíveis ao cliente */
-.passo {
-  display: grid; grid-template-columns: 46px 1fr; gap: var(--s4);
-  padding: var(--s5) 0; border-bottom: 1px solid rgba(255,255,255,.14);
-}
-.passo:last-child { border-bottom: 0; }
-.passo .num {
-  font-family: var(--f-mono); font-size: var(--t-sm); font-weight: 600;
-  color: var(--vio-400); padding-top: 4px;
-}
-.passo h3 { font-size: var(--t-lg); font-weight: 600; }
-.passo p { margin-top: 5px; font-size: var(--t-sm); max-width: 60ch; }
-
-/* Conversa de WhatsApp — a prova de que o aviso existe mesmo */
-.zap {
-  background: #0F1A14; border-radius: var(--r-lg);
-  padding: var(--s5); max-width: 400px;
-  border: 1px solid #24382C;
-}
-.zap-bolha {
-  background: #1F2C24; color: #E8EFE9;
-  padding: var(--s3) var(--s4); border-radius: 8px 8px 8px 2px;
-  font-size: var(--t-sm); line-height: 1.55; margin-bottom: var(--s3);
-  white-space: pre-line;
-}
-.zap-bolha .h {
-  display: block; font-family: var(--f-mono); font-size: var(--t-xs);
-  color: #6FBF8E; margin-bottom: 6px; letter-spacing: .06em;
-}
-.zap-anexo {
-  display: flex; align-items: center; gap: var(--s3);
-  margin-top: var(--s3); padding: var(--s3);
-  background: #172219; border-radius: 4px;
-}
-.zap-anexo .ic {
-  width: 30px; height: 36px; background: var(--selo); border-radius: 2px;
-  display: grid; place-items: center; color: #fff;
-  font-family: var(--f-mono); font-size: 9px; font-weight: 600;
-}
-.zap-hora {
-  font-family: var(--f-mono); font-size: 10px; color: #6E8377;
-  text-align: right; margin-top: 4px;
-}
+.zap-b .h { display: block; font-family: var(--f-mono); font-size: 10px; color: var(--sinal); margin-bottom: 7px; letter-spacing: .08em; }
+.zap-anexo { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s3); padding: var(--s3); background: #0E1B14; border-radius: 5px; }
+.zap-anexo .ic { width: 32px; height: 38px; background: var(--alerta); border-radius: 3px; display: grid; place-items: center; color: #2A0710; font-family: var(--f-mono); font-size: 9px; font-weight: 700; }
+.zap-hora { font-family: var(--f-mono); font-size: 10px; color: #5E7A68; text-align: right; margin-top: 5px; }
 
 /* Formulário */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
-.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo { display: flex; flex-direction: column; gap: 7px; }
 .campo.cheio { grid-column: 1 / -1; }
-.campo label { font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.campo label { font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600; letter-spacing: .11em; text-transform: uppercase; color: var(--txt-3); }
 .campo input, .campo select, .campo textarea {
   font-family: var(--f-texto); font-size: var(--t-base);
-  padding: 12px 14px; border: 1px solid var(--linha);
-  border-radius: var(--r); background: var(--branco); color: var(--ink);
-  transition: border-color 240ms var(--ease);
+  padding: 13px 15px; border: 1px solid var(--borda);
+  border-radius: var(--r); background: var(--bg-1); color: var(--txt);
+  transition: border-color 340ms var(--ease), box-shadow 340ms var(--ease), background 340ms var(--ease);
 }
-.campo input:focus, .campo select:focus, .campo textarea:focus { border-color: var(--vio); }
-.campo textarea { resize: vertical; min-height: 96px; }
+.campo input::placeholder, .campo textarea::placeholder { color: var(--txt-3); }
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+  border-color: var(--vio); background: var(--sup); box-shadow: 0 0 0 3px rgba(139,92,246,.14);
+}
+.campo textarea { resize: vertical; min-height: 108px; }
 
 /* Rodapé */
-.rodape { background: var(--ink); color: #C9C2D2; padding: var(--s8) 0 var(--s6); }
-.rodape a { color: #C9C2D2; text-decoration: none; }
-.rodape a:hover { color: #fff; text-decoration: underline; }
+.rodape { border-top: 1px solid var(--borda); padding: var(--s8) 0 var(--s6); background: var(--bg-1); position: relative; z-index: 1; }
 .rod-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--s7); }
-.rodape h4 { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .12em; text-transform: uppercase; color: #8B7FA0; margin-bottom: var(--s4); }
-.rodape ul { list-style: none; padding: 0; margin: 0; font-size: var(--t-sm); line-height: 2.1; }
-.rod-fim {
-  margin-top: var(--s7); padding-top: var(--s5);
-  border-top: 1px solid #2B2237;
-  display: flex; justify-content: space-between; gap: var(--s4);
-  font-size: var(--t-xs); color: #8B7FA0; flex-wrap: wrap;
-}
+.rodape h4 { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .13em; text-transform: uppercase; color: var(--txt-3); margin-bottom: var(--s4); }
+.rodape ul { list-style: none; padding: 0; margin: 0; font-size: var(--t-sm); line-height: 2.2; color: var(--txt-2); }
+.rodape a { color: var(--txt-2); text-decoration: none; transition: color 300ms var(--ease); }
+.rodape a:hover { color: var(--vio-claro); }
+.rod-fim { margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid var(--borda); display: flex; justify-content: space-between; gap: var(--s4); font-size: var(--t-xs); color: var(--txt-3); flex-wrap: wrap; }
 
 .aviso-demo {
-  background: var(--aguarda); color: #fff;
-  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
-  letter-spacing: .06em; text-align: center; padding: 7px var(--s4);
+  position: relative; z-index: 2;
+  background: rgba(251,191,36,.1); border-bottom: 1px solid rgba(251,191,36,.24);
+  color: var(--espera); font-family: var(--f-mono); font-size: var(--t-xs);
+  font-weight: 600; letter-spacing: .07em; text-align: center; padding: 8px var(--s4);
 }
 
-@media (max-width: 900px) {
-  .dobra-grid, .grade-3, .grade-4, .form-grid, .rod-grid { grid-template-columns: 1fr; }
-  .tese { font-size: var(--t-4xl); max-width: 100%; }
+@media (max-width: 1000px) {
+  .dobra-grid, .zap-grid, .form-grid, .rod-grid { grid-template-columns: 1fr; }
+  .grade-4, .numeros { grid-template-columns: repeat(2, 1fr); }
+  .nos { grid-template-columns: repeat(3, 1fr); gap: var(--s5); }
+  .trilho { display: none; }
+  .tese { font-size: var(--t-4xl); }
+  .cab h2 { font-size: var(--t-3xl); }
   .nav { display: none; }
   .dobra { padding: var(--s7) 0 var(--s6); }
   section { padding: var(--s8) 0; }
-  .credencial { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .grade-4, .numeros, .nos { grid-template-columns: 1fr; }
+  .tese { font-size: var(--t-3xl); }
 }
 </style>
 
-<div class="aviso-demo">Demonstração de interface · conteúdo ilustrativo, exceto endereço e telefone reais da DTECH MED</div>
+<div class="progresso" id="prog"></div>
+
+<div class="aurora" aria-hidden="true">
+  <span class="blob a"></span>
+  <span class="blob b"></span>
+  <span class="blob c"></span>
+</div>
+
+<div class="conteudo">
+<div class="aviso-demo">DEMONSTRAÇÃO DE INTERFACE · CONTEÚDO ILUSTRATIVO, EXCETO RAZÃO SOCIAL, ENDEREÇO E TELEFONE</div>
 
 <header class="topo">
   <div class="container topo-in">
-    <a href="#" class="marca" aria-label="DTECH MED, página inicial">
-      <span class="marca-d">D</span>
-      <span class="marca-txt">TECH<b>MED</b></span>
-    </a>
+    <a href="#" class="marca"><span class="marca-d">D</span><span class="marca-txt">TECH<b>MED</b></span></a>
     <nav class="nav">
+      <a href="#esteira">Como funciona</a>
       <a href="#especialidades">Especialidades</a>
-      <a href="#processo">Como funciona</a>
-      <a href="#acompanhar">Acompanhamento</a>
+      <a href="#avisos">Acompanhamento</a>
       <a href="#solicitar">Solicitar retirada</a>
     </nav>
   </div>
 </header>
 
 <main>
-  <!-- ================= PRIMEIRA DOBRA ================= -->
+  <!-- ===================== PRIMEIRA DOBRA ===================== -->
   <section class="dobra">
     <div class="container dobra-grid">
       <div>
-        <h1 class="tese">Seu equipamento tem <em>prontuário</em>.</h1>
+        <div class="status-vivo"><span class="pt-vivo"></span> 18 EQUIPAMENTOS EM OPERAÇÃO AGORA</div>
+        <h1 class="tese" id="tese">
+          <span class="l"><span>Seu</span></span>
+          <span class="l"><span>equipamento</span></span>
+          <span class="l"><span>tem <em>prontuário</em>.</span></span>
+        </h1>
         <p class="sub">
           Assistência técnica multimarcas em equipamentos estéticos, médicos,
-          odontológicos e hospitalares. A gente busca no seu endereço, documenta
-          cada etapa e devolve funcionando — com laudo, garantia e assinatura.
+          odontológicos e hospitalares. A gente busca, documenta cada etapa e
+          devolve funcionando — com laudo, garantia e assinatura.
         </p>
         <div class="acoes">
           <a href="#solicitar" class="btn">Solicitar retirada</a>
-          <a href="#processo" class="btn linha">Ver como funciona</a>
-        </div>
-        <div class="credencial">
-          <div>
-            <div class="n">90%</div>
-            <div class="grav l">Retirada própria</div>
-          </div>
-          <div>
-            <div class="n">6+</div>
-            <div class="grav l">Fotos na entrada</div>
-          </div>
-          <div>
-            <div class="n">90</div>
-            <div class="grav l">Dias de garantia</div>
-          </div>
-          <div>
-            <div class="n">24h</div>
-            <div class="grav l">Retorno do contato</div>
-          </div>
+          <a href="#esteira" class="btn linha">Ver a esteira</a>
         </div>
       </div>
 
-      <!-- A ficha viva: o produto fazendo o trabalho, não um mockup decorativo -->
-      <div class="ficha-viva" id="fichaViva">
-        <div class="fv-topo">
-          <div>
-            <div class="grav">Ordem de serviço</div>
-            <div class="fv-os">#DT-2419</div>
-          </div>
-          <span class="selo-etapa andando" id="seloAtual">Em manutenção</span>
+      <!-- Console: o produto trabalhando, não um mockup decorativo -->
+      <div class="console" id="console">
+        <div class="cs-barra">
+          <span class="cs-pontos"><i></i><i></i><i></i></span>
+          <span class="cs-tit">PAINEL DE ACOMPANHAMENTO · TEMPO REAL</span>
         </div>
-        <div class="fv-corpo">
-          <div class="fv-eq">
+
+        <div class="cs-cab">
+          <div class="cs-l1">
             <div>
-              <h3>Laser Lavieen · Duo</h3>
-              <div class="serie">NS 8842-LV-2021 · 220V</div>
+              <div class="grav fria">Ordem de serviço</div>
+              <div class="cs-os">#DT-2419</div>
+              <div class="cs-eq">Laser Lavieen · Duo</div>
+              <div class="cs-ns">NS 8842-LV-2021 · 220V · Clínica Bella Pelle</div>
             </div>
-            <div style="text-align:right">
-              <div class="grav">Cliente</div>
-              <div style="font-size:var(--t-sm);font-weight:600;margin-top:3px">Clínica Bella Pelle</div>
-            </div>
-          </div>
-
-          <div class="linha-tempo" id="linhaTempo">
-            <div class="lt-prog" id="ltProg"></div>
-
-            <div class="etapa" data-etapa>
-              <span class="ponto"></span>
-              <div class="txt">
-                <div class="nome">Retirada assinada pelo cliente</div>
-                <div class="quem">Motorista · Adriano M.</div>
-              </div>
-              <div class="hora">08 AGO 14:22</div>
-            </div>
-            <div class="etapa" data-etapa>
-              <span class="ponto"></span>
-              <div class="txt">
-                <div class="nome">Recebido na oficina · 8 fotos</div>
-                <div class="quem">Técnico · Rafael S.</div>
-              </div>
-              <div class="hora">08 AGO 17:05</div>
-            </div>
-            <div class="etapa" data-etapa>
-              <span class="ponto"></span>
-              <div class="txt">
-                <div class="nome">Laudo e orçamento enviados</div>
-                <div class="quem">Gestora · Camila R.</div>
-              </div>
-              <div class="hora">09 AGO 10:40</div>
-            </div>
-            <div class="etapa" data-etapa>
-              <span class="ponto"></span>
-              <div class="txt">
-                <div class="nome">Orçamento aprovado e assinado</div>
-                <div class="quem">Cliente · pelo portal</div>
-              </div>
-              <div class="hora">09 AGO 16:18</div>
-            </div>
-            <div class="etapa" data-etapa>
-              <span class="ponto"></span>
-              <div class="txt">
-                <div class="nome">Em manutenção · troca da fonte</div>
-                <div class="quem">Técnico · Rafael S.</div>
-              </div>
-              <div class="hora">12 AGO 09:12</div>
-            </div>
+            <span class="selo-etapa andando">Em manutenção</span>
           </div>
         </div>
-        <div class="fv-rodape">
-          <p><strong>Você acompanha por aqui.</strong> Cada etapa dispara um aviso no seu WhatsApp, com o documento em PDF.</p>
+
+        <div class="lt" id="lt">
+          <div class="lt-prog" id="ltProg"></div>
+          <div class="et" data-et>
+            <span class="pt"></span>
+            <div class="txt"><div class="nome">Retirada assinada pelo cliente</div><div class="quem">Motorista · Adriano M.</div></div>
+            <div class="hora">08/08 14:22</div>
+          </div>
+          <div class="et" data-et>
+            <span class="pt"></span>
+            <div class="txt"><div class="nome">Recebido na oficina · 8 fotos</div><div class="quem">Técnico · Rafael S.</div></div>
+            <div class="hora">08/08 17:05</div>
+          </div>
+          <div class="et" data-et>
+            <span class="pt"></span>
+            <div class="txt"><div class="nome">Laudo e orçamento enviados</div><div class="quem">Gestora · Camila R.</div></div>
+            <div class="hora">09/08 10:40</div>
+          </div>
+          <div class="et" data-et>
+            <span class="pt"></span>
+            <div class="txt"><div class="nome">Orçamento aprovado e assinado</div><div class="quem">Cliente · portal, CNPJ conferido</div></div>
+            <div class="hora">09/08 16:18</div>
+          </div>
+          <div class="et" data-et>
+            <span class="pt"></span>
+            <div class="txt"><div class="nome">Em manutenção · troca da fonte</div><div class="quem">Técnico · Rafael S.</div></div>
+            <div class="hora">12/08 09:12</div>
+          </div>
+        </div>
+
+        <div class="feed">
+          <span class="grav fria">Registro de operação</span>
+          <div class="feed-lista" id="feed"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ================= ESPECIALIDADES ================= -->
+  <!-- ===================== NÚMEROS ===================== -->
+  <section style="padding-top:0">
+    <div class="container">
+      <div class="numeros entra" id="numeros">
+        <div class="num-c">
+          <div class="num-v" data-alvo="90" data-suf="%">0%</div>
+          <span class="grav">Retirada própria</span>
+          <p>Nós buscamos no seu endereço. Correio só quando fica melhor para você.</p>
+        </div>
+        <div class="num-c">
+          <div class="num-v" data-alvo="6" data-pre="+">0</div>
+          <span class="grav">Fotos na entrada</span>
+          <p>Estado em que o aparelho chegou, registrado antes de qualquer intervenção.</p>
+        </div>
+        <div class="num-c">
+          <div class="num-v" data-alvo="90">0</div>
+          <span class="grav">Dias de garantia</span>
+          <p>Sobre o serviço executado e as peças aplicadas, em contrato assinado.</p>
+        </div>
+        <div class="num-c">
+          <div class="num-v" data-alvo="24" data-suf="h">0h</div>
+          <span class="grav">Para retornar</span>
+          <p>Prazo de resposta ao seu contato, com a data da retirada já definida.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ESTEIRA ===================== -->
+  <section id="esteira">
+    <div class="container">
+      <div class="cab entra">
+        <span class="grav">A esteira</span>
+        <h2>Seis momentos em que você recebe notícia.</h2>
+        <p>Nenhum deles depende de você ligar para perguntar. A mensagem sai sozinha quando a etapa muda.</p>
+      </div>
+
+      <div class="esteira-cli entra" id="esteiraCli">
+        <div class="trilho"><i id="trilhoLuz"></i></div>
+        <div class="nos">
+          <div class="no" data-no>
+            <div class="bolha">01</div>
+            <h3>Agendamento</h3>
+            <p>Você chama pelo site ou WhatsApp e recebe a data com janela de horário.</p>
+            <span class="marca-zap">✓ AVISO ENVIADO</span>
+          </div>
+          <div class="no" data-no>
+            <div class="bolha">02</div>
+            <h3>Retirada</h3>
+            <p>O motorista apresenta a ordem na tela e coleta sua assinatura no local.</p>
+            <span class="marca-zap">✓ AVISO + PDF</span>
+          </div>
+          <div class="no" data-no>
+            <div class="bolha">03</div>
+            <h3>Entrada</h3>
+            <p>Técnico registra no mínimo seis fotos do estado em que o aparelho chegou.</p>
+            <span class="marca-zap">✓ AVISO ENVIADO</span>
+          </div>
+          <div class="no" data-no>
+            <div class="bolha">04</div>
+            <h3>Orçamento</h3>
+            <p>Item a item, com prazo e garantia. Você aprova por link e assina na tela.</p>
+            <span class="marca-zap">✓ AVISO + PDF</span>
+          </div>
+          <div class="no" data-no>
+            <div class="bolha">05</div>
+            <h3>Execução</h3>
+            <p>Só começa depois da sua aprovação. Testes finais ficam anexados à ordem.</p>
+            <span class="marca-zap">✓ AVISO ENVIADO</span>
+          </div>
+          <div class="no" data-no>
+            <div class="bolha">06</div>
+            <h3>Devolução</h3>
+            <p>Levamos de volta e coletamos sua assinatura na entrega, com localização.</p>
+            <span class="marca-zap">✓ AVISO + PDF</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ESPECIALIDADES ===================== -->
   <section id="especialidades">
     <div class="container">
       <div class="cab entra">
         <span class="grav">O que atendemos</span>
         <h2>Multimarcas, de verdade.</h2>
-        <p>
-          Atendemos o aparelho que chegar. Se a peça não existe mais no mercado,
-          a gente procura equivalente e informa antes de qualquer cobrança.
-        </p>
+        <p>Atendemos o aparelho que chegar. Se a peça saiu de linha, procuramos equivalente e avisamos antes de qualquer cobrança.</p>
       </div>
-      <div class="grade-4">
-        <div class="esp entra">
+      <div class="grade-4" id="cartas">
+        <article class="carta entra">
           <h3>Estética</h3>
-          <p>Laser, luz intensa pulsada, criolipólise, radiofrequência, ultrassom micro e macrofocado.</p>
-          <ul><li>Fonte e placa</li><li>Ponteira e aplicador</li><li>Refrigeração</li><li>Calibração de potência</li></ul>
-        </div>
-        <div class="esp entra">
+          <p>Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.</p>
+          <ul><li>Fonte e placa</li><li>Ponteira e aplicador</li><li>Sistema de refrigeração</li><li>Calibração de potência</li></ul>
+        </article>
+        <article class="carta entra">
           <h3>Médico</h3>
-          <p>Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico, bomba de infusão.</p>
+          <p>Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.</p>
           <ul><li>Sensor e cabo</li><li>Bateria interna</li><li>Placa de aquisição</li><li>Teste funcional</li></ul>
-        </div>
-        <div class="esp entra">
+        </article>
+        <article class="carta entra">
           <h3>Odontológico</h3>
-          <p>Cadeira, refletor, autoclave, compressor, fotopolimerizador, ultrassom.</p>
+          <p>Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.</p>
           <ul><li>Sistema hidráulico</li><li>Pneumática</li><li>Resistência</li><li>Vedação e câmara</li></ul>
-        </div>
-        <div class="esp entra">
+        </article>
+        <article class="carta entra">
           <h3>Hospitalar</h3>
-          <p>Autoclave de grande porte, mesa cirúrgica, aspirador, seladora, estufa.</p>
+          <p>Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.</p>
           <ul><li>Comando elétrico</li><li>Atuador e motor</li><li>Sensor de pressão</li><li>Rotina preventiva</li></ul>
-        </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- ================= PROCESSO ================= -->
-  <section id="processo" class="faixa-escura">
-    <div class="container">
-      <div class="cab entra">
-        <span class="grav">Como funciona</span>
-        <h2>Da sua sala à oficina e de volta — sem você ficar no escuro.</h2>
-        <p>São seis momentos em que você recebe notícia nossa. Nenhum deles depende de você ligar para perguntar.</p>
-      </div>
-      <div class="grade-3" style="gap:var(--s8)">
-        <div style="grid-column: span 2">
-          <div class="passo entra">
-            <span class="num">01</span>
-            <div>
-              <h3>Você chama, a gente agenda</h3>
-              <p>Pelo formulário desta página ou pelo WhatsApp. Retornamos com data e janela de horário para a retirada.</p>
-            </div>
-          </div>
-          <div class="passo entra">
-            <span class="num">02</span>
-            <div>
-              <h3>Nosso motorista busca no seu endereço</h3>
-              <p>Ele apresenta a ordem de retirada na tela e coleta sua assinatura. Na hora, você recebe o PDF no WhatsApp com data, horário, endereço e o nome de quem levou.</p>
-            </div>
-          </div>
-          <div class="passo entra">
-            <span class="num">03</span>
-            <div>
-              <h3>Entrada documentada com fotografia</h3>
-              <p>O técnico registra no mínimo seis fotos do estado em que o aparelho chegou. É a sua garantia e a nossa.</p>
-            </div>
-          </div>
-          <div class="passo entra">
-            <span class="num">04</span>
-            <div>
-              <h3>Laudo e orçamento, item a item</h3>
-              <p>Peça por peça, serviço por serviço, com prazo e garantia. Você aprova por um link, confirmando seu CNPJ, e assina na própria tela.</p>
-            </div>
-          </div>
-          <div class="passo entra">
-            <span class="num">05</span>
-            <div>
-              <h3>Manutenção e testes finais</h3>
-              <p>Só começa depois da sua aprovação. Ao terminar, o técnico registra os testes e o resultado fica anexado ao prontuário.</p>
-            </div>
-          </div>
-          <div class="passo entra">
-            <span class="num">06</span>
-            <div>
-              <h3>Devolução com assinatura</h3>
-              <p>Levamos de volta e coletamos sua assinatura na entrega. O comprovante e a nota chegam no seu WhatsApp.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="entra">
-          <span class="grav" style="color:#A88BD6">O que chega para você</span>
-          <div class="zap" style="margin-top:var(--s4)">
-            <div class="zap-bolha">
-              <span class="h">DTECH MED · 08 AGO 14:23</span>
-              Olá, Clínica Bella Pelle! ✅
-
-              Seu <b>Laser Lavieen Duo</b> foi retirado agora e já está a caminho da nossa oficina.
-
-              🚚 Motorista: Adriano M.
-              📍 Av. Benjamin Constant, 1180
-              🕒 08/08 às 14h22
-
-              A ordem de retirada assinada está no anexo. Você recebe um aviso a cada etapa.
-              <div class="zap-anexo">
-                <span class="ic">PDF</span>
-                <div>
-                  <div style="font-size:var(--t-sm);font-weight:600;color:#E8EFE9">Ordem de retirada DT-2419</div>
-                  <div style="font-family:var(--f-mono);font-size:10px;color:#6E8377">1 página · assinada</div>
-                </div>
-              </div>
-              <div class="zap-hora">14:23 ✓✓</div>
-            </div>
-            <div class="zap-bolha">
-              <span class="h">DTECH MED · 09 AGO 10:40</span>
-              Seu orçamento está pronto 📋
-
-              Total: <b>R$ 1.840,00</b>
-              Prazo: 5 dias úteis · Garantia: 90 dias
-
-              Toque para revisar e aprovar:
-              dtechmed.com.br/os/DT-2419
-              <div class="zap-hora">10:40 ✓✓</div>
-            </div>
-          </div>
-          <p style="font-size:var(--t-xs);color:#A88BD6;margin-top:var(--s3);font-family:var(--f-mono)">
-            Exemplo ilustrativo do texto automático.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= ACOMPANHAMENTO ================= -->
-  <section id="acompanhar">
-    <div class="container">
-      <div class="cab entra">
+  <!-- ===================== AVISOS ===================== -->
+  <section id="avisos">
+    <div class="container zap-grid">
+      <div class="entra">
         <span class="grav">Acompanhamento</span>
-        <h2>Quem mexeu, quando mexeu, e o que foi feito.</h2>
-        <p>
-          Toda ação registrada carrega o nome de quem executou e o horário. No fim,
-          o relatório mostra a trajetória inteira do aparelho dentro da empresa.
+        <h2 style="font-family:var(--f-display);font-size:var(--t-4xl);line-height:1;margin-top:var(--s4)">
+          Quem mexeu, quando, e o que foi feito.
+        </h2>
+        <p style="color:var(--txt-2);font-size:var(--t-lg);margin-top:var(--s5);max-width:50ch">
+          Toda ação registrada carrega o nome de quem executou e o horário exato.
+          O mesmo aparelho voltando daqui a dois anos abre a ficha com tudo que já
+          foi feito nele.
         </p>
+        <div style="margin-top:var(--s6);display:grid;gap:var(--s4);max-width:52ch">
+          <div style="display:flex;gap:var(--s4);align-items:flex-start">
+            <span class="serie" style="color:var(--vio-claro);font-size:var(--t-sm);padding-top:2px">01</span>
+            <p style="font-size:var(--t-sm);color:var(--txt-2)"><b style="color:var(--txt)">Histórico por número de série.</b> Peça trocada em outro atendimento não vira discussão.</p>
+          </div>
+          <div style="display:flex;gap:var(--s4);align-items:flex-start">
+            <span class="serie" style="color:var(--vio-claro);font-size:var(--t-sm);padding-top:2px">02</span>
+            <p style="font-size:var(--t-sm);color:var(--txt-2)"><b style="color:var(--txt)">Fotografia de entrada e saída.</b> Amassado que já existia fica documentado com data e autor.</p>
+          </div>
+          <div style="display:flex;gap:var(--s4);align-items:flex-start">
+            <span class="serie" style="color:var(--vio-claro);font-size:var(--t-sm);padding-top:2px">03</span>
+            <p style="font-size:var(--t-sm);color:var(--txt-2)"><b style="color:var(--txt)">Nada executado sem aprovação.</b> Serviço novo no meio do caminho volta para você aprovar.</p>
+          </div>
+        </div>
       </div>
-      <div class="grade-3">
-        <div class="esp entra">
-          <h3>Histórico por número de série</h3>
-          <p>O mesmo aparelho voltando em outro ano abre a ficha com tudo que já foi feito nele. Peça trocada não vira discussão.</p>
+
+      <div class="entra">
+        <div class="zap">
+          <div class="zap-b">
+            <span class="h">DTECH MED · 08/08 14:23</span>
+            Olá, Clínica Bella Pelle! ✅
+
+            Seu <b>Laser Lavieen Duo</b> foi retirado agora e já está a caminho da nossa oficina.
+
+            🚚 Motorista: Adriano M.
+            📍 Av. Benjamin Constant, 1180
+            🕒 08/08 às 14h22
+
+            A ordem de retirada assinada está no anexo.
+            <div class="zap-anexo">
+              <span class="ic">PDF</span>
+              <div>
+                <div style="font-size:var(--t-sm);font-weight:600;color:#DCE9E0">Ordem de retirada DT-2419</div>
+                <div style="font-family:var(--f-mono);font-size:10px;color:#5E7A68">1 página · assinada</div>
+              </div>
+            </div>
+            <div class="zap-hora">14:23 ✓✓</div>
+          </div>
+          <div class="zap-b">
+            <span class="h">DTECH MED · 09/08 10:40</span>
+            Seu orçamento está pronto 📋
+
+            Total: <b>R$ 1.840,00</b>
+            Prazo: 5 dias úteis · Garantia: 90 dias
+
+            Toque para revisar e aprovar:
+            dtechmed.com.br/os/DT-2419
+            <div class="zap-hora">10:40 ✓✓</div>
+          </div>
         </div>
-        <div class="esp entra">
-          <h3>Fotografia de entrada e saída</h3>
-          <p>Registro do estado em que chegou e de como saiu, com data e autor. Amassado que já existia fica documentado.</p>
-        </div>
-        <div class="esp entra">
-          <h3>Orçamento sem surpresa</h3>
-          <p>Nada é executado antes da sua aprovação assinada. Se aparecer serviço novo no meio, volta para aprovação.</p>
-        </div>
+        <p class="serie" style="font-size:var(--t-xs);color:var(--txt-3);margin-top:var(--s3)">Exemplo do texto automático.</p>
       </div>
     </div>
   </section>
 
-  <!-- ================= SOLICITAR ================= -->
-  <section id="solicitar" style="background:var(--branco);border-top:1px solid var(--linha)">
-    <div class="container" style="max-width:900px">
+  <!-- ===================== SOLICITAR ===================== -->
+  <section id="solicitar">
+    <div class="container" style="max-width:940px">
       <div class="cab entra" style="margin-bottom:var(--s6)">
         <span class="grav">Solicitar retirada</span>
-        <h2>Conte o que está acontecendo com o aparelho.</h2>
+        <h2>Conte o que está acontecendo.</h2>
         <p>Retornamos em até 24 horas úteis com a data da retirada.</p>
       </div>
       <form class="form-grid entra" onsubmit="return false">
-        <div class="campo">
-          <label for="f-nome">Seu nome</label>
-          <input id="f-nome" type="text" placeholder="Quem podemos procurar">
+        <div class="campo"><label for="f1">Seu nome</label><input id="f1" type="text" placeholder="Quem podemos procurar"></div>
+        <div class="campo"><label for="f2">Clínica ou consultório</label><input id="f2" type="text" placeholder="Razão social ou nome fantasia"></div>
+        <div class="campo"><label for="f3">WhatsApp</label><input id="f3" type="tel" placeholder="(51) 90000-0000"></div>
+        <div class="campo"><label for="f4">Cidade</label><input id="f4" type="text" placeholder="Cidade e estado"></div>
+        <div class="campo"><label for="f5">Equipamento</label><input id="f5" type="text" placeholder="Marca e modelo, se souber"></div>
+        <div class="campo"><label for="f6">Categoria</label>
+          <select id="f6"><option>Estético</option><option>Médico</option><option>Odontológico</option><option>Hospitalar</option><option>Não sei dizer</option></select>
         </div>
-        <div class="campo">
-          <label for="f-clinica">Clínica ou consultório</label>
-          <input id="f-clinica" type="text" placeholder="Razão social ou nome fantasia">
-        </div>
-        <div class="campo">
-          <label for="f-zap">WhatsApp</label>
-          <input id="f-zap" type="tel" placeholder="(51) 90000-0000">
-        </div>
-        <div class="campo">
-          <label for="f-cidade">Cidade</label>
-          <input id="f-cidade" type="text" placeholder="Cidade e estado">
-        </div>
-        <div class="campo">
-          <label for="f-eq">Equipamento</label>
-          <input id="f-eq" type="text" placeholder="Marca e modelo, se souber">
-        </div>
-        <div class="campo">
-          <label for="f-tipo">Categoria</label>
-          <select id="f-tipo">
-            <option>Estético</option>
-            <option>Médico</option>
-            <option>Odontológico</option>
-            <option>Hospitalar</option>
-            <option>Não sei dizer</option>
-          </select>
-        </div>
-        <div class="campo cheio">
-          <label for="f-def">O que está acontecendo</label>
-          <textarea id="f-def" placeholder="Descreva com suas palavras: o que ele faz, o que parou de fazer, se apresenta alguma mensagem na tela."></textarea>
+        <div class="campo cheio"><label for="f7">O que está acontecendo</label>
+          <textarea id="f7" placeholder="Descreva com suas palavras: o que ele fazia, o que parou de fazer, se aparece alguma mensagem na tela."></textarea>
         </div>
         <div class="campo cheio" style="flex-direction:row;align-items:center;gap:var(--s4);flex-wrap:wrap">
-          <button type="submit" class="btn acao">Enviar solicitação</button>
-          <span style="font-size:var(--t-sm);color:var(--ink-3)">
-            Ou chame direto: <a href="#" style="color:var(--vio);font-weight:600">(51) 98044-9274</a>
-          </span>
+          <button type="submit" class="btn">Enviar solicitação</button>
+          <span style="font-size:var(--t-sm);color:var(--txt-2)">Ou chame direto: <a href="#" style="color:var(--vio-claro);font-weight:600;text-decoration:none">(51) 98044-9274</a></span>
         </div>
       </form>
     </div>
@@ -834,30 +811,19 @@ section { padding: var(--s10) 0; }
   <div class="container">
     <div class="rod-grid">
       <div>
-        <a href="#" class="marca" style="margin-bottom:var(--s4)">
-          <span class="marca-d">D</span>
-          <span class="marca-txt" style="color:#fff">TECH<b style="color:#B69BE0">MED</b></span>
-        </a>
-        <p style="font-size:var(--t-sm);max-width:38ch;line-height:1.7">
+        <a href="#" class="marca" style="margin-bottom:var(--s4)"><span class="marca-d">D</span><span class="marca-txt">TECH<b>MED</b></span></a>
+        <p style="font-size:var(--t-sm);max-width:40ch;line-height:1.75;color:var(--txt-2)">
           DTECHMED Assistência Especializada LTDA. Manutenção corretiva e preventiva
           de equipamentos estéticos, médicos, odontológicos e hospitalares.
         </p>
       </div>
       <div>
         <h4>Contato</h4>
-        <ul>
-          <li><a href="#">(51) 98044-9274</a></li>
-          <li><a href="#">contato@dtechmed.com.br</a></li>
-          <li>Seg a Sex · 8h às 18h</li>
-        </ul>
+        <ul><li><a href="#">(51) 98044-9274</a></li><li><a href="#">contato@dtechmed.com.br</a></li><li>Seg a Sex · 8h às 18h</li></ul>
       </div>
       <div>
         <h4>Endereço</h4>
-        <ul>
-          <li>Av. Alberto Pasqualini, 2073</li>
-          <li>São Cristóvão</li>
-          <li>Lajeado · RS</li>
-        </ul>
+        <ul><li>Av. Alberto Pasqualini, 2073</li><li>São Cristóvão</li><li>Lajeado · RS</li></ul>
       </div>
     </div>
     <div class="rod-fim">
@@ -866,51 +832,130 @@ section { padding: var(--s10) 0; }
     </div>
   </div>
 </footer>
+</div>
 
 <script>
 document.documentElement.classList.add('js');
+const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* Entrada de seções: o JS melhora a entrada; o conteúdo já existe sem ele. */
-const io = new IntersectionObserver((entradas) => {
-  entradas.forEach((e, i) => {
+/* ---- 1. Barra de progresso de leitura ---- */
+const prog = document.getElementById('prog');
+addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - innerHeight;
+  prog.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
+}, { passive: true });
+
+/* ---- 2. Revelação de seções ---- */
+const io = new IntersectionObserver((es) => {
+  es.forEach((e, i) => {
     if (!e.isIntersecting) return;
-    setTimeout(() => e.target.classList.add('vis'), i * 70);
+    setTimeout(() => e.target.classList.add('vis'), i * 80);
     io.unobserve(e.target);
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+}, { threshold: .12, rootMargin: '0px 0px -6% 0px' });
 document.querySelectorAll('.entra').forEach(el => io.observe(el));
 
-/* O MOVIMENTO AUTORAL: a etapa travando na linha do tempo.
-   É o que o objeto faz na vida real — o carimbo assenta e não volta.
-   Roda uma vez, quando a ficha entra em cena. */
-const etapas = [...document.querySelectorAll('[data-etapa]')];
-const prog = document.getElementById('ltProg');
-let travou = false;
+/* ---- 3. Título por linha ---- */
+requestAnimationFrame(() => document.getElementById('tese').classList.add('pronta'));
 
-function travarEtapas() {
+/* ---- 4. MOVIMENTO AUTORAL: a etapa travando na linha do tempo ----
+   É o que o objeto faz na vida real: o carimbo assenta e não volta. */
+const ets = [...document.querySelectorAll('[data-et]')];
+const ltProg = document.getElementById('ltProg');
+let travou = false;
+function travar() {
   if (travou) return;
   travou = true;
-  const reduz = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (reduz) {
-    etapas.forEach((el, i) => el.classList.add(i === etapas.length - 1 ? 'agora' : 'feita'));
-    prog.style.height = 'calc(100% - 12px)';
+  if (!suave) {
+    ets.forEach((el, i) => el.classList.add(i === ets.length - 1 ? 'agora' : 'feita'));
+    ltProg.style.height = 'calc(100% - 74px)';
     return;
   }
+  ets.forEach((el, i) => setTimeout(() => {
+    el.classList.add(i === ets.length - 1 ? 'agora' : 'feita');
+    ltProg.style.height = (el.offsetTop - 34 + 20) + 'px';
+  }, 500 + i * 360));
+}
+const ioC = new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting) { travar(); ioC.disconnect(); } });
+}, { threshold: .28 });
+ioC.observe(document.getElementById('console'));
 
-  etapas.forEach((el, i) => {
-    setTimeout(() => {
-      const ultima = i === etapas.length - 1;
-      el.classList.add(ultima ? 'agora' : 'feita');
-      const alvo = el.offsetTop + 16;
-      prog.style.height = alvo + 'px';
-    }, 380 + i * 340);
+/* ---- 5. Feed de operação ---- */
+const linhas = [
+  ['09:14', 'ESTOQUE', 'v', 'Fonte 24V reservada · saldo 4 → 3'],
+  ['09:12', 'ORDEM',   'v', '#DT-2419 entrou em manutenção'],
+  ['08:47', 'ENTREGA', '',  '#DT-2402 assinada por J. Corrêa'],
+  ['08:31', 'ROTA',    'a', 'Adriano saiu para 4 paradas'],
+  ['08:20', 'ORÇAMENTO','', '#DT-2415 aprovado · R$ 920,00'],
+  ['08:05', 'WHATSAPP','',  'Aviso de coleta enviado · 2 destinos'],
+  ['07:58', 'ENTRADA', 'v', '#DT-2431 recebido · 8 fotos'],
+];
+const feed = document.getElementById('feed');
+let idx = 0;
+function addLinha() {
+  const [h, tag, cor, txt] = linhas[idx % linhas.length];
+  const el = document.createElement('div');
+  el.className = 'feed-l';
+  el.innerHTML = '<span class="h">' + h + '</span>' +
+                 '<span class="tag ' + cor + '">' + tag + '</span>' +
+                 '<span class="txt2">' + txt + '</span>';
+  feed.prepend(el);
+  while (feed.children.length > 4) feed.lastElementChild.remove();
+  idx++;
+}
+// Semeia de trás para frente: como cada linha é inserida no topo, preencher
+// na ordem direta deixaria a mais antiga em cima.
+idx = 3;
+for (let i = 0; i < 4; i++) { addLinha(); idx -= 2; }
+idx = 4;
+if (suave) setInterval(addLinha, 3400);
+
+/* ---- 6. Contadores ---- */
+const ioN = new IntersectionObserver((es) => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('[data-alvo]').forEach(el => {
+      const alvo = +el.dataset.alvo, pre = el.dataset.pre || '', suf = el.dataset.suf || '';
+      if (!suave) { el.textContent = pre + alvo + suf; return; }
+      const t0 = performance.now(), dur = 1500;
+      (function passo(t) {
+        const p = Math.min((t - t0) / dur, 1);
+        el.textContent = pre + Math.round(alvo * (1 - Math.pow(1 - p, 4))) + suf;
+        if (p < 1) requestAnimationFrame(passo);
+      })(t0);
+    });
+    ioN.unobserve(e.target);
+  });
+}, { threshold: .4 });
+ioN.observe(document.getElementById('numeros'));
+
+/* ---- 7. Esteira: a luz percorre o trilho e acende os nós ---- */
+const nos = [...document.querySelectorAll('[data-no]')];
+const luz = document.getElementById('trilhoLuz');
+const ioE = new IntersectionObserver((es) => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    if (suave) {
+      luz.style.width = '100%';
+      nos.forEach((n, i) => setTimeout(() => n.classList.add('on'), 220 + i * 300));
+    } else {
+      luz.style.width = '100%';
+      nos.forEach(n => n.classList.add('on'));
+    }
+    ioE.unobserve(e.target);
+  });
+}, { threshold: .3 });
+ioE.observe(document.getElementById('esteiraCli'));
+
+/* ---- 8. Luz que segue o cursor nos cartões ---- */
+if (suave && matchMedia('(hover: hover)').matches) {
+  document.getElementById('cartas').addEventListener('mousemove', (e) => {
+    const c = e.target.closest('.carta');
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    c.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
   });
 }
-
-const ioFicha = new IntersectionObserver((es) => {
-  es.forEach(e => { if (e.isIntersecting) { travarEtapas(); ioFicha.disconnect(); } });
-}, { threshold: 0.3 });
-const ficha = document.getElementById('fichaViva');
-if (ficha) ioFicha.observe(ficha);
 </script>
