@@ -20,7 +20,9 @@
     "db:rls": "tsx scripts/apply-rls.ts",
     "worker": "tsx worker/index.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:integracao": "vitest run --config vitest.integracao.config.ts",
+    "test:tudo": "vitest run && vitest run --config vitest.integracao.config.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
