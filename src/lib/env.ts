@@ -53,6 +53,18 @@ const schema = z.object({
   SESSION_TTL_HOURS: z.coerce.number().int().min(1).max(720).default(12),
   /** Só ative atrás de proxy reverso confiável: senão o IP vira campo forjável. */
   TRUST_PROXY: z.coerce.boolean().default(false),
+
+  /**
+   * Qual empresa recebe os contatos deste site.
+   *
+   * Existe porque o sistema é multiempresa e o site é de uma delas. Amarrar o
+   * destino a uma variável de ambiente — e não a um campo do formulário —
+   * impede que alguém troque o destinatário no corpo do request e despeje
+   * contatos na caixa de entrada da franquia vizinha.
+   */
+  SITE_TENANT_SLUG: z.string().min(1).default('dtechmed-lajeado'),
+  LEAD_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().default(10 * 60_000),
+  LEAD_RATE_LIMIT_MAX: z.coerce.number().int().default(5),
 })
 
 function carregar() {

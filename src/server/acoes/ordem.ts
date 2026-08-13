@@ -57,6 +57,8 @@ const schemaNovaOrdem = z.object({
   acessorios: z.string().trim().optional(),
   defeito: z.string().trim().min(10, 'Descreva o que está acontecendo com o aparelho.'),
   prioridade: z.enum(['NORMAL', 'ALTA']).default('NORMAL'),
+  /** Quando a ordem nasce de um contato do site, fecha o ciclo daquele lead. */
+  leadId: z.string().nullish(),
 })
 
 /**
@@ -130,6 +132,17 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
       },
       select: { id: true },
     })
+
+    // O lead fecha o ciclo site → sistema na MESMA transação. Marcá-lo depois
+    // deixaria uma janela em que a ordem existe e o contato continua na fila,
+    // esperando alguém que já atendeu.
+    if (v.leadId) {
+      await tx.lead.updateMany({
+        where: { id: v.leadId, status: 'novo' },
+        data: { status: 'convertido', ordemGeradaId: ordem.id },
+      })
+    }
+
     return ordem.id
   })
 
@@ -142,7 +155,12 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
   })
   if (!r.ok) return { ok: false, motivo: r.motivo }
 
-  await auditar(a.ctx, a.sessao, { acao: 'ordem.aberta', entidade: 'ordem', entidadeId: ordemId })
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.aberta',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    detalhes: v.leadId ? { origem: 'site', leadId: v.leadId } : undefined,
+  })
   revalidatePath('/painel')
   return { ok: true, dados: { id: ordemId } }
 }

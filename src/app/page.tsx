@@ -1,5 +1,8 @@
 import Link from 'next/link'
+import { FormularioRetirada } from './formulario-retirada'
 import estilo from './site.module.css'
+
+const WHATSAPP = '5551980449274'
 
 /**
  * Home institucional.
@@ -171,9 +174,10 @@ export default function Home() {
             <p className={estilo.lead}>
               A gente responde em até 24 horas úteis, já com a data da retirada.
             </p>
+            <FormularioRetirada whatsapp={WHATSAPP} />
             <p className={estilo.contatoDireto}>
-              Enquanto o formulário do site não está no ar, chame direto:{' '}
-              <a href="https://wa.me/5551980449274" className={estilo.linkZap}>
+              Prefere falar agora?{' '}
+              <a href={`https://wa.me/${WHATSAPP}`} className={estilo.linkZap}>
                 (51) 98044-9274
               </a>
             </p>
@@ -200,7 +204,7 @@ export default function Home() {
             <h4>Contato</h4>
             <ul>
               <li>
-                <a href="https://wa.me/5551980449274">(51) 98044-9274</a>
+                <a href={`https://wa.me/${WHATSAPP}`}>(51) 98044-9274</a>
               </li>
               <li>Seg a Sex · 8h às 18h</li>
             </ul>

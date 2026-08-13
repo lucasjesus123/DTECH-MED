@@ -158,3 +158,112 @@
 @media (max-width: 620px) {
   .grade4 { grid-template-columns: 1fr; }
 }
+
+/* ===== Formulário de solicitação ======================================== */
+.formSite {
+  display: grid;
+  gap: var(--s4);
+  margin-top: var(--s6);
+  text-align: left;
+}
+.formGrade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--s4);
+}
+.formCampo {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.formCampo > span {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.formCampo input,
+.formCampo textarea {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  color: var(--txt);
+  font-family: var(--f-texto);
+  font-size: var(--t-base);
+  line-height: 1.5;
+  transition: border-color 240ms var(--ease);
+}
+.formCampo textarea {
+  resize: vertical;
+  min-height: 108px;
+}
+.formCampo input:focus,
+.formCampo textarea:focus {
+  outline: none;
+  border-color: var(--vio);
+  box-shadow: 0 0 0 3px var(--brilho);
+}
+.formCampo input::placeholder,
+.formCampo textarea::placeholder {
+  color: var(--txt-3);
+}
+
+.formSite .btn {
+  justify-self: start;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--f-texto);
+}
+.formSite .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.formErro {
+  padding: 12px 16px;
+  border-radius: var(--r);
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.32);
+  color: var(--alerta);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+}
+.formNota {
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.5;
+}
+
+/* Fora da tela em vez de display:none — parte dos robôs já pula campo com
+   display:none, e a armadilha só serve enquanto eles caem nela. */
+.armadilha {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.recebido {
+  margin-top: var(--s6);
+  padding: var(--s6);
+  border-radius: var(--r-lg);
+  background: rgba(45, 212, 160, 0.08);
+  border: 1px solid rgba(45, 212, 160, 0.3);
+  text-align: left;
+  color: var(--txt-2);
+  font-size: var(--t-base);
+  line-height: 1.65;
+}
+.recebidoTitulo {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sinal);
+  margin-bottom: var(--s2);
+}

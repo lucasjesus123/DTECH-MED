@@ -16,9 +16,23 @@ const inicial: Resposta = { ok: false, motivo: '' }
  * cedo demais perde a informação que só quem usa o equipamento tem — "faz um
  * barulho quando esquenta" vale mais que "falha intermitente".
  */
-export default function Formulario() {
+type Lead = {
+  id: string
+  nome: string
+  contato: string
+  telefone: string
+  cidade: string
+  equipamento: string
+  mensagem: string
+}
+
+export default function Formulario({ lead }: { lead: Lead | null }) {
   const [estado, acao, pendente] = useActionState(abrirOrdem, inicial)
   const router = useRouter()
+
+  // A marca costuma vir como "Ibramed Neurodyn": a primeira palavra é a marca,
+  // o resto é o modelo. Chute útil, e a pessoa corrige em um clique se errar.
+  const [marca = '', ...resto] = (lead?.equipamento ?? '').split(' ')
 
   useEffect(() => {
     if (estado.ok && estado.dados?.id) router.push(`/painel/ordens/${estado.dados.id}`)
@@ -27,12 +41,20 @@ export default function Formulario() {
   return (
     <form action={acao} className={`${estilo.bloco} ${estilo.form}`} style={{ maxWidth: 900 }}>
       {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
+      {lead ? <input type="hidden" name="leadId" value={lead.id} /> : null}
 
       <p className={estilo.blocoTitulo}>Quem é o cliente</p>
       <div className={estilo.grade}>
         <label className={estilo.rotulo}>
           Nome ou razão social *
-          <input className={estilo.campo} name="clienteNome" required minLength={3} autoComplete="off" />
+          <input
+            className={estilo.campo}
+            name="clienteNome"
+            required
+            minLength={3}
+            autoComplete="off"
+            defaultValue={lead?.nome ?? ''}
+          />
         </label>
         <label className={estilo.rotulo}>
           CPF ou CNPJ *
@@ -44,12 +66,24 @@ export default function Formulario() {
         </label>
         <label className={estilo.rotulo}>
           WhatsApp *
-          <input className={estilo.campo} name="clienteWhatsapp" required inputMode="tel" placeholder="51 99999-9999" />
+          <input
+            className={estilo.campo}
+            name="clienteWhatsapp"
+            required
+            inputMode="tel"
+            placeholder="51 99999-9999"
+            defaultValue={lead?.telefone ?? ''}
+          />
           <span className={estilo.dica}>Todos os avisos da esteira saem por aqui.</span>
         </label>
         <label className={estilo.rotulo}>
           Quem é o contato
-          <input className={estilo.campo} name="contatoNome" placeholder="Nome de quem atende na clínica" />
+          <input
+            className={estilo.campo}
+            name="contatoNome"
+            placeholder="Nome de quem atende na clínica"
+            defaultValue={lead?.contato ?? ''}
+          />
         </label>
       </div>
 
@@ -63,7 +97,7 @@ export default function Formulario() {
         </label>
         <label className={estilo.rotulo}>
           Cidade
-          <input className={estilo.campo} name="cidade" />
+          <input className={estilo.campo} name="cidade" defaultValue={lead?.cidade ?? ''} />
         </label>
       </div>
 
@@ -73,11 +107,11 @@ export default function Formulario() {
       <div className={estilo.grade}>
         <label className={estilo.rotulo}>
           Marca *
-          <input className={estilo.campo} name="marca" required minLength={2} />
+          <input className={estilo.campo} name="marca" required minLength={2} defaultValue={marca} />
         </label>
         <label className={estilo.rotulo}>
           Modelo *
-          <input className={estilo.campo} name="modelo" required />
+          <input className={estilo.campo} name="modelo" required defaultValue={resto.join(' ')} />
         </label>
         <label className={estilo.rotulo}>
           Número de série
@@ -100,6 +134,7 @@ export default function Formulario() {
           minLength={10}
           rows={4}
           placeholder="Do jeito que o cliente contou. Ex.: liga, mas desliga sozinho depois de uns dez minutos."
+          defaultValue={lead?.mensagem ?? ''}
         />
       </label>
 

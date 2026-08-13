@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { formatarBRL } from '@/lib/dinheiro'
 import { exigirSessao } from '@/server/auth/guarda'
 import { esteira, filaDoDegrau, resumoDoDia } from '@/server/consultas/painel'
+import { leadsNovos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from './painel.module.css'
 
@@ -19,10 +20,11 @@ export default async function PainelDoDia({
   const { ctx, sessao } = await exigirSessao()
   const { degrau = 'manut' } = await searchParams
 
-  const [degraus, resumo, fila] = await Promise.all([
+  const [degraus, resumo, fila, leads] = await Promise.all([
     esteira(ctx),
     resumoDoDia(ctx),
     filaDoDegrau(ctx, degrau),
+    leadsNovos(ctx),
   ])
 
   const selecionado = degraus.find((d) => d.chave === degrau) ?? degraus[0]!
@@ -69,6 +71,58 @@ export default async function PainelDoDia({
           alerta={resumo.avisosFalhados > 0}
         />
       </div>
+
+      {/* Chegou pelo site e ainda não virou ordem. Fica ANTES da esteira: é
+          gente esperando resposta, e esperar é o que faz perder o serviço. */}
+      {leads.length > 0 ? (
+        <div className={estilo.bloco}>
+          <p className={estilo.blocoTitulo}>
+            <span>Chamaram pelo site</span>
+            <span className={estilo.fraco}>
+              {leads.length} {leads.length === 1 ? 'aguardando' : 'aguardando'}
+            </span>
+          </p>
+          <div className={estilo.rolaX}>
+            <table className={estilo.tabela}>
+              <thead>
+                <tr>
+                  <th>Quando</th>
+                  <th>Quem</th>
+                  <th>Equipamento</th>
+                  <th>O que contaram</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((l) => (
+                  <tr key={l.id}>
+                    <td className={estilo.num}>{haQuanto(l.criadoEm)}</td>
+                    <td>
+                      <span className={estilo.forte}>{l.nome}</span>
+                      <div className={estilo.fraco}>
+                        {l.empresa ? `${l.empresa} · ` : ''}
+                        {l.cidade ?? ''}
+                      </div>
+                      <a href={`https://wa.me/55${l.telefone}`} className={estilo.fraco}>
+                        {l.telefone}
+                      </a>
+                    </td>
+                    <td>{l.equipamento ?? <span className={estilo.fraco}>não informou</span>}</td>
+                    <td className={estilo.texto} style={{ maxWidth: 420 }}>
+                      {l.mensagem}
+                    </td>
+                    <td className={estilo.dir}>
+                      <Link href={`/painel/ordens/nova?lead=${l.id}`} className={estilo.btnSec}>
+                        Abrir ordem
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
 
       {/* A ESTEIRA. Cada degrau diz quantos estão parados e há quanto tempo —
           é o número que faz alguém agir, e é o que o ERP antigo escondia. */}
@@ -171,3 +225,13 @@ function saudacao(): string {
 }
 
 const primeiroNome = (n: string) => n.split(' ')[0] ?? n
+
+/** "há 2h", "há 3d" — o que importa num contato é quanto tempo ele espera. */
+function haQuanto(d: Date): string {
+  const min = Math.floor((Date.now() - d.getTime()) / 60_000)
+  if (min < 1) return 'agora'
+  if (min < 60) return `há ${min}min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `há ${h}h`
+  return `há ${Math.floor(h / 24)}d`
+}
