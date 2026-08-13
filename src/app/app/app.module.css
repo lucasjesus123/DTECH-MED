@@ -1,0 +1,184 @@
+/* Apps de campo.
+   O contexto manda: pessoa na rua ou na bancada, uma mão só, sol na tela,
+   4G ruim. Coluna única, alvo de toque grande, uma decisão por tela. */
+
+.aparelho {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  margin-inline: auto;
+  /* Respeita o notch e a barra de gestos do iPhone. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cabecalho {
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--borda);
+  padding: calc(var(--s4) + env(safe-area-inset-top)) var(--s5) var(--s4);
+  position: sticky; top: 0; z-index: 10;
+}
+.cabecalho h1 {
+  font-family: var(--f-display); font-size: var(--t-xl); font-weight: 700;
+  letter-spacing: -.03em; margin-top: 3px; line-height: 1.15;
+}
+.cabLinha {
+  display: flex; justify-content: space-between; gap: var(--s3);
+  margin-top: var(--s3); padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm); color: var(--txt-2);
+}
+.voltar {
+  display: inline-block; margin-bottom: var(--s3);
+  font-size: var(--t-sm); color: var(--vio-claro); text-decoration: none;
+  /* Alvo de 44px mesmo com o texto pequeno: dedo não tem mira de mouse. */
+  padding: 10px 0; min-height: 44px; line-height: 24px;
+}
+.grav {
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--vio-claro);
+  display: block;
+}
+.mono { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); }
+
+.corpo { flex: 1; padding: var(--s5); display: grid; gap: var(--s4); align-content: start; }
+
+/* ---- Parada do motorista ---- */
+.parada, .paradaAgora, .paradaFeita {
+  background: var(--sup); border: 1px solid var(--borda);
+  border-radius: var(--r-lg); overflow: hidden;
+}
+.paradaAgora { border-color: var(--vio); border-width: 2px; }
+.paradaFeita { opacity: .55; }
+.paTopo, .paTopoDestaque {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--s3) var(--s4); font-weight: 600;
+}
+.paTopo { border-bottom: 1px solid var(--borda); color: var(--txt-3); }
+.paTopoDestaque { background: var(--vio-forte); color: #fff; }
+.paTopoDestaque .mono { color: #fff; }
+.paCorpo { padding: var(--s4); }
+.paCorpo h2 { font-size: var(--t-lg); font-weight: 600; line-height: 1.2; }
+.paEq { font-size: var(--t-sm); color: var(--txt-2); margin-top: 3px; }
+.paEnd {
+  margin-top: var(--s4); padding-top: var(--s4);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm); line-height: 1.55;
+}
+.paRef { display: block; color: var(--txt-3); font-size: var(--t-xs); margin-top: 5px; }
+.paAcoes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s4); }
+.miniBtn {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 46px; padding: 12px;
+  border: 1px solid var(--borda-viva); border-radius: var(--r);
+  background: var(--bg-1); color: var(--txt);
+  font-size: var(--t-sm); font-weight: 600; text-decoration: none;
+}
+.miniBtn:active { background: var(--sup-2); }
+.btnGrande, .btnConfirmar, .btnFoto {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 54px; padding: 16px;
+  border: 0; border-radius: var(--r);
+  background: var(--vio-forte); color: #fff;
+  font-family: var(--f-texto); font-size: var(--t-base); font-weight: 600;
+  cursor: pointer; text-decoration: none; margin-top: var(--s4);
+  transition: background 300ms var(--ease);
+}
+.btnConfirmar { background: var(--sinal); color: #04231A; margin-top: var(--s5); }
+.btnConfirmar:disabled, .btnGrande:disabled, .btnFoto:disabled {
+  background: var(--borda); color: var(--txt-3); cursor: not-allowed;
+}
+.btnFoto { margin-top: 0; min-height: 46px; background: var(--sup-2); border: 1px solid var(--borda-viva); }
+.feito { margin-top: var(--s4); font-family: var(--f-mono); font-size: var(--t-xs); color: var(--sinal); letter-spacing: .08em; text-transform: uppercase; }
+.feitoGrande {
+  padding: var(--s5); border-radius: var(--r-lg);
+  background: rgba(45,212,160,.09); border: 1px solid rgba(45,212,160,.3);
+  color: var(--sinal); font-size: var(--t-sm); line-height: 1.6; text-align: center;
+}
+
+/* ---- Formulário de campo ---- */
+.form { display: grid; gap: var(--s5); }
+.campo { display: grid; gap: 7px; }
+.campo label {
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .11em; text-transform: uppercase; color: var(--txt-3);
+}
+.campo input {
+  width: 100%; padding: 15px;
+  border: 1px solid var(--borda); border-radius: var(--r);
+  background: var(--bg-1); color: var(--txt);
+  font-family: var(--f-texto);
+  /* 16px é o piso: abaixo disso o Safari do iPhone dá zoom ao focar. */
+  font-size: 1rem;
+}
+.campo input:focus { outline: none; border-color: var(--vio); box-shadow: 0 0 0 3px rgba(139,92,246,.16); }
+.geo, .enderecoNota, .ajudaCampo {
+  font-size: var(--t-xs); color: var(--txt-3); line-height: 1.55;
+}
+.enderecoNota { font-family: var(--f-mono); }
+.avisoRede {
+  padding: var(--s3) var(--s4);
+  background: rgba(251,191,36,.1); border-left: 3px solid var(--espera);
+  border-radius: 0 var(--r) var(--r) 0;
+  color: var(--espera); font-size: var(--t-sm); line-height: 1.5;
+}
+.erro {
+  padding: 12px var(--s4); border-radius: var(--r);
+  background: rgba(251,113,133,.1); border: 1px solid rgba(251,113,133,.3);
+  color: var(--alerta); font-size: var(--t-sm); line-height: 1.55;
+}
+
+/* ---- Bancada do técnico ---- */
+.cartaoBancada {
+  display: block; padding: var(--s4);
+  background: var(--sup); border: 1px solid var(--borda);
+  border-radius: var(--r-lg); text-decoration: none;
+}
+.cartaoBancada:active { border-color: var(--vio); }
+.cbTopo { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); }
+.cartaoBancada h2 { font-size: var(--t-base); font-weight: 600; margin-top: var(--s3); line-height: 1.25; }
+.cbCliente { font-size: var(--t-sm); color: var(--txt-2); margin-top: 2px; }
+.cbDefeito {
+  font-size: var(--t-sm); color: var(--txt-3); margin-top: var(--s3);
+  padding-top: var(--s3); border-top: 1px solid var(--borda); line-height: 1.5;
+}
+.seloEspera, .seloAndando {
+  padding: 4px 9px; border-radius: 3px;
+  font-family: var(--f-mono); font-size: 9.5px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+}
+.seloEspera { background: rgba(251,191,36,.12); color: var(--espera); border: 1px solid rgba(251,191,36,.3); }
+.seloAndando { background: rgba(139,92,246,.14); color: var(--vio-claro); border: 1px solid rgba(139,92,246,.34); }
+
+.blocoRelato, .blocoFotos {
+  padding: var(--s4); background: var(--sup);
+  border: 1px solid var(--borda); border-radius: var(--r-lg);
+}
+.blocoRelato p { font-size: var(--t-sm); color: var(--txt-2); margin-top: var(--s2); line-height: 1.6; }
+.notaFotos { font-size: var(--t-xs); color: var(--txt-3); margin-top: 5px; line-height: 1.5; }
+
+.gradeFotos { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s2); margin-top: var(--s4); }
+.slotCheio, .slotVazio {
+  aspect-ratio: 1; border-radius: var(--r); position: relative; overflow: hidden;
+}
+.slotCheio { background: var(--bg-1); border: 1px solid var(--borda); }
+.imgFoto { object-fit: cover; }
+.slotVazio {
+  border: 1px dashed var(--borda-viva); background: var(--bg-1);
+  color: var(--txt-3); font-size: 26px; cursor: pointer;
+  display: grid; place-items: center;
+}
+.slotVazio:active { border-color: var(--vio); }
+
+.contadorFotos {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s3); margin-top: var(--s4);
+}
+.contaFalta { font-family: var(--f-mono); font-size: var(--t-sm); font-weight: 700; color: var(--alerta); }
+.contaOk { font-family: var(--f-mono); font-size: var(--t-sm); font-weight: 700; color: var(--sinal); }
+
+.vazio {
+  padding: var(--s7) var(--s5); text-align: center;
+  border: 1px dashed var(--borda-viva); border-radius: var(--r-lg);
+  color: var(--txt-2); font-size: var(--t-sm); line-height: 1.6;
+}

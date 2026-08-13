@@ -409,6 +409,35 @@ describe('a linha do tempo prova quem mexeu no quê', () => {
     eventos.forEach((e, i) => expect(e.sequencia).toBe(i + 1))
   })
 
+  it('a cadeia sobrevive a payload com várias chaves', async () => {
+    // Este caso escapou da primeira versão da suíte e só apareceu rodando o
+    // sistema de verdade. O Postgres guarda `jsonb` NORMALIZADO: reordena as
+    // chaves por tamanho e depois por byte. Gravamos
+    // {orcamentoId, totalCentavos, observacao} e ele devolve
+    // {observacao, orcamentoId, totalCentavos} — mesmo conteúdo, outra string,
+    // outro hash. Sem canonicalizar, TODO evento com mais de uma chave era
+    // marcado como adulterado, e um alarme que soa sem motivo ensina a
+    // ignorar o alarme.
+    // Usa a ordem da empresa B, que continua no começo da jornada — a da A
+    // já foi finalizada pelos testes anteriores e, corretamente, não aceita
+    // mais transição.
+    const r = await avancarOrdem(B.ctx, ator(B, 'atendente'), {
+      ordemId: B.ordemId,
+      para: E.ORDEM_RETIRADA_GERADA,
+      observacao: 'teste de payload composto',
+      payload: {
+        zebra: 'ultimo alfabeticamente',
+        a: 1,
+        meioDoCaminho: { y: 2, x: 1 },
+        lista: ['b', 'a'],
+      },
+    })
+    expect(r.ok, r.ok ? '' : r.motivo).toBe(true)
+
+    const v = await verificarIntegridade(B.ctx, B.ordemId)
+    expect(v.integra, `quebrou na sequência ${v.quebrouNaSequencia}`).toBe(true)
+  })
+
   it('a cadeia de hash está íntegra', async () => {
     const r = await verificarIntegridade(A.ctx, A.ordemId)
     expect(r.integra).toBe(true)
@@ -469,8 +498,25 @@ describe('a automação nasce junto com a etapa', () => {
   })
 
   it('nenhum job vazou para a outra empresa', async () => {
+    // Verificar "a B tem zero jobs" seria frágil: qualquer teste novo que
+    // mexesse na B derrubaria a asserção sem que houvesse vazamento algum.
+    // O que importa é mais forte e mais estável — tudo que a B enxerga é dela,
+    // e nada aponta para uma ordem da A.
     const daB = await comEscopo(B.ctx, (tx) => tx.outboxJob.findMany())
-    expect(daB).toHaveLength(0)
+    for (const j of daB) {
+      expect(j.tenantId).toBe(B.tenantId)
+      expect((j.payload as { ordemId?: string }).ordemId).not.toBe(A.ordemId)
+    }
+
+    const daA = await comEscopo(A.ctx, (tx) => tx.outboxJob.findMany())
+    for (const j of daA) {
+      expect(j.tenantId).toBe(A.tenantId)
+      expect((j.payload as { ordemId?: string }).ordemId).not.toBe(B.ordemId)
+    }
+
+    // E as duas listas não têm um único job em comum.
+    const idsA = new Set(daA.map((j) => j.id))
+    expect(daB.some((j) => idsA.has(j.id))).toBe(false)
   })
 })
 

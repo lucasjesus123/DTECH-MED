@@ -150,10 +150,35 @@ export function hashEvento(entrada: {
     entrada.tipo,
     entrada.autorId ?? '',
     entrada.criadoEm.toISOString(),
-    entrada.payload === undefined ? null : entrada.payload,
+    canonicalizar(entrada.payload === undefined ? null : entrada.payload),
     entrada.hashAnterior ?? '',
   ])
   return createHash('sha256').update(canonico).digest('hex')
+}
+
+/**
+ * Ordena as chaves de um objeto, em profundidade, antes de serializar.
+ *
+ * Sem isto a verificação acusava adulteração onde não houve. O motivo é que o
+ * Postgres guarda `jsonb` NORMALIZADO: ele reordena as chaves por tamanho e
+ * depois por byte. Gravamos `{orcamentoId, totalCentavos, observacao}` e ele
+ * devolve `{observacao, orcamentoId, totalCentavos}` — mesmo conteúdo, outra
+ * string, outro hash.
+ *
+ * O efeito prático era grave: todo evento com mais de uma chave no payload
+ * ficaria marcado como adulterado. Um detector que grita sem motivo é pior que
+ * detector nenhum, porque ensina todo mundo a ignorar o alarme.
+ *
+ * Ordenar aqui torna o hash independente da ordem das chaves, que é
+ * exatamente o que se quer quando a camada de armazenamento normaliza.
+ */
+function canonicalizar(valor: unknown): unknown {
+  if (valor === null || typeof valor !== 'object') return valor
+  if (Array.isArray(valor)) return valor.map(canonicalizar)
+  const entradas = Object.entries(valor as Record<string, unknown>)
+    .filter(([, v]) => v !== undefined) // `undefined` some no JSON; ignore antes
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  return Object.fromEntries(entradas.map(([k, v]) => [k, canonicalizar(v)]))
 }
 
 /** SHA-256 de arquivo — prova que a foto ou o PDF não foi trocado depois. */

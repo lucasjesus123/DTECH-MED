@@ -1,0 +1,168 @@
+/* Portal do cliente. Ele abre isto no celular, no meio do dia, direto do
+   WhatsApp — então é uma coluna só, alvo grande e nada de barra lateral. */
+
+.palco { min-height: 100dvh; padding-bottom: var(--s8); }
+
+.topo {
+  display: flex; align-items: center; gap: 9px;
+  padding: var(--s4) var(--s5);
+  border-bottom: 1px solid var(--borda);
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(8,4,15,.94);
+  backdrop-filter: blur(14px);
+}
+.marcaD {
+  display: grid; place-items: center; width: 27px; height: 27px;
+  background: var(--vio-forte); color: #fff; border-radius: 3px;
+  font-family: var(--f-display); font-weight: 700; font-size: 19px;
+}
+.marcaTxt { font-family: var(--f-display); font-weight: 700; font-size: 19px; letter-spacing: -.02em; }
+
+.miolo { max-width: 640px; margin-inline: auto; padding: var(--s6) var(--s5) 0; }
+
+.grav {
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--txt-3);
+}
+.gravClara {
+  display: block;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--vio-claro);
+}
+.titulo {
+  font-family: var(--f-display); font-size: var(--t-2xl); font-weight: 700;
+  letter-spacing: -.03em; margin-top: var(--s2); line-height: 1.15;
+}
+.sub { color: var(--txt-2); font-size: var(--t-sm); margin-top: var(--s2); }
+
+.etapaAtual {
+  display: flex; align-items: center; gap: var(--s4);
+  margin-top: var(--s5); padding: var(--s4) var(--s5);
+  background: var(--sup); border: 1px solid var(--borda-viva); border-radius: var(--r-lg);
+}
+.etapaAtual strong { display: block; font-size: var(--t-lg); font-weight: 600; margin-top: 3px; }
+/* Pulso reservado ao que está de fato em andamento agora. */
+.pulso {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--sinal);
+  flex-shrink: 0; animation: bate 2.4s var(--ease) infinite;
+}
+@keyframes bate { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.7)} }
+
+/* ---- Orçamento ---- */
+.caixaOrcamento {
+  margin-top: var(--s6); padding: var(--s5);
+  background: linear-gradient(180deg, var(--sup-2), var(--sup));
+  border: 1px solid var(--vio-forte); border-radius: var(--r-lg);
+}
+.total {
+  font-family: var(--f-display); font-size: var(--t-3xl); font-weight: 700;
+  letter-spacing: -.03em; margin-top: var(--s2); font-variant-numeric: tabular-nums;
+}
+.condicoes { font-size: var(--t-sm); color: var(--txt-2); margin-top: 3px; }
+
+.tabela { width: 100%; border-collapse: collapse; margin-top: var(--s5); }
+.tabela th {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--txt-3);
+  text-align: left; padding: 0 var(--s2) var(--s2); border-bottom: 1px solid var(--borda);
+}
+.tabela td { padding: 10px var(--s2); border-bottom: 1px solid var(--borda); font-size: var(--t-sm); }
+.tabela tr:last-child td { border-bottom: 0; }
+.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.laudo { margin-top: var(--s5); padding: var(--s4); background: var(--bg-1); border-radius: var(--r); }
+.laudo p { font-size: var(--t-sm); color: var(--txt-2); line-height: 1.6; margin-top: var(--s2); }
+
+.escolha { display: grid; gap: var(--s3); margin-top: var(--s6); }
+.form { display: grid; gap: var(--s5); margin-top: var(--s6); }
+
+.campo { display: grid; gap: 7px; }
+.campo label {
+  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .11em; text-transform: uppercase; color: var(--txt-3);
+}
+.campo input, .campo textarea {
+  width: 100%; padding: 14px 15px;
+  border: 1px solid var(--borda); border-radius: var(--r);
+  background: var(--bg-1); color: var(--txt);
+  font-family: var(--f-texto);
+  /* 16px é o piso: abaixo disso o Safari do iPhone dá zoom ao focar. */
+  font-size: 1rem;
+}
+.campo input:focus, .campo textarea:focus {
+  outline: none; border-color: var(--vio); box-shadow: 0 0 0 3px rgba(139,92,246,.16);
+}
+.ajuda { font-size: var(--t-xs); color: var(--txt-3); line-height: 1.5; }
+
+.termo {
+  font-size: var(--t-sm); color: var(--txt-2); line-height: 1.65;
+  padding: var(--s4); background: var(--bg-1); border-radius: var(--r);
+  border-left: 2px solid var(--vio-forte);
+}
+
+.botoes { display: grid; gap: var(--s3); }
+.btnAprovar, .btnRecusar, .btnVoltar {
+  width: 100%; padding: 16px; border: 1px solid transparent; border-radius: var(--r);
+  font-family: var(--f-texto); font-size: var(--t-base); font-weight: 600; cursor: pointer;
+  transition: background 350ms var(--ease), border-color 350ms var(--ease);
+}
+.btnAprovar { background: var(--sinal); color: #04231A; }
+.btnAprovar:hover:not(:disabled) { background: #25b78a; }
+.btnAprovar:disabled { background: var(--borda-viva); color: var(--txt-3); cursor: not-allowed; }
+.btnRecusar { background: transparent; color: var(--txt-2); border-color: var(--borda-viva); }
+.btnRecusar:hover { border-color: var(--alerta); color: var(--alerta); }
+.btnVoltar { background: none; color: var(--txt-3); font-size: var(--t-sm); }
+
+.erro {
+  padding: 12px var(--s4); border-radius: var(--r);
+  background: rgba(251,113,133,.1); border: 1px solid rgba(251,113,133,.3);
+  color: var(--alerta); font-size: var(--t-sm); line-height: 1.55;
+}
+.avisoOk {
+  margin-top: var(--s5); padding: var(--s4) var(--s5);
+  background: rgba(45,212,160,.09); border: 1px solid rgba(45,212,160,.3);
+  border-radius: var(--r); color: var(--sinal); font-size: var(--t-sm); line-height: 1.6;
+}
+
+/* ---- Linha do tempo ---- */
+.secao { margin-top: var(--s7); }
+.linha { list-style: none; margin: var(--s4) 0 0; padding: 0; position: relative; }
+.linha::before {
+  content: ''; position: absolute; left: 6px; top: 12px; bottom: 12px;
+  width: 1px; background: var(--borda);
+}
+.linha li { position: relative; padding: 0 0 var(--s5) 28px; }
+.ponto {
+  position: absolute; left: 0; top: 5px; width: 13px; height: 13px;
+  border-radius: 50%; background: var(--borda-viva); border: 3px solid var(--bg);
+}
+.evAtual .ponto { background: var(--vio); box-shadow: 0 0 14px -2px var(--brilho); }
+.evTxt strong { font-size: var(--t-sm); font-weight: 600; line-height: 1.4; }
+.evTxt p { font-size: var(--t-sm); color: var(--txt-2); margin-top: 4px; line-height: 1.55; }
+.evQuem {
+  display: block; font-family: var(--f-mono); font-size: 10.5px;
+  color: var(--txt-3); margin-top: 5px;
+}
+
+/* ---- Documentos ---- */
+.docs { list-style: none; padding: 0; margin: var(--s4) 0 0; display: grid; gap: var(--s2); }
+.doc {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  background: var(--sup); border: 1px solid var(--borda); border-radius: var(--r);
+  text-decoration: none; transition: border-color 260ms var(--ease);
+}
+.doc:hover { border-color: var(--vio); }
+.docIc {
+  width: 32px; height: 38px; background: var(--alerta); color: #2A0710;
+  border-radius: 3px; display: grid; place-items: center;
+  font-family: var(--f-mono); font-size: 9px; font-weight: 700; flex-shrink: 0;
+}
+.doc strong { display: block; font-size: var(--t-sm); font-weight: 600; }
+.doc small { font-family: var(--f-mono); font-size: 10px; color: var(--txt-3); }
+
+.rodape {
+  margin-top: var(--s8); padding-top: var(--s5);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm); color: var(--txt-3); line-height: 1.6;
+}
