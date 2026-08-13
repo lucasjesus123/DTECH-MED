@@ -31,7 +31,64 @@ No GitHub: **Settings → General → Danger Zone → Change repository visibili
 
 ---
 
-## Passo 1 — Crie a gaveta
+## Passo 1 — Reconhecimento da VPS (só leitura)
+
+A VPS já hospeda outros dois sistemas. Antes de criar qualquer coisa, vamos **olhar** o que existe. Nenhum comando deste passo escreve nada — todos apenas listam.
+
+O objetivo é provar, com a saída na tela, que os nomes que o DTECH MED vai usar estão livres. São seis nomes, e cada um tem que estar ausente da lista correspondente:
+
+| O que vamos criar | Onde não pode existir ainda |
+| --- | --- |
+| Diretório `/opt/dtechmed` | `ls /opt` |
+| Projeto Compose `dtechmed` e contêineres `dtechmed_*` | `docker ps -a` |
+| Rede `dtechmed_net` | `docker network ls` |
+| Volumes `dtechmed_pgdata`, `dtechmed_storage`, `dtechmed_backups` | `docker volume ls` |
+| Portas `5400` e `5433` em `127.0.0.1` | `ss -tlnp` |
+| Site nginx `dtechmed.conf` / `server_name dtechmed.com.br` | `/etc/nginx/sites-enabled/` |
+
+```bash
+ssh root@SEU_IP
+
+echo '=== 1. DIRETÓRIOS EM /opt ==='
+ls -la /opt
+
+echo; echo '=== 2. CONTÊINERES (todos, inclusive parados) ==='
+docker ps -a --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+
+echo; echo '=== 3. PROJETOS COMPOSE ==='
+docker compose ls -a
+
+echo; echo '=== 4. REDES ==='
+docker network ls
+
+echo; echo '=== 5. VOLUMES ==='
+docker volume ls
+
+echo; echo '=== 6. PORTAS EM ESCUTA ==='
+ss -tlnp
+
+echo; echo '=== 7. SITES DO NGINX ==='
+ls -la /etc/nginx/sites-enabled/
+grep -rh 'server_name' /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null
+
+echo; echo '=== 8. ESPAÇO E MEMÓRIA ==='
+df -h /
+free -h
+nproc
+```
+
+**Confira** — leia a saída procurando estas quatro coisas:
+
+1. **Nenhum contêiner, rede ou volume começa com `dtechmed`.** Se algum começar, é resto de uma tentativa anterior; pare e me avise antes de seguir.
+2. **As portas `5400` e `5433` não aparecem na lista do `ss`.** Se aparecerem, um vizinho já as usa — dá para trocar as nossas, mas isso tem que ser decidido agora, não depois.
+3. **Nenhum arquivo do nginx declara `server_name dtechmed.com.br`.**
+4. **Sobra espaço em disco** — a imagem da aplicação, o Postgres e os backups pedem uns 6 GB de folga.
+
+Um alerta que vale para todo o resto do guia: **sempre use `-p dtechmed`** nos comandos do `docker compose`, e sempre a partir de `/opt/dtechmed`. É esse par (diretório + nome do projeto) que garante que um `docker compose down` seu derrube só a nossa gaveta. Um `docker compose down` na pasta errada, ou um `docker stop $(docker ps -q)`, derruba os vizinhos junto — esse comando não aparece em lugar nenhum deste guia, e é de propósito.
+
+---
+
+## Passo 2 — Crie a gaveta
 
 ```bash
 ssh root@SEU_IP
@@ -53,7 +110,7 @@ ls docker-compose.yml Dockerfile infra/
 
 ---
 
-## Passo 2 — Gere os segredos
+## Passo 3 — Gere os segredos
 
 Quatro segredos, todos gerados **na hora, no servidor**. Não reaproveite os do desenvolvimento e não os mande por WhatsApp nem e-mail.
 
@@ -75,7 +132,7 @@ Guarde a saída em algum lugar seguro (um gerenciador de senhas). Você vai cola
 
 ---
 
-## Passo 3 — Escreva o `.env` de produção
+## Passo 4 — Escreva o `.env` de produção
 
 ```bash
 cd /opt/dtechmed
@@ -166,7 +223,7 @@ ls -l .env
 
 ---
 
-## Passo 4 — Suba a gaveta
+## Passo 5 — Suba a gaveta
 
 ```bash
 cd /opt/dtechmed
@@ -197,7 +254,7 @@ ss -tlnp | grep -E '5400|5433'
 
 ---
 
-## Passo 5 — Crie as tabelas
+## Passo 6 — Crie as tabelas
 
 As migrações rodam num serviço próprio, o `migrador`. Ele não sobe junto com o
 resto: usa o estágio de **build** da imagem, porque precisa do CLI do Prisma,
@@ -226,7 +283,7 @@ Se der menos que 24, a migração de endurecimento não passou. Não siga em fre
 
 ---
 
-## Passo 6 — Crie o Super Admin
+## Passo 7 — Crie o Super Admin
 
 ```bash
 cd /opt/dtechmed
@@ -246,7 +303,7 @@ sed -i 's/^SEED_SUPERADMIN_PASSWORD=.*/SEED_SUPERADMIN_PASSWORD=/' .env
 
 ---
 
-## Passo 7 — Configure o nginx
+## Passo 8 — Configure o nginx
 
 ```bash
 cd /opt/dtechmed
@@ -263,7 +320,7 @@ O `nginx -t` vai reclamar do certificado, que ainda não existe. É esperado —
 
 ---
 
-## Passo 8 — Certificado TLS
+## Passo 9 — Certificado TLS
 
 ```bash
 mkdir -p /var/www/certbot
@@ -294,7 +351,7 @@ systemctl list-timers | grep certbot
 
 ---
 
-## Passo 9 — Endurecimento final do servidor
+## Passo 10 — Endurecimento final do servidor
 
 Três itens que a auditoria apontou e que só podem ser aplicados aqui.
 
@@ -336,7 +393,7 @@ osv-scanner --lockfile=/opt/dtechmed/package-lock.json
 
 ---
 
-## Passo 10 — Conecte o WhatsApp
+## Passo 11 — Conecte o WhatsApp
 
 1. Entre em `https://dtechmed.com.br/entrar` com o Super Admin.
 2. Troque a senha (o sistema exige no primeiro acesso).
@@ -351,7 +408,7 @@ osv-scanner --lockfile=/opt/dtechmed/package-lock.json
 
 ---
 
-## Passo 11 — Ensaie a restauração do backup
+## Passo 12 — Ensaie a restauração do backup
 
 **Este passo não é opcional.** Backup que nunca foi restaurado não é backup, é esperança. Descobrir que o dump está quebrado no dia em que você precisa dele é o pior momento possível.
 
@@ -385,7 +442,7 @@ Agora ative também o **Auto Backup da VPS**, no painel da Hostinger. São duas 
 
 ---
 
-## Passo 12 — Confira o sistema de ponta a ponta
+## Passo 13 — Confira o sistema de ponta a ponta
 
 Faça isto **você mesmo**, pelo navegador, antes de entregar para a equipe:
 
