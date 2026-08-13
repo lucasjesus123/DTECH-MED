@@ -33,10 +33,22 @@ Decisões que sustentam isso:
   base pertence à mesma família da marca.
 - **A aurora de fundo é o único elemento decorativo do projeto**, e se justifica:
   é a luz da sala. Anima apenas `transform`, nunca propriedade de layout.
-- **Monoespaçada carrega o registro técnico**: número de série, O.S., horário e
-  valor. É de onde vem a personalidade — não de uma fonte da moda.
 - **O brilho é funcional**, não halo decorativo: marca o que está ativo (etapa
   travada, nó aceso, ação primária). Elemento inerte não brilha.
+- **O claro entra como respiro, não como tema alternativo.** No site, duas
+  seções brancas cortam a sequência escura: "o que atendemos" e "solicitar
+  retirada" — justamente onde o leitor precisa parar e decidir.
+
+## Tipografia
+
+| Papel | Fonte | Por quê |
+|---|---|---|
+| Títulos | **Sora** 600–800 | Geométrica e técnica; ecoa o desenho do logotipo DTECHMED |
+| Texto | **Manrope** 400–700 | Humanista, contraforma larga; aguenta parágrafo longo |
+| Registro técnico | **JetBrains Mono** 400–700 | Série, O.S., horário e valor com cara de engenharia |
+
+As três são embutidas em base64 (218 KB) e também gravadas em `public/fonts`
+para o app real servir localmente. Nenhum CDN externo, nas duas pontas.
 
 ## O movimento
 
@@ -74,6 +86,21 @@ O detalhe que se erra fácil no escuro: **superfície colorida clara pede tinta
 escura por cima, não branco**. Branco sobre o violeta `#8B5CF6` dá 3,4:1 e
 reprova; por isso o botão nasce no `#6D28D9`, e o verde de sucesso leva texto
 `#04231A`.
+
+### A superfície clara
+
+A classe `.claro` reescreve a paleta para o ramo em que aparece — serve tanto
+para a seção branca do site quanto para o modo claro do painel, sem duplicar
+folha de estilo e sem risco das duas divergirem.
+
+O que muda não é só o fundo: **no claro os tons de sinal precisam escurecer**.
+O violeta `#A78BFA` brilha sobre preto e some sobre branco (2,4:1). O mesmo
+vale para verde, carmim e âmbar — cor de instrumento luminoso não sobrevive em
+papel. Por isso o claro usa `#6D28D9`, `#0F6B4F`, `#A8203C` e `#8A5300`.
+
+O painel traz um alternador claro/escuro no topo. Não é enfeite: é a tela em
+que a gestora passa o dia, e a escolha é dela. Abrir com `#claro` na URL já
+entra no modo claro.
 
 ## Conteúdo
 
