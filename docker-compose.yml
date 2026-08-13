@@ -94,8 +94,20 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       DIRECT_DATABASE_URL: ${DIRECT_DATABASE_URL}
     ports:
-      # nginx do host faz proxy para cá. Não exposto à internet.
+      # O proxy de borda faz o caminho até aqui. Nunca exposto à internet.
+      #
+      # Duas amarrações, e as duas são endereços locais da máquina:
+      #   127.0.0.1  — para você conferir por dentro (curl, túnel de SSH).
+      #   172.17.0.1 — o IP do host na ponte do Docker. É por onde o Caddy,
+      #                que roda em contêiner, alcança a gaveta: para ele,
+      #                127.0.0.1 seria ele mesmo. A gaveta vizinha do site da
+      #                MINHAMECANICA usa exatamente este par.
+      #
+      # O segundo endereço deixa a porta 5400 visível para os contêineres da
+      # máquina — não para a internet. É a aplicação web atrás de login, não o
+      # banco: o Postgres, abaixo, continua só no 127.0.0.1.
       - "127.0.0.1:5400:3000"
+      - "172.17.0.1:5400:3000"
     volumes:
       # Fotos, PDFs e assinaturas. Persistem fora do container.
       - dtechmed_storage:/app/storage

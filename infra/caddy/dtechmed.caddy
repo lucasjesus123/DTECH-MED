@@ -1,0 +1,78 @@
+# =============================================================================
+# DTECH MED — bloco de site para o Caddy de borda da VPS
+# =============================================================================
+# Esta VPS não tem nginx. Quem atende as portas 80 e 443 é o Caddy da gaveta
+# PORTAL_ESTETICA, que funciona como portaria compartilhada da máquina.
+#
+# O Caddyfile dele termina com:
+#
+#     # gavetas extras (fora do git)
+#     import /data/sites-extra/*.caddy
+#
+# Ou seja: existe um ponto de extensão declarado. Colocar um arquivo em
+# /data/sites-extra/ acrescenta um site SEM editar uma linha sequer da
+# configuração do vizinho. É a diferença entre pendurar um aviso no quadro e
+# rabiscar por cima do aviso dos outros.
+#
+# Instalação (o guia detalha):
+#   docker cp infra/caddy/dtechmed.caddy \
+#     portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+#
+# ANTES DE INSTALAR, troque SEU_DOMINIO abaixo pelo endereço real.
+# Durante o ensaio: novo.dtechmed.com.br
+# Na virada:        dtechmed.com.br, www.dtechmed.com.br
+# =============================================================================
+
+SEU_DOMINIO {
+	# ---- Para onde vai -------------------------------------------------------
+	# 172.17.0.1 é o host visto de dentro do contêiner do Caddy. A porta 5400 é
+	# a gaveta do DTECH MED. Escrever 127.0.0.1 aqui apontaria o Caddy para ele
+	# mesmo — erro clássico, e o sintoma é um 502 sem explicação.
+	reverse_proxy 172.17.0.1:5400 {
+		# A aplicação grava o IP na trilha de auditoria e usa ele para segurar
+		# tentativa de login. Sem estes cabeçalhos, todo acesso do sistema
+		# apareceria vindo do IP da ponte do Docker — e o limite por IP
+		# passaria a valer para o mundo inteiro somado.
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	# ---- Métodos aceitos -----------------------------------------------------
+	# SEC-009 da auditoria: método incomum morre na portaria, antes de virar
+	# erro na aplicação e ruído no log.
+	@metodo_estranho not method GET HEAD POST PUT PATCH DELETE OPTIONS
+	respond @metodo_estranho 405
+
+	# ---- Tamanho de envio ----------------------------------------------------
+	# Seis fotos de celular numa tacada só. A aplicação limita 8 MB por foto.
+	request_body {
+		max_size 60MB
+	}
+
+	# ---- Compressão ----------------------------------------------------------
+	encode zstd gzip
+
+	# ---- Cabeçalhos: de propósito, nenhum ------------------------------------
+	# HSTS, X-Frame-Options, nosniff, Referrer-Policy e Permissions-Policy já
+	# saem do `next.config`, e a Content-Security-Policy é montada por
+	# requisição pelo middleware, com um nonce novo a cada carregamento.
+	#
+	# Repetir a CSP aqui criaria DUAS políticas na mesma resposta. O navegador
+	# aplica a interseção das duas, então a página quebraria — e quebraria pelo
+	# motivo mais difícil de achar que existe: nada estaria errado em nenhum
+	# dos dois arquivos, só na soma deles.
+	#
+	# A única coisa que tiramos é a assinatura do servidor.
+	header {
+		-Server
+	}
+
+	# ---- Log próprio ---------------------------------------------------------
+	# Arquivo separado do vizinho. Ninguém lê o log de ninguém.
+	log {
+		output file /data/logs/dtechmed.log {
+			roll_size 20MB
+			roll_keep 5
+		}
+	}
+}

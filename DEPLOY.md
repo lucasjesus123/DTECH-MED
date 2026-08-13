@@ -14,10 +14,11 @@ Você vai precisar de:
 
 - [ ] Acesso `root` (ou `sudo`) na VPS por SSH
 - [ ] Docker e Docker Compose instalados
-- [ ] nginx instalado no host
-- [ ] O domínio `dtechmed.com.br` apontando para o IP da VPS
+- [ ] Acesso ao painel de DNS do domínio
 - [ ] O **token de administrador da uazapi** em mãos
 - [ ] O repositório do GitHub **em modo privado** (veja o passo 0)
+
+> **Sobre a porta de entrada:** esta VPS **não tem nginx**. Quem atende as portas 80 e 443 é o Caddy da gaveta PORTAL_ESTETICA, que funciona como portaria compartilhada da máquina — as duas gavetas que já existem vivem em portas locais (`127.0.0.1:8080`, `127.0.0.1:8000`) e é o Caddy que decide qual domínio vai para qual porta. O DTECH MED entra no mesmo padrão, em `127.0.0.1:5400`. Instalar nginx aqui tomaria as portas 80/443 e derrubaria os dois sites vizinhos na hora. **Não instale nginx nesta máquina.**
 
 ---
 
@@ -39,12 +40,12 @@ O objetivo é provar, com a saída na tela, que os nomes que o DTECH MED vai usa
 
 | O que vamos criar | Onde não pode existir ainda |
 | --- | --- |
-| Diretório `/opt/dtechmed` | `ls /opt` |
+| Diretório `/opt/gavetas/DTECHMED` | `ls /opt` |
 | Projeto Compose `dtechmed` e contêineres `dtechmed_*` | `docker ps -a` |
 | Rede `dtechmed_net` | `docker network ls` |
 | Volumes `dtechmed_pgdata`, `dtechmed_storage`, `dtechmed_backups` | `docker volume ls` |
 | Portas `5400` e `5433` em `127.0.0.1` | `ss -tlnp` |
-| Site nginx `dtechmed.conf` / `server_name dtechmed.com.br` | `/etc/nginx/sites-enabled/` |
+| Bloco `dtechmed.caddy` na portaria | `/data/sites-extra/` do contêiner do Caddy |
 
 ```bash
 ssh root@SEU_IP
@@ -67,9 +68,9 @@ docker volume ls
 echo; echo '=== 6. PORTAS EM ESCUTA ==='
 ss -tlnp
 
-echo; echo '=== 7. SITES DO NGINX ==='
-ls -la /etc/nginx/sites-enabled/
-grep -rh 'server_name' /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null
+echo; echo '=== 7. QUEM ATENDE A INTERNET ==='
+ss -tlnp | grep -E ':(80|443) '
+ls -la /etc/nginx/sites-enabled/ 2>/dev/null || echo 'sem nginx nesta maquina'
 
 echo; echo '=== 8. ESPAÇO E MEMÓRIA ==='
 df -h /
@@ -81,10 +82,31 @@ nproc
 
 1. **Nenhum contêiner, rede ou volume começa com `dtechmed`.** Se algum começar, é resto de uma tentativa anterior; pare e me avise antes de seguir.
 2. **As portas `5400` e `5433` não aparecem na lista do `ss`.** Se aparecerem, um vizinho já as usa — dá para trocar as nossas, mas isso tem que ser decidido agora, não depois.
-3. **Nenhum arquivo do nginx declara `server_name dtechmed.com.br`.**
-4. **Sobra espaço em disco** — a imagem da aplicação, o Postgres e os backups pedem uns 6 GB de folga.
+3. **Quem segura as portas 80 e 443.** Nesta VPS é o `portal-da-estetica-web-1`, um Caddy. Anote o nome do contêiner: ele vai reaparecer no passo 8.
+4. **Sobra espaço em disco e memória** — a imagem da aplicação, o Postgres e os backups pedem uns 6 GB de disco, e a gaveta tem teto de 3 GB de RAM. Some o que os vizinhos já usam (`free -h`) e veja se a folga comporta.
 
-Um alerta que vale para todo o resto do guia: **sempre use `-p dtechmed`** nos comandos do `docker compose`, e sempre a partir de `/opt/dtechmed`. É esse par (diretório + nome do projeto) que garante que um `docker compose down` seu derrube só a nossa gaveta. Um `docker compose down` na pasta errada, ou um `docker stop $(docker ps -q)`, derruba os vizinhos junto — esse comando não aparece em lugar nenhum deste guia, e é de propósito.
+Um alerta que vale para todo o resto do guia: **sempre use `-p dtechmed`** nos comandos do `docker compose`, e sempre a partir de `/opt/gavetas/DTECHMED`. É esse par (diretório + nome do projeto) que garante que um `docker compose down` seu derrube só a nossa gaveta. Um `docker compose down` na pasta errada, ou um `docker stop $(docker ps -q)`, derruba os vizinhos junto — esse comando não aparece em lugar nenhum deste guia, e é de propósito.
+
+### 1c — Crie o DNS de ensaio agora
+
+Faça isto **antes** de seguir, porque o DNS leva de minutos a horas para propagar e ele vai trabalhar enquanto você constrói o resto.
+
+No painel do seu domínio, crie **um registro novo** — sem tocar nos que já existem:
+
+| Tipo | Nome | Valor |
+| --- | --- | --- |
+| A | `novo` | `169.58.76.233` |
+
+Isso publica `novo.dtechmed.com.br` apontando para esta VPS. O `dtechmed.com.br` continua exatamente onde está, servindo o site atual, sem um segundo de interrupção. Só no fim, com tudo testado e aprovado por você, é que viramos o domínio principal.
+
+**Confira** (de qualquer máquina, inclusive da própria VPS):
+
+```bash
+dig +short novo.dtechmed.com.br
+# tem que responder o IP da VPS. Enquanto vier vazio, ainda esta propagando.
+```
+
+Você pode seguir para o passo 2 sem esperar — só o passo 8 depende disso.
 
 ---
 
@@ -94,8 +116,8 @@ Um alerta que vale para todo o resto do guia: **sempre use `-p dtechmed`** nos c
 ssh root@SEU_IP
 
 # Cada sistema no seu diretório. Nada de misturar com os vizinhos.
-mkdir -p /opt/dtechmed
-cd /opt/dtechmed
+mkdir -p /opt/gavetas/DTECHMED
+cd /opt/gavetas/DTECHMED
 
 git clone https://github.com/lucasjesus123/DTECH-MED.git .
 git checkout claude/dtech-med-technical-management-mta9r4
@@ -115,7 +137,7 @@ ls docker-compose.yml Dockerfile infra/
 Quatro segredos, todos gerados **na hora, no servidor**. Não reaproveite os do desenvolvimento e não os mande por WhatsApp nem e-mail.
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 
 echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
 echo "APP_DB_PASSWORD=$(openssl rand -base64 32)"
@@ -135,7 +157,7 @@ Guarde a saída em algum lugar seguro (um gerenciador de senhas). Você vai cola
 ## Passo 4 — Escreva o `.env` de produção
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 cp .env.example .env
 chmod 600 .env      # só o dono lê
 nano .env
@@ -145,7 +167,9 @@ Preencha assim (substituindo pelos valores que você gerou):
 
 ```bash
 NODE_ENV=production
-APP_URL=https://dtechmed.com.br
+# Durante o ensaio, o endereço do ensaio. Na virada, troque as duas linhas
+# (esta e a ALLOWED_ORIGINS mais abaixo) e refaça o `up -d`.
+APP_URL=https://novo.dtechmed.com.br
 APP_NAME="DTECH MED"
 
 # ---------- Banco ----------
@@ -182,13 +206,14 @@ WORKER_BATCH_SIZE=10
 WORKER_MAX_ATTEMPTS=6
 
 # ---------- Segurança ----------
-# Sem curinga. Lista fechada.
-ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br
+# Sem curinga. Lista fechada. É esta lista que recusa formulário enviado de
+# outro site — a proteção contra CSRF. Endereço que não está aqui leva 403.
+ALLOWED_ORIGINS=https://novo.dtechmed.com.br
 LOGIN_RATE_LIMIT_WINDOW_MS=900000
 LOGIN_RATE_LIMIT_MAX=8
 SESSION_TTL_HOURS=12
 
-# true SÓ porque a aplicação fica atrás do nginx desta VPS. Se um dia ela for
+# true SÓ porque a aplicação fica atrás do Caddy desta VPS. Se um dia ela for
 # exposta direto, volte para false — senão o IP da auditoria vira campo que
 # qualquer um preenche, e IP forjado na trilha é pior que IP nenhum.
 TRUST_PROXY=true
@@ -226,7 +251,7 @@ ls -l .env
 ## Passo 5 — Suba a gaveta
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 docker compose -p dtechmed up -d --build
 ```
 
@@ -242,7 +267,7 @@ docker compose -p dtechmed logs db | grep "Papel da aplicação pronto"
 # tem que aparecer
 ```
 
-Se o `db` reclamar de `APP_DB_PASSWORD não definida`, o `.env` não está sendo lido — confira se ele está em `/opt/dtechmed/.env`.
+Se o `db` reclamar de `APP_DB_PASSWORD não definida`, o `.env` não está sendo lido — confira se ele está em `/opt/gavetas/DTECHMED/.env`.
 
 **Confira que nada vazou para a internet:**
 
@@ -262,7 +287,7 @@ do `tsx` e do `prisma.config.ts` — coisas que a imagem final não carrega, de
 propósito.
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 docker compose -p dtechmed --profile manutencao run --rm migrador
 ```
 
@@ -286,7 +311,7 @@ Se der menos que 24, a migração de endurecimento não passou. Não siga em fre
 ## Passo 7 — Crie o Super Admin
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 docker compose -p dtechmed --profile manutencao run --rm \
   migrador npx tsx prisma/seed.ts
 ```
@@ -303,51 +328,99 @@ sed -i 's/^SEED_SUPERADMIN_PASSWORD=.*/SEED_SUPERADMIN_PASSWORD=/' .env
 
 ---
 
-## Passo 8 — Configure o nginx
+## Passo 8 — Publique na portaria (Caddy)
 
-```bash
-cd /opt/dtechmed
-cp infra/nginx/dtechmed-proxy.conf /etc/nginx/dtechmed-proxy.conf
-cp infra/nginx/dtechmed.conf /etc/nginx/sites-available/dtechmed.conf
-ln -s /etc/nginx/sites-available/dtechmed.conf /etc/nginx/sites-enabled/
+Até aqui nada saiu da gaveta: a aplicação responde em `127.0.0.1:5400` e ninguém de fora a alcança. Este passo é o único do guia que toca em algo compartilhado — e ele foi desenhado para tocar **só no ponto de extensão que a portaria já oferece**.
 
-nginx -t
+O `Caddyfile` do vizinho termina assim:
+
+```caddy
+# gavetas extras (fora do git)
+import /data/sites-extra/*.caddy
 ```
 
-O `nginx -t` vai reclamar do certificado, que ainda não existe. É esperado — o próximo passo resolve.
+Ou seja: existe uma pasta declarada para sites adicionais. Vamos colocar um arquivo lá. **Nenhuma linha da configuração do PORTAL_ESTETICA é editada.**
 
-> **Convivência com as outras gavetas:** este arquivo responde só pelos `server_name` do DTECH MED. Não é `default_server`. Se fosse, capturaria requisições dos vizinhos.
+### 8.1 — Confirme o ponto de extensão
+
+```bash
+docker exec portal-da-estetica-web-1 ls -la /data/sites-extra/
+docker exec portal-da-estetica-web-1 sh -c 'cat /data/sites-extra/*.caddy'
+```
+
+Você deve ver o bloco da MINHAMECANICA, que serve de espelho: é a prova de que este mecanismo já funciona nesta máquina.
+
+### 8.2 — Escreva o bloco do DTECH MED
+
+```bash
+cd /opt/gavetas/DTECHMED
+
+# Troque pelo domínio do ensaio. Só depois de aprovado é que vira o definitivo.
+DOMINIO=novo.dtechmed.com.br
+
+sed "s/^SEU_DOMINIO {/${DOMINIO} {/" infra/caddy/dtechmed.caddy > /tmp/dtechmed.caddy
+head -30 /tmp/dtechmed.caddy | grep -n "${DOMINIO}"
+# tem que aparecer a linha com o dominio — se nao aparecer, PARE
+```
+
+### 8.3 — Instale e recarregue
+
+```bash
+docker exec portal-da-estetica-web-1 mkdir -p /data/sites-extra /data/logs
+docker cp /tmp/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+
+# Valida ANTES de reiniciar. Se a sintaxe estiver errada, descobrimos agora,
+# com os vizinhos ainda no ar.
+docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
+```
+
+Só se o `validate` passar:
+
+```bash
+docker restart portal-da-estetica-web-1
+```
+
+> **Por que reiniciar, e não recarregar.** O `Caddyfile` do vizinho tem `admin off`, o que desliga a API por onde o `caddy reload` fala. Sem ela, a única forma de a portaria reler a configuração é reiniciar o contêiner. São **2 a 4 segundos** em que os três sites ficam fora do ar. É o único momento do deploy inteiro que afeta os vizinhos, é medido em segundos, e por isso vale escolher a hora — fim de noite, não meio-dia. O `validate` do passo anterior existe justamente para que esse reinício nunca seja o momento em que se descobre um erro de sintaxe.
+
+**Confira** — os três sites, nesta ordem:
+
+```bash
+# 1. Os vizinhos voltaram?
+docker ps --filter name=portal-da-estetica --format '{{.Names}}  {{.Status}}'
+curl -sI https://portaldaestetica.com.br | head -1
+
+# 2. E o nosso?
+curl -sI https://novo.dtechmed.com.br | head -1
+# HTTP/2 200
+```
+
+Se o domínio ainda não propagou, o Caddy responde 502 ou falha o certificado. Espere e repita — não mexa em mais nada.
 
 ---
 
 ## Passo 9 — Certificado TLS
 
-```bash
-mkdir -p /var/www/certbot
+Não há passo a executar: o Caddy emite e renova o certificado da Let's Encrypt sozinho, na primeira visita ao domínio. É por isso que o passo 8 já testa com `https://`.
 
-certbot certonly --webroot -w /var/www/certbot \
-  -d dtechmed.com.br -d www.dtechmed.com.br \
-  --email contato@conexaomkt.com.br --agree-tos --no-eff-email
-
-nginx -t && systemctl reload nginx
-```
-
-**Confira:**
+**Confira que o certificado é real, não o autoassinado de emergência:**
 
 ```bash
-curl -sI https://dtechmed.com.br | head -1
-# HTTP/2 200
-
-curl -sI https://dtechmed.com.br | grep -i strict-transport
-# strict-transport-security: max-age=31536000; includeSubDomains
+echo | openssl s_client -connect novo.dtechmed.com.br:443 -servername novo.dtechmed.com.br 2>/dev/null \
+  | openssl x509 -noout -issuer -dates
+# issuer= ... Let's Encrypt ...  e uma data de validade uns 90 dias a frente
 ```
 
-**Confira a renovação automática** — certificado que vence no domingo derruba o sistema no domingo:
+Se aparecer `issuer= ... Caddy Local Authority`, o certificado público **não** foi emitido — quase sempre é DNS que ainda não propagou ou porta 80 fechada no firewall. O sistema funciona, mas o navegador do cliente vai acusar site inseguro.
+
+**Confira os cabeçalhos de segurança**, que vêm da aplicação e não da portaria:
 
 ```bash
-certbot renew --dry-run
-systemctl list-timers | grep certbot
+curl -sI https://novo.dtechmed.com.br | grep -iE 'strict-transport|content-security|x-frame|nosniff|^server'
+# HSTS, CSP com nonce, X-Frame-Options: DENY, X-Content-Type-Options: nosniff
+# e NENHUMA linha "server:"
 ```
+
+> **O que perdemos ao trocar nginx por Caddy:** o limite de taxa na porta de entrada (12 tentativas de login por minuto por IP) não existe no Caddy sem plugin. A proteção continua, mas uma camada adiante: a aplicação trava a conta na 6ª tentativa e o IP na 9ª, dentro de uma janela de 15 minutos — comportamento medido na auditoria, seção 6. A diferença prática é que o custo de recusar uma tentativa agora é pago pelo Node em vez de morrer na borda. Com 90 usuários simultâneos isso é irrelevante; se um dia virar problema, o caminho é o plugin `caddy-ratelimit` na portaria.
 
 ---
 
@@ -356,7 +429,7 @@ systemctl list-timers | grep certbot
 Três itens que a auditoria apontou e que só podem ser aplicados aqui.
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 
 # SEC-007 — o dono do banco não precisa criar bancos em produção.
 docker compose -p dtechmed exec db \
@@ -365,7 +438,7 @@ docker compose -p dtechmed exec db \
 # SEC-008 — anexos legíveis só pelo dono. A VPS é compartilhada.
 docker compose -p dtechmed exec app sh -c "chmod 700 /app/storage"
 
-# SEC-009 — já resolvido: o nginx barra método incomum antes da aplicação.
+# SEC-009 — já resolvido: a portaria barra método incomum antes da aplicação.
 ```
 
 **Confira:**
@@ -388,7 +461,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
   aquasec/trivy image dtechmed-app:latest
 
 curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/install.sh | sh
-osv-scanner --lockfile=/opt/dtechmed/package-lock.json
+osv-scanner --lockfile=/opt/gavetas/DTECHMED/package-lock.json
 ```
 
 ---
@@ -413,7 +486,7 @@ osv-scanner --lockfile=/opt/dtechmed/package-lock.json
 **Este passo não é opcional.** Backup que nunca foi restaurado não é backup, é esperança. Descobrir que o dump está quebrado no dia em que você precisa dele é o pior momento possível.
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 
 # Force um backup agora
 docker compose -p dtechmed restart backup
@@ -448,7 +521,7 @@ Faça isto **você mesmo**, pelo navegador, antes de entregar para a equipe:
 
 | # | O quê | Onde |
 |---|---|---|
-| 1 | O site abre e a hero aparece | `https://dtechmed.com.br` |
+| 1 | O site abre e a hero aparece | `https://novo.dtechmed.com.br` |
 | 2 | O formulário do site envia e confirma na tela | `#solicitar` |
 | 3 | O contato aparece no painel do dia | `/painel` |
 | 4 | Abrir a ordem pelo contato já vem preenchida | botão **Abrir ordem** |
@@ -467,12 +540,92 @@ Se o item 14 mostrar **histórico alterado**, pare e me chame: alguma coisa mexe
 
 ---
 
+## Passo 14 — A virada do domínio
+
+Só depois de os 14 itens acima passarem no endereço de ensaio. Antes disso, virar o domínio é trocar um site que funciona por um que você ainda não conferiu.
+
+### 14.1 — Prepare a gaveta para o novo endereço
+
+```bash
+cd /opt/gavetas/DTECHMED
+nano .env
+```
+
+Troque as duas linhas:
+
+```bash
+APP_URL=https://dtechmed.com.br
+ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://novo.dtechmed.com.br
+```
+
+O endereço de ensaio **fica na lista**. Enquanto o DNS propaga, os dois respondem — e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
+
+```bash
+docker compose -p dtechmed up -d
+```
+
+### 14.2 — Ensine a portaria os três nomes
+
+```bash
+docker exec portal-da-estetica-web-1 sh -c \
+  'sed -i "s/^novo.dtechmed.com.br {/dtechmed.com.br, www.dtechmed.com.br, novo.dtechmed.com.br {/" /data/sites-extra/dtechmed.caddy'
+
+docker exec portal-da-estetica-web-1 head -1 /data/sites-extra/dtechmed.caddy
+# tem que mostrar os tres nomes na mesma linha
+
+docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
+```
+
+Ainda **não reinicie**. O Caddy só consegue emitir certificado para um domínio que já aponta para cá — então o DNS vem primeiro.
+
+### 14.3 — Vire o DNS
+
+No painel do domínio, aponte para `169.58.76.233`:
+
+| Tipo | Nome | Valor |
+| --- | --- | --- |
+| A | `@` | `169.58.76.233` |
+| A | `www` | `169.58.76.233` |
+
+Espere propagar:
+
+```bash
+dig +short dtechmed.com.br     # tem que virar 169.58.76.233
+dig +short www.dtechmed.com.br # idem
+```
+
+### 14.4 — Só então, reinicie a portaria
+
+```bash
+docker restart portal-da-estetica-web-1
+```
+
+Outros 2 a 4 segundos de indisponibilidade para os três sites. Mesma recomendação: escolha a hora.
+
+**Confira:**
+
+```bash
+curl -sI https://dtechmed.com.br | head -1        # HTTP/2 200
+curl -sI https://www.dtechmed.com.br | head -1    # HTTP/2 200
+curl -sI https://portaldaestetica.com.br | head -1 # o vizinho continua de pe
+
+echo | openssl s_client -connect dtechmed.com.br:443 -servername dtechmed.com.br 2>/dev/null \
+  | openssl x509 -noout -issuer
+# issuer= ... Let's Encrypt ...
+```
+
+### 14.5 — Aposente o endereço de ensaio
+
+Depois de uma semana com o domínio principal estável, tire o `novo.` de circulação: remova o registro A do painel de DNS e o nome da linha do `.env` e do bloco do Caddy. Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema.
+
+---
+
 ## Operação do dia a dia
 
 ### Ver o que está acontecendo
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 docker compose -p dtechmed logs -f app        # aplicação
 docker compose -p dtechmed logs -f worker     # fila de WhatsApp e PDF
 docker compose -p dtechmed ps                 # saúde dos serviços
@@ -481,7 +634,7 @@ docker compose -p dtechmed ps                 # saúde dos serviços
 ### Atualizar o sistema
 
 ```bash
-cd /opt/dtechmed
+cd /opt/gavetas/DTECHMED
 git pull
 docker compose -p dtechmed up -d --build
 docker compose -p dtechmed --profile manutencao run --rm migrador
@@ -531,7 +684,10 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 
 - **Não** rode `prisma migrate reset` na VPS. Ele apaga o banco inteiro.
 - **Não** troque `ENCRYPTION_KEY` nem `DOCUMENT_HASH_SALT` depois que o sistema estiver em uso.
-- **Não** exponha as portas 5400 e 5433 para fora do `127.0.0.1`.
+- **Não** exponha a porta 5433 (o banco) para fora do `127.0.0.1`. A 5400 fica também em `172.17.0.1` de propósito — é por ali que a portaria chega até nós, e é um endereço interno da máquina, não da internet.
+- **Não** instale nginx nesta VPS. As portas 80 e 443 já são do Caddy do PORTAL_ESTETICA; disputar por elas derruba os três sites.
+- **Não** edite o `Caddyfile` do vizinho. Nosso bloco vive em `/data/sites-extra/dtechmed.caddy`, que é o ponto de extensão que ele mesmo declara.
+- **Não** rode `docker compose down` fora de `/opt/gavetas/DTECHMED`, e nunca `docker stop $(docker ps -q)` nem `docker system prune -a` — os três derrubam ou apagam as gavetas vizinhas junto.
 - **Não** use `DIRECT_DATABASE_URL` na aplicação — ela é só das migrações.
 - **Não** volte o repositório para público.
 - **Não** edite dado direto no banco. A linha do tempo é encadeada por hash: mexer nela deixa rastro, e o prontuário passa a mostrar "histórico alterado" para sempre.
@@ -542,14 +698,14 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 
 | Item | Valor |
 |---|---|
-| Diretório da gaveta | `/opt/dtechmed` |
+| Diretório da gaveta | `/opt/gavetas/DTECHMED` |
 | Nome do projeto Docker | `dtechmed` |
 | Aplicação (loopback) | `127.0.0.1:5400` |
 | Banco (loopback) | `127.0.0.1:5433` |
 | Volumes | `dtechmed_pgdata`, `dtechmed_storage`, `dtechmed_backups` |
 | Migração e semeadura | `docker compose -p dtechmed --profile manutencao run --rm migrador` |
 | Rede | `dtechmed_net` |
-| nginx | `/etc/nginx/sites-available/dtechmed.conf` |
+| Bloco da portaria | `/data/sites-extra/dtechmed.caddy` no `portal-da-estetica-web-1` |
 | Retenção de backup | 14 dias (ajustável no `.env`) |
 
 Relatório de segurança completo, com o que foi corrigido e o que ficou para o servidor: **[AUDITORIA_SEGURANCA.md](./AUDITORIA_SEGURANCA.md)**.
