@@ -89,6 +89,20 @@
   background: var(--borda); color: var(--txt-3); cursor: not-allowed;
 }
 .btnFoto { margin-top: 0; min-height: 46px; background: var(--sup-2); border: 1px solid var(--borda-viva); }
+/* "Saí para esta parada" é secundário na hierarquia: o botão que importa na
+   tela é o de chegar e assinar. Mas continua com alvo de dedo, 54px, porque
+   quem aperta está andando com o celular numa mão só. */
+.btnSaida {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 50px; padding: 14px;
+  border: 1px solid var(--borda-viva); border-radius: var(--r);
+  background: transparent; color: var(--txt);
+  font-family: var(--f-texto); font-size: var(--t-sm); font-weight: 600;
+  cursor: pointer; margin-top: var(--s4);
+  transition: background 300ms var(--ease);
+}
+.btnSaida:active { background: var(--sup-2); }
+.btnSaida:disabled { color: var(--txt-3); cursor: not-allowed; }
 .feito { margin-top: var(--s4); font-family: var(--f-mono); font-size: var(--t-xs); color: var(--sinal); letter-spacing: .08em; text-transform: uppercase; }
 .feitoGrande {
   padding: var(--s5); border-radius: var(--r-lg);

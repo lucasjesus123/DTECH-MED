@@ -1,9 +1,11 @@
 import 'dotenv/config'
+import sharp from 'sharp'
 import { Prisma } from '../src/generated/prisma/client'
 import { EtapaOrdem as E, Papel as P } from '../src/generated/prisma/enums'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
 import { avancarOrdem } from '../src/server/ordem/motor'
 import { proximoNumero } from '../src/server/financeiro/servico'
+import { guardarAssinatura, guardarFoto } from '../src/server/arquivos/storage'
 
 /**
  * Monta um cenário de demonstração levando ordens até etapas diferentes,
@@ -12,7 +14,35 @@ import { proximoNumero } from '../src/server/financeiro/servico'
  * Isso importa: uma ordem plantada com `UPDATE etapa = 'FATURADO'` fica sem
  * linha do tempo, sem eventos encadeados e sem os avisos na fila. Ela pareceria
  * certa na tela e mentiria em todo o resto.
+ *
+ * Pelo mesmo motivo, as fotos e as assinaturas são ARQUIVOS DE VERDADE, gravados
+ * pelo mesmo storage que o app usa. A primeira versão deste script só inseria a
+ * linha no banco apontando para `demo/f0.jpg` — e o prontuário abria com seis
+ * imagens quebradas, porque o arquivo nunca existiu. Dado de demonstração que
+ * quebra na tela é pior que demonstração nenhuma: ensina a desconfiar do que
+ * está certo.
  */
+
+/** Placeholder legível: um retângulo com o texto no meio, gerado na hora. */
+async function imagemDemo(texto: string, cor: string): Promise<Buffer> {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900">
+    <rect width="1200" height="900" fill="${cor}"/>
+    <text x="600" y="470" font-family="sans-serif" font-size="64" fill="#ffffff"
+          text-anchor="middle" opacity="0.85">${texto}</text>
+  </svg>`
+  return sharp(Buffer.from(svg)).jpeg({ quality: 80 }).toBuffer()
+}
+
+/** PNG de traço, no formato que o quadro de assinatura produz. */
+async function assinaturaDemo(): Promise<string> {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="200">
+    <rect width="600" height="200" fill="#ffffff"/>
+    <path d="M40 150 C 120 40, 200 190, 280 110 S 440 60, 560 130"
+          stroke="#101010" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </svg>`
+  const png = await sharp(Buffer.from(svg)).png().toBuffer()
+  return `data:image/png;base64,${png.toString('base64')}`
+}
 async function main() {
   // Precisa do contexto de Super Admin: sem ele o RLS filtra a consulta e a
   // empresa "não existe" — que é exatamente o comportamento esperado.
@@ -90,6 +120,8 @@ async function main() {
     if (roteiro.ate === E.RETIRADA_AGENDADA) continue
 
     await passo(E.EM_ROTA_RETIRADA, de(P.MOTORISTA))
+    const traco = await guardarAssinatura({ tenantId: t.id, ordemId, dataUrl: await assinaturaDemo() })
+    if (!traco.ok) throw new Error(`assinatura de demonstração: ${traco.motivo}`)
     await comEscopo(ctx, async (tx) => {
       await tx.assinatura.create({
         data: {
@@ -97,8 +129,8 @@ async function main() {
           ordemId,
           tipo: 'RETIRADA',
           assinanteNome: cliente.contatoNome ?? cliente.nome,
-          caminhoImagem: 'demo/assinatura.png',
-          hashImagem: 'demo',
+          caminhoImagem: traco.caminho,
+          hashImagem: traco.hash,
           latitude: -29.4669,
           longitude: -51.9611,
           precisaoM: 12,
@@ -107,20 +139,31 @@ async function main() {
     })
     await passo(E.COLETADO, de(P.MOTORISTA))
 
-    await comEscopo(ctx, async (tx) => {
-      for (let n = 0; n < 6; n++) {
+    const angulos = ['Frente', 'Traseira', 'Etiqueta', 'Lateral', 'Painel', 'Acessórios']
+    for (let n = 0; n < angulos.length; n++) {
+      const bytes = await imagemDemo(angulos[n]!, ['#2C1A47', '#1D1030', '#150B24'][n % 3]!)
+      const arquivo = new File([new Uint8Array(bytes)], `${angulos[n]}.jpg`, { type: 'image/jpeg' })
+      const r = await guardarFoto({ tenantId: t.id, ordemId, arquivo })
+      if (!r.ok) throw new Error(`foto de demonstração: ${r.motivo}`)
+
+      await comEscopo(ctx, async (tx) => {
         await tx.foto.create({
           data: {
             tenantId: t.id,
             ordemId,
             categoria: 'RECEBIMENTO',
-            caminho: `demo/f${n}.jpg`,
-            hashArquivo: `demo-${ordemId}-${n}`,
+            caminho: r.caminho,
+            caminhoThumb: r.caminhoThumb,
+            hashArquivo: r.hash,
+            larguraPx: r.largura,
+            alturaPx: r.altura,
+            tamanhoBytes: r.bytes,
+            legenda: angulos[n],
             autorNome: de(P.TECNICO).nome,
           },
         })
-      }
-    })
+      })
+    }
     await passo(E.RECEBIDO_NA_EMPRESA, de(P.TECNICO))
     if (roteiro.ate === E.RECEBIDO_NA_EMPRESA) continue
 

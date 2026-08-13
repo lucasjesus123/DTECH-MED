@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao } from '@/server/auth/guarda'
 import { rotaDoDia } from '@/server/consultas/campo'
+import { Saida } from './saida'
 import estilo from '../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -77,6 +78,10 @@ export default async function Motorista() {
                           </a>
                         ) : null}
                       </div>
+                      {/* Marcar a saída dispara o aviso ao cliente. Quem
+                          esquecer não fica travado: a coleta registra o trecho
+                          sozinha, na hora de assinar. */}
+                      {!p.emRota ? <Saida ordemId={p.ordemId} tipo={p.tipo} /> : null}
                       <Link href={`/app/motorista/${p.ordemId}`} className={estilo.btnGrande}>
                         Cheguei · coletar assinatura
                       </Link>

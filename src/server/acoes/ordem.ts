@@ -272,6 +272,38 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
   )
   if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
 
+  const ip0 = await ipAtual()
+
+  /**
+   * Fecha o trecho da viagem antes de assinar, quando ele ficou em aberto.
+   *
+   * O motorista chega na porta do cliente e aperta "coletar assinatura". Se ele
+   * não tiver marcado "saí para esta parada" — e na rua isso acontece o tempo
+   * todo —, a ordem ainda está em "retirada agendada", de onde o único caminho
+   * para COLETADO na tabela de transições é o do CORREIO, que é da central.
+   * O resultado era uma recusa absurda na tela: "seu perfil não tem permissão
+   * para: equipamento despachado pelo correio", com o cliente esperando.
+   *
+   * A viagem aconteceu de fato — ele está lá. Registrá-la aqui destrava a
+   * coleta e ainda dispara o aviso de "motorista a caminho" que o cliente
+   * deveria ter recebido.
+   */
+  const emRota =
+    v.tipo === 'RETIRADA' ? EtapaOrdem.EM_ROTA_RETIRADA : EtapaOrdem.EM_ROTA_ENTREGA
+  const faltouSair =
+    v.tipo === 'RETIRADA'
+      ? ordem.etapa === EtapaOrdem.RETIRADA_AGENDADA
+      : ordem.etapa === EtapaOrdem.FATURADO || ordem.etapa === EtapaOrdem.DEVOLVIDO_SEM_REPARO
+
+  if (faltouSair) {
+    const saida = await avancarOrdem(a.ctx, a.ator, { ordemId: v.ordemId, para: emRota, ip: ip0 })
+    // Falhou aqui? Devolvemos ANTES de gravar a assinatura. O papel da
+    // aplicação não pode apagar assinatura (é trilha de prova), então uma
+    // assinatura gravada para uma transição que não vai acontecer ficaria órfã
+    // no banco para sempre.
+    if (!saida.ok) return { ok: false, motivo: saida.motivo }
+  }
+
   const img = await guardarAssinatura({
     tenantId: a.ctx.tenantId!,
     ordemId: v.ordemId,
@@ -316,6 +348,34 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
     entidade: 'ordem',
     entidadeId: v.ordemId,
   })
+  revalidatePath('/app/motorista')
+  return { ok: true }
+}
+
+/**
+ * "Saí para esta parada."
+ *
+ * É o passo que avisa o cliente que o motorista está a caminho — o item 4 da
+ * linha do tempo. Sem um botão para ele, o aviso simplesmente nunca saía, e a
+ * clínica só descobria que alguém ia buscar o aparelho quando a campainha
+ * tocava.
+ */
+export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREGA'): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  const podeRodar: Papel[] = [Papel.MOTORISTA, Papel.SUPER_ADMIN]
+  if (!podeRodar.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Só o motorista marca a saída para a rota.' }
+  }
+
+  const r = await avancarOrdem(a.ctx, a.ator, {
+    ordemId,
+    para: tipo === 'RETIRADA' ? EtapaOrdem.EM_ROTA_RETIRADA : EtapaOrdem.EM_ROTA_ENTREGA,
+    ip: await ipAtual(),
+  })
+  if (!r.ok) return { ok: false, motivo: r.motivo }
+
+  await auditar(a.ctx, a.sessao, { acao: 'rota.saida', entidade: 'ordem', entidadeId: ordemId })
   revalidatePath('/app/motorista')
   return { ok: true }
 }

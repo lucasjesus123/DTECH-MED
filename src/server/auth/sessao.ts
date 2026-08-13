@@ -160,7 +160,7 @@ export function contextoDe(s: Sessao): ContextoAcesso {
 // ---------------------------------------------------------------------------
 
 export type ResultadoLogin =
-  | { ok: true; userId: string; trocarSenha: boolean }
+  | { ok: true; userId: string; papel: Papel; trocarSenha: boolean }
   | { ok: false; motivo: string; esperarSegundos?: number }
 
 /** Bloqueio progressivo: cada falha custa mais caro que a anterior. */
@@ -202,7 +202,7 @@ export async function autenticar(entrada: {
       }
 
       await registrarTentativa(u.id, true)
-      return { ok: true, userId: u.id, trocarSenha: u.trocarSenha }
+      return { ok: true, userId: u.id, papel: u.papel, trocarSenha: u.trocarSenha }
     }
 
     // Senha errada: encarece a próxima tentativa daquele cadastro.

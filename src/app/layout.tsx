@@ -23,6 +23,17 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   formatDetection: { telephone: true },
+  // Sem esta declaração, o navegador pede `/favicon.ico` por conta própria e
+  // toma 404 em toda visita. É um erro inofensivo e barulhento: enche o log de
+  // ruído e faz qualquer 404 de verdade passar despercebido no meio.
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/icone-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icone-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/icone-192.png',
+  },
 }
 
 export const viewport: Viewport = {

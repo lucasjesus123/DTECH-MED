@@ -489,3 +489,394 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   TELAS INTERNAS
+   Um vocabulário só para as demais páginas do painel: filtro, tabela, ficha,
+   formulário. Repetir esses blocos por página faria as telas divergirem com
+   o tempo — e o painel passaria a parecer sete sistemas em vez de um.
+   ========================================================================== */
+
+/* ----- Barra de filtro --------------------------------------------------- */
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s5);
+}
+.busca {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  gap: var(--s2);
+}
+.campo,
+.selecao {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  padding: 9px 12px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  transition: border-color 240ms var(--ease);
+}
+.campo:focus,
+.selecao:focus,
+.area:focus {
+  outline: none;
+  border-color: var(--vio);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.14);
+}
+.campo::placeholder { color: var(--txt-3); }
+.selecao { width: auto; min-width: 150px; cursor: pointer; }
+.area {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  resize: vertical;
+  min-height: 84px;
+}
+
+.btn,
+.btnSec {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  padding: 9px 16px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 300ms var(--ease),
+    border-color 300ms var(--ease),
+    color 300ms var(--ease);
+}
+.btn { background: var(--vio-forte); color: #fff; }
+.btn:hover:not(:disabled) { background: #5b21b6; }
+.btnSec {
+  background: transparent;
+  border-color: var(--borda-viva);
+  color: var(--txt-2);
+}
+.btnSec:hover:not(:disabled) { border-color: var(--vio); color: var(--txt); }
+.btn:disabled,
+.btnSec:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnPerigo {
+  background: transparent;
+  border: 1px solid rgba(251, 113, 133, 0.4);
+  color: var(--alerta);
+}
+.btnPerigo:hover:not(:disabled) { background: rgba(251, 113, 133, 0.1); }
+
+/* ----- Tabela ------------------------------------------------------------ */
+.quadro {
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-1);
+}
+.rolaX { overflow-x: auto; }
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-sm);
+}
+.tabela th {
+  text-align: left;
+  padding: 10px var(--s4);
+  background: var(--sup);
+  border-bottom: 1px solid var(--borda);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  white-space: nowrap;
+}
+.tabela td {
+  padding: 11px var(--s4);
+  border-bottom: 1px solid var(--borda);
+  color: var(--txt-2);
+  vertical-align: top;
+}
+.tabela tbody tr:last-child td { border-bottom: 0; }
+.tabela tbody tr:hover td { background: rgba(139, 92, 246, 0.05); }
+.tabela a { color: var(--txt); text-decoration: none; font-weight: 600; }
+.tabela a:hover { color: var(--vio-claro); }
+.num {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dir { text-align: right; }
+.forte { color: var(--txt); font-weight: 600; }
+.fraco { color: var(--txt-3); font-size: var(--t-xs); }
+
+/* ----- Selos de estado --------------------------------------------------- */
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  color: var(--vio-claro);
+}
+.tagOk {
+  background: rgba(45, 212, 160, 0.12);
+  border-color: rgba(45, 212, 160, 0.3);
+  color: var(--sinal);
+}
+.tagAlerta {
+  background: rgba(251, 113, 133, 0.12);
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--alerta);
+}
+.tagEspera {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--espera);
+}
+.tagNeutra {
+  background: var(--sup-2);
+  border-color: var(--borda);
+  color: var(--txt-3);
+}
+
+/* ----- Ficha / prontuário ------------------------------------------------ */
+.duasColunas {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: var(--s5);
+  align-items: start;
+}
+.bloco {
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: var(--s5);
+  margin-bottom: var(--s4);
+}
+.blocoTitulo {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: var(--s4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.pares {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s4) var(--s5);
+}
+.par { display: grid; gap: 3px; min-width: 0; }
+.parRot {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.parVal {
+  font-size: var(--t-sm);
+  color: var(--txt);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.texto {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+/* ----- Linha do tempo ---------------------------------------------------- */
+.linha { list-style: none; padding: 0; margin: 0; }
+.evento {
+  position: relative;
+  padding: 0 0 var(--s5) var(--s5);
+  border-left: 1px solid var(--borda);
+}
+.evento:last-child { border-left-color: transparent; padding-bottom: 0; }
+.evento::before {
+  content: '';
+  position: absolute;
+  left: -4.5px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vio);
+  box-shadow: 0 0 0 3px var(--bg-1);
+}
+.eventoAtual::before {
+  background: var(--sinal);
+  box-shadow: 0 0 0 3px var(--bg-1), 0 0 14px 2px rgba(45, 212, 160, 0.55);
+}
+.eventoTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.eventoTitulo { font-size: var(--t-sm); font-weight: 600; color: var(--txt); }
+.eventoQuando {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--txt-3);
+  white-space: nowrap;
+}
+.eventoQuem { font-size: var(--t-xs); color: var(--txt-2); margin-top: 3px; }
+.eventoHash {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--txt-3);
+  opacity: 0.65;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+/* ----- Galeria de fotos -------------------------------------------------- */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--s2);
+}
+.foto {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--borda);
+  background: var(--sup);
+  display: block;
+}
+.foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fotoRot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 5px;
+  background: linear-gradient(transparent, rgba(8, 4, 15, 0.9));
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* ----- Formulário -------------------------------------------------------- */
+.form { display: grid; gap: var(--s4); }
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--s4);
+}
+.rotulo {
+  display: grid;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  min-width: 0;
+}
+.dica {
+  font-family: var(--f-texto);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--txt-3);
+  line-height: 1.45;
+}
+.erro {
+  padding: 10px 14px;
+  border-radius: var(--r);
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  color: var(--alerta);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+.sucesso {
+  padding: 10px 14px;
+  border-radius: var(--r);
+  background: rgba(45, 212, 160, 0.09);
+  border: 1px solid rgba(45, 212, 160, 0.28);
+  color: var(--sinal);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+.acoesForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+
+/* ----- Barra de passos da ordem ------------------------------------------ */
+.passos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+  margin-top: var(--s4);
+}
+
+/* ----- Painel lateral com abas ------------------------------------------- */
+.abas {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--borda);
+  margin-bottom: var(--s5);
+  overflow-x: auto;
+}
+.aba {
+  padding: 9px 14px;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt-3);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 240ms var(--ease), border-color 240ms var(--ease);
+}
+.aba:hover { color: var(--txt-2); }
+.abaAtiva { color: var(--vio-claro); border-bottom-color: var(--vio); }
+
+@media (max-width: 1000px) {
+  .duasColunas { grid-template-columns: 1fr; }
+}

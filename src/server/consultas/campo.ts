@@ -25,6 +25,8 @@ export type Parada = {
   status: string
   concluida: boolean
   atrasada: boolean
+  /** Já saiu para esta parada? É o que decide qual botão a tela oferece. */
+  emRota: boolean
 }
 
 /** As paradas do dia do motorista logado, na ordem da rota. */
@@ -69,6 +71,10 @@ export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promi
     status: a.status,
     concluida: a.status === 'CONCLUIDO',
     atrasada: a.status !== 'CONCLUIDO' && a.previstoPara.getTime() < agora,
+    // A verdade está na etapa da ordem, não no status do agendamento: é ela
+    // que a máquina de estados consulta na hora de aceitar a assinatura.
+    emRota:
+      a.ordem.etapa === 'EM_ROTA_RETIRADA' || a.ordem.etapa === 'EM_ROTA_ENTREGA',
   }))
 }
 
