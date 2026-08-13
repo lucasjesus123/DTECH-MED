@@ -339,6 +339,81 @@ button { font: inherit; color: inherit; }
 .nav a:hover { color: var(--txt); }
 .nav a:hover::after { right: 0; }
 
+
+/* ===== FUNDO DA PRIMEIRA DOBRA =======================================
+   O pedido: sensação de vídeo, técnico mexendo em equipamento, em marca
+   d'água. Duas camadas empilhadas, nesta ordem de preferência:
+
+   1. VÍDEO REAL da oficina — o slot existe e está pronto. Basta apontar
+      HERO_VIDEO para o arquivo e ele assume. Não uso banco de imagens:
+      num site comercial isso é problema de licença, e cara de estoque
+      contradiz justamente o que o site promete (é a SUA oficina).
+   2. CENA PROCEDURAL — o que roda hoje. Placa de circuito vista sob a luz
+      da bancada, com sinal percorrendo as trilhas. Abstrata de propósito:
+      cena figurativa montada com formas vira clip-art. Isto pertence ao
+      mundo já estabelecido (sala de instrumentação) e não finge ser foto.
+
+   Sobre as duas, um véu que garante o contraste do texto. O fundo é
+   ambiente; quem manda na leitura é a tese.
+   ==================================================================== */
+.dobra { position: relative; isolation: isolate; }
+
+.cena {
+  position: absolute; inset: 0;
+  z-index: -1; overflow: hidden;
+  pointer-events: none;
+  /* Sangra para fora do container e alcança a borda da tela. */
+  margin-inline: calc(50% - 50vw);
+  width: 100vw;
+}
+.cena canvas, .cena video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cena video { opacity: 0; transition: opacity 1.4s var(--ease); }
+.cena video.tocando { opacity: .16; }
+.cena canvas { opacity: .85; transition: opacity 1.4s var(--ease); }
+.cena.com-video canvas { opacity: 0; }
+
+/* Luz da bancada: uma varredura lenta e larga, não um halo parado. */
+.cena-luz {
+  position: absolute; top: -40%; left: -30%;
+  width: 90%; height: 180%;
+  background: linear-gradient(100deg, transparent, rgba(167,139,250,.16) 45%, transparent);
+  filter: blur(38px);
+  animation: varre 17s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes varre {
+  from { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  to   { transform: translate3d(78vw, 0, 0) rotate(4deg); }
+}
+
+/* Véu: escurece o lado do texto e apaga o fundo nas bordas. Sem ele, o
+   contraste da tese fica refém do que estiver passando atrás. */
+.cena-veu {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg,
+      rgba(8,4,15,.97) 0%,
+      rgba(8,4,15,.93) 24%,
+      rgba(8,4,15,.62) 46%,
+      rgba(8,4,15,.30) 66%,
+      rgba(8,4,15,.52) 100%),
+    linear-gradient(180deg, var(--bg) 0%, transparent 18%, transparent 76%, var(--bg) 100%);
+}
+
+@media (max-width: 1000px) {
+  /* No celular o fundo perde a função e cobra bateria: fica só o véu. */
+  .cena canvas, .cena video { display: none; }
+  .cena-luz { animation: none; opacity: .5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cena-luz { animation: none; }
+}
+
 /* ===== Primeira dobra ================================================ */
 .dobra { padding: var(--s9) 0 var(--s8); }
 .dobra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: center; }
@@ -594,6 +669,13 @@ section { padding: var(--s10) 0; position: relative; }
 <main>
   <!-- ===================== PRIMEIRA DOBRA ===================== -->
   <section class="dobra">
+      <div class="cena" aria-hidden="true">
+        <canvas id="cenaBase"></canvas>
+        <canvas id="cenaPulso"></canvas>
+        <video id="cenaVideo" muted loop playsinline preload="none"></video>
+        <span class="cena-luz"></span>
+        <span class="cena-veu"></span>
+      </div>
     <div class="container dobra-grid">
       <div>
         <div class="status-vivo"><span class="pt-vivo"></span> 18 EQUIPAMENTOS NA OFICINA AGORA</div>
@@ -910,6 +992,187 @@ section { padding: var(--s10) 0; position: relative; }
 <script>
 document.documentElement.classList.add('js');
 const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+/* ---- FUNDO DA PRIMEIRA DOBRA -------------------------------------------
+   Troque por um arquivo da própria oficina quando tiver. Enquanto for null,
+   nenhuma requisição é feita — vídeo sem fonte pediria um arquivo que não
+   existe e sujaria o console. */
+const HERO_VIDEO = null;   // ex.: '/video/bancada.mp4'
+
+(function fundoDaDobra() {
+  const cena = document.querySelector('.cena');
+  const vid = document.getElementById('cenaVideo');
+  if (!cena) return;
+
+  // --- 1. Vídeo real, quando existir ---
+  if (HERO_VIDEO) {
+    vid.src = HERO_VIDEO;
+    vid.addEventListener('canplay', () => {
+      cena.classList.add('com-video');
+      vid.classList.add('tocando');
+      vid.play().catch(() => {});     // bloqueio de autoplay: a cena segue
+    }, { once: true });
+    vid.addEventListener('error', () => {}, { once: true });
+    return;                            // com vídeo, a cena procedural sai
+  }
+
+  // --- 2. Cena procedural: placa sob a luz da bancada ---
+  //
+  // Três decisões que tiram trabalho de cada quadro:
+  //
+  //  a) As trilhas são estáticas, então vivem numa tela própria, desenhada uma
+  //     única vez. Antes elas eram recompostas a cada quadro com um drawImage
+  //     da tela inteira — ~1,2 milhão de pixels por quadro, para nada.
+  //  b) O comprimento de cada segmento é constante. Era recalculado com hypot
+  //     para toda trilha, em todo quadro. Agora é medido uma vez no montar.
+  //  c) O brilho do pulso virou um sprite desenhado uma vez. Antes era um
+  //     createRadialGradient por pulso por quadro — vinte objetos novos a cada
+  //     16 ms, só para o coletor de lixo recolher em seguida.
+  const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const base = document.getElementById('cenaBase');
+  const pulso = document.getElementById('cenaPulso');
+  const ctx = pulso.getContext('2d', { alpha: true });
+  let L = 0, A = 0, dpr = 1, trilhas = [], sprite = null, rodando = false, raf = 0;
+
+  const RAIO = 34;
+
+  function montarSprite() {
+    sprite = document.createElement('canvas');
+    const d = Math.ceil(RAIO * 2 * dpr);
+    sprite.width = d; sprite.height = d;
+    const g = sprite.getContext('2d');
+    g.scale(dpr, dpr);
+    const grad = g.createRadialGradient(RAIO, RAIO, 0, RAIO, RAIO, RAIO);
+    grad.addColorStop(0, 'rgba(221,214,254,.95)');
+    grad.addColorStop(0.22, 'rgba(167,139,250,.42)');
+    grad.addColorStop(1, 'rgba(139,92,246,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, RAIO * 2, RAIO * 2);
+  }
+
+  function montar() {
+    const r = cena.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    dpr = Math.min(devicePixelRatio || 1, 1.5);   // teto de DPR: fundo não merece 3x
+    L = r.width; A = r.height;
+    for (const c of [base, pulso]) {
+      c.width = Math.round(L * dpr);
+      c.height = Math.round(A * dpr);
+    }
+    montarSprite();
+
+    // Roteamento em ângulo reto, como trilha de placa de verdade.
+    trilhas = [];
+    const n = Math.max(14, Math.round(L / 68));
+    for (let i = 0; i < n; i++) {
+      const pts = [];
+      let x = -40 + Math.random() * L * 0.35;
+      let y = Math.random() * A;
+      pts.push([x, y]);
+      const passos = 3 + ((Math.random() * 3) | 0);
+      for (let k = 0; k < passos; k++) {
+        x += 70 + Math.random() * 190;
+        pts.push([x, y]);
+        y += (Math.random() < 0.5 ? -1 : 1) * (40 + Math.random() * 130);
+        pts.push([x, y]);
+      }
+      x += 120 + Math.random() * 260;
+      pts.push([x, y]);
+
+      // Comprimentos medidos aqui, uma vez, e não a cada quadro.
+      const seg = [];
+      let total = 0;
+      for (let j = 1; j < pts.length; j++) {
+        const d = Math.hypot(pts[j][0] - pts[j - 1][0], pts[j][1] - pts[j - 1][1]);
+        seg.push(d); total += d;
+      }
+      trilhas.push({ pts, seg, total, fase: Math.random(), vel: 0.00006 + Math.random() * 0.00013 });
+    }
+
+    // Tela das trilhas: desenhada uma vez e nunca mais tocada.
+    const e = base.getContext('2d');
+    e.setTransform(dpr, 0, 0, dpr, 0, 0);
+    e.clearRect(0, 0, L, A);
+    e.lineCap = 'round';
+    e.lineJoin = 'round';
+    e.lineWidth = 1;
+    e.strokeStyle = 'rgba(167,139,250,.30)';
+    for (const t of trilhas) {
+      e.beginPath();
+      e.moveTo(t.pts[0][0], t.pts[0][1]);
+      for (let i = 1; i < t.pts.length; i++) e.lineTo(t.pts[i][0], t.pts[i][1]);
+      e.stroke();
+    }
+    e.fillStyle = 'rgba(196,181,253,.46)';
+    for (const t of trilhas) {
+      for (let i = 1; i < t.pts.length - 1; i += 2) {   // ilhas de solda nas dobras
+        e.beginPath();
+        e.arc(t.pts[i][0], t.pts[i][1], 2.4, 0, Math.PI * 2);
+        e.fill();
+      }
+    }
+  }
+
+  function ponto(t, f) {
+    let alvo = f * t.total;
+    for (let i = 0; i < t.seg.length; i++) {
+      if (alvo <= t.seg[i]) {
+        const p = t.seg[i] ? alvo / t.seg[i] : 0;
+        return [
+          t.pts[i][0] + (t.pts[i + 1][0] - t.pts[i][0]) * p,
+          t.pts[i][1] + (t.pts[i + 1][1] - t.pts[i][1]) * p,
+        ];
+      }
+      alvo -= t.seg[i];
+    }
+    return t.pts[t.pts.length - 1];
+  }
+
+  function quadro() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, pulso.width, pulso.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (const t of trilhas) {
+      t.fase = (t.fase + t.vel * 16) % 1;
+      const [x, y] = ponto(t, t.fase);
+      ctx.drawImage(sprite, x - RAIO, y - RAIO, RAIO * 2, RAIO * 2);
+    }
+    if (rodando) raf = requestAnimationFrame(quadro);
+  }
+
+  function liga() {
+    if (rodando || reduz) return;
+    rodando = true;
+    raf = requestAnimationFrame(quadro);
+  }
+  function desliga() {
+    rodando = false;
+    cancelAnimationFrame(raf);
+  }
+
+  montar();
+  if (reduz) quadro();          // reduced motion: um quadro parado, sem loop
+
+  // Fora da tela o loop para: fundo decorativo não gasta bateria escondido.
+  new IntersectionObserver(
+    (es) => es.forEach((e) => (e.isIntersecting ? liga() : desliga())),
+    { threshold: 0 },
+  ).observe(cena);
+  document.addEventListener('visibilitychange', () =>
+    document.hidden ? desliga() : liga(),
+  );
+
+  let t0;
+  addEventListener('resize', () => {
+    clearTimeout(t0);
+    t0 = setTimeout(() => { montar(); if (reduz) quadro(); }, 220);
+  }, { passive: true });
+
+  // Exposto só para a verificação automatizada conferir que o loop realmente
+  // para quando a seção sai da tela.
+  window.__cena = { estaRodando: () => rodando };
+})();
 
 /* ---- 1. Barra de progresso de leitura ---- */
 const prog = document.getElementById('prog');

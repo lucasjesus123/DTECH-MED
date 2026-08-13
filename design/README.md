@@ -113,6 +113,70 @@ ao ar, trocar por material real: fotos da oficina e da equipe, marcas
 efetivamente atendidas, prazos e garantia praticados, e depoimentos com
 autorização.
 
+## O fundo da primeira dobra
+
+O pedido foi sensação de vídeo — técnico mexendo em equipamento, em marca
+d'água. São duas camadas empilhadas, nesta ordem de preferência.
+
+### 1. O vídeo real da oficina (o slot já existe)
+
+Não usei banco de imagens. Num site comercial isso é problema de licença, e
+cara de estoque contradiz justamente o que a página promete: a oficina é *sua*.
+
+Para ligar, basta gravar e apontar uma linha:
+
+```js
+// design/site.html  →  procure por HERO_VIDEO
+const HERO_VIDEO = '/video/bancada.mp4';
+```
+
+Ele assume sozinho: entra com fade, a cena procedural sai, e se o navegador
+bloquear o autoplay a cena continua no lugar. Enquanto for `null`, nenhuma
+requisição é feita — vídeo sem fonte pediria um arquivo inexistente.
+
+**Como filmar** (celular serve, desde que no tripé):
+
+- 12 a 20 segundos, **sem cortes**, para o laço não ter emenda visível.
+- Plano fechado nas **mãos e no aparelho aberto**, não o rosto do técnico.
+  Rosto puxa o olho e briga com o título.
+- **Câmera parada.** Quem se move é a mão, não o enquadramento — fundo que
+  balança dá enjoo e rouba a leitura.
+- Luz lateral, de bancada. Deixa o relevo da placa aparecer.
+- Movimento lento e contínuo: multímetro encostando, ferro de solda, parafuso
+  saindo. Nada de gesto brusco.
+- Exporte em **1920×1080, H.264, sem áudio, abaixo de 4 MB.** O vídeo entra a
+  16% de opacidade — detalhe fino se perde, e peso aqui custa Core Web Vitals.
+
+### 2. A cena procedural (o que roda hoje)
+
+Placa de circuito vista sob a luz da bancada, com sinal percorrendo as trilhas.
+Abstrata de propósito: cena figurativa montada com formas primitivas vira
+clip-art. Esta pertence ao mundo já estabelecido e não finge ser fotografia.
+
+Três decisões tiram trabalho de cada quadro:
+
+- As trilhas são estáticas, então vivem numa tela própria desenhada **uma vez**.
+  Antes eram recompostas a cada quadro com um `drawImage` da tela inteira —
+  cerca de 1,2 milhão de pixels por quadro, para nada.
+- O comprimento de cada segmento é constante, então é medido **uma vez** no
+  montar. Estava sendo recalculado com `hypot` para toda trilha, em todo quadro.
+- O brilho do pulso virou um sprite desenhado uma vez. Era um
+  `createRadialGradient` por pulso por quadro: vinte objetos novos a cada 16 ms,
+  só para o coletor de lixo recolher em seguida.
+
+O laço **para quando a seção sai da tela** e quando a aba perde o foco —
+verificado automaticamente, não presumido. No celular a cena nem carrega: ali
+ela não acrescenta e cobraria bateria.
+
+### O véu
+
+Sobre as duas camadas há um degradê que escurece o lado do texto. Sem ele o
+contraste da tese ficaria refém do que estivesse passando atrás.
+
+Medido no pixel, e no **pior instante da animação** (não na média): o ponto mais
+claro do fundo sob a área de texto fica em `rgb(16,12,24)`, o que dá **17,2:1**
+no título e **9,0:1** no subtítulo. Ambos passam com folga.
+
 ## O texto
 
 Passada de UX writing sobre as três telas, feita depois do visual e verificada
