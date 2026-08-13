@@ -335,7 +335,7 @@ export type DocumentoCreateInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
   ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
@@ -350,7 +350,7 @@ export type DocumentoUncheckedCreateInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -389,7 +389,7 @@ export type DocumentoCreateManyInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -569,7 +569,7 @@ export type DocumentoCreateWithoutTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
   ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
 }
@@ -582,7 +582,7 @@ export type DocumentoUncheckedCreateWithoutTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -635,7 +635,7 @@ export type DocumentoCreateWithoutOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
 }
@@ -648,7 +648,7 @@ export type DocumentoUncheckedCreateWithoutOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -686,7 +686,7 @@ export type DocumentoCreateManyTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -734,7 +734,7 @@ export type DocumentoCreateManyOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
-  tokenAcesso?: string
+  tokenAcesso: string
   geradoEm?: Date | string
 }
 
@@ -864,7 +864,8 @@ export type $DocumentoPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     hash: string
     tamanhoBytes: number | null
     /**
-     * Token para o link do WhatsApp funcionar sem login.
+     * Token para o link do WhatsApp funcionar sem login. Pelo mesmo motivo do
+     * `tokenPublico` da Ordem, vem de `novoToken()` e não de `cuid()`.
      */
     tokenAcesso: string
     geradoEm: Date

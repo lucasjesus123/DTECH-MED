@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { hashDocumento } from '@/lib/cripto'
+import { hashDocumento, novoToken } from '@/lib/cripto'
 import { comEscopo } from '@/lib/db'
 import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
@@ -127,6 +127,9 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
         equipamentoId: equipamento.id,
         defeitoRelatado: v.defeito,
         prioridade: v.prioridade,
+        // O link do portal é a credencial do cliente: 256 bits de randomBytes,
+        // não o cuid do Prisma, cujo começo é derivado do relógio.
+        tokenPublico: novoToken(),
         atendenteId: a.sessao.userId,
         origem: 'TELEFONE',
       },

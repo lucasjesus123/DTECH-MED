@@ -436,7 +436,13 @@ model Ordem {
 
   /// Token opaco do portal público. O cliente acompanha a linha do tempo e
   /// aprova o orçamento por aqui, sem login — mas confirmando o documento.
-  tokenPublico String @unique @default(cuid())
+  ///
+  /// SEM valor padrão de propósito: a aplicação grava `novoToken()`, que são
+  /// 256 bits de `randomBytes`. O `cuid()` do Prisma é cuid v1 — prefixo de
+  /// relógio, contador sequencial, impressão digital da máquina e só 41 bits
+  /// de aleatoriedade. Quem já recebeu um link conhece o relógio e o contador;
+  /// sobrariam 41 bits para adivinhar a ordem do vizinho.
+  tokenPublico String @unique
 
   /// Relato do cliente, em português dele.
   defeitoRelatado String
@@ -940,8 +946,9 @@ model Documento {
   hash    String
   tamanhoBytes Int?
 
-  /// Token para o link do WhatsApp funcionar sem login.
-  tokenAcesso String @unique @default(cuid())
+  /// Token para o link do WhatsApp funcionar sem login. Pelo mesmo motivo do
+  /// `tokenPublico` da Ordem, vem de `novoToken()` e não de `cuid()`.
+  tokenAcesso String @unique
 
   geradoEm DateTime @default(now())
 

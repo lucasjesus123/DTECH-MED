@@ -596,7 +596,7 @@ export type OrdemCreateInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -640,7 +640,7 @@ export type OrdemUncheckedCreateInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -763,7 +763,7 @@ export type OrdemCreateManyInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1328,7 +1328,7 @@ export type OrdemCreateWithoutTenantInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1370,7 +1370,7 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1469,7 +1469,7 @@ export type OrdemCreateWithoutTecnicoInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1512,7 +1512,7 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1559,7 +1559,7 @@ export type OrdemCreateWithoutAtendenteInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1602,7 +1602,7 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1681,7 +1681,7 @@ export type OrdemCreateWithoutClienteInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1723,7 +1723,7 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   numero: number
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1787,7 +1787,7 @@ export type OrdemCreateWithoutEquipamentoInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1829,7 +1829,7 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   numero: number
   clienteId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1893,7 +1893,7 @@ export type OrdemCreateWithoutEventosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -1936,7 +1936,7 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2069,7 +2069,7 @@ export type OrdemCreateWithoutFotosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2112,7 +2112,7 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2245,7 +2245,7 @@ export type OrdemCreateWithoutAssinaturasInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2288,7 +2288,7 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2421,7 +2421,7 @@ export type OrdemCreateWithoutOrcamentosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2464,7 +2464,7 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2597,7 +2597,7 @@ export type OrdemCreateWithoutMovimentosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2640,7 +2640,7 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2773,7 +2773,7 @@ export type OrdemCreateWithoutFaturaInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2816,7 +2816,7 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2949,7 +2949,7 @@ export type OrdemCreateWithoutAgendamentosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -2992,7 +2992,7 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3125,7 +3125,7 @@ export type OrdemCreateWithoutDocumentosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3168,7 +3168,7 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3301,7 +3301,7 @@ export type OrdemCreateWithoutMensagensInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3344,7 +3344,7 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3479,7 +3479,7 @@ export type OrdemCreateManyTenantInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3622,7 +3622,7 @@ export type OrdemCreateManyTecnicoInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3653,7 +3653,7 @@ export type OrdemCreateManyAtendenteInput = {
   clienteId: string
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -3905,7 +3905,7 @@ export type OrdemCreateManyClienteInput = {
   numero: number
   equipamentoId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -4047,7 +4047,7 @@ export type OrdemCreateManyEquipamentoInput = {
   numero: number
   clienteId: string
   etapa?: $Enums.EtapaOrdem
-  tokenPublico?: string
+  tokenPublico: string
   defeitoRelatado: string
   diagnostico?: string | null
   parecerTecnico?: string | null
@@ -4497,6 +4497,12 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     /**
      * Token opaco do portal público. O cliente acompanha a linha do tempo e
      * aprova o orçamento por aqui, sem login — mas confirmando o documento.
+     * 
+     * SEM valor padrão de propósito: a aplicação grava `novoToken()`, que são
+     * 256 bits de `randomBytes`. O `cuid()` do Prisma é cuid v1 — prefixo de
+     * relógio, contador sequencial, impressão digital da máquina e só 41 bits
+     * de aleatoriedade. Quem já recebeu um link conhece o relógio e o contador;
+     * sobrariam 41 bits para adivinhar a ordem do vizinho.
      */
     tokenPublico: string
     /**

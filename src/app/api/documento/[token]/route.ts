@@ -1,14 +1,20 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { comEscopo, prisma } from '@/lib/db'
 import { lerArquivo } from '@/server/arquivos/storage'
 
 /**
  * Entrega um PDF pelo token do documento.
  *
  * O cliente recebe este link no WhatsApp e o abre sem estar logado — então o
- * token é a credencial. Por isso ele é opaco e de alta entropia: com o número
- * do documento, quem recebeu o 41 tentaria o 42 e leria o contrato de outra
- * clínica.
+ * token é a credencial. Ele é gerado com 256 bits de entropia, e não com o
+ * número do documento: quem recebesse o 41 tentaria o 42 e leria o contrato de
+ * outra clínica.
+ *
+ * Sem sessão não há contexto de empresa, e o RLS — corretamente — devolveria
+ * zero linhas. A saída NÃO é abrir uma policy pública em `documentos`; é
+ * converter o token em apenas o id da empresa por função do banco, e então
+ * abrir o escopo normal. O token prova o direito àquele documento; não vira
+ * passe livre.
  *
  * A busca é EXCLUSIVAMENTE pelo token. Não existe parâmetro de ordem, de
  * empresa nem de caminho — não há o que manipular para alcançar outro arquivo.
@@ -21,10 +27,18 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
     return new NextResponse('Documento não encontrado', { status: 404 })
   }
 
-  const doc = await prisma.documento.findUnique({
-    where: { tokenAcesso: token },
-    select: { caminho: true, numero: true, tipo: true },
-  })
+  const linhas = await prisma.$queryRaw<Array<{ tenant: string | null }>>`
+    SELECT app.empresa_do_documento(${token}) AS tenant
+  `
+  const tenantId = linhas[0]?.tenant
+  if (!tenantId) return new NextResponse('Documento não encontrado', { status: 404 })
+
+  const doc = await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+    tx.documento.findUnique({
+      where: { tokenAcesso: token },
+      select: { caminho: true, numero: true, tipo: true },
+    }),
+  )
   if (!doc) return new NextResponse('Documento não encontrado', { status: 404 })
 
   const bytes = await lerArquivo(doc.caminho)

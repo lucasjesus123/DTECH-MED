@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { Prisma } from '@/generated/prisma/client'
 import { TipoMovimentoEstoque as TM } from '@/generated/prisma/enums'
 import { hashDocumento } from '@/lib/cripto'
+import { novoToken } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
 import { movimentar, reservarDoOrcamento, consumirNaExecucao, liberarReservas, abaixoDoMinimo } from '@/server/estoque/servico'
 import { conferir, darBaixa, emitirFatura, estornar, proximoNumero } from './servico'
@@ -52,10 +53,10 @@ beforeAll(async () => {
       data: { tenantId: t.id, clienteId: c.id, marca: 'Lavieen', modelo: 'Duo', numeroSerie: 'NS1' },
     })
     const o1 = await tx.ordem.create({
-      data: { tenantId: t.id, numero: 1, clienteId: c.id, equipamentoId: e.id, defeitoRelatado: 'x' },
+      data: { tenantId: t.id, numero: 1, clienteId: c.id, equipamentoId: e.id, defeitoRelatado: 'x', tokenPublico: novoToken() },
     })
     const o2 = await tx.ordem.create({
-      data: { tenantId: t.id, numero: 2, clienteId: c.id, equipamentoId: e.id, defeitoRelatado: 'y' },
+      data: { tenantId: t.id, numero: 2, clienteId: c.id, equipamentoId: e.id, defeitoRelatado: 'y', tokenPublico: novoToken() },
     })
     return { tenantId: t.id, clienteId: c.id, ordemId: o1.id, ordem2Id: o2.id }
   })
@@ -80,6 +81,10 @@ beforeEach(async () => {
   // reescrito por quem opera o sistema.
   const c = new Client({ connectionString: process.env.DIRECT_DATABASE_URL })
   await c.connect()
+  // Depois do FORCE ROW LEVEL SECURITY, nem o dono das tabelas lê ou apaga
+  // fora do escopo — é justamente o ponto dessa trava. A limpeza precisa
+  // declarar a intenção, e não contar com o privilégio implícito de dono.
+  await c.query(`SELECT set_config('app.is_super_admin', 'on', false)`)
   await c.query('DELETE FROM movimentos_estoque')
   await c.query('DELETE FROM pagamentos')
   await c.query('DELETE FROM faturas')

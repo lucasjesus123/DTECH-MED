@@ -2,6 +2,7 @@ import 'dotenv/config'
 import sharp from 'sharp'
 import { Prisma } from '../src/generated/prisma/client'
 import { EtapaOrdem as E, Papel as P } from '../src/generated/prisma/enums'
+import { novoToken } from '../src/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
 import { avancarOrdem } from '../src/server/ordem/motor'
 import { proximoNumero } from '../src/server/financeiro/servico'
@@ -83,6 +84,7 @@ async function main() {
           clienteId: cliente.id,
           equipamentoId: eq.id,
           defeitoRelatado: roteiro.defeito,
+          tokenPublico: novoToken(),
           tecnicoId: de(P.TECNICO).id,
           atendenteId: de(P.ATENDENTE).id,
           prazoPrometido: new Date(Date.now() + 7 * 86_400_000),

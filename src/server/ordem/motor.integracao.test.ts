@@ -2,6 +2,7 @@ import { Client } from 'pg'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { EtapaOrdem as E, Papel as P } from '@/generated/prisma/enums'
 import { hashDocumento } from '@/lib/cripto'
+import { novoToken } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
 import { avancarOrdem, verificarIntegridade } from './motor'
 
@@ -84,6 +85,7 @@ async function montarEmpresa(slug: string, nome: string): Promise<Ambiente> {
         clienteId: cliente.id,
         equipamentoId: eq.id,
         defeitoRelatado: 'Liga mas não dispara.',
+        tokenPublico: novoToken(),
         tecnicoId: usuarios.tecnico.id,
       },
     })
@@ -452,6 +454,11 @@ describe('a linha do tempo prova quem mexeu no quê', () => {
     // do banco — e mesmo assim a corrente de hash o denuncia.
     const c = new Client({ connectionString: process.env.DIRECT_DATABASE_URL })
     await c.connect()
+    // Com FORCE ROW LEVEL SECURITY, nem o dono alcança a linha sem assumir o
+    // contexto de plataforma. O atacante deste cenário, portanto, tem
+    // credencial de dono E sabe como o escopo funciona — e ainda assim a
+    // corrente de hash o denuncia.
+    await c.query(`SELECT set_config('app.is_super_admin', 'on', false)`)
     await c.query(
       `UPDATE eventos_ordem SET payload = jsonb_set(coalesce(payload,'{}'::jsonb), '{observacao}', '"mexido depois"')
         WHERE "ordemId" = $1 AND sequencia = 5`,

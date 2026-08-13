@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import PDFDocument from 'pdfkit'
 import type { TipoDocumento } from '@/generated/prisma/enums'
-import { hashArquivo } from '@/lib/cripto'
+import { hashArquivo, novoToken } from '@/lib/cripto'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
 import { env } from '@/lib/env'
@@ -272,6 +272,9 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         caminho: relativo,
         hash,
         tamanhoBytes: buffer.length,
+        // 256 bits de randomBytes. O link vai para o WhatsApp do cliente e o
+        // token é a única credencial — não pode ser derivado do relógio.
+        tokenAcesso: novoToken(),
       },
     })
   })
