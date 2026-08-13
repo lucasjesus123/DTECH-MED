@@ -1,8 +1,7 @@
 import Link from 'next/link'
+import { EMPRESA, linkWhatsapp } from '@/lib/empresa'
 import { FormularioRetirada } from './formulario-retirada'
 import estilo from './site.module.css'
-
-const WHATSAPP = '5551980449274'
 
 /**
  * Home institucional.
@@ -55,6 +54,7 @@ export default function Home() {
             </Link>
             <nav className={estilo.nav}>
               <a href="#como-funciona">Como funciona</a>
+              <a href="#a-empresa">A empresa</a>
               <a href="#especialidades">Especialidades</a>
               <a href="#solicitar">Solicitar retirada</a>
               <Link href="/entrar" className={estilo.navEntrar}>
@@ -141,6 +141,40 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ---------------- O que a empresa faz e no que acredita ----------
+            Texto do site oficial da DTECH MED, palavra por palavra. Missão,
+            visão e valores não foram reescritos: são o que a empresa já diz
+            de si, e reescrevê-los seria trocar a voz dela pela nossa. */}
+        <section id="a-empresa" className={estilo.secao}>
+          <div className={estilo.container}>
+            <p className={estilo.grav}>O serviço</p>
+            <h2 className={estilo.h2}>Conserta o que quebrou. E evita o próximo.</h2>
+            <div className={estilo.grade2}>
+              {EMPRESA.servicos.map((s) => (
+                <article key={s.titulo} className={estilo.carta}>
+                  <h3>{s.titulo}</h3>
+                  <p>{s.texto}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className={estilo.principios}>
+              <div>
+                <p className={estilo.grav}>Missão</p>
+                <p className={estilo.principioTexto}>{EMPRESA.missao}</p>
+              </div>
+              <div>
+                <p className={estilo.grav}>Visão</p>
+                <p className={estilo.principioTexto}>{EMPRESA.visao}</p>
+              </div>
+              <div>
+                <p className={estilo.grav}>Valores</p>
+                <p className={estilo.principioTexto}>{EMPRESA.valores}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ---------------- Especialidades (superfície clara) ---------------- */}
         <section id="especialidades" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
@@ -174,11 +208,11 @@ export default function Home() {
             <p className={estilo.lead}>
               A gente responde em até 24 horas úteis, já com a data da retirada.
             </p>
-            <FormularioRetirada whatsapp={WHATSAPP} />
+            <FormularioRetirada whatsapp={EMPRESA.whatsapp} />
             <p className={estilo.contatoDireto}>
               Prefere falar agora?{' '}
-              <a href={`https://wa.me/${WHATSAPP}`} className={estilo.linkZap}>
-                (51) 98044-9274
+              <a href={linkWhatsapp(`Olá! Preciso de manutenção em um equipamento.`)} className={estilo.linkZap}>
+                {EMPRESA.telefoneExibicao}
               </a>
             </p>
           </div>
@@ -195,31 +229,49 @@ export default function Home() {
               </span>
             </span>
             <p className={estilo.rodTexto}>
-              DTECHMED Assistência Especializada LTDA. Manutenção corretiva e
-              preventiva de equipamentos estéticos, médicos, odontológicos e
-              hospitalares.
+              {EMPRESA.razaoSocial}. {EMPRESA.descricaoSite}, de qualquer marca.
+              {EMPRESA.cnpj ? ` CNPJ ${EMPRESA.cnpj}.` : ''}
             </p>
           </div>
           <div>
             <h4>Contato</h4>
             <ul>
               <li>
-                <a href={`https://wa.me/${WHATSAPP}`}>(51) 98044-9274</a>
+                <a href={linkWhatsapp()}>{EMPRESA.telefoneExibicao}</a>
               </li>
-              <li>Seg a Sex · 8h às 18h</li>
+              {/* Campo vazio some da tela. Melhor faltar um horário do que
+                  publicar um que não é o verdadeiro. */}
+              {EMPRESA.horarioAtendimento ? <li>{EMPRESA.horarioAtendimento}</li> : null}
+              {EMPRESA.email ? (
+                <li>
+                  <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                </li>
+              ) : null}
+              {EMPRESA.instagram ? (
+                <li>
+                  <a href={`https://instagram.com/${EMPRESA.instagram.replace('@', '')}`}>
+                    {EMPRESA.instagram}
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
           <div>
             <h4>Endereço</h4>
             <ul>
-              <li>Av. Alberto Pasqualini, 2073</li>
-              <li>São Cristóvão</li>
-              <li>Lajeado · RS</li>
+              <li>
+                {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.numero}
+              </li>
+              <li>{EMPRESA.endereco.bairro}</li>
+              <li>
+                {EMPRESA.endereco.cidade} · {EMPRESA.endereco.uf}
+              </li>
+              <li>CEP {EMPRESA.endereco.cep}</li>
             </ul>
           </div>
         </div>
         <div className={`${estilo.container} ${estilo.rodFim}`}>
-          <span>© {new Date().getFullYear()} DTECHMED Assistência Especializada LTDA</span>
+          <span>© {new Date().getFullYear()} {EMPRESA.razaoSocial}</span>
           <Link href="/entrar">Acesso ao sistema</Link>
         </div>
       </footer>

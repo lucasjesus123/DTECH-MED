@@ -267,3 +267,25 @@
   color: var(--sinal);
   margin-bottom: var(--s2);
 }
+
+/* ===== A empresa: serviços e princípios ================================== */
+.grade2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s6);
+}
+.principios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s5);
+  margin-top: var(--s7);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--borda);
+}
+.principioTexto {
+  margin-top: var(--s2);
+  font-size: var(--t-sm);
+  line-height: 1.7;
+  color: var(--txt-2);
+}

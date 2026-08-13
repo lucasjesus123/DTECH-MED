@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { lerSessao } from '@/server/auth/sessao'
 import { Formulario } from './formulario'
 import estilo from './entrar.module.css'
+import { EMPRESA } from '@/lib/empresa'
 
 export const metadata: Metadata = {
   title: 'Entrar',
@@ -40,7 +41,7 @@ export default async function Entrar({
       </div>
 
       <p className={estilo.rodape}>
-        DTECHMED Assistência Especializada LTDA · Lajeado/RS
+        {EMPRESA.razaoSocial} · {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
       </p>
     </main>
   )

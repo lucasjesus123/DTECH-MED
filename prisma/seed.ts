@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto'
 import { Prisma } from '../src/generated/prisma/client'
 import { Papel } from '../src/generated/prisma/enums'
 import { hashDocumento, hashSenha } from '../src/lib/cripto'
+import { EMPRESA } from '../src/lib/empresa'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
 
 /**
@@ -77,16 +78,22 @@ async function semearDemo() {
     if (existente) return existente
     return tx.tenant.create({
       data: {
+        // Estes dados saem no cabeçalho de TODO documento: ordem de retirada,
+        // laudo, orçamento, contrato, recibo. Vêm do arquivo único de dados
+        // institucionais para não divergirem do que o site publica.
         slug: 'dtechmed-lajeado',
-        nome: 'DTECH MED',
-        razaoSocial: 'DTECHMED Assistência Especializada LTDA',
-        telefone: '5551980449274',
-        whatsapp: '5551980449274',
-        logradouro: 'Av. Alberto Pasqualini',
-        numero: '2073',
-        bairro: 'São Cristóvão',
-        cidade: 'Lajeado',
-        uf: 'RS',
+        nome: EMPRESA.nome,
+        razaoSocial: EMPRESA.razaoSocial,
+        cnpj: EMPRESA.cnpj || null,
+        email: EMPRESA.email || null,
+        telefone: EMPRESA.whatsapp,
+        whatsapp: EMPRESA.whatsapp,
+        cep: EMPRESA.endereco.cep.replace(/\D/g, ''),
+        logradouro: EMPRESA.endereco.logradouro,
+        numero: EMPRESA.endereco.numero,
+        bairro: EMPRESA.endereco.bairro,
+        cidade: EMPRESA.endereco.cidade,
+        uf: EMPRESA.endereco.uf,
       },
     })
   })

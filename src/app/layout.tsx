@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { EMPRESA, enderecoEmUmaLinha } from '@/lib/empresa'
 import { jetbrains, manrope, sora } from '@/lib/fontes'
 import './globals.css'
 
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
   description:
     'Consertamos aparelho de estética, médico, odontológico e hospitalar, de qualquer marca. ' +
     'A gente busca na sua sala, registra cada passo e devolve funcionando, com laudo, garantia e assinatura.',
-  applicationName: 'DTECH MED',
+  applicationName: EMPRESA.nome,
+  // O endereço nos metadados ajuda a busca local a associar a empresa à
+  // cidade certa — é por "conserto de autoclave em Lajeado" que o cliente
+  // procura, não pelo nome de quem ele ainda não conhece.
+  other: { 'geo.placename': `${EMPRESA.endereco.cidade}, ${EMPRESA.endereco.uf}`, endereco: enderecoEmUmaLinha() },
   // Sem isso, um link colado no WhatsApp aparece sem título nem descrição —
   // e o WhatsApp é justamente por onde os clientes chegam.
   openGraph: {
