@@ -141,6 +141,31 @@ services:
       - dtechmed_net
     logging: *log
 
+  migrador:
+    # Serviço de uso PONTUAL: migrações e semeadura. Não sobe junto com o
+    # resto — só com `--profile manutencao`.
+    #
+    # Usa o estágio de BUILD, e não o de runtime, porque precisa do CLI do
+    # Prisma, do `tsx` e do `prisma.config.ts` — coisas que a imagem final
+    # não carrega de propósito. Tentar migrar pela imagem enxuta falharia
+    # justamente no dia do deploy.
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: dtechmed_migrador
+    profiles: ["manutencao"]
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    command: ["npx", "prisma", "migrate", "deploy"]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dtechmed_net
+    logging: *log
+
   backup:
     # Dump diário do banco + retenção. Auto Backup da VPS é a segunda camada.
     image: postgres:16-alpine

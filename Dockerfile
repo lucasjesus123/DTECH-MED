@@ -21,7 +21,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate \
  && npm run build \
  && npx tsx --version >/dev/null 2>&1 || true
-# Compila o worker para JS puro — a imagem final não precisa de tsx.
+# Compila o worker para JS puro — a imagem final não carrega tsx nem o
+# código-fonte. Migração e semeadura NÃO rodam aqui: elas têm serviço próprio
+# no compose, a partir do estágio de build, que tem o CLI do Prisma e o
+# prisma.config.ts. Tentar rodá-las na imagem enxuta falharia — e falharia
+# justamente no dia do deploy.
 RUN npx esbuild worker/index.ts \
       --bundle --platform=node --target=node22 --format=cjs \
       --external:@prisma/client --external:.prisma --external:sharp \
