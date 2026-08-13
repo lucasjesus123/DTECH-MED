@@ -4,11 +4,17 @@
 # Princípios de convivência com outros sistemas no mesmo servidor:
 #
 #  1. NADA é publicado em 0.0.0.0. Todas as portas ficam presas em 127.0.0.1.
-#     Só o nginx do host alcança a aplicação. Postgres nunca vê a internet.
+#     Só o proxy de borda do host alcança a aplicação. Postgres nunca vê a
+#     internet.
 #  2. Rede Docker própria e nomeada — sem tráfego cruzado com as outras gavetas.
 #  3. Volumes com prefixo `dtechmed_` — impossível colidir com vizinhos.
 #  4. Teto de CPU e memória em todos os serviços — a gaveta não sufoca o host.
 #  5. Portas na faixa 54xx, reservada para este projeto.
+#
+# Os tetos abaixo somam 3 vCPU e 3 GB numa VPS de 4 vCPU e 7,8 GB que já
+# hospeda outras duas gavetas. São tetos, não reservas: o uso real fica bem
+# abaixo. O que importa é que, se algo aqui disparar, o estrago para nos
+# nossos 3 GB em vez de derrubar os vizinhos junto.
 #
 # Suba sempre com o nome de projeto fixo:
 #   docker compose -p dtechmed up -d
@@ -62,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.5"
-          memory: 2G
+          cpus: "1.0"
+          memory: 1536M
     networks:
       - dtechmed_net
     logging: &log
@@ -105,8 +111,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.0"
-          memory: 2G
+          cpus: "1.5"
+          memory: 1G
     networks:
       - dtechmed_net
     logging: *log
@@ -135,8 +141,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1.0"
-          memory: 1G
+          cpus: "0.5"
+          memory: 512M
     networks:
       - dtechmed_net
     logging: *log
