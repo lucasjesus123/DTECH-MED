@@ -541,11 +541,11 @@ body { background: var(--bg); }
 <div class="palco">
   <div class="palco-cab">
     <span class="grav">Aplicativos de campo · PWA instalável</span>
-    <h1>Dois apps, um só sistema.</h1>
+    <h1>Dois apps que escrevem no mesmo lugar.</h1>
     <p>
-      Ambos escrevem na mesma linha do tempo da ordem. O que o motorista faz na
-      calçada aparece no painel da gestora no mesmo segundo — e no WhatsApp do
-      cliente logo depois.
+      O que o motorista faz na calçada aparece no painel da gestora no mesmo
+      segundo, e no WhatsApp do cliente logo em seguida. Ninguém precisa
+      repassar nada por telefone.
     </p>
   </div>
 
@@ -554,7 +554,7 @@ body { background: var(--bg); }
     <div class="coluna-fone">
       <div class="fone-rot">
         <h2>App do Motorista</h2>
-        <p>Retirada e entrega, com assinatura e localização</p>
+        <p>Busca e devolve, com assinatura no visor</p>
       </div>
 
       <div class="fone">
@@ -633,11 +633,11 @@ body { background: var(--bg); }
             </div>
             <div class="assin-corpo">
               <div class="rede-aviso">
-                ⬤ Online. A conclusão só é aceita com rede — sem fingir que salvou.
+                ⬤ Conectado. Sem internet o app avisa e não deixa finalizar, em vez de fingir que salvou.
               </div>
 
               <div class="assin-campo">
-                <label for="qRecebe">Quem está entregando o equipamento</label>
+                <label for="qRecebe">Quem está entregando o aparelho</label>
                 <input id="qRecebe" type="text" value="Mariana Farias" autocomplete="off">
               </div>
 
@@ -667,13 +667,13 @@ body { background: var(--bg); }
               <p>#DT-2431 · 12 AGO às 09:47</p>
             </div>
             <div class="suc-corpo">
-              <span class="grav">O que aconteceu automaticamente</span>
+              <span class="grav">O que o sistema já fez sozinho</span>
               <div style="margin-top:var(--s3)">
-                <div class="suc-item"><span class="ck">✓</span><span>PDF da ordem de retirada gerado e assinado</span></div>
-                <div class="suc-item"><span class="ck">✓</span><span>WhatsApp disparado para a Clínica Bella Pelle com data, hora, endereço e seu nome</span></div>
+                <div class="suc-item"><span class="ck">✓</span><span>PDF da ordem de retirada pronto, com a assinatura</span></div>
+                <div class="suc-item"><span class="ck">✓</span><span>WhatsApp já saiu para a Clínica Bella Pelle com data, hora, endereço e o seu nome</span></div>
                 <div class="suc-item"><span class="ck">✓</span><span>Equipamento marcado como <b>a caminho</b> no painel</span></div>
-                <div class="suc-item"><span class="ck">✓</span><span>Evento gravado na linha do tempo com seu nome e a coordenada</span></div>
-                <div class="suc-item"><span class="ck">✓</span><span>Técnico avisado de que há aparelho chegando</span></div>
+                <div class="suc-item"><span class="ck">✓</span><span>Registro na linha do tempo com o seu nome e o local</span></div>
+                <div class="suc-item"><span class="ck">✓</span><span>Técnico avisado que tem aparelho chegando</span></div>
               </div>
               <button class="btn-grande" id="btnVoltar" style="background:var(--ink)">Seguir para a parada 4</button>
             </div>
@@ -686,7 +686,7 @@ body { background: var(--bg); }
     <div class="coluna-fone">
       <div class="fone-rot">
         <h2>App do Técnico</h2>
-        <p>Recebimento fotografado, laudo e execução</p>
+        <p>Dá entrada, fotografa, lauda e conserta</p>
       </div>
 
       <div class="fone">
@@ -705,10 +705,10 @@ body { background: var(--bg); }
           </div>
 
           <div class="app-corpo">
-            <span class="grav">Estado em que chegou</span>
+            <span class="grav">Como chegou</span>
             <p style="font-size:var(--t-xs);color:var(--ink-2);margin-top:5px;line-height:1.5">
-              Mínimo de 6 fotos. É a prova que protege você e o cliente se aparecer
-              discussão sobre avaria depois.
+              São 6 fotos, no mínimo. É o que segura a discussão se daqui a um mês
+              alguém disser que o arranhão foi aqui.
             </p>
 
             <div class="grade-foto" id="gradeFoto">
@@ -726,7 +726,7 @@ body { background: var(--bg); }
             </div>
 
             <div style="margin-top:var(--s5)">
-              <span class="grav">Conferência de acessórios</span>
+              <span class="grav">Veio junto na caixa?</span>
               <div style="margin-top:var(--s2)">
                 <div class="check-item mar"><span class="cx">✓</span> Cabo de força</div>
                 <div class="check-item mar"><span class="cx">✓</span> Ponteira e suporte</div>
@@ -736,7 +736,7 @@ body { background: var(--bg); }
             </div>
 
             <div style="margin-top:var(--s5)">
-              <span class="grav">Relato do cliente</span>
+              <span class="grav">O que o cliente contou</span>
               <div style="background:var(--branco);border:1px solid var(--linha);border-radius:var(--r);padding:var(--s3);margin-top:var(--s2);font-size:var(--t-sm);color:var(--ink-2);line-height:1.55">
                 "Liga, mas não dispara. Ontem apareceu um cheiro de queimado
                 quando a gente ligou na tomada."
@@ -760,21 +760,21 @@ body { background: var(--bg); }
   <div class="legenda">
     <div class="legenda-grade">
       <div>
-        <b>A assinatura vale como prova</b><br>
-        Guardamos o traço, o nome de quem assinou, o documento, a coordenada, a
-        precisão, o horário e o aparelho usado. Nome de quem recebeu vale mais
-        que o rabisco: é ele que identifica a pessoa.
+        <b>A assinatura serve de prova</b><br>
+        Fica guardado o traço, o nome de quem assinou, o documento, o local, o
+        horário e o celular usado. O nome de quem recebeu vale mais que o
+        rabisco, porque é ele que diz quem era a pessoa.
       </div>
       <div>
-        <b>Foto pesada trava entrega</b><br>
-        O celular gera 5 MB por foto. Seis delas em 4G ruim deixam o motorista
-        parado na porta do cliente. As imagens são reduzidas no próprio aparelho
+        <b>Foto pesada trava a entrega</b><br>
+        O celular tira foto de 5 MB. Seis delas num 4G ruim deixam o motorista
+        parado na porta do cliente. Por isso a imagem encolhe no próprio celular
         antes de subir.
       </div>
       <div>
-        <b>Sem rede, sem "salvo"</b><br>
-        O app nunca mostra sucesso antes da confirmação do servidor. Sem
-        internet, ele avisa e trava a conclusão — o resto continua consultável.
+        <b>Sem internet, sem "salvo"</b><br>
+        O app não mostra "pronto" antes do servidor confirmar. Sem internet ele
+        avisa e trava a finalização. O resto continua dando para consultar.
       </div>
     </div>
   </div>
@@ -895,7 +895,10 @@ document.getElementById('gradeFoto').addEventListener('click', (e) => {
     btnEntrada.disabled = false;
     btnEntrada.textContent = 'Dar entrada no equipamento';
   } else {
-    btnEntrada.textContent = 'Falta ' + (6 - nFotos) + ' foto para dar entrada';
+    const faltam = 6 - nFotos;
+    btnEntrada.textContent = faltam === 1
+      ? 'Falta 1 foto para dar entrada'
+      : 'Faltam ' + faltam + ' fotos para dar entrada';
   }
 });
 

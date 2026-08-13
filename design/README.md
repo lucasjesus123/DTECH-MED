@@ -113,6 +113,44 @@ ao ar, trocar por material real: fotos da oficina e da equipe, marcas
 efetivamente atendidas, prazos e garantia praticados, e depoimentos com
 autorização.
 
+## O texto
+
+Passada de UX writing sobre as três telas, feita depois do visual e verificada
+contra os vícios de escrita gerada por máquina: saturação de travessão, palavra
+de marketing, cadência de aforismo ("X. Não Y.") e jargão interno vazando.
+
+Medido no texto que o usuário lê de fato (`innerText` das páginas renderizadas),
+não no código-fonte:
+
+| Vício | Site | Painel | Apps |
+|---|---|---|---|
+| Travessão (—) | 0 | 0 | 1 |
+| Palavra de marketing | 0 | 0 | 0 |
+| Cadência de aforismo | 0 | 0 | 0 |
+| Jargão interno | nenhum | "esteira" | nenhum |
+
+O achado que mais valeu: **"esteira" estava na cara do cliente**, no botão do
+hero e no rótulo de uma seção. É palavra nossa, de dentro da oficina — a dona
+de uma clínica não faz ideia do que seja. No site virou "Ver como funciona" e
+"O caminho do seu aparelho". No painel ela fica: quem trabalha ali ganha em ter
+uma palavra curta para a coisa. Jargão só atrapalha quando atravessa para quem
+não é do time.
+
+Os outros três padrões que a passada corrigiu:
+
+- **Língua de nota fiscal.** "Registrado antes de qualquer intervenção" virou
+  "fotografado antes de alguém encostar a chave nele". "As peças aplicadas"
+  virou "no serviço e nas peças".
+- **Rótulo que descreve o gesto, não o resultado.** "Enviar solicitação" virou
+  "Pedir a retirada".
+- **Mensagem montada por concatenação.** O app do técnico exibia "Falta 2 foto"
+  — número e plural discordando porque a frase era colada de pedaços. Agora a
+  mensagem é escrita inteira nas duas formas, o que também a deixa traduzível.
+
+Uma decisão de conteúdo, não de estilo: a mensagem de WhatsApp cumprimentava a
+razão social ("Olá, Clínica Bella Pelle!"). Quem lê WhatsApp é uma pessoa, e ela
+tem nome. Passou a cumprimentar a Mariana.
+
 ## Verificação
 
 Inspecionado em Chromium (1440×950 e 390×844), em rodadas fechadas:
