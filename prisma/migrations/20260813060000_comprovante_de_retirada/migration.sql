@@ -1,0 +1,21 @@
+-- =============================================================================
+-- Comprovante de retirada: um nome próprio para o documento assinado
+-- =============================================================================
+-- A coleta gerava DOIS documentos do mesmo tipo, com o mesmo número:
+--
+--   ORDEM_RETIRADA-00004   11:54:02   ← a via que o motorista leva
+--   ORDEM_RETIRADA-00004   11:54:03   ← a mesma via, agora COM a assinatura
+--
+-- Os dois são legítimos e os dois precisam existir: o primeiro é o que autoriza
+-- a retirada, o segundo é a prova de que ela aconteceu. O problema era só o
+-- nome — na tela apareciam duas linhas idênticas, e justo a que vale como prova
+-- ficava indistinguível da outra.
+--
+-- A entrega já resolvia isso com dois tipos separados. A retirada passa a ter
+-- a mesma simetria:
+--
+--   saída   ORDEM_RETIRADA      →  COMPROVANTE_RETIRADA
+--   volta   (ordem de serviço)  →  COMPROVANTE_ENTREGA
+-- =============================================================================
+
+ALTER TYPE "TipoDocumento" ADD VALUE IF NOT EXISTS 'COMPROVANTE_RETIRADA';

@@ -28,7 +28,7 @@ export type Transicao = {
   /** Dispara aviso ao cliente no WhatsApp quando a transição acontece. */
   avisaCliente: boolean
   /** Gera documento em PDF ao entrar nesta etapa. */
-  gera?: 'ORDEM_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
+  gera?: 'ORDEM_RETIRADA' | 'COMPROVANTE_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
   /** Pré-condições verificadas pelo motor antes de aceitar a transição. */
   exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO'>
 }
@@ -77,7 +77,9 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Equipamento coletado e assinado pelo cliente',
     papeis: [P.MOTORISTA],
     avisaCliente: true,
-    gera: 'ORDEM_RETIRADA',
+    // Comprovante, e não outra ordem de retirada: este documento já traz a
+    // assinatura, e é ele que prova que o aparelho saiu de lá.
+    gera: 'COMPROVANTE_RETIRADA',
     // Sem a assinatura não há prova de que o equipamento saiu de lá. Meses
     // depois, sem ela, a discussão é perdida.
     exige: ['ASSINATURA_RETIRADA'],
@@ -402,6 +404,24 @@ export const ROTULO_ETAPA: Record<EtapaOrdem, string> = {
   FINALIZADO: 'Finalizado',
   DEVOLVIDO_SEM_REPARO: 'Devolvido sem reparo',
   CANCELADO: 'Cancelado',
+}
+
+/**
+ * Nome de gente para cada documento.
+ *
+ * O portal mostrava ao CLIENTE o identificador cru — "CONTRATO_MANUTENCAO-00009".
+ * Serve para o banco, não para quem recebeu o link no WhatsApp e quer abrir o
+ * contrato que acabou de assinar.
+ */
+export const ROTULO_DOCUMENTO: Record<string, string> = {
+  ORDEM_RETIRADA: 'Ordem de retirada',
+  COMPROVANTE_RETIRADA: 'Comprovante de retirada',
+  LAUDO_TECNICO: 'Laudo técnico',
+  ORCAMENTO: 'Orçamento',
+  CONTRATO_MANUTENCAO: 'Contrato de manutenção',
+  ORDEM_SERVICO: 'Ordem de serviço',
+  RECIBO_PAGAMENTO: 'Recibo de pagamento',
+  COMPROVANTE_ENTREGA: 'Comprovante de entrega',
 }
 
 /** Etapas que o cliente enxerga no portal público. */

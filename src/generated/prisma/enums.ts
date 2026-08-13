@@ -158,6 +158,7 @@ export type CategoriaFoto = (typeof CategoriaFoto)[keyof typeof CategoriaFoto]
 
 export const TipoDocumento = {
   ORDEM_RETIRADA: 'ORDEM_RETIRADA',
+  COMPROVANTE_RETIRADA: 'COMPROVANTE_RETIRADA',
   LAUDO_TECNICO: 'LAUDO_TECNICO',
   ORCAMENTO: 'ORCAMENTO',
   CONTRATO_MANUTENCAO: 'CONTRATO_MANUTENCAO',

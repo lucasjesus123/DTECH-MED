@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { EtapaOrdem } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { carregarOrdemPublica } from '@/server/acoes/portal'
-import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { Aprovacao } from './aprovacao'
 import estilo from './portal.module.css'
 
@@ -128,7 +128,10 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
                   <a href={`/api/documento/${d.tokenAcesso}`} className={estilo.doc}>
                     <span className={estilo.docIc}>PDF</span>
                     <span>
-                      <strong>{d.numero}</strong>
+                      <strong>
+                        {ROTULO_DOCUMENTO[d.tipo] ?? d.tipo} nº{' '}
+                        {d.numero.split('-').pop()?.replace(/^0+/, '') ?? d.numero}
+                      </strong>
                       <small>
                         {d.geradoEm.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
                       </small>

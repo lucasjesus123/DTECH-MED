@@ -6,7 +6,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { prontuario } from '@/server/consultas/painel'
 import { listarPecas, motoristasDaEmpresa, tecnicosDaEmpresa } from '@/server/consultas/listas'
-import { proximosPassos, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { proximosPassos, ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { verificarIntegridade } from '@/server/ordem/motor'
 import { env } from '@/lib/env'
 import BotoesEtapa from './botoes-etapa'
@@ -403,7 +403,7 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
                       className={estilo.parVal}
                       style={{ color: 'var(--vio-claro)', textDecoration: 'none' }}
                     >
-                      {rotuloDocumento(d.tipo)} · {d.numero}
+                      {ROTULO_DOCUMENTO[d.tipo] ?? d.tipo} nº {d.numero.split('-').pop()?.replace(/^0+/, '')}
                     </a>
                     <div className={estilo.fraco}>{dataCurta(d.geradoEm)}</div>
                   </li>
@@ -531,15 +531,3 @@ function rotuloAssinatura(t: string): string {
   return m[t] ?? t
 }
 
-function rotuloDocumento(t: string): string {
-  const m: Record<string, string> = {
-    ORDEM_RETIRADA: 'Ordem de retirada',
-    LAUDO_TECNICO: 'Laudo técnico',
-    ORCAMENTO: 'Orçamento',
-    CONTRATO_MANUTENCAO: 'Contrato de manutenção',
-    ORDEM_SERVICO: 'Ordem de serviço',
-    RECIBO_PAGAMENTO: 'Recibo de pagamento',
-    COMPROVANTE_ENTREGA: 'Comprovante de entrega',
-  }
-  return m[t] ?? t
-}

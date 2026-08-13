@@ -5,7 +5,7 @@ import { EtapaOrdem as E, Papel as P } from '../src/generated/prisma/enums'
 import { novoToken } from '../src/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
 import { avancarOrdem } from '../src/server/ordem/motor'
-import { proximoNumero } from '../src/server/financeiro/servico'
+import { conferir, darBaixa, emitirFatura, proximoNumero } from '../src/server/financeiro/servico'
 import { guardarAssinatura, guardarFoto } from '../src/server/arquivos/storage'
 
 /**
@@ -68,10 +68,16 @@ async function main() {
     { ate: E.RECEBIDO_NA_EMPRESA, defeito: 'Autoclave não fecha o ciclo, para na secagem.' },
     { ate: E.ORCAMENTO_ENVIADO, defeito: 'Perde vácuo no aplicador e desliga sozinho.' },
     { ate: E.EM_MANUTENCAO, defeito: 'Bisturi sem corte no modo coagulação.' },
+    { ate: E.FATURADO, defeito: 'Autoclave desarma o disjuntor ao iniciar o ciclo.' },
+    { ate: E.FINALIZADO, defeito: 'Cadeira não sobe. Barulho de bomba forçando.' },
   ]
 
-  for (let i = 0; i < roteiros.length && i < clientes.length; i++) {
-    const cliente = clientes[i]!
+  if (clientes.length === 0) throw new Error('Sem clientes. Rode antes: npm run db:seed -- --demo')
+
+  for (let i = 0; i < roteiros.length; i++) {
+    // Mais roteiros que clientes: o mesmo cliente volta com outro aparelho, o
+    // que também é realista — clínica que já é cliente manda o próximo.
+    const cliente = clientes[i % clientes.length]!
     const eq = cliente.equipamentos[0]
     if (!eq) continue
     const roteiro = roteiros[i]!
@@ -254,6 +260,83 @@ async function main() {
       autorExterno: cliente.contatoNome ?? cliente.nome,
     })
     await passo(E.EM_MANUTENCAO, de(P.TECNICO))
+    if (roteiro.ate === E.EM_MANUTENCAO) continue
+
+    // ---- execução concluída e conferida pela gestão ----------------------
+    await comEscopo(ctx, async (tx) => {
+      await tx.ordem.update({
+        where: { id: ordemId },
+        data: {
+          servicoExecutado:
+            'Fonte substituída por equivalente original. Capacitor C14 trocado e trilha refeita.',
+          testesFinais:
+            'Ciclo completo em vazio e com carga. Potência aferida em 24,1V. Sem oscilação em 40 minutos.',
+        },
+      })
+    })
+    await passo(E.MANUTENCAO_CONCLUIDA, de(P.TECNICO))
+    await passo(E.APROVACAO_GESTAO, de(P.TECNICO))
+    await passo(E.FATURAMENTO, de(P.GESTOR))
+
+    // ---- financeiro: emite e recebe em duas formas -----------------------
+    const fat = await emitirFatura(ctx, ordemId, new Date(Date.now() + 5 * 86_400_000))
+    if (!fat.ok) throw new Error(`fatura: ${fat.motivo}`)
+
+    // Pagamento fracionado, que é como acontece no balcão: parte no pix,
+    // o resto em dinheiro.
+    const baixa = await darBaixa(ctx, { id: de(P.FINANCEIRO).id, nome: de(P.FINANCEIRO).nome }, {
+      faturaId: fat.faturaId,
+      pagamentos: [
+        { forma: 'PIX', valorCentavos: 100000, autorizacao: 'E2E' + ordemId.slice(-10) },
+        { forma: 'DINHEIRO', valorCentavos: 79500 },
+      ],
+      taxaCentavos: 1200,
+    })
+    if (!baixa.ok) throw new Error(`baixa: ${baixa.motivo}`)
+    await passo(E.FATURADO, de(P.FINANCEIRO))
+
+    // A conferência da gestão é a etapa 16 — separada de "pago".
+    await conferir(ctx, { id: de(P.GESTOR).id!, nome: de(P.GESTOR).nome }, fat.faturaId)
+    if (roteiro.ate === E.FATURADO) continue
+
+    // ---- a volta ---------------------------------------------------------
+    await comEscopo(ctx, async (tx) => {
+      await tx.agendamento.create({
+        data: {
+          tenantId: t.id,
+          ordemId,
+          tipo: 'ENTREGA',
+          status: 'ATRIBUIDO',
+          motoristaId: de(P.MOTORISTA).id,
+          previstoPara: new Date(),
+          enderecoSnapshot: `${cliente.logradouro ?? 'Endereço não informado'} · ${cliente.cidade ?? 'Lajeado'}/RS`,
+          contatoNome: cliente.contatoNome,
+          contatoTelefone: cliente.whatsapp,
+          posicaoRota: i + 1,
+        },
+      })
+    })
+    await passo(E.EM_ROTA_ENTREGA, de(P.MOTORISTA))
+
+    const tracoEntrega = await guardarAssinatura({ tenantId: t.id, ordemId, dataUrl: await assinaturaDemo() })
+    if (!tracoEntrega.ok) throw new Error(`assinatura de entrega: ${tracoEntrega.motivo}`)
+    await comEscopo(ctx, async (tx) => {
+      await tx.assinatura.create({
+        data: {
+          tenantId: t.id,
+          ordemId,
+          tipo: 'ENTREGA',
+          assinanteNome: cliente.contatoNome ?? cliente.nome,
+          caminhoImagem: tracoEntrega.caminho,
+          hashImagem: tracoEntrega.hash,
+          latitude: -29.4669,
+          longitude: -51.9611,
+          precisaoM: 9,
+        },
+      })
+    })
+    await passo(E.ENTREGUE, de(P.MOTORISTA))
+    await passo(E.FINALIZADO, de(P.GESTOR))
   }
 
   const resumo = await comEscopo(ctx, (tx) =>

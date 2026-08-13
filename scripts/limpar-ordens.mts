@@ -26,6 +26,9 @@ if (!/@(127\.0\.0\.1|localhost)[:/]/.test(url)) {
 
 const cliente = new Client({ connectionString: url })
 await cliente.connect()
+// Depois do FORCE ROW LEVEL SECURITY, nem o dono apaga fora do escopo. A
+// ferramenta declara a intenção em vez de contar com privilégio implícito.
+await cliente.query(`SELECT set_config('app.is_super_admin', 'on', false)`)
 
 // A ordem das tabelas segue as dependências. `ordens` em cascata levaria a
 // maioria junto, mas ser explícito deixa claro o que está sendo descartado.

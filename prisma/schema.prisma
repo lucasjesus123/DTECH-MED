@@ -148,6 +148,10 @@ enum CategoriaFoto {
 
 enum TipoDocumento {
   ORDEM_RETIRADA
+  /// A mesma via, agora com a assinatura de quem entregou o aparelho. Tipo
+  /// próprio porque é ela que vale como prova — e com o mesmo nome do primeiro
+  /// as duas ficavam indistinguíveis na tela.
+  COMPROVANTE_RETIRADA
   LAUDO_TECNICO
   ORCAMENTO
   CONTRATO_MANUTENCAO

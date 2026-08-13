@@ -1,4 +1,5 @@
-import type { EtapaOrdem, Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem } from '@/generated/prisma/enums'
+import type { Papel } from '@/generated/prisma/enums'
 import { hashEvento } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
 import { validarTransicao, type Transicao } from './maquina-estados'
@@ -131,6 +132,9 @@ export async function avancarOrdem(
       data: { etapa: pedido.para, ...marcosDe(pedido.para, criadoEm) },
     })
 
+    // --- a parada do motorista acompanha a etapa ---------------------------
+    await fecharAgendamento(tx, ordem.id, pedido.para, criadoEm)
+
     // --- automações, na mesma transação -----------------------------------
     if (val.transicao.gera) {
       await enfileirar(tx, ordem.tenantId, {
@@ -242,6 +246,67 @@ async function conferirPreCondicoes(
  * São redundantes com a linha do tempo de propósito: alimentam os indicadores
  * do painel sem varrer a tabela de eventos a cada carregamento de tela.
  */
+/**
+ * Sincroniza a parada do motorista com a etapa da ordem.
+ *
+ * Sem isto, o agendamento ficava `ATRIBUIDO` para sempre. Na tela do motorista
+ * o efeito era ruim de um jeito específico: a rota do dia **nunca andava**. Ele
+ * coletava o aparelho, a ordem seguia para a oficina, e a parada continuava lá
+ * com o botão "Cheguei · coletar assinatura" — convidando a coletar de novo o
+ * que já estava na bancada. O contador do topo dizia "8 paradas · 0 concluídas"
+ * o dia inteiro.
+ *
+ * Fica no motor, e não na ação do app, de propósito: a coleta também acontece
+ * pelo correio (a central marca COLETADO sem motorista nenhum), e a entrega
+ * pode ser fechada pela central. Amarrando à ETAPA, todos os caminhos fecham a
+ * parada — inclusive os que ainda não existem.
+ */
+async function fecharAgendamento(
+  tx: Transacao,
+  ordemId: string,
+  etapa: EtapaOrdem,
+  agora: Date,
+): Promise<void> {
+  const emRota =
+    etapa === EtapaOrdem.EM_ROTA_RETIRADA
+      ? 'RETIRADA'
+      : etapa === EtapaOrdem.EM_ROTA_ENTREGA
+        ? 'ENTREGA'
+        : null
+
+  if (emRota) {
+    await tx.agendamento.updateMany({
+      where: { ordemId, tipo: emRota, status: { in: ['PENDENTE', 'ATRIBUIDO'] } },
+      data: { status: 'EM_ROTA', iniciadoEm: agora },
+    })
+    return
+  }
+
+  const concluido =
+    etapa === EtapaOrdem.COLETADO
+      ? 'RETIRADA'
+      : etapa === EtapaOrdem.ENTREGUE
+        ? 'ENTREGA'
+        : null
+
+  if (concluido) {
+    await tx.agendamento.updateMany({
+      where: { ordemId, tipo: concluido, status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA'] } },
+      data: { status: 'CONCLUIDO', concluidoEm: agora },
+    })
+    return
+  }
+
+  // Ordem cancelada com parada marcada: o motorista não pode sair para buscar
+  // um aparelho que ninguém mais quer.
+  if (etapa === EtapaOrdem.CANCELADO) {
+    await tx.agendamento.updateMany({
+      where: { ordemId, status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA'] } },
+      data: { status: 'CANCELADO', motivoFalha: 'Ordem cancelada' },
+    })
+  }
+}
+
 function marcosDe(etapa: EtapaOrdem, agora: Date): Record<string, Date> {
   const m: Record<EtapaOrdem, string | null> = {
     SOLICITACAO_RECEBIDA: null,
