@@ -201,29 +201,12 @@ export async function autenticar(entrada: {
         return { ok: false, motivo: 'Acesso da empresa suspenso. Fale com o responsável.' }
       }
 
-      await comContextoAuth(async (tx) => {
-        await tx.user.update({
-          where: { id: u.id },
-          data: { tentativasFalhas: 0, bloqueadoAte: null, ultimoLogin: new Date() },
-        })
-      })
+      await registrarTentativa(u.id, true)
       return { ok: true, userId: u.id, trocarSenha: u.trocarSenha }
     }
 
     // Senha errada: encarece a próxima tentativa daquele cadastro.
-    const n = u.tentativasFalhas + 1
-    const bloquear = n >= LIMITE_TENTATIVAS
-    await comContextoAuth(async (tx) => {
-      await tx.user.update({
-        where: { id: u.id },
-        data: {
-          tentativasFalhas: n,
-          bloqueadoAte: bloquear
-            ? new Date(agora + BLOQUEIO_BASE_MS * 2 ** (n - LIMITE_TENTATIVAS))
-            : null,
-        },
-      })
-    })
+    await registrarTentativa(u.id, false)
   }
 
   // Quando o e-mail não existe, gastamos tempo de propósito verificando um
@@ -234,6 +217,28 @@ export async function autenticar(entrada: {
   }
 
   return { ok: false, motivo: 'E-mail ou senha incorretos.' }
+}
+
+/**
+ * Atualiza o contador anti-força-bruta.
+ *
+ * Passa por uma função do banco em vez de um UPDATE direto, e isso é
+ * deliberado: a policy de `usuarios` proíbe escrita no contexto de login —
+ * sem essa proibição, uma falha aqui viraria alteração de usuário, inclusive
+ * de papel. A função toca exatamente três colunas de uma linha: contador,
+ * bloqueio e último acesso. Ela não alcança papel, empresa, senha nem `ativo`.
+ */
+async function registrarTentativa(userId: string, sucesso: boolean): Promise<void> {
+  await comContextoAuth(async (tx) => {
+    await tx.$executeRaw`
+      SELECT app.registrar_tentativa_login(
+        ${userId},
+        ${sucesso},
+        ${LIMITE_TENTATIVAS},
+        ${`${Math.round(BLOQUEIO_BASE_MS / 1000)} seconds`}::interval
+      )
+    `
+  })
 }
 
 /** Hash real de uma senha aleatória, só para consumir o tempo do Argon2. */

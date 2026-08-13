@@ -1,0 +1,242 @@
+/* Tela de acesso. Escura, com a luz vindo da aurora ao fundo — o mesmo mundo
+   do resto do sistema, para quem entra já reconhecer onde está. */
+
+.palco {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--s5);
+  position: relative;
+  overflow: hidden;
+}
+
+.aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.blobA,
+.blobB {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.45;
+  will-change: transform;
+}
+.blobA {
+  width: 560px;
+  height: 560px;
+  background: #5b21b6;
+  top: -180px;
+  left: -120px;
+  animation: deriva 24s ease-in-out infinite alternate;
+}
+.blobB {
+  width: 460px;
+  height: 460px;
+  background: #7c3aed;
+  bottom: -160px;
+  right: -120px;
+  animation: deriva 30s ease-in-out infinite alternate-reverse;
+}
+@keyframes deriva {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(70px, 60px, 0) scale(1.14);
+  }
+}
+
+.cartao {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 412px;
+  background: linear-gradient(180deg, var(--sup-2), var(--sup));
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  padding: var(--s7) var(--s6) var(--s6);
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.85);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: var(--s6);
+}
+.marcaD {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: var(--vio-forte);
+  color: #fff;
+  border-radius: 3px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 21px;
+  box-shadow: 0 0 22px -3px var(--brilho);
+}
+.marcaTxt {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 27px;
+  letter-spacing: -0.03em;
+  color: var(--txt);
+}
+.marcaTxt b {
+  color: var(--vio-claro);
+}
+
+.titulo {
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+.sub {
+  color: var(--txt-2);
+  font-size: var(--t-sm);
+  margin-top: var(--s2);
+}
+
+.form {
+  display: grid;
+  gap: var(--s4);
+  margin-top: var(--s6);
+}
+
+.campo {
+  display: grid;
+  gap: 7px;
+}
+.campo label {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.campo input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--bg-1);
+  color: var(--txt);
+  font-family: var(--f-texto);
+  /* 16px é o piso: abaixo disso o Safari do iPhone dá zoom ao focar o campo,
+     e a tela inteira salta. */
+  font-size: 1rem;
+  transition:
+    border-color 300ms var(--ease),
+    box-shadow 300ms var(--ease),
+    background 300ms var(--ease);
+}
+.campo input::placeholder {
+  color: var(--txt-3);
+}
+.campo input:focus {
+  outline: none;
+  border-color: var(--vio);
+  background: var(--sup);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
+}
+.campo input[aria-invalid='true'] {
+  border-color: var(--alerta);
+}
+
+.senhaLinha {
+  position: relative;
+  display: flex;
+}
+.senhaLinha input {
+  padding-right: 84px;
+}
+.olho {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 9px;
+  border-radius: 3px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  transition: color 240ms var(--ease);
+}
+.olho:hover {
+  color: var(--vio-claro);
+}
+
+.erro {
+  display: flex;
+  gap: var(--s3);
+  padding: 11px var(--s4);
+  border-radius: var(--r);
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  color: var(--alerta);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+
+.botao {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--vio-forte);
+  color: #fff;
+  font-family: var(--f-texto);
+  font-size: var(--t-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 400ms var(--ease),
+    box-shadow 400ms var(--ease);
+}
+.botao:hover:not(:disabled) {
+  background: #5b21b6;
+  box-shadow: 0 0 34px -6px var(--brilho);
+}
+.botao:disabled {
+  background: var(--borda-viva);
+  color: var(--txt-3);
+  cursor: progress;
+}
+
+.ajuda {
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.rodape {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--s6);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--txt-3);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blobA,
+  .blobB {
+    animation: none;
+  }
+}

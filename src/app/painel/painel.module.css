@@ -1,0 +1,491 @@
+/* Painel de gestão. Densidade de planilha com respiro de documento. */
+
+.app {
+  display: grid;
+  grid-template-columns: 236px 1fr;
+  min-height: 100dvh;
+}
+
+/* ===== Lateral ========================================================== */
+.lateral {
+  background: var(--bg-1);
+  border-right: 1px solid var(--borda);
+  display: flex;
+  flex-direction: column;
+  padding: var(--s4) 0;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+}
+.latMarca {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 var(--s4) var(--s5);
+  border-bottom: 1px solid var(--borda);
+  margin-bottom: var(--s3);
+}
+.latD {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  background: var(--vio-forte);
+  color: #fff;
+  border-radius: 3px;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 18px;
+}
+.latTxt {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  color: var(--txt);
+}
+.latTxt b {
+  color: var(--vio-claro);
+}
+
+.latGrupo {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  padding: var(--s4) var(--s4) var(--s2);
+}
+.latItem {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 9px var(--s4);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--txt-2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition:
+    background 240ms var(--ease),
+    color 240ms var(--ease),
+    border-color 240ms var(--ease);
+}
+.latItem:hover {
+  background: var(--sup);
+  color: var(--txt);
+  border-left-color: var(--borda-viva);
+}
+.latItem span {
+  width: 15px;
+  text-align: center;
+  opacity: 0.75;
+  font-size: 13px;
+}
+
+.latUser {
+  margin-top: auto;
+  padding: var(--s4);
+  border-top: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--vio-forte);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.latUserTxt {
+  min-width: 0;
+  flex: 1;
+}
+.latUserTxt strong {
+  display: block;
+  font-size: var(--t-sm);
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.latUserTxt span {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.09em;
+  color: var(--txt-3);
+}
+.sair {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  padding: 6px;
+  transition: color 240ms var(--ease);
+}
+.sair:hover {
+  color: var(--alerta);
+}
+
+/* ===== Área principal =================================================== */
+.principal {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.barra {
+  height: 56px;
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: 0 var(--s5);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.pillEmpresa {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 5px 11px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  border-radius: var(--r);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--vio-claro);
+}
+.data {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.09em;
+  color: var(--txt-3);
+}
+.rolagem {
+  padding: var(--s6) var(--s5) var(--s8);
+  max-width: 1400px;
+  width: 100%;
+}
+
+/* ===== Cabeçalho ======================================================== */
+.cab {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s5);
+  flex-wrap: wrap;
+  margin-bottom: var(--s6);
+}
+.grav {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.titulo {
+  font-family: var(--f-display);
+  font-size: var(--t-2xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-top: var(--s2);
+}
+.btnPrimario {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 20px;
+  border-radius: var(--r);
+  background: var(--vio-forte);
+  color: #fff;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 380ms var(--ease),
+    box-shadow 380ms var(--ease);
+}
+.btnPrimario:hover {
+  background: #5b21b6;
+  box-shadow: 0 0 30px -8px var(--brilho);
+}
+
+/* ===== Indicadores ====================================================== */
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--borda);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: var(--s6);
+}
+.indicador {
+  background: var(--bg-1);
+  padding: var(--s5);
+  display: grid;
+  gap: 5px;
+  align-content: start;
+}
+.indValor {
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.indAlerta {
+  color: var(--alerta);
+}
+.indNota {
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+  line-height: 1.45;
+}
+
+/* ===== A esteira ======================================================== */
+.esteira {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1px;
+  background: var(--borda);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: var(--s6);
+}
+.degrau {
+  background: var(--bg-1);
+  padding: var(--s4) var(--s3);
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  text-decoration: none;
+  position: relative;
+  transition: background 300ms var(--ease);
+}
+.degrau:hover {
+  background: var(--sup);
+}
+.degrauAtivo {
+  background: var(--vio-forte);
+}
+.degrauAtivo .degrauRot {
+  color: #ddd0f7;
+}
+.degrauAtivo .degrauNum,
+.degrauAtivo .degrauNota {
+  color: #fff;
+}
+.degrauRot {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  line-height: 1.35;
+  min-height: 26px;
+}
+.degrauNum {
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--txt);
+  font-variant-numeric: tabular-nums;
+}
+.degrauNota {
+  font-size: 10.5px;
+  color: var(--txt-3);
+  line-height: 1.35;
+}
+/* Vermelho na barra de baixo, não no card inteiro: o alerta precisa saltar
+   sem transformar a tela num painel de emergência. */
+.degrauGrita .degrauNum {
+  color: var(--alerta);
+}
+.degrauGrita::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--alerta);
+}
+.degrauAtivo.degrauGrita .degrauNum {
+  color: #fff;
+}
+
+/* ===== Fila ============================================================= */
+.filaCab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s4);
+}
+.filaTitulo {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: var(--s3);
+}
+.cardOrdem {
+  display: block;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  padding: var(--s4);
+  text-decoration: none;
+  transition:
+    border-color 260ms var(--ease),
+    transform 260ms var(--ease);
+}
+.cardOrdem:hover {
+  border-color: var(--vio);
+  transform: translateY(-2px);
+}
+.cardTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.cardOs {
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--vio-claro);
+}
+.selo {
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vio-claro);
+  white-space: nowrap;
+}
+.cardEq {
+  font-size: var(--t-base);
+  font-weight: 600;
+  margin-top: var(--s3);
+  line-height: 1.25;
+  color: var(--txt);
+}
+.cardCli {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  margin-top: 2px;
+}
+.cardRod {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-top: var(--s3);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  color: var(--txt-3);
+}
+.atrasado {
+  color: var(--alerta);
+  font-weight: 600;
+}
+
+.vazio {
+  padding: var(--s7) var(--s5);
+  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r-lg);
+  color: var(--txt-2);
+  font-size: var(--t-sm);
+  text-align: center;
+  line-height: 1.6;
+  max-width: 60ch;
+  margin-inline: auto;
+}
+
+@media (max-width: 1200px) {
+  .esteira {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 880px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  /* A lateral vira uma faixa rolável no topo: no celular a navegação lateral
+     fixa comeria metade da tela. */
+  .lateral {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s2);
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--borda);
+    padding: var(--s3) var(--s4);
+  }
+  .latGrupo,
+  .latUserTxt {
+    display: none;
+  }
+  .latMarca,
+  .latUser {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .latItem {
+    white-space: nowrap;
+    border-left: 0;
+    border-radius: var(--r);
+    padding: 8px 12px;
+  }
+  .rolagem {
+    padding: var(--s5) var(--s4) var(--s7);
+  }
+  .esteira {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lista {
+    grid-template-columns: 1fr;
+  }
+}
