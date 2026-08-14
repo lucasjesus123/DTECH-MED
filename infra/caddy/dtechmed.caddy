@@ -66,11 +66,16 @@ conexevolution.online, www.conexevolution.online {
 		# endereço que o bloco da MINHAMECANICA usa para chegar ao site dela.
 		reverse_proxy 172.17.0.1:5400 {
 			# A aplicação grava o IP na trilha de auditoria e o usa para segurar
-			# tentativa de login. Sem estes cabeçalhos, todo acesso apareceria
+			# tentativa de login. Sem este cabeçalho, todo acesso apareceria
 			# vindo da ponte do Docker — e o limite por IP passaria a valer para
 			# o mundo inteiro somado.
+			#
+			# Só o X-Real-IP. O X-Forwarded-Proto que estava aqui rendia um
+			# aviso do próprio Caddy no `validate`: ele já repassa esse
+			# cabeçalho por conta. Configuração redundante numa peça
+			# compartilhada é ruído que, com o tempo, faz o aviso legítimo
+			# passar despercebido.
 			header_up X-Real-IP {remote_host}
-			header_up X-Forwarded-Proto {scheme}
 		}
 	}
 
