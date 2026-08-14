@@ -91,19 +91,21 @@ Um alerta que vale para todo o resto do guia: **sempre use `-p dtechmed`** nos c
 
 Faça isto **antes** de seguir, porque o DNS leva de minutos a horas para propagar e ele vai trabalhar enquanto você constrói o resto.
 
-No painel do seu domínio, crie **um registro novo** — sem tocar nos que já existem:
+O ensaio roda num **domínio separado**: `conexevolution.online`. Separado é melhor que subdomínio — o `dtechmed.com.br` não é tocado em momento nenhum, nem por engano.
+
+No painel do `conexevolution.online`:
 
 | Tipo | Nome | Valor |
 | --- | --- | --- |
-| A | `novo` | `169.58.76.233` |
-
-Isso publica `novo.dtechmed.com.br` apontando para esta VPS. O `dtechmed.com.br` continua exatamente onde está, servindo o site atual, sem um segundo de interrupção. Só no fim, com tudo testado e aprovado por você, é que viramos o domínio principal.
+| A | `@` | `169.58.76.233` |
+| A | `www` | `169.58.76.233` |
 
 **Confira** (de qualquer máquina, inclusive da própria VPS):
 
 ```bash
-dig +short novo.dtechmed.com.br
-# tem que responder o IP da VPS. Enquanto vier vazio, ainda esta propagando.
+dig +short conexevolution.online
+dig +short www.conexevolution.online
+# as duas tem que responder 169.58.76.233
 ```
 
 Você pode seguir para o passo 2 sem esperar — só o passo 8 depende disso.
@@ -126,8 +128,10 @@ git checkout claude/dtech-med-technical-management-mta9r4
 **Confira:**
 
 ```bash
-ls docker-compose.yml Dockerfile infra/
-# tem que listar os três
+git log --oneline -1
+ls docker-compose.yml Dockerfile infra/caddy/dtechmed.caddy
+grep '172.17.0.1' docker-compose.yml
+# a ultima linha e a prova de que voce pegou a versao adaptada a esta VPS
 ```
 
 ---
@@ -169,7 +173,7 @@ Preencha assim (substituindo pelos valores que você gerou):
 NODE_ENV=production
 # Durante o ensaio, o endereço do ensaio. Na virada, troque as duas linhas
 # (esta e a ALLOWED_ORIGINS mais abaixo) e refaça o `up -d`.
-APP_URL=https://novo.dtechmed.com.br
+APP_URL=https://conexevolution.online
 APP_NAME="DTECH MED"
 
 # ---------- Banco ----------
@@ -208,7 +212,7 @@ WORKER_MAX_ATTEMPTS=6
 # ---------- Segurança ----------
 # Sem curinga. Lista fechada. É esta lista que recusa formulário enviado de
 # outro site — a proteção contra CSRF. Endereço que não está aqui leva 403.
-ALLOWED_ORIGINS=https://novo.dtechmed.com.br
+ALLOWED_ORIGINS=https://conexevolution.online,https://www.conexevolution.online
 LOGIN_RATE_LIMIT_WINDOW_MS=900000
 LOGIN_RATE_LIMIT_MAX=8
 SESSION_TTL_HOURS=12
@@ -356,7 +360,7 @@ Você deve ver o bloco da MINHAMECANICA, que serve de espelho: é a prova de que
 cd /opt/gavetas/DTECHMED
 
 # Troque pelo domínio do ensaio. Só depois de aprovado é que vira o definitivo.
-DOMINIO=novo.dtechmed.com.br
+DOMINIO='conexevolution.online, www.conexevolution.online'
 
 sed "s/^SEU_DOMINIO {/${DOMINIO} {/" infra/caddy/dtechmed.caddy > /tmp/dtechmed.caddy
 head -30 /tmp/dtechmed.caddy | grep -n "${DOMINIO}"
@@ -390,7 +394,7 @@ docker ps --filter name=portal-da-estetica --format '{{.Names}}  {{.Status}}'
 curl -sI https://portaldaestetica.com.br | head -1
 
 # 2. E o nosso?
-curl -sI https://novo.dtechmed.com.br | head -1
+curl -sI https://conexevolution.online | head -1
 # HTTP/2 200
 ```
 
@@ -405,7 +409,7 @@ Não há passo a executar: o Caddy emite e renova o certificado da Let's Encrypt
 **Confira que o certificado é real, não o autoassinado de emergência:**
 
 ```bash
-echo | openssl s_client -connect novo.dtechmed.com.br:443 -servername novo.dtechmed.com.br 2>/dev/null \
+echo | openssl s_client -connect conexevolution.online:443 -servername conexevolution.online 2>/dev/null \
   | openssl x509 -noout -issuer -dates
 # issuer= ... Let's Encrypt ...  e uma data de validade uns 90 dias a frente
 ```
@@ -415,7 +419,7 @@ Se aparecer `issuer= ... Caddy Local Authority`, o certificado público **não**
 **Confira os cabeçalhos de segurança**, que vêm da aplicação e não da portaria:
 
 ```bash
-curl -sI https://novo.dtechmed.com.br | grep -iE 'strict-transport|content-security|x-frame|nosniff|^server'
+curl -sI https://conexevolution.online | grep -iE 'strict-transport|content-security|x-frame|nosniff|^server'
 # HSTS, CSP com nonce, X-Frame-Options: DENY, X-Content-Type-Options: nosniff
 # e NENHUMA linha "server:"
 ```
@@ -521,7 +525,7 @@ Faça isto **você mesmo**, pelo navegador, antes de entregar para a equipe:
 
 | # | O quê | Onde |
 |---|---|---|
-| 1 | O site abre e a hero aparece | `https://novo.dtechmed.com.br` |
+| 1 | O site abre e a hero aparece | `https://conexevolution.online` |
 | 2 | O formulário do site envia e confirma na tela | `#solicitar` |
 | 3 | O contato aparece no painel do dia | `/painel` |
 | 4 | Abrir a ordem pelo contato já vem preenchida | botão **Abrir ordem** |
@@ -555,7 +559,7 @@ Troque as duas linhas:
 
 ```bash
 APP_URL=https://dtechmed.com.br
-ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://novo.dtechmed.com.br
+ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://conexevolution.online
 ```
 
 O endereço de ensaio **fica na lista**. Enquanto o DNS propaga, os dois respondem — e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
@@ -568,7 +572,7 @@ docker compose -p dtechmed up -d
 
 ```bash
 docker exec portal-da-estetica-web-1 sh -c \
-  'sed -i "s/^novo.dtechmed.com.br {/dtechmed.com.br, www.dtechmed.com.br, novo.dtechmed.com.br {/" /data/sites-extra/dtechmed.caddy'
+  'sed -i "s/^conexevolution.online {/dtechmed.com.br, www.dtechmed.com.br, conexevolution.online {/" /data/sites-extra/dtechmed.caddy'
 
 docker exec portal-da-estetica-web-1 head -1 /data/sites-extra/dtechmed.caddy
 # tem que mostrar os tres nomes na mesma linha
@@ -616,7 +620,7 @@ echo | openssl s_client -connect dtechmed.com.br:443 -servername dtechmed.com.br
 
 ### 14.5 — Aposente o endereço de ensaio
 
-Depois de uma semana com o domínio principal estável, tire o `novo.` de circulação: remova o registro A do painel de DNS e o nome da linha do `.env` e do bloco do Caddy. Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema.
+Depois de uma semana com o `dtechmed.com.br` estável, tire o `conexevolution.online` de circulação: remova os registros A do painel de DNS, o nome da linha `ALLOWED_ORIGINS` do `.env` e o nome da primeira linha do bloco do Caddy. Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema — e, no dia em que o domínio expirar, é uma porta que outra pessoa pode registrar.
 
 ---
 
