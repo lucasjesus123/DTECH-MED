@@ -13,7 +13,7 @@ import {
   IconeInstagram,
   IconeLocal,
   IconeSeta,
-  IconeZap,
+  IconeWhatsapp,
 } from './icones'
 import { Marca } from './marca'
 import estilo from './site.module.css'
@@ -189,7 +189,7 @@ export default function Home() {
                 href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
                 className={estilo.btn}
               >
-                <IconeZap className={estilo.btnIcone} />
+                <IconeWhatsapp className={estilo.btnIcone} />
                 Peça orçamento no WhatsApp
                 <IconeSeta className={estilo.btnSeta} />
               </a>
@@ -389,7 +389,7 @@ export default function Home() {
                   href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
                   className={estilo.btn}
                 >
-                  <IconeZap className={estilo.btnIcone} />
+                  <IconeWhatsapp className={estilo.btnIcone} />
                   Peça orçamento no WhatsApp
                 </a>
               </div>

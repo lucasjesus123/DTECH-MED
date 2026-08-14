@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { EMPRESA, linkWhatsapp } from '@/lib/empresa'
-import { IconeFechar, IconeZap } from './icones'
+import { IconeFechar, IconeWhatsapp } from './icones'
 import estilo from './whatsapp.module.css'
 
 /**
@@ -213,7 +213,7 @@ export function BotaoWhatsapp() {
             rel="noopener noreferrer"
             onClick={() => setAberto(false)}
           >
-            <IconeZap className={estilo.enviarIcone} />
+            <IconeWhatsapp className={estilo.enviarIcone} />
             Iniciar conversa no WhatsApp
           </a>
 
@@ -232,13 +232,13 @@ export function BotaoWhatsapp() {
         aria-expanded={aberto}
         aria-label={aberto ? 'Fechar atendimento' : 'Falar no WhatsApp'}
       >
-        <IconeZap className={estilo.gatilhoZap} />
+        <IconeWhatsapp className={estilo.gatilhoZap} />
         <IconeFechar className={estilo.gatilhoX} />
       </button>
 
       <noscript>
         <a className={estilo.semJs} href={linkWhatsapp(MENSAGEM_PADRAO)}>
-          <IconeZap className={estilo.gatilhoZap} />
+          <IconeWhatsapp className={estilo.gatilhoZap} />
           <span className={estilo.semJsTexto}>WhatsApp</span>
         </a>
       </noscript>
