@@ -3,6 +3,7 @@ import path from 'node:path'
 import Link from 'next/link'
 import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
 import { FormularioRetirada } from './formulario-retirada'
+import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
 import { ICONES, IconeEstrela, IconeInstagram, IconeLocal, IconeZap } from './icones'
 import estilo from './site.module.css'
@@ -126,9 +127,14 @@ export default function Home() {
       <main id="conteudo">
         {/* ================= PRIMEIRA DOBRA ================= */}
         <section className={estilo.dobra}>
+          {/* Filmagem real ganha do desenho quando ela existe. Enquanto não
+              existe, o osciloscópio — que não é enfeite: grade de medição e
+              traço de sinal são o instrumento do ofício de quem calibra. */}
           {TEM_VIDEO ? (
             <FundoVideo pôster={TEM_POSTER ? '/video/oficina.jpg' : ''} />
-          ) : null}
+          ) : (
+            <FundoOsciloscopio />
+          )}
           <div className={estilo.dobraVeu} aria-hidden="true" />
 
           <div className={`${estilo.container} ${estilo.dobraIn}`}>

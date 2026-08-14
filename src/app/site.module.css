@@ -129,14 +129,28 @@
   filter: saturate(.62) contrast(1.04) brightness(.5);
 }
 
+.dobraCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .dobraVeu {
   position: absolute;
   inset: 0;
   z-index: -1;
+  /* Escurece o suficiente para o texto passar de 4,5:1 sobre QUALQUER quadro
+     do fundo, e não o bastante para apagar o traço do osciloscópio. O degradê
+     fecha em opaco embaixo, onde ficam as marcas — ali o fundo já cumpriu o
+     papel dele e só atrapalharia a leitura. */
   background:
     linear-gradient(180deg,
-      color-mix(in oklab, var(--bg) 72%, transparent) 0%,
-      color-mix(in oklab, var(--bg) 58%, transparent) 42%,
+      color-mix(in oklab, var(--bg) 58%, transparent) 0%,
+      color-mix(in oklab, var(--bg) 46%, transparent) 38%,
+      color-mix(in oklab, var(--bg-1) 88%, transparent) 78%,
       var(--bg-1) 100%);
 }
 
@@ -175,13 +189,21 @@
   margin-top: var(--s7);
 }
 
+/* --- Botão em neon --------------------------------------------------------
+   Neon feito como tubo de verdade, e não como um halo colorido solto atrás do
+   elemento: um NÚCLEO claro (a borda interna), a luz espalhando em duas
+   camadas de alcance diferente (o vidro perto e o ar longe), e um reflexo por
+   dentro. É a diferença entre uma luz que tem fonte e uma mancha de cor.
+
+   Só o botão primário acende. Se os dois acendessem, nenhum seria primário. */
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--s2);
   padding: var(--s3) var(--s5);
   min-height: 48px;
-  border: 1px solid transparent;
+  border: 1px solid color-mix(in oklab, var(--vio-claro) 70%, transparent);
   border-radius: var(--r);
   background: var(--vio);
   color: #fff;
@@ -190,23 +212,53 @@
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--vio-claro) 45%, transparent),
+    0 0 12px -2px color-mix(in oklab, var(--vio) 85%, transparent),
+    0 0 34px -6px color-mix(in oklab, var(--vio) 70%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 28%, transparent);
   transition:
-    background 180ms var(--ease),
-    transform 180ms var(--ease);
+    background 200ms var(--ease),
+    box-shadow 260ms var(--ease),
+    transform 160ms var(--ease);
 }
-.btn:hover { background: var(--vio-forte); }
+
+.btn:hover {
+  background: var(--vio-claro);
+  /* Acende mais forte e alcança mais longe: a luz reage ao ponteiro. */
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--vio-claro) 75%, transparent),
+    0 0 18px -1px color-mix(in oklab, var(--vio-claro) 95%, transparent),
+    0 0 56px -4px color-mix(in oklab, var(--vio) 85%, transparent),
+    inset 0 1px 0 color-mix(in oklab, #fff 40%, transparent);
+}
+
 .btn:active { transform: translateY(1px); }
+
+/* Quem pede menos movimento continua vendo o neon — ele é cor, não movimento.
+   O que sai é a transição, que é o que de fato se mexe. */
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
 
 .btnIcone { width: 20px; height: 20px; flex: none; }
 
 .btnLinha {
   background: transparent;
-  border-color: var(--borda-viva);
+  border-color: color-mix(in oklab, var(--vio-claro) 42%, transparent);
   color: var(--txt);
+  /* Sem a camada de longo alcance: é o secundário, e ele não disputa. */
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--vio-claro) 18%, transparent),
+    inset 0 0 18px -12px color-mix(in oklab, var(--vio-claro) 90%, transparent);
 }
 .btnLinha:hover {
-  background: transparent;
-  border-color: var(--vio);
+  background: color-mix(in oklab, var(--vio) 12%, transparent);
+  border-color: var(--vio-claro);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--vio-claro) 45%, transparent),
+    0 0 22px -8px color-mix(in oklab, var(--vio) 70%, transparent),
+    inset 0 0 22px -10px color-mix(in oklab, var(--vio-claro) 90%, transparent);
 }
 
 .selo {
