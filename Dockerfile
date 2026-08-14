@@ -26,11 +26,30 @@ RUN npx prisma generate \
 # no compose, a partir do estágio de build, que tem o CLI do Prisma e o
 # prisma.config.ts. Tentar rodá-las na imagem enxuta falharia — e falharia
 # justamente no dia do deploy.
+#
+# O par --define/--banner existe por um motivo específico. O cliente gerado
+# pelo Prisma 7 abre com:
+#
+#     globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
+#
+# um remendo para rodar em ESM. Só que este pacote sai em CJS, onde
+# `import.meta` não existe: o esbuild o substitui por um objeto vazio, o
+# `fileURLToPath` recebe `undefined` e o worker morre no carregamento, antes
+# de qualquer linha nossa —
+# `TypeError: The "path" argument must be of type string`, em laço de reinício.
+#
+# O `--define` troca `import.meta.url` por um identificador, e o `--banner` o
+# define com o equivalente em CJS. `__filename` existe aqui, e `pathToFileURL`
+# devolve a URL no formato que o `fileURLToPath` espera.
 RUN npx esbuild worker/index.ts \
       --bundle --platform=node --target=node22 --format=cjs \
       --external:@prisma/client --external:.prisma --external:sharp \
       --external:@node-rs/argon2 --external:pdfkit \
-      --outfile=worker/dist/index.js
+      --define:import.meta.url=__esbuild_import_meta_url \
+      --banner:js="const __esbuild_import_meta_url = require('node:url').pathToFileURL(__filename).href;" \
+      --outfile=worker/dist/index.js \
+ && grep -q '__esbuild_import_meta_url' worker/dist/index.js \
+ && echo "worker empacotado com a ponte de import.meta.url"
 
 # ---------- Estágio 2b: o pdfkit, que não pode ser empacotado ----------
 # O pdfkit carrega as métricas das fontes padrão de arquivos `.afm` que ele lê
