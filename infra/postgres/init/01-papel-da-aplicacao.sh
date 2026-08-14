@@ -36,7 +36,8 @@ fi
 psql -v ON_ERROR_STOP=1 \
      --username "$POSTGRES_USER" \
      --dbname "$POSTGRES_DB" \
-     -v senha="$APP_DB_PASSWORD" <<'SQL'
+     -v senha="$APP_DB_PASSWORD" \
+     -v banco="$POSTGRES_DB" <<'SQL'
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dtechmed_app') THEN
@@ -58,8 +59,13 @@ $$;
 ALTER ROLE dtechmed_owner NOCREATEDB;
 
 -- O papel da aplicação só conecta neste banco.
-REVOKE ALL ON DATABASE :"POSTGRES_DB" FROM PUBLIC;
-GRANT CONNECT ON DATABASE :"POSTGRES_DB" TO dtechmed_app;
+--
+-- `:"banco"` vem do -v acima. Antes estava escrito `:"POSTGRES_DB"`, como se o
+-- psql enxergasse as variáveis de ambiente do shell — ele não enxerga: só
+-- conhece o que recebe por -v. O nome ficava literal no SQL, virava erro de
+-- sintaxe e, com ON_ERROR_STOP, derrubava a inicialização inteira.
+REVOKE ALL ON DATABASE :"banco" FROM PUBLIC;
+GRANT CONNECT ON DATABASE :"banco" TO dtechmed_app;
 SQL
 
 echo "Papel da aplicação pronto."

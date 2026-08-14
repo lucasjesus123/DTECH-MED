@@ -69,7 +69,15 @@ services:
       - -c
       - timezone=America/Sao_Paulo
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dtechmed_owner} -d ${POSTGRES_DB:-dtechmed}"]
+      # O `-h 127.0.0.1` não é enfeite. Durante a inicialização, o entrypoint do
+      # Postgres sobe um servidor temporário que escuta SÓ no soquete Unix, para
+      # rodar os scripts de init sem ninguém conseguir conectar de fora. Sem o
+      # -h, o pg_isready fala com esse servidor temporário e declara o banco
+      # saudável no meio da inicialização — foi o que produziu um "Healthy"
+      # seguido de "unhealthy" na mesma subida. Com o -h, só passa quando o
+      # servidor definitivo estiver ouvindo em TCP, que é depois de o init ter
+      # terminado inteiro.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${POSTGRES_USER:-dtechmed_owner} -d ${POSTGRES_DB:-dtechmed}"]
       interval: 10s
       timeout: 5s
       retries: 10
