@@ -5,7 +5,14 @@ import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/l
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
-import { ICONES, IconeEstrela, IconeInstagram, IconeLocal, IconeZap } from './icones'
+import {
+  ICONES,
+  IconeEstrela,
+  IconeInstagram,
+  IconeLocal,
+  IconeSeta,
+  IconeZap,
+} from './icones'
 import { Marca } from './marca'
 import estilo from './site.module.css'
 
@@ -149,15 +156,35 @@ export default function Home() {
               >
                 <IconeZap className={estilo.btnIcone} />
                 Peça orçamento no WhatsApp
+                <IconeSeta className={estilo.btnSeta} />
               </a>
               <a href="#solicitar" className={`${estilo.btn} ${estilo.btnLinha}`}>
                 Solicitar retirada pelo site
+                <IconeSeta className={estilo.btnSeta} />
               </a>
             </div>
 
-            <p className={estilo.selo}>
-              Serviço com garantia de {EMPRESA.garantia} · Laudo técnico em toda entrega
-            </p>
+            {/* Números concretos na primeira dobra, e não enterrados no meio
+                da página. É a primeira coisa que responde "posso confiar?" —
+                e cada um deles é verificável. */}
+            <dl className={estilo.provas}>
+              <div>
+                <dt>Clientes atendidos</dt>
+                <dd><span data-conta="300">300</span>+</dd>
+              </div>
+              <div>
+                <dt>No Google</dt>
+                <dd>{EMPRESA.google.nota.toFixed(1).replace('.', ',')}</dd>
+              </div>
+              <div>
+                <dt>Marcas atendidas</dt>
+                <dd><span data-conta="9">9</span></dd>
+              </div>
+              <div>
+                <dt>De garantia</dt>
+                <dd>{EMPRESA.garantia.replace(' dias', '')}<small>dias</small></dd>
+              </div>
+            </dl>
           </div>
 
           {/* As marcas na primeira dobra, não escondidas lá embaixo: a primeira
@@ -167,11 +194,23 @@ export default function Home() {
               <h2 className={estilo.marcasTitulo}>
                 Atendemos as marcas do mercado
               </h2>
-              <ul className={estilo.marcasLista}>
-                {EMPRESA.marcas.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
+              {/* A faixa anda. Movimento aqui se justifica porque o conteúdo
+                  é uma lista que se repete — e ela PARA no hover e no foco,
+                  para quem quiser procurar a própria marca conseguir ler.
+                  A segunda cópia existe só para o laço não ter emenda visível;
+                  o leitor de tela a ignora e anuncia as nove uma vez só. */}
+              <div className={estilo.marcasPista}>
+                <ul className={estilo.marcasLista}>
+                  {EMPRESA.marcas.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+                <ul className={estilo.marcasLista} aria-hidden="true">
+                  {EMPRESA.marcas.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -188,10 +227,14 @@ export default function Home() {
             {/* Lista, não grade de cards do mesmo tamanho: o ícone anda ao lado
                 do título, no fluxo, sem ladrilho arredondado em volta. */}
             <ul className={estilo.servicos}>
-              {EMPRESA.servicos.map((s) => {
+              {EMPRESA.servicos.map((s, i) => {
                 const Icone = ICONES[s.icone]
                 return (
-                  <li key={s.titulo} className={estilo.servico}>
+                  <li
+                    key={s.titulo}
+                    className={estilo.servico}
+                    style={{ '--i': i } as React.CSSProperties}
+                  >
                     <Icone className={estilo.servicoIcone} />
                     <div>
                       <h3>{s.titulo}</h3>
@@ -208,14 +251,23 @@ export default function Home() {
                 Se a peça saiu de linha, procuramos equivalente e contamos antes,
                 não depois. Você decide se vale.
               </p>
-              <dl className={estilo.espLista}>
-                {ESPECIALIDADES.map(([nome, texto]) => (
-                  <div key={nome} className={estilo.esp}>
-                    <dt>{nome}</dt>
-                    <dd>{texto}</dd>
-                  </div>
+              {/* Quatro superfícies com peso, não quatro parágrafos soltos
+                  numa grade de três com um órfão embaixo. Cada uma tem o
+                  símbolo da marca em marca d'água, que dá profundidade sem
+                  precisar de foto — e sai na hora em que a foto chegar. */}
+              <ul className={estilo.espLista}>
+                {ESPECIALIDADES.map(([nome, texto], i) => (
+                  <li
+                    key={nome}
+                    className={estilo.esp}
+                    style={{ '--i': i } as React.CSSProperties}
+                  >
+                    <span className={estilo.espMarca} aria-hidden="true" />
+                    <h4>{nome}</h4>
+                    <p>{texto}</p>
+                  </li>
                 ))}
-              </dl>
+              </ul>
             </div>
           </div>
         </section>

@@ -152,3 +152,30 @@ export function IconeZap({ className }: Props) {
     </svg>
   )
 }
+
+/**
+ * Seta do botão.
+ *
+ * Ela não existe para decorar: entra deslizando no hover e diz para onde o
+ * clique leva. Um botão que só muda de cor no hover confirma que é clicável;
+ * um que mostra a direção diz o que vai acontecer.
+ */
+export function IconeSeta({ className }: Props) {
+  return (
+    <svg
+      width={18}
+      height={18}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      focusable={false}
+      className={className}
+    >
+      <path d="M5 12h13M13 6.5 18.5 12 13 17.5" />
+    </svg>
+  )
+}
