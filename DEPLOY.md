@@ -136,118 +136,69 @@ grep '172.17.0.1' docker-compose.yml
 
 ---
 
-## Passo 3 — Gere os segredos
+## Passo 3 — Gere o `.env` de produção
 
-Quatro segredos, todos gerados **na hora, no servidor**. Não reaproveite os do desenvolvimento e não os mande por WhatsApp nem e-mail.
+Um comando. Ele cria o arquivo inteiro, com os seis segredos gerados **na hora, no servidor**, cada um no formato que a aplicação espera.
+
+```bash
+cd /opt/gavetas/DTECHMED && bash infra/gerar-env.sh conexevolution.online
+```
+
+> **Por que um script e não copiar seis valores no `nano`.** Cada segredo tem um formato próprio, e errar o formato produz um erro que aponta para o lugar errado:
+>
+> - As senhas do banco entram **dentro de uma URL** (`postgresql://usuario:SENHA@db:5432/...`). O `openssl rand -base64` produz `/`, `+` e `=`, que quebram a URL — e o sintoma é "senha inválida", mandando você caçar a senha em vez do formato. O script gera em hexadecimal, sempre seguro em URL.
+> - Já o `SESSION_SECRET` e o `ENCRYPTION_KEY` são lidos com `Buffer.from(v, 'base64')` e precisam decodificar para 32 bytes. Esses são base64 mesmo.
+> - A senha do app aparece em dois lugares (a variável e a URL de conexão). Digitar duas vezes é uma chance de divergir.
+> - O arquivo nasce com permissão `600`. Um `nano` seguido de `chmod` deixa uma janela em que o segredo está no disco legível por todos.
+>
+> O script **se recusa a sobrescrever** um `.env` existente. Apagar sozinho o arquivo que guarda a `ENCRYPTION_KEY` de um sistema em uso seria destruir o WhatsApp de todas as franquias.
+
+**Confira** — sem revelar nenhum segredo na tela:
 
 ```bash
 cd /opt/gavetas/DTECHMED
-
-echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
-echo "APP_DB_PASSWORD=$(openssl rand -base64 32)"
-echo "SESSION_SECRET=$(openssl rand -base64 48)"
-echo "ENCRYPTION_KEY=$(openssl rand -base64 32)"
-echo "DOCUMENT_HASH_SALT=$(openssl rand -base64 32)"
+ls -l .env                      # tem que aparecer -rw------- (600)
+grep -c '^[A-Z_]*=$' .env       # tem que dar 3: os que faltam preencher
+grep -o 'postgresql://[^:]*' .env   # dtechmed_app e dtechmed_owner
 ```
 
-Guarde a saída em algum lugar seguro (um gerenciador de senhas). Você vai colar no próximo passo.
+⚠️ **Guarde uma cópia do `.env` num gerenciador de senhas antes de seguir**, e **não mande o conteúdo por mensagem**. Dois dos segredos não podem ser trocados depois:
 
-> **Sobre o `ENCRYPTION_KEY`:** é ele que cifra o token do WhatsApp de cada franquia no banco. Perder essa chave significa que nenhuma empresa consegue mais enviar mensagem até reconectar o número. Trocar a chave depois tem o mesmo efeito. Guarde bem.
->
-> **Sobre o `DOCUMENT_HASH_SALT`:** é ele que permite ao portal conferir o CPF/CNPJ que o cliente digita. Trocá-lo depois faz **todas** as conferências falharem, e nenhum cliente consegue aprovar orçamento.
+| Segredo | Se você perder ou trocar |
+| --- | --- |
+| `ENCRYPTION_KEY` | Cifra o token do WhatsApp de cada franquia no banco. Sem ela, ninguém envia mensagem até reconectar o número na mão. |
+| `DOCUMENT_HASH_SALT` | Permite ao portal conferir o CPF/CNPJ que o cliente digita. Trocá-lo faz **todas** as conferências falharem, e nenhum cliente aprova orçamento. |
+
+Os outros quatro são trocáveis — custa uma reinicialização e todo mundo refaz login.
 
 ---
 
-## Passo 4 — Escreva o `.env` de produção
+## Passo 4 — Preencha os três valores que faltam
 
 ```bash
-cd /opt/gavetas/DTECHMED
-cp .env.example .env
-chmod 600 .env      # só o dono lê
-nano .env
+cd /opt/gavetas/DTECHMED && nano .env
 ```
 
-Preencha assim (substituindo pelos valores que você gerou):
+Procure estas três linhas vazias e preencha:
 
 ```bash
-NODE_ENV=production
-# Durante o ensaio, o endereço do ensaio. Na virada, troque as duas linhas
-# (esta e a ALLOWED_ORIGINS mais abaixo) e refaça o `up -d`.
-APP_URL=https://conexevolution.online
-APP_NAME="DTECH MED"
+# Vem do painel da uazapi. Sem ele o sistema sobe e funciona; as mensagens
+# automáticas ficam guardadas na fila e disparam sozinhas quando o token
+# entrar — que é o comportamento correto, não uma falha.
+UAZAPI_ADMIN_TOKEN=
 
-# ---------- Banco ----------
-POSTGRES_DB=dtechmed
-POSTGRES_USER=dtechmed_owner
-POSTGRES_PASSWORD=<o que você gerou>
-APP_DB_PASSWORD=<o que você gerou>
-
-# A aplicação conecta como dtechmed_app. O host é `db` — nome do serviço na
-# rede do Docker.
-DATABASE_URL="postgresql://dtechmed_app:<APP_DB_PASSWORD>@db:5432/dtechmed?schema=public&connection_limit=20&pool_timeout=20"
-
-# Só para as migrações. NUNCA use esta url na aplicação.
-DIRECT_DATABASE_URL="postgresql://dtechmed_owner:<POSTGRES_PASSWORD>@db:5432/dtechmed?schema=public"
-
-# ---------- Segredos ----------
-SESSION_SECRET=<o que você gerou>
-ENCRYPTION_KEY=<o que você gerou>
-DOCUMENT_HASH_SALT=<o que você gerou>
-
-# ---------- WhatsApp ----------
-UAZAPI_BASE_URL=https://free.uazapi.com
-UAZAPI_ADMIN_TOKEN=<seu token de administrador da uazapi>
-UAZAPI_WEBHOOK_SECRET=<gere outro: openssl rand -base64 24>
-
-# ---------- Armazenamento ----------
-STORAGE_DRIVER=local
-STORAGE_LOCAL_PATH=/app/storage
-
-# ---------- Fila ----------
-WORKER_ENABLED=true
-WORKER_POLL_INTERVAL_MS=3000
-WORKER_BATCH_SIZE=10
-WORKER_MAX_ATTEMPTS=6
-
-# ---------- Segurança ----------
-# Sem curinga. Lista fechada. É esta lista que recusa formulário enviado de
-# outro site — a proteção contra CSRF. Endereço que não está aqui leva 403.
-ALLOWED_ORIGINS=https://conexevolution.online,https://www.conexevolution.online
-LOGIN_RATE_LIMIT_WINDOW_MS=900000
-LOGIN_RATE_LIMIT_MAX=8
-SESSION_TTL_HOURS=12
-
-# true SÓ porque a aplicação fica atrás do Caddy desta VPS. Se um dia ela for
-# exposta direto, volte para false — senão o IP da auditoria vira campo que
-# qualquer um preenche, e IP forjado na trilha é pior que IP nenhum.
-TRUST_PROXY=true
-
-# ---------- Site ----------
-SITE_TENANT_SLUG=dtechmed-lajeado
-LEAD_RATE_LIMIT_WINDOW_MS=600000
-LEAD_RATE_LIMIT_MAX=5
-
-# ---------- Primeiro acesso ----------
-SEED_SUPERADMIN_EMAIL=lucas@dtechmed.com.br
-SEED_SUPERADMIN_PASSWORD=<uma senha forte que só você conheça>
-
-# ---------- Backup ----------
-BACKUP_RETENCAO_DIAS=14
-BACKUP_INTERVALO_SEGUNDOS=86400
+# Seu acesso de Super Admin. Usado uma única vez, no passo 7.
+SEED_SUPERADMIN_EMAIL=
+SEED_SUPERADMIN_PASSWORD=
 ```
 
-> **A armadilha mais cara deste arquivo.** `DATABASE_URL` e `DIRECT_DATABASE_URL` são parecidas e fazem coisas muito diferentes. A primeira é da aplicação, com o papel restrito. A segunda é do dono, e serve só para as migrações. **Trocar uma pela outra não dá erro visível** — o sistema sobe e funciona. O que muda é que o isolamento entre franquias deixa de valer.
->
-> O `FORCE ROW LEVEL SECURITY` aplicado na auditoria transforma esse engano silencioso em erro visível: com a url errada, as telas passam a vir vazias em vez de mostrar dado de todo mundo. Ainda assim, confira duas vezes.
+Salve com `Ctrl+O`, `Enter`, `Ctrl+X`.
 
 **Confira:**
 
 ```bash
-grep -c "<" .env
-# tem que dar 0 — se der mais, sobrou um placeholder para preencher
-
-ls -l .env
-# tem que aparecer -rw------- (600)
+grep -c '^[A-Z_]*=$' .env
+# tem que dar 0 — se der mais, sobrou linha em branco para preencher
 ```
 
 ---
