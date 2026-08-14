@@ -32,6 +32,27 @@ RUN npx esbuild worker/index.ts \
       --external:@node-rs/argon2 --external:pdfkit \
       --outfile=worker/dist/index.js
 
+# ---------- Estágio 2b: o pdfkit, que não pode ser empacotado ----------
+# O pdfkit carrega as métricas das fontes padrão de arquivos `.afm` que ele lê
+# do próprio diretório em tempo de execução. Empacotá-lo faz o `require` sumir
+# mas não os arquivos: o bundle sobe, e só na hora de gerar o primeiro PDF é
+# que aparece `ENOENT: data/Helvetica.afm`. Medido, não suposto.
+#
+# Ele também não chega pelo rastreamento do Next: a geração de PDF é alcançada
+# por `await import()` dentro do worker, que roda em processo separado e nunca
+# é importado por uma rota. Então o Next não tem como saber que precisa dele.
+#
+# Daí este estágio: instala só o pdfkit e a árvore dele, na versão declarada no
+# package.json, para ser copiado inteiro na imagem final.
+FROM node:22-alpine AS pdfdeps
+WORKDIR /pdf
+COPY package.json /tmp/package.json
+RUN VERSAO=$(node -p "require('/tmp/package.json').dependencies.pdfkit") \
+ && npm init -y >/dev/null \
+ && npm install --omit=dev --no-audit --no-fund "pdfkit@${VERSAO}" \
+ && node -e "require('/pdf/node_modules/pdfkit')" \
+ && echo "pdfkit ${VERSAO} instalado e carregando"
+
 # ---------- Estágio 3: runtime ----------
 FROM node:22-alpine AS runner
 RUN apk add --no-cache libc6-compat openssl tini curl
@@ -53,8 +74,16 @@ COPY --from=builder --chown=dtechmed:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=dtechmed:nodejs /app/public ./public
 COPY --from=builder --chown=dtechmed:nodejs /app/worker/dist ./worker/dist
 COPY --from=builder --chown=dtechmed:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=dtechmed:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=dtechmed:nodejs /app/node_modules/@prisma ./node_modules/@prisma
+
+# O cliente do Prisma NÃO vem de `node_modules/.prisma`. No Prisma 7 o gerador
+# `prisma-client` escreve em `src/generated/prisma` (ver o bloco `generator` no
+# schema), e o rastreamento do Next já leva para o standalone tanto o código
+# gerado quanto o `@prisma/client` que ele usa. Copiar `.prisma` daqui quebrava
+# o build com "not found" — o diretório simplesmente não existe nesta versão.
+
+# O pdfkit por cima. `COPY` de diretório soma ao que já está lá, então isto
+# acrescenta a árvore dele sem tocar no que o standalone trouxe.
+COPY --from=pdfdeps --chown=dtechmed:nodejs /pdf/node_modules ./node_modules
 
 # Diretório de anexos (fotos, PDFs, assinaturas) — montado como volume.
 RUN mkdir -p /app/storage && chown -R dtechmed:nodejs /app/storage

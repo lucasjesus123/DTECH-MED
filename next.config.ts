@@ -17,6 +17,17 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
 
+  // O pdfkit nunca pode ser empacotado: ele lê as métricas das fontes padrão de
+  // arquivos `.afm` no próprio diretório, em tempo de execução. Empacotado, o
+  // `require` some mas os arquivos não vão junto — e o erro só aparece na hora
+  // de gerar o primeiro PDF, com `ENOENT: data/Helvetica.afm`. Verificado na
+  // prática antes de escrever esta linha.
+  //
+  // O Dockerfile instala a árvore dele num estágio próprio e a copia para a
+  // imagem final; esta declaração é o outro lado do mesmo acordo, garantindo
+  // que o Next também o resolva do disco em vez de embutir.
+  serverExternalPackages: ['pdfkit'],
+
   experimental: {
     // As Server Actions só aceitam requisição da própria origem.
     serverActions: { allowedOrigins: (process.env.ALLOWED_ORIGINS ?? '').split(',').filter(Boolean) },
