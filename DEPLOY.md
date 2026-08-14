@@ -205,80 +205,74 @@ grep -c '^[A-Z_]*=$' .env
 
 ## Passo 5 — Suba a gaveta
 
-```bash
-cd /opt/gavetas/DTECHMED
-docker compose -p dtechmed up -d --build
-```
-
-A primeira vez demora: baixa as imagens e compila a aplicação. De 5 a 10 minutos é normal.
-
-**Confira:**
+Um comando. Ele constrói as imagens, sobe os quatro contêineres, cria as tabelas, semeia o Super Admin — e **confere cada etapa antes de passar para a próxima**, parando na primeira que falhar.
 
 ```bash
-docker compose -p dtechmed ps
-# db, app, worker e backup: todos "Up". db e app com (healthy).
-
-docker compose -p dtechmed logs db | grep "Papel da aplicação pronto"
-# tem que aparecer
+cd /opt/gavetas/DTECHMED && bash infra/subir.sh
 ```
 
-Se o `db` reclamar de `APP_DB_PASSWORD não definida`, o `.env` não está sendo lido — confira se ele está em `/opt/gavetas/DTECHMED/.env`.
+O que ele confere, em ordem:
 
-**Confira que nada vazou para a internet:**
+| Etapa | O que precisa dar certo |
+| --- | --- |
+| 1 | Docker respondendo, `.env` em `600`, as 11 variáveis obrigatórias preenchidas |
+| 2 | **Fotografia dos vizinhos** e portas 5400/5433 livres ou já nossas |
+| 3 | Imagens construídas, contêineres de pé, banco saudável |
+| 4 | `dtechmed_app` **sem superusuário, sem BYPASSRLS, sem criar banco** |
+| 5 | Migrações aplicadas, ao menos 24 tabelas, **nenhuma sem RLS forçado**, nenhuma política de escrita sem `WITH CHECK` |
+| 6 | Super Admin no banco |
+| 7 | `/api/health`, `/` e `/entrar` em 200 — e também em `172.17.0.1:5400`, que é por onde a portaria entra |
+| 8 | Worker rodando, sem laço de reinício |
+| 9 | **Os mesmos vizinhos da etapa 2, todos ainda de pé** |
 
-```bash
-ss -tlnp | grep -E '5400|5433'
-# as duas portas TÊM que aparecer como 127.0.0.1:xxxx
-# se aparecer 0.0.0.0:xxxx, PARE — o banco está exposto
-```
+A etapa 9 é a que responde à pergunta que mais importa nesta VPS. Ela compara a lista de contêineres das outras gavetas antes e depois; se algum tiver saído do ar, o script nomeia qual e aborta, em vez de declarar sucesso.
+
+A etapa 4 é a que sustenta a franquia. Se `dtechmed_app` nascesse com `BYPASSRLS`, o RLS viraria decoração — a aplicação passaria por cima de todas as políticas e uma empresa enxergaria os dados da outra. O script se recusa a migrar antes de provar que não é o caso.
+
+**É seguro rodar de novo.** Nenhuma etapa apaga dado: as migrações aplicam só o que falta e a semeadura não recria um Super Admin que já exista.
+
+Se ele parar no meio, a mensagem diz onde parou e qual comando usar para ver o log. Não siga por cima de um erro — cada etapa depende de a anterior ter dado certo de verdade.
 
 ---
 
-## Passo 6 — Crie as tabelas
+## Passo 6 — Migrações e semeadura (referência)
 
-As migrações rodam num serviço próprio, o `migrador`. Ele não sobe junto com o
-resto: usa o estágio de **build** da imagem, porque precisa do CLI do Prisma,
-do `tsx` e do `prisma.config.ts` — coisas que a imagem final não carrega, de
-propósito.
+**Já feito pelo passo 5.** Esta seção fica para quando você precisar rodar uma delas isoladamente — por exemplo, depois de uma atualização que traga migrações novas.
 
 ```bash
 cd /opt/gavetas/DTECHMED
+
+# Só as migrações
 docker compose -p dtechmed --profile manutencao run --rm migrador
+
+# Só a semeadura
+docker compose -p dtechmed --profile manutencao run --rm migrador npx prisma db seed
 ```
 
-Ele executa `prisma migrate deploy`, mostra o que aplicou e sai.
-
-**Confira:**
-
-```bash
-docker compose -p dtechmed exec db \
-  psql -U dtechmed_owner -d dtechmed -c \
-  "SELECT count(*) AS tabelas_com_rls_forcado FROM pg_class c
-     JOIN pg_namespace n ON n.oid=c.relnamespace
-    WHERE n.nspname='public' AND c.relkind='r' AND c.relforcerowsecurity;"
-# tem que dar 24
-```
-
-Se der menos que 24, a migração de endurecimento não passou. Não siga em frente: é ela que garante o isolamento entre franquias.
+O `migrador` usa o **estágio de build** da imagem, e não o de execução, porque precisa do CLI do Prisma e do `prisma.config.ts` — coisas que a imagem final não carrega, de propósito. Ele conecta com `DIRECT_DATABASE_URL`, como `dtechmed_owner`: o único papel com poder de criar tabela. A aplicação nunca usa essa URL.
 
 ---
 
-## Passo 7 — Crie o Super Admin
+## Passo 7 — Conferir o banco à mão (referência)
+
+**Já feito pelo passo 5.** Guardado aqui para quando você quiser olhar o estado do banco sem rodar o deploy inteiro.
 
 ```bash
 cd /opt/gavetas/DTECHMED
-docker compose -p dtechmed --profile manutencao run --rm \
-  migrador npx tsx prisma/seed.ts
-```
 
-Sem o `--demo`: em produção ninguém quer a Clínica Bella Pelle no meio da carteira de verdade.
+# Os papéis: dtechmed_app tem que sair como `---`
+docker exec dtechmed_db psql -U dtechmed_owner -d dtechmed -tAc \
+  "SELECT rolname||':'
+       || CASE WHEN rolsuper     THEN 's' ELSE '-' END
+       || CASE WHEN rolbypassrls THEN 'b' ELSE '-' END
+       || CASE WHEN rolcreatedb  THEN 'c' ELSE '-' END
+     FROM pg_roles WHERE rolname LIKE 'dtechmed%' ORDER BY 1"
 
-**Confira:** a saída mostra `Super Admin criado: lucas@dtechmed.com.br`.
-
-Depois disso, **apague a senha do `.env`** — ela já cumpriu o papel:
-
-```bash
-sed -i 's/^SEED_SUPERADMIN_PASSWORD=.*/SEED_SUPERADMIN_PASSWORD=/' .env
+# Tabelas sem RLS forçado: a saída tem que ser vazia
+docker exec dtechmed_db psql -U dtechmed_owner -d dtechmed -tAc \
+  "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+    WHERE n.nspname='public' AND c.relkind='r' AND c.relname NOT LIKE '_prisma%'
+      AND (c.relrowsecurity=false OR c.relforcerowsecurity=false)"
 ```
 
 ---

@@ -188,7 +188,9 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
-    container_name: dtechmed_migrador
+    # Sem `container_name`, ao contrário dos outros: este serviço é chamado com
+    # `docker compose run`, que cria um contêiner descartável por execução. Um
+    # nome fixo brigaria com isso.
     profiles: ["manutencao"]
     env_file: .env
     environment:
