@@ -29,11 +29,13 @@
 #     portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
 #
 # Os domínios estão escritos abaixo, prontos. NÃO os edite pelo terminal com
-# `sed`: alguns clientes de terminal e de chat convertem qualquer texto que
-# comece com "www." em link, e o que chega ao arquivo é
-# `[www.exemplo.com](https://www.exemplo.com)` — sintaxe inválida que, se a
-# portaria tentasse carregar, derrubaria os três sites da máquina junto.
-# Aconteceu neste deploy. Edite este arquivo no repositório e faça `git pull`.
+# `sed`: alguns clientes de terminal e de chat convertem automaticamente
+# qualquer texto começando com "www." num link markdown, com colchetes e
+# parênteses em volta. Isso é sintaxe inválida do Caddy — e o Caddy em questão
+# atende as portas 80 e 443 da máquina inteira, então uma configuração que ele
+# não consiga carregar derruba os três sites juntos, incluindo os dois
+# vizinhos. Aconteceu neste deploy, com um `sed` que parecia inofensivo.
+# Edite este arquivo no repositório e traga por `git pull`.
 #
 # Hoje: o domínio de ensaio.
 # Na virada: acrescente dtechmed.com.br e o subdomínio www dele na mesma linha,

@@ -306,10 +306,14 @@ Os domínios já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos
 ```bash
 cd /opt/gavetas/DTECHMED
 grep -n '^conexevolution' infra/caddy/dtechmed.caddy
-grep -c ']\|](' infra/caddy/dtechmed.caddy    # tem que dar 0
+
+# Nenhum colchete nas linhas que não são comentário. Tem que dar 0.
+grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\[' 
 ```
 
-> **Por que a segunda linha existe.** Alguns clientes de terminal e de chat convertem automaticamente qualquer texto começando com `www.` em link markdown. O que chega ao arquivo é `[www.exemplo.com](https://www.exemplo.com)` — sintaxe inválida do Caddy. Instalada na portaria, ela poderia impedir o processo de subir e derrubar os três sites da máquina junto. Aconteceu neste deploy, com um `sed` que parecia inofensivo. Por isso o domínio vive no repositório e chega aqui por `git pull`, sem passar pelo teclado.
+> **Por que a segunda verificação existe.** Alguns clientes de terminal e de chat convertem automaticamente qualquer texto começando com `www.` num link markdown, com colchetes e parênteses em volta. Isso é sintaxe inválida do Caddy — e este Caddy atende as portas 80 e 443 da máquina inteira, então uma configuração que ele não consiga carregar derruba os três sites juntos. Aconteceu neste deploy, com um `sed` que parecia inofensivo. Por isso o domínio vive no repositório e chega por `git pull`, sem passar pelo teclado.
+>
+> A verificação ignora as linhas de comentário — senão o próprio texto que você está lendo a faria falhar.
 >
 > Se o segundo `grep` não devolver `0`, o arquivo está contaminado: refaça o `git reset --hard FETCH_HEAD` e **não instale**.
 
