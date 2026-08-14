@@ -31,6 +31,15 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-dtechmed}
       POSTGRES_USER: ${POSTGRES_USER:-dtechmed_owner}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      # Lida pelo script de init, que cria o papel de runtime `dtechmed_app`.
+      #
+      # Passada uma a uma, e não com `env_file: .env`, de propósito: o arquivo
+      # inteiro traria para dentro do contêiner do banco o SESSION_SECRET, a
+      # ENCRYPTION_KEY e o token do WhatsApp — segredos que o Postgres não tem
+      # nenhum motivo para conhecer. Variável de ambiente é legível por
+      # qualquer um que consiga executar algo dentro do contêiner, então cada
+      # uma que entra aqui precisa se justificar.
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?defina APP_DB_PASSWORD no .env}
       # Locale pt-BR para ordenação correta de nomes com acento.
       LANG: pt_BR.UTF-8
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
