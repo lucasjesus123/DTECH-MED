@@ -307,43 +307,64 @@ cd /opt/gavetas/DTECHMED
 # Troque pelo domínio do ensaio. Só depois de aprovado é que vira o definitivo.
 DOMINIO='conexevolution.online, www.conexevolution.online'
 
-sed "s/^SEU_DOMINIO {/${DOMINIO} {/" infra/caddy/dtechmed.caddy > /tmp/dtechmed.caddy
-head -30 /tmp/dtechmed.caddy | grep -n "${DOMINIO}"
-# tem que aparecer a linha com o dominio — se nao aparecer, PARE
+sed "s|^SEU_DOMINIO {|${DOMINIO} {|" infra/caddy/dtechmed.caddy > /tmp/dtechmed.caddy
+grep -n '^conexevolution' /tmp/dtechmed.caddy
+# tem que aparecer a linha com os dois dominios — se nao aparecer, PARE
 ```
 
-### 8.3 — Instale e recarregue
+### 8.3 — Instale o arquivo
 
 ```bash
-docker exec portal-da-estetica-web-1 mkdir -p /data/sites-extra /data/logs
+docker exec portal-da-estetica-web-1 mkdir -p /data/sites-extra
 docker cp /tmp/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+```
 
-# Valida ANTES de reiniciar. Se a sintaxe estiver errada, descobrimos agora,
-# com os vizinhos ainda no ar.
+Ainda **não** valeu nada: o Caddy só relê a configuração quando alguém manda.
+
+### 8.4 — Valide antes de mandar reler
+
+```bash
 docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
 ```
 
-Só se o `validate` passar:
+Tem que terminar com `Valid configuration`. O `validate` lê o Caddyfile do vizinho **e** os arquivos importados, incluindo o nosso — então um erro de sintaxe aparece aqui, com os três sites ainda no ar, e não no momento em que a portaria tentar subir com ele.
+
+🚨 **Se o `validate` falhar, PARE.** Desfaça com `docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy` e me chame. Enquanto a portaria não reler, nada mudou para ninguém.
+
+### 8.5 — Faça a portaria reler
+
+Primeiro a via sem interrupção nenhuma:
+
+```bash
+docker kill -s USR1 portal-da-estetica-web-1
+sleep 3
+curl -sI https://SEU_DOMINIO | head -1
+```
+
+`USR1` é o sinal que manda o Caddy reler a configuração sem derrubar conexão nenhuma. Se responder `HTTP/2 200`, acabou — os vizinhos nem perceberam.
+
+**Só se o `curl` não responder 200**, use o reinício:
 
 ```bash
 docker restart portal-da-estetica-web-1
+sleep 5
+curl -sI https://SEU_DOMINIO | head -1
 ```
 
-> **Por que reiniciar, e não recarregar.** O `Caddyfile` do vizinho tem `admin off`, o que desliga a API por onde o `caddy reload` fala. Sem ela, a única forma de a portaria reler a configuração é reiniciar o contêiner. São **2 a 4 segundos** em que os três sites ficam fora do ar. É o único momento do deploy inteiro que afeta os vizinhos, é medido em segundos, e por isso vale escolher a hora — fim de noite, não meio-dia. O `validate` do passo anterior existe justamente para que esse reinício nunca seja o momento em que se descobre um erro de sintaxe.
+> **Por que o reinício é o segundo caminho.** O Caddyfile do vizinho tem `admin off`, o que desliga a API por onde o `caddy reload` normalmente fala. O `USR1` não depende dela, mas se por algum motivo não pegar, reiniciar é a única saída — e aí são **2 a 4 segundos** em que os três sites ficam fora do ar. É o único momento do deploy inteiro que afeta os vizinhos, é medido em segundos, e por isso vale escolher a hora: fim de noite, não meio-dia.
 
-**Confira** — os três sites, nesta ordem:
+**Confira os três sites, nesta ordem:**
 
 ```bash
-# 1. Os vizinhos voltaram?
-docker ps --filter name=portal-da-estetica --format '{{.Names}}  {{.Status}}'
-curl -sI https://portaldaestetica.com.br | head -1
-
-# 2. E o nosso?
-curl -sI https://conexevolution.online | head -1
-# HTTP/2 200
+curl -sI https://minhamecanica.online | head -1        # vizinho 1
+curl -sI https://portaldaestetica.com.br | head -1     # vizinho 2
+curl -sI https://SEU_DOMINIO | head -1                 # nosso
+docker ps --format '{{.Names}}\t{{.Status}}' | grep -v dtechmed | wc -l   # tem que dar 15
 ```
 
-Se o domínio ainda não propagou, o Caddy responde 502 ou falha o certificado. Espere e repita — não mexa em mais nada.
+Os vizinhos primeiro, de propósito: se algo tiver dado errado, é neles que precisamos saber antes.
+
+Se o nosso responder 502, quase sempre é a aplicação não estar respondendo em `172.17.0.1:5400` — confira com `curl -s -o /dev/null -w '%{http_code}' http://172.17.0.1:5400/api/health`, que o `infra/subir.sh` também verifica.
 
 ---
 
