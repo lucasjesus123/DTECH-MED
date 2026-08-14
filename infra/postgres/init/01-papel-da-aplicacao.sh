@@ -38,20 +38,25 @@ psql -v ON_ERROR_STOP=1 \
      --dbname "$POSTGRES_DB" \
      -v senha="$APP_DB_PASSWORD" \
      -v banco="$POSTGRES_DB" <<'SQL'
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dtechmed_app') THEN
-    EXECUTE format(
-      'CREATE ROLE dtechmed_app LOGIN PASSWORD %L '
-      || 'NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOINHERIT',
-      :'senha'
-    );
-    RAISE NOTICE 'Papel dtechmed_app criado.';
-  ELSE
-    RAISE NOTICE 'Papel dtechmed_app já existe; nada a fazer.';
-  END IF;
-END
-$$;
+-- Cria o papel se ele ainda não existir.
+--
+-- Sem bloco `DO $$ ... $$`, e o motivo é específico: o psql NÃO substitui
+-- variáveis dentro de texto delimitado por cifrões. Ele trata `$$...$$` como
+-- literal de propósito, para não estragar corpos de função que contenham dois
+-- pontos. O `:'senha'` chegava cru ao PostgreSQL e virava
+-- `syntax error at or near ":"`, derrubando a inicialização inteira.
+--
+-- `\gexec` roda o comando que a consulta devolve. Quando o papel já existe, a
+-- consulta não devolve linha nenhuma e nada acontece — a mesma idempotência do
+-- bloco anterior, só que num lugar onde a substituição funciona.
+SELECT 'CREATE ROLE dtechmed_app LOGIN '
+    || 'NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOINHERIT'
+ WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dtechmed_app')
+\gexec
+
+-- A senha entra aqui, em comando de primeiro nível, onde o `:'senha'` é
+-- substituído e escapado pelo próprio psql.
+ALTER ROLE dtechmed_app WITH PASSWORD :'senha';
 
 -- O dono precisa de CREATEDB apenas em desenvolvimento, para o shadow
 -- database do `prisma migrate dev`. Em produção, `migrate deploy` não usa —
