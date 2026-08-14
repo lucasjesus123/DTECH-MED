@@ -28,12 +28,19 @@
 #   docker cp infra/caddy/dtechmed.caddy \
 #     portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
 #
-# ANTES DE INSTALAR, troque SEU_DOMINIO pelo endereço real.
-# Durante o ensaio: conexevolution.online, www.conexevolution.online
-# Na virada:        dtechmed.com.br, www.dtechmed.com.br
+# Os domínios estão escritos abaixo, prontos. NÃO os edite pelo terminal com
+# `sed`: alguns clientes de terminal e de chat convertem qualquer texto que
+# comece com "www." em link, e o que chega ao arquivo é
+# `[www.exemplo.com](https://www.exemplo.com)` — sintaxe inválida que, se a
+# portaria tentasse carregar, derrubaria os três sites da máquina junto.
+# Aconteceu neste deploy. Edite este arquivo no repositório e faça `git pull`.
+#
+# Hoje: o domínio de ensaio.
+# Na virada: acrescente dtechmed.com.br e o subdomínio www dele na mesma linha,
+# separados por vírgula, e mantenha o de ensaio por uma semana.
 # =============================================================================
 
-SEU_DOMINIO {
+conexevolution.online, www.conexevolution.online {
 	encode zstd gzip
 
 	# Seis fotos de celular numa tacada. A aplicação limita 8 MB por foto.

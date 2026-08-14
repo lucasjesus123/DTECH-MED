@@ -299,24 +299,26 @@ docker exec portal-da-estetica-web-1 sh -c 'cat /data/sites-extra/*.caddy'
 
 Você deve ver o bloco da MINHAMECANICA, que serve de espelho: é a prova de que este mecanismo já funciona nesta máquina.
 
-### 8.2 — Escreva o bloco do DTECH MED
+### 8.2 — Confira o nosso bloco
+
+Os domínios já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos. **Não os edite pelo terminal.**
 
 ```bash
 cd /opt/gavetas/DTECHMED
-
-# Troque pelo domínio do ensaio. Só depois de aprovado é que vira o definitivo.
-DOMINIO='conexevolution.online, www.conexevolution.online'
-
-sed "s|^SEU_DOMINIO {|${DOMINIO} {|" infra/caddy/dtechmed.caddy > /tmp/dtechmed.caddy
-grep -n '^conexevolution' /tmp/dtechmed.caddy
-# tem que aparecer a linha com os dois dominios — se nao aparecer, PARE
+grep -n '^conexevolution' infra/caddy/dtechmed.caddy
+grep -c ']\|](' infra/caddy/dtechmed.caddy    # tem que dar 0
 ```
+
+> **Por que a segunda linha existe.** Alguns clientes de terminal e de chat convertem automaticamente qualquer texto começando com `www.` em link markdown. O que chega ao arquivo é `[www.exemplo.com](https://www.exemplo.com)` — sintaxe inválida do Caddy. Instalada na portaria, ela poderia impedir o processo de subir e derrubar os três sites da máquina junto. Aconteceu neste deploy, com um `sed` que parecia inofensivo. Por isso o domínio vive no repositório e chega aqui por `git pull`, sem passar pelo teclado.
+>
+> Se o segundo `grep` não devolver `0`, o arquivo está contaminado: refaça o `git reset --hard FETCH_HEAD` e **não instale**.
 
 ### 8.3 — Instale o arquivo
 
 ```bash
 docker exec portal-da-estetica-web-1 mkdir -p /data/sites-extra
-docker cp /tmp/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+docker cp infra/caddy/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+docker exec portal-da-estetica-web-1 head -1 /data/sites-extra/dtechmed.caddy
 ```
 
 Ainda **não** valeu nada: o Caddy só relê a configuração quando alguém manda.
