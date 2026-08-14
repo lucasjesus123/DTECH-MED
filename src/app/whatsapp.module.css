@@ -1,0 +1,419 @@
+/* ==========================================================================
+   ANTESSALA DO WHATSAPP
+   --------------------------------------------------------------------------
+   O widget flutua sobre a página inteira, e a página tem seções claras e
+   seções escuras. Por isso ele declara as próprias cores aqui em cima, em vez
+   de herdar as variáveis do tema: assim o painel não muda de aparência
+   conforme a seção que estiver atrás dele.
+
+   O verde é o do WhatsApp (#25D366). Ele aparece só no cabeçalho e no botão
+   final — o corpo é escuro, da casa. Um painel verde inteiro competiria com a
+   marca e pareceria propaganda do WhatsApp, não atendimento da DTECH.
+   ========================================================================== */
+
+.raiz {
+  --zap: #25D366;
+  --zap-escuro: #12A150;
+  --zap-tinta: #04120A;
+  --caixa: #12091E;
+  --caixa-2: #1B1030;
+  --linha-zap: #2E1C4A;
+  --letra: #F4F0FB;
+  --letra-2: #B9AAD4;
+
+  position: fixed;
+  right: clamp(14px, 3vw, 26px);
+  bottom: clamp(14px, 3vw, 26px);
+  /* Acima de tudo do site, abaixo de qualquer diálogo modal que venha a
+     existir — um modal precisa poder cobrir o widget. */
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s3);
+  font-family: var(--f-texto);
+}
+
+/* --------------------------------------------------------------------------
+   O BOTÃO FLUTUANTE
+   -------------------------------------------------------------------------- */
+
+.gatilho {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--zap) 0%, var(--zap-escuro) 100%);
+  color: var(--zap-tinta);
+  cursor: pointer;
+  box-shadow:
+    0 10px 26px -8px rgb(18 161 80 / .55),
+    0 2px 8px rgb(0 0 0 / .4);
+  transition:
+    transform 260ms var(--ease),
+    box-shadow 260ms var(--ease);
+}
+
+.gatilho:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    0 16px 34px -8px rgb(18 161 80 / .7),
+    0 2px 8px rgb(0 0 0 / .45);
+}
+
+.gatilho:focus-visible {
+  outline: 2px solid var(--letra);
+  outline-offset: 3px;
+}
+
+/* O anel que pulsa. É um pseudo-elemento e não um segundo nó: nada a mais no
+   HTML, e o `animation` mora inteiro no CSS, longe do JavaScript. */
+.gatilho::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--zap);
+  z-index: -1;
+  animation: pulso 2.6s var(--ease) infinite;
+}
+
+@keyframes pulso {
+  0%   { transform: scale(1);    opacity: .5; }
+  70%  { transform: scale(1.55); opacity: 0;  }
+  100% { transform: scale(1.55); opacity: 0;  }
+}
+
+/* Com o painel aberto o pulso some: ele existe para chamar atenção, e a
+   atenção já veio. */
+.gatilho[data-aberto='sim']::before { animation: none; }
+
+/* A troca do balão pelo X acontece no CSS, com os dois ícones sempre
+   presentes. Trocar o nó no React faria o botão piscar em branco no meio da
+   transição. */
+.gatilho .gatilhoZap,
+.gatilho .gatilhoX {
+  grid-area: 1 / 1;
+  width: 27px;
+  height: 27px;
+  transition: transform 240ms var(--ease), opacity 180ms linear;
+}
+
+.gatilho .gatilhoX { width: 24px; height: 24px; }
+
+.gatilho[data-aberto='nao'] .gatilhoX,
+.gatilho[data-aberto='sim'] .gatilhoZap {
+  opacity: 0;
+  transform: rotate(-90deg) scale(.6);
+}
+
+.gatilho[data-aberto='sim'] .gatilhoX,
+.gatilho[data-aberto='nao'] .gatilhoZap {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   O PAINEL
+   -------------------------------------------------------------------------- */
+
+.painel {
+  width: min(360px, calc(100vw - 28px));
+  /* Em tela baixa (celular deitado, notebook pequeno) o painel poderia passar
+     do topo da janela e ficar com o cabeçalho cortado — sem cabeçalho, some o
+     botão de fechar. O teto e o rolar interno resolvem os dois. */
+  max-height: min(640px, calc(100dvh - 108px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--linha-zap);
+  border-radius: 18px;
+  background: var(--caixa);
+  box-shadow:
+    0 30px 70px -30px rgb(0 0 0 / .9),
+    0 4px 16px rgb(0 0 0 / .5);
+  transform-origin: 100% 100%;
+  transition:
+    opacity 260ms var(--ease),
+    transform 320ms var(--ease-firme),
+    visibility 0s linear 320ms;
+}
+
+.painel[data-aberto='nao'] {
+  opacity: 0;
+  /* `visibility` além do `opacity`: um elemento só transparente continua
+     recebendo clique e continua sendo lido por leitor de tela. */
+  visibility: hidden;
+  transform: translateY(14px) scale(.94);
+  pointer-events: none;
+}
+
+.painel[data-aberto='sim'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.painel:focus-visible { outline: 2px solid var(--vio-claro); outline-offset: -4px; }
+
+.topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s4) var(--s4) var(--s4) var(--s5);
+  background: linear-gradient(135deg, var(--zap-escuro) 0%, #0E7C42 100%);
+  color: #fff;
+}
+
+.topoNome {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.topoStatus {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 3px;
+  font-size: var(--t-sm);
+  /* Branco puro a 88%: legível sobre o verde, e um degrau abaixo do nome —
+     hierarquia sem trocar de cor. */
+  color: rgb(255 255 255 / .88);
+}
+
+.bolinha {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #B6FFCE;
+  box-shadow: 0 0 0 0 rgb(182 255 206 / .8);
+  animation: piscaBolinha 2s ease-out infinite;
+}
+
+@keyframes piscaBolinha {
+  0%   { box-shadow: 0 0 0 0 rgb(182 255 206 / .7); }
+  70%  { box-shadow: 0 0 0 7px rgb(182 255 206 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(182 255 206 / 0); }
+}
+
+.fechar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / .16);
+  color: #fff;
+  cursor: pointer;
+  transition: background 200ms var(--ease);
+}
+
+.fechar:hover { background: rgb(255 255 255 / .3); }
+.fechar:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.fecharIcone { width: 17px; height: 17px; }
+
+/* A única parte que rola. `min-height: 0` porque item de flex tem altura
+   mínima automática igual ao conteúdo — sem isto ele estoura o painel em vez
+   de rolar, e é o rodapé com o botão verde que sai empurrado para fora. */
+.corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--s5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgb(37 211 102 / .07), transparent 60%),
+    var(--caixa);
+}
+
+.balao {
+  padding: var(--s4);
+  /* Canto vivo embaixo à esquerda: é o rabinho do balão de mensagem recebida,
+     que todo mundo reconhece sem precisar de explicação. */
+  border-radius: 14px 14px 14px 4px;
+  background: var(--caixa-2);
+}
+
+.balaoAutor {
+  display: block;
+  margin-bottom: 3px;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: #5EE58E;
+}
+
+.balaoTexto {
+  margin: 0;
+  font-size: var(--t-base);
+  line-height: 1.5;
+  color: var(--letra);
+}
+
+.instrucao {
+  margin: var(--s5) 0 var(--s3);
+  font-size: var(--t-sm);
+  color: var(--letra-2);
+}
+
+.opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  width: 100%;
+  /* 46px de altura mínima: alvo de toque confortável no celular, que é onde
+     este widget vai ser usado. */
+  min-height: 46px;
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--linha-zap);
+  border-radius: 12px;
+  background: var(--caixa-2);
+  color: var(--letra);
+  font-family: inherit;
+  font-size: var(--t-base);
+  text-align: left;
+  line-height: 1.35;
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease),
+    background 200ms var(--ease),
+    transform 200ms var(--ease);
+}
+
+.opcao:hover {
+  border-color: color-mix(in oklab, var(--zap) 55%, var(--linha-zap));
+  transform: translateX(3px);
+}
+
+.opcao:focus-visible { outline: 2px solid var(--zap); outline-offset: 2px; }
+
+/* O assunto escolhido. Marcado por cor E por borda E por um tique — três
+   sinais, porque cor sozinha não chega a quem não a distingue. */
+.opcao[aria-pressed='true'] {
+  border-color: var(--zap);
+  background: color-mix(in oklab, var(--zap) 16%, var(--caixa-2));
+}
+
+.opcao[aria-pressed='true']::after {
+  content: '✓';
+  margin-left: auto;
+  font-weight: 700;
+  color: #5EE58E;
+}
+
+.opcaoEmoji {
+  flex: none;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* O rodapé com o botão verde, sempre à vista. A borda de cima e o fundo um
+   pouco mais claro separam ele da lista que rola por baixo, para o botão não
+   parecer só mais um item da lista. */
+.acao {
+  flex: none;
+  padding: var(--s4) var(--s5) var(--s5);
+  border-top: 1px solid var(--linha-zap);
+  background: var(--caixa);
+}
+
+.enviar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 50px;
+  padding: var(--s3) var(--s4);
+  border-radius: 12px;
+  background: linear-gradient(150deg, var(--zap) 0%, var(--zap-escuro) 100%);
+  color: var(--zap-tinta);
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 10px 24px -12px rgb(18 161 80 / .9);
+  transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+
+.enviar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -12px rgb(18 161 80 / 1);
+}
+
+.enviar:focus-visible { outline: 2px solid var(--letra); outline-offset: 3px; }
+
+.enviarIcone { width: 21px; height: 21px; }
+
+.rodape {
+  margin: var(--s3) 0 0;
+  font-size: var(--t-xs);
+  text-align: center;
+  color: var(--letra-2);
+}
+
+/* --------------------------------------------------------------------------
+   SEM JAVASCRIPT
+   O painel depende de JS; o contato, não. Aqui fica um link direto, com a
+   mesma aparência do botão flutuante.
+   -------------------------------------------------------------------------- */
+
+.semJs {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s4);
+  border-radius: 999px;
+  background: var(--zap);
+  color: var(--zap-tinta);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.semJsTexto { font-size: var(--t-sm); }
+
+/* --------------------------------------------------------------------------
+   MOVIMENTO REDUZIDO
+   O pulso e o deslizar somem; o painel continua aparecendo e sumindo, só que
+   na hora. Tirar a transição inteira deixaria o `visibility` preso no atraso.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .gatilho::before,
+  .bolinha {
+    animation: none;
+  }
+
+  .gatilho:hover,
+  .opcao:hover,
+  .enviar:hover {
+    transform: none;
+  }
+
+  .painel {
+    transition: opacity 1ms linear, visibility 0s linear 1ms;
+  }
+
+  .painel[data-aberto='nao'] { transform: none; }
+  .painel[data-aberto='sim'] { transition-delay: 0s; }
+}

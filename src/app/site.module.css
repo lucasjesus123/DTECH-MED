@@ -167,6 +167,25 @@
   filter: saturate(.62) contrast(1.04) brightness(.5);
 }
 
+/* A foto da primeira dobra, quando não há vídeo. Mesmo tratamento do vídeo —
+   dessaturada e escurecida — porque o contraste do texto não pode depender de
+   qual foto o Lucas subiu. Uma bancada bem iluminada é justamente a foto que
+   arrebentaria a leitura se entrasse com o brilho original. */
+.dobraFoto {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.dobraFotoImg {
+  object-fit: cover;
+  /* `object-position` acima do centro: em foto de oficina o assunto costuma
+     estar na altura da bancada, e o corte por baixo é o que sobra em tela
+     larga e baixa. */
+  object-position: 50% 42%;
+  filter: saturate(.62) contrast(1.04) brightness(.5);
+}
+
 .dobraCanvas {
   position: absolute;
   inset: 0;
@@ -641,6 +660,38 @@
 .esp:hover .espMarca {
   opacity: .13;
   transform: translate(-6px, -6px) rotate(-4deg);
+}
+
+/* Quando existe foto do equipamento, ela ocupa o lugar da marca d'água: o
+   canto direito do cartão, sangrando pela borda. Um degradê a apaga na
+   esquerda, onde fica o texto — assim o título e o parágrafo continuam sobre
+   fundo chapado, e nenhum deles precisa de sombra para ser legível.
+
+   `-webkit-mask` junto porque o Safari ainda pede o prefixo para máscara com
+   degradê; sem ele a foto entra inteira e o texto fica ilegível. */
+.espFoto {
+  position: absolute;
+  inset: 0 0 0 32%;
+  z-index: -1;
+  display: block;
+  opacity: .3;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 55%);
+  transition: opacity 320ms var(--ease), transform 520ms var(--ease);
+}
+
+.espFotoImg {
+  object-fit: cover;
+  filter: saturate(.7) contrast(1.05) brightness(.72);
+}
+
+.esp:hover .espFoto {
+  opacity: .42;
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esp:hover .espFoto { transform: none; }
 }
 
 .esp h4 {

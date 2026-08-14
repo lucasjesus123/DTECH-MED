@@ -3,6 +3,7 @@ import path from 'node:path'
 import Link from 'next/link'
 import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
 import { Credito } from './credito'
+import { Foto, acharFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
@@ -16,6 +17,7 @@ import {
 } from './icones'
 import { Marca } from './marca'
 import estilo from './site.module.css'
+import { BotaoWhatsapp } from './whatsapp'
 
 /**
  * Home institucional.
@@ -89,6 +91,14 @@ const TEM_VIDEO = ['oficina.mp4', 'oficina.webm'].some((f) =>
 )
 const TEM_POSTER = existsSync(path.join(process.cwd(), 'public', 'video', 'oficina.jpg'))
 
+/**
+ * A ordem de preferência da primeira dobra: filmagem real > foto real >
+ * osciloscópio. O desenho é o piso, não o objetivo — ele existe para a página
+ * nunca ficar com um retângulo vazio, e sai de cena assim que houver material
+ * de verdade.
+ */
+const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
+
 /** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
 const ETAPAS = [
   ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 · 14:22'],
@@ -99,13 +109,27 @@ const ETAPAS = [
 ] as const
 
 const ESPECIALIDADES = [
-  [
-    'Estética',
-    'Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.',
-  ],
-  ['Médico', 'Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.'],
-  ['Odontológico', 'Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.'],
-  ['Hospitalar', 'Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.'],
+  {
+    nome: 'Estética',
+    texto:
+      'Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.',
+    foto: 'estetica',
+  },
+  {
+    nome: 'Médico',
+    texto: 'Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.',
+    foto: 'medico',
+  },
+  {
+    nome: 'Odontológico',
+    texto: 'Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.',
+    foto: 'odontologico',
+  },
+  {
+    nome: 'Hospitalar',
+    texto: 'Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.',
+    foto: 'hospitalar',
+  },
 ] as const
 
 export default function Home() {
@@ -138,6 +162,16 @@ export default function Home() {
               traço de sinal são o instrumento do ofício de quem calibra. */}
           {TEM_VIDEO ? (
             <FundoVideo pôster={TEM_POSTER ? '/video/oficina.jpg' : ''} />
+          ) : TEM_FOTO_DOBRA ? (
+            <div className={estilo.dobraFoto}>
+              <Foto
+                nome="oficina"
+                alt="Bancada da oficina, com um equipamento aberto em manutenção"
+                prioridade
+                larguras="100vw"
+                className={estilo.dobraFotoImg}
+              />
+            </div>
           ) : (
             <FundoOsciloscopio />
           )}
@@ -146,8 +180,8 @@ export default function Home() {
           <div className={`${estilo.container} ${estilo.dobraIn}`}>
             <h1 className={estilo.tese}>{EMPRESA.chamada}</h1>
             <p className={estilo.sub}>
-              {EMPRESA.subChamada} E, do começo ao fim, você acompanha cada etapa
-              pelo celular — com nome de quem mexeu e a hora.
+              {EMPRESA.subChamada} E você acompanha cada etapa pelo celular, com
+              o nome de quem mexeu e a hora.
             </p>
 
             <div className={estilo.acoes}>
@@ -219,10 +253,10 @@ export default function Home() {
         {/* ================= SERVIÇOS ================= */}
         <section id="servicos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <h2 className={estilo.h2}>O que podemos resolver para você</h2>
+            <h2 className={estilo.h2}>O que a gente resolve</h2>
             <p className={estilo.lead}>
-              Soluções completas para garantir a continuidade do seu trabalho, sem
-              interrupções.
+              Do conserto ao laudo, com peça original e prazo dito na hora de
+              fechar. Seu aparelho volta a trabalhar.
             </p>
 
             {/* Lista, não grade de cards do mesmo tamanho: o ícone anda ao lado
@@ -257,15 +291,29 @@ export default function Home() {
                   símbolo da marca em marca d'água, que dá profundidade sem
                   precisar de foto — e sai na hora em que a foto chegar. */}
               <ul className={estilo.espLista}>
-                {ESPECIALIDADES.map(([nome, texto], i) => (
+                {ESPECIALIDADES.map((e, i) => (
                   <li
-                    key={nome}
+                    key={e.nome}
                     className={estilo.esp}
                     style={{ '--i': i } as React.CSSProperties}
                   >
-                    <span className={estilo.espMarca} aria-hidden="true" />
-                    <h4>{nome}</h4>
-                    <p>{texto}</p>
+                    {/* Quando a foto existe ela assume o fundo do card; quando
+                        não, fica a marca d'água. Nunca as duas, e nunca uma
+                        caixa de imagem quebrada. */}
+                    {acharFoto(e.foto) ? (
+                      <span className={estilo.espFoto} aria-hidden="true">
+                        <Foto
+                          nome={e.foto}
+                          alt=""
+                          larguras="(max-width: 720px) 100vw, 50vw"
+                          className={estilo.espFotoImg}
+                        />
+                      </span>
+                    ) : (
+                      <span className={estilo.espMarca} aria-hidden="true" />
+                    )}
+                    <h4>{e.nome}</h4>
+                    <p>{e.texto}</p>
                   </li>
                 ))}
               </ul>
@@ -286,11 +334,11 @@ export default function Home() {
                 vira, e fica registrada.
               </p>
               <ul className={estilo.prontLista}>
-                <li>Assinatura colhida na tela, no local, com data e hora.</li>
-                <li>No mínimo seis fotos do estado em que o aparelho chegou.</li>
-                <li>Orçamento item a item, aprovado por link, com CPF/CNPJ conferido.</li>
-                <li>Nada é executado antes da sua aprovação.</li>
-                <li>Histórico que não pode ser alterado depois — nem por nós.</li>
+                <li>Assinatura na tela, ali na retirada, com data e horário.</li>
+                <li>Pelo menos seis fotos de como o aparelho chegou.</li>
+                <li>Orçamento item a item, aprovado por link, com CPF ou CNPJ conferido.</li>
+                <li>Ninguém abre nada antes de você aprovar.</li>
+                <li>Histórico que não dá para alterar depois. Nem nós conseguimos.</li>
               </ul>
             </div>
 
@@ -553,6 +601,11 @@ export default function Home() {
           <Link href="/entrar">Acesso ao sistema</Link>
         </div>
       </footer>
+
+      {/* Fica fora do <main> de propósito: é atendimento, não conteúdo da
+          página. Assim quem navega por leitor de tela não tromba com ele no
+          meio da leitura — encontra no fim, onde se procura contato. */}
+      <BotaoWhatsapp />
     </>
   )
 }

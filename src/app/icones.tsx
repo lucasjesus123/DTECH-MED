@@ -153,6 +153,15 @@ export function IconeZap({ className }: Props) {
   )
 }
 
+/** X de fechar. Traço grosso porque ele vive pequeno, dentro de um botão. */
+export function IconeFechar({ className }: Props) {
+  return (
+    <svg {...base} strokeWidth={2} className={className}>
+      <path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5" />
+    </svg>
+  )
+}
+
 /**
  * Seta do botão.
  *
