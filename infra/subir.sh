@@ -158,12 +158,27 @@ verde "$POLITICAS políticas, todas as de escrita com WITH CHECK"
 # ---------------------------------------------------------------------------
 titulo "6. Super Admin"
 # ---------------------------------------------------------------------------
-if grep -qE '^SEED_SUPERADMIN_EMAIL=.+' .env; then
+# Pergunta ANTES de semear.
+#
+# A semeadura em si é idempotente — ela não duplica um Super Admin que já
+# existe. Mas rodá-la em todo deploy significa abrir uma transação contra um
+# banco que acabou de trocar de contêineres, e foi exatamente aí que ela
+# falhou com P2028 ("Unable to start a transaction in the given time"): o
+# trabalho não era necessário, e o deploy parou por causa dele.
+#
+# Semear é coisa de instalação nova. Depois disso, a resposta certa é não
+# fazer nada.
+QUANTOS_SA=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
+  "SELECT count(*) FROM usuarios WHERE papel='SUPER_ADMIN'" | tr -d ' ')
+
+if [ "$QUANTOS_SA" -ge 1 ]; then
+  verde "$QUANTOS_SA Super Admin já existe — semeadura desnecessária"
+elif grep -qE '^SEED_SUPERADMIN_EMAIL=.+' .env; then
   compose --profile manutencao run --rm migrador npx prisma db seed
   QUANTOS_SA=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
     "SELECT count(*) FROM usuarios WHERE papel='SUPER_ADMIN'" | tr -d ' ')
   [ "$QUANTOS_SA" -ge 1 ] || morre "a semeadura rodou mas não há Super Admin no banco."
-  verde "$QUANTOS_SA Super Admin no banco"
+  verde "$QUANTOS_SA Super Admin criado"
 else
   alerta "SEED_SUPERADMIN_EMAIL vazio — semeadura pulada, ninguém consegue entrar ainda"
 fi
