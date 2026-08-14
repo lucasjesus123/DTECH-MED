@@ -1414,3 +1414,18 @@
 
 /* Campo do site oficial, usado pelo formulário para separar a origem. */
 .formSite { grid-column: 1 / -1; }
+
+/* --- Crédito de quem construiu -------------------------------------------
+   Discreto, mas com o link legível. Sublinhado com folga, para o traço não
+   cortar as descendentes das letras. */
+.credito {
+  color: var(--txt-3);
+}
+.credito a {
+  color: var(--txt-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 180ms var(--ease);
+}
+.credito a:hover { color: var(--vio-claro); }

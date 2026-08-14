@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import Link from 'next/link'
 import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
+import { Credito } from './credito'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
@@ -548,6 +549,7 @@ export default function Home() {
           <span>
             © {anoAtual} {EMPRESA.razaoSocial}
           </span>
+          <Credito className={estilo.credito} />
           <Link href="/entrar">Acesso ao sistema</Link>
         </div>
       </footer>

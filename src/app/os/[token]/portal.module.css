@@ -166,3 +166,10 @@
   border-top: 1px solid var(--borda);
   font-size: var(--t-sm); color: var(--txt-3); line-height: 1.6;
 }
+
+/* O crédito herda o rodapé do portal; só o link precisa de tratamento. */
+.rodape a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -196,3 +196,18 @@
   border: 1px dashed var(--borda-viva); border-radius: var(--r-lg);
   color: var(--txt-2); font-size: var(--t-sm); line-height: 1.6;
 }
+
+/* --- Rodapé dos apps de campo ---------------------------------------------
+   Espaço extra embaixo por causa da barra de navegação, que é fixa: sem ele o
+   crédito nasceria escondido atrás dela. */
+.rodape {
+  padding: var(--s5, 24px) var(--s4, 16px) calc(var(--s9, 96px) + env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: var(--t-xs, .6875rem);
+  color: var(--ink-3);
+}
+.rodape a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -4,6 +4,8 @@ import { lerSessao } from '@/server/auth/sessao'
 import { Formulario } from './formulario'
 import estilo from './entrar.module.css'
 import { EMPRESA } from '@/lib/empresa'
+import { Credito } from '../credito'
+import { Marca } from '../marca'
 
 export const metadata: Metadata = {
   title: 'Entrar',
@@ -28,10 +30,7 @@ export default async function Entrar({
 
       <div className={estilo.cartao}>
         <div className={estilo.marca}>
-          <span className={estilo.marcaD}>D</span>
-          <span className={estilo.marcaTxt}>
-            TECH<b>MED</b>
-          </span>
+          <Marca larguraPx={180} />
         </div>
 
         <h1 className={estilo.titulo}>Entrar no sistema</h1>
@@ -42,6 +41,8 @@ export default async function Entrar({
 
       <p className={estilo.rodape}>
         {EMPRESA.razaoSocial} · {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+        <br />
+        <Credito />
       </p>
     </main>
   )

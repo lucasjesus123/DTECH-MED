@@ -64,6 +64,7 @@ type DadosEmpresa = {
   endereco: {
     logradouro: string
     numero: string
+    complemento: string
     bairro: string
     cidade: string
     uf: string
@@ -112,14 +113,20 @@ export const EMPRESA: DadosEmpresa = {
   /** PENDENTE: informar. Ex.: 'Seg a Sex · 8h às 18h'. */
   horarioAtendimento: '',
 
-  // --- Endereço (confirmado no site oficial) ------------------------------
+  // --- Endereço -----------------------------------------------------------
+  /**
+   * Atualizado pelo Lucas em agosto de 2026. O site oficial ainda mostra o
+   * endereço antigo (Av. Alberto Pasqualini, 2073, São Cristóvão) — este aqui
+   * é o certo, e vale para o site, o rodapé e a tela de login.
+   */
   endereco: {
-    logradouro: 'Av. Alberto Pasqualini',
-    numero: '2073',
-    bairro: 'São Cristóvão',
+    logradouro: 'R. Sabiá',
+    numero: '702',
+    complemento: 'Sala 03',
+    bairro: 'Universitário',
     cidade: 'Lajeado',
     uf: 'RS',
-    cep: '95914-040',
+    cep: '95914-052',
   },
 
   // --- Redes --------------------------------------------------------------
@@ -262,8 +269,21 @@ export const EMPRESA: DadosEmpresa = {
 /** Endereço numa linha, do jeito que se lê em voz alta. */
 export function enderecoEmUmaLinha(): string {
   const e = EMPRESA.endereco
-  return `${e.logradouro}, ${e.numero} · ${e.bairro} · ${e.cidade}/${e.uf} · CEP ${e.cep}`
+  const numero = e.complemento ? `${e.numero}, ${e.complemento}` : e.numero
+  return `${e.logradouro}, ${numero} · ${e.bairro} · ${e.cidade}/${e.uf} · CEP ${e.cep}`
 }
+
+/**
+ * Quem construiu o sistema, para o rodapé.
+ *
+ * Vive aqui junto do resto porque aparece no site E em toda tela do painel e
+ * dos aplicativos — e crédito escrito à mão em oito lugares é crédito que fica
+ * desatualizado em sete.
+ */
+export const DESENVOLVEDOR = {
+  nome: 'Grupo Conexão',
+  site: 'https://conexaomkt.com.br',
+} as const
 
 /** Link do WhatsApp, com mensagem já digitada para a pessoa só apertar enviar. */
 export function linkWhatsapp(mensagem?: string): string {

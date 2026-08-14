@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { redirect } from 'next/navigation'
 import { lerSessao } from '@/server/auth/sessao'
 import estilo from './app.module.css'
+import { Credito } from '../credito'
 
 export const metadata: Metadata = {
   title: 'DTECH MED · Campo',
@@ -30,5 +31,14 @@ export const viewport: Viewport = {
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
   const sessao = await lerSessao()
   if (!sessao) redirect('/entrar?destino=/app')
-  return <div className={estilo.aparelho}>{children}</div>
+  return (
+    <div className={estilo.aparelho}>
+      {children}
+      {/* Discreto e no fim da rolagem: quem está na rua com uma mão só não
+          pode ter o polegar disputando espaço com um crédito. */}
+      <footer className={estilo.rodape}>
+        <Credito />
+      </footer>
+    </div>
+  )
 }

@@ -880,3 +880,20 @@
 @media (max-width: 1000px) {
   .duasColunas { grid-template-columns: 1fr; }
 }
+
+/* --- Rodapé do painel ------------------------------------------------------
+   No fim da rolagem do conteúdo, não fixo: numa tela de trabalho, cada pixel
+   preso no rodapé é um pixel a menos de tabela. */
+.rodape {
+  margin-top: var(--s8, 64px);
+  padding: var(--s5, 24px) 0 var(--s6, 32px);
+  border-top: 1px solid var(--linha);
+  font-size: var(--t-xs, .6875rem);
+  color: var(--ink-3);
+}
+.rodape a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rodape a:hover { color: var(--vio-claro); }

@@ -6,6 +6,8 @@ import { carregarOrdemPublica } from '@/server/acoes/portal'
 import { ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { Aprovacao } from './aprovacao'
 import estilo from './portal.module.css'
+import { Credito } from '@/app/credito'
+import { Simbolo } from '@/app/marca'
 
 export const metadata: Metadata = {
   title: 'Acompanhe seu equipamento',
@@ -26,7 +28,10 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
   return (
     <main className={estilo.palco}>
       <header className={estilo.topo}>
-        <span className={estilo.marcaD}>D</span>
+        {/* O nome que aparece aqui é o da FRANQUIA dona da ordem, não o da
+            plataforma: quem abre este link é cliente dela. O símbolo do
+            sistema fica pequeno, ao lado, sem disputar. */}
+        <Simbolo larguraPx={26} />
         <span className={estilo.marcaTxt}>{ordem.tenant.nome}</span>
       </header>
 
@@ -147,6 +152,9 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
           <p>
             Dúvida sobre esta ordem? Chame a {ordem.tenant.nome}
             {ordem.tenant.telefone ? ` no ${formatarTelefone(ordem.tenant.telefone)}` : ''}.
+          </p>
+          <p>
+            <Credito />
           </p>
         </footer>
       </div>

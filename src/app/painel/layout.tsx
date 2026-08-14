@@ -4,6 +4,8 @@ import { Papel } from '@/generated/prisma/enums'
 import { podeVer } from '@/server/auth/guarda'
 import { encerrarSessao, lerSessao } from '@/server/auth/sessao'
 import estilo from './painel.module.css'
+import { Credito } from '../credito'
+import { Marca } from '../marca'
 
 /**
  * Moldura do painel.
@@ -40,10 +42,7 @@ export default async function LayoutPainel({ children }: { children: React.React
     <div className={estilo.app}>
       <aside className={estilo.lateral}>
         <div className={estilo.latMarca}>
-          <span className={estilo.latD}>D</span>
-          <span className={estilo.latTxt}>
-            TECH<b>MED</b>
-          </span>
+          <Marca larguraPx={150} />
         </div>
 
         <p className={estilo.latGrupo}>A esteira</p>
@@ -116,7 +115,12 @@ export default async function LayoutPainel({ children }: { children: React.React
           </span>
           <span className={estilo.data}>{hoje()}</span>
         </header>
-        <div className={estilo.rolagem}>{children}</div>
+        <div className={estilo.rolagem}>
+          {children}
+          <footer className={estilo.rodape}>
+            <Credito />
+          </footer>
+        </div>
       </div>
     </div>
   )
