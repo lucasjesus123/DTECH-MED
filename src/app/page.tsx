@@ -6,6 +6,7 @@ import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
 import { ICONES, IconeEstrela, IconeInstagram, IconeLocal, IconeZap } from './icones'
+import { Marca } from './marca'
 import estilo from './site.module.css'
 
 /**
@@ -107,10 +108,7 @@ export default function Home() {
       <header className={estilo.topo}>
         <div className={`${estilo.container} ${estilo.topoIn}`}>
           <Link href="/" className={estilo.marca} aria-label="DTECH MED, página inicial">
-            <span className={estilo.marcaD}>D</span>
-            <span className={estilo.marcaTxt}>
-              TECH<b>MED</b>
-            </span>
+            <Marca larguraPx={152} />
           </Link>
           <nav className={estilo.nav} aria-label="Principal">
             <a href="#servicos">Serviços</a>
@@ -447,12 +445,7 @@ export default function Home() {
       <footer className={estilo.rodape}>
         <div className={`${estilo.container} ${estilo.rodGrid}`}>
           <div>
-            <span className={estilo.marca}>
-              <span className={estilo.marcaD}>D</span>
-              <span className={estilo.marcaTxt}>
-                TECH<b>MED</b>
-              </span>
-            </span>
+            <Marca larguraPx={164} />
             <p className={estilo.rodTexto}>
               {EMPRESA.razaoSocial}. {EMPRESA.descricaoSite}, de qualquer marca.
               {EMPRESA.cnpj ? ` CNPJ ${EMPRESA.cnpj}.` : ''}

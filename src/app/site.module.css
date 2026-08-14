@@ -55,27 +55,32 @@
   color: var(--txt);
 }
 
-.marcaD {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: var(--r);
-  background: var(--vio);
-  color: #fff;
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: var(--t-lg);
-  line-height: 1;
+/* --- A marca, aplicada como máscara ---------------------------------------
+   O elemento é pintado com `currentColor` e o desenho recorta esse pincel.
+   Assim um arquivo só serve todas as cores, fica em cache, e herda a cor do
+   texto ao redor sem ninguém precisar lembrar de trocar nada.
+
+   `aspect-ratio` não é enfeite: sem ela o elemento nasce com altura zero, o
+   conteúdo abaixo sobe e depois desce quando a máscara carrega. Esse pulo é
+   um dos que mais estragam a primeira impressão — e o LCP junto. */
+.marcaSvg,
+.marcaSimbolo {
+  display: block;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
 }
 
-.marcaTxt {
-  font-family: var(--f-display);
-  font-weight: 500;
-  font-size: var(--t-base);
-  letter-spacing: .14em;
+.marcaSvg {
+  aspect-ratio: 668.6 / 111.1;
+  mask-image: url('/marca/dtechmed.svg');
 }
-.marcaTxt b { font-weight: 800; }
+
+.marcaSimbolo {
+  aspect-ratio: 109.6 / 111.1;
+  mask-image: url('/marca/dtechmed-simbolo.svg');
+}
 
 .nav {
   display: flex;

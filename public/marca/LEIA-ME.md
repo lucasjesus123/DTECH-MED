@@ -1,40 +1,54 @@
-# Logotipo oficial da DTECH MED
+# A marca DTECH MED
 
-Esta pasta está vazia de propósito.
+Três arquivos, todos vetoriais, extraídos do PDF oficial que o Lucas enviou em
+agosto de 2026.
 
-Tentei baixar o logotipo direto de `dtechmed.com.br`, mas o ambiente onde o
-sistema foi construído bloqueia o acesso àquele domínio. Sem o arquivo em mãos,
-a alternativa seria **desenhar um parecido** — e uma marca aproximada é pior
-que marca nenhuma: ela vai parar em contrato, em orçamento assinado e no
-WhatsApp do cliente, e ninguém percebe que está errada até alguém de fora
-apontar.
+| Arquivo | Proporção | Onde usar |
+| --- | --- | --- |
+| `dtechmed.svg` | 6,02 : 1 | topo do site, rodapé, cabeçalho de PDF |
+| `dtechmed-simbolo.svg` | 0,99 : 1 | favicon, ícone do PWA, avatar, marca d'água |
+| `dtechmed-palavra.svg` | 5,60 : 1 | quando o símbolo já aparece perto |
 
-Enquanto o arquivo não chega, a marca aparece desenhada em texto (o "D" em
-caixa violeta seguido de TECH**MED**), que é como está hoje no site, no painel
-e nos aplicativos. Funciona bem e não finge ser o que não é.
+## Cor
 
-## Como colocar o logotipo de verdade
+**`#34005E`** — violeta profundo. No PDF ela é CMYK **87 / 96 / 11 / 58**.
 
-Coloque os arquivos aqui com estes nomes exatos:
+Não confunda com o violeta claro da interface (`--vio`, `#8B5CF6`): aquele é
+cor de instrumento, calibrado para brilhar sobre fundo escuro. O `#34005E` é a
+cor impressa, a que está no cartão e na van.
 
-| Arquivo | Para quê | Formato ideal |
-|---|---|---|
-| `logo.svg` | Site, painel e apps | SVG, fundo transparente |
-| `logo-claro.svg` | Versão para fundo claro | SVG, fundo transparente |
-| `logo.png` | Onde SVG não serve (PDF, WhatsApp) | PNG, 1024 px de largura, fundo transparente |
+## Como usar
 
-O SVG é o que mais importa: ele fica nítido em qualquer tamanho, do favicon ao
-cabeçalho do PDF impresso. Se você só tiver o PNG, mande do maior tamanho que
-existir — dá para gerar o resto a partir dele, mas não dá para recuperar o que
-já se perdeu numa imagem pequena.
+Os três arquivos usam `fill="currentColor"`. Não têm cor própria: herdam a do
+texto ao redor.
 
-Se tiver o **manual da marca** (as cores exatas em HEX, a fonte do logotipo, a
-área de respiro), mande junto. As cores atuais do sistema foram calibradas para
-o violeta `#4A0D8F`; se a marca usa outro tom, é um ajuste em um arquivo só
-(`src/app/globals.css`).
+```jsx
+<span style={{ color: 'var(--vio-tinta)', width: 180 }}>
+  <Logo />
+</span>
+```
 
-## Logotipo de cada franquia
+Sobre fundo escuro, use branco ou `--vio-claro`. Sobre fundo claro, `#34005E`.
+Nunca ponha o violeta escuro sobre o quase-preto do site — some.
 
-Este aqui é o da matriz. **Cada franquia tem o seu**, e ele não vem desta
-pasta: vem do cadastro da empresa, no campo `logoUrl` — é o que faz o PDF de
-uma franquia sair com a marca dela, e não com a de Lajeado.
+## Como foram extraídos
+
+Não havia nenhuma ferramenta de PDF nesta máquina — nem `pdftoppm`, nem
+Ghostscript, nem PyMuPDF. Os arquivos foram gerados lendo o PDF direto: os
+fluxos de conteúdo foram descomprimidos e os operadores de caminho traduzidos
+para SVG, que é quase um-para-um (`m`→`M`, `l`→`L`, `c`→`C`, `h`→`Z`), com o
+eixo Y invertido por um `scale(1 -1)`, porque no PDF ele cresce para cima.
+
+Duas limpezas foram necessárias:
+
+- **832 caminhos viraram 10.** O resto eram fragmentos de 1 a 7 unidades perto
+  da origem, restos do arquivo de origem. Um deles, sozinho, inflava a moldura
+  em 250 unidades e deixava o logo perdido num canto.
+- **O corte entre símbolo e palavra foi medido, não chutado**: o script procura
+  o vão real entre os caminhos (achou 190,4) em vez de dividir por uma
+  porcentagem da largura.
+
+## Se o logo mudar
+
+Substitua os três arquivos mantendo os nomes. Nada no código precisa mudar —
+tudo aponta para estes caminhos.
