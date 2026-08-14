@@ -14,17 +14,20 @@
  * ---------------------------------------------------------------------------
  * PROCEDÊNCIA DE CADA CAMPO
  * ---------------------------------------------------------------------------
- * CONFIRMADO — extraído do site oficial (dtechmed.com.br), agosto de 2026:
- *   nome, descricaoSite, endereço completo com CEP, telefone,
- *   missao, visao, valores e os dois serviços.
+ * CONFIRMADO — transcrito do site oficial em produção (dtechmed.com.br),
+ * agosto de 2026, palavra por palavra:
+ *   chamada e subchamada da primeira dobra, os seis serviços com seus textos,
+ *   as nove marcas atendidas, os dois parágrafos de "Alta performance e preço
+ *   justo", a contagem de clientes, as avaliações do Google, missão, visão e
+ *   valores, endereço completo e telefone.
  *
- * PENDENTE — não consta no site e não foi possível confirmar. Estão vazios de
- * propósito: campo vazio some da tela; campo inventado vira erro impresso em
- * contrato. Assim que você passar, é só preencher aqui.
- *   cnpj, email, instagram, horarioAtendimento
+ * PENDENTE — não consta em lugar nenhum que eu pudesse conferir. Estão vazios
+ * de propósito: campo vazio some da tela; campo inventado vira erro impresso
+ * em contrato. Assim que você passar, é só preencher aqui.
+ *   cnpj, email, horarioAtendimento, instagram, googleMeuNegocio, mapaEmbed
  *
  * O logotipo oficial também está pendente — veja `public/marca/LEIA-ME.md`.
- * Enquanto não chega, a marca é desenhada em texto, como está hoje.
+ * O vídeo da primeira dobra idem — veja `public/video/LEIA-ME.md`.
  */
 
 /**
@@ -35,6 +38,20 @@
  * Como esses campos existem justamente para serem preenchidos depois, a
  * anotação explícita mantém os dois caminhos vivos.
  */
+type Servico = {
+  titulo: string
+  texto: string
+  /** Nome do ícone desenhado em `src/app/icones.tsx`. */
+  icone: 'chave' | 'calendario' | 'medidor' | 'laudo' | 'caixa' | 'escudo'
+}
+
+type Avaliacao = {
+  autor: string
+  quando: string
+  nota: number
+  texto: string
+}
+
 type DadosEmpresa = {
   nome: string
   razaoSocial: string
@@ -54,10 +71,26 @@ type DadosEmpresa = {
   }
   instagram: string
   facebook: string
+  /** Link do perfil no Google Meu Negócio, para o botão "avaliar". */
+  googleMeuNegocio: string
+  /** URL do `src` do iframe do Google Maps. Vazio esconde o mapa. */
+  mapaEmbed: string
+  chamada: string
+  subChamada: string
+  garantia: string
+  clientesAtendidos: string
+  sobreTitulo: string
+  sobre: ReadonlyArray<string>
   missao: string
   visao: string
   valores: string
-  servicos: ReadonlyArray<{ titulo: string; texto: string }>
+  servicos: ReadonlyArray<Servico>
+  marcas: ReadonlyArray<string>
+  google: {
+    nota: number
+    quantidade: number
+    avaliacoes: ReadonlyArray<Avaliacao>
+  }
 }
 
 export const EMPRESA: DadosEmpresa = {
@@ -90,12 +123,51 @@ export const EMPRESA: DadosEmpresa = {
   },
 
   // --- Redes --------------------------------------------------------------
-  /** PENDENTE: informar o @ do Instagram, se houver. */
+  /**
+   * PENDENTE. Uma busca devolveu `@dtechassistenciaslz`, mas é outra empresa,
+   * de outra cidade — e publicar o Instagram do concorrente no seu site é pior
+   * que não publicar nenhum. Preencha com o @ verdadeiro.
+   */
   instagram: '',
   /** PENDENTE: informar a página do Facebook, se houver. */
   facebook: '',
+  /**
+   * PENDENTE. No Google Meu Negócio: Início → Compartilhar → copiar o link.
+   * Com ele preenchido, o bloco de avaliações ganha o botão "avaliar no Google".
+   */
+  googleMeuNegocio: '',
+  /**
+   * PENDENTE. No Google Maps: buscar o endereço → Compartilhar → Incorporar um
+   * mapa → copiar SÓ o valor do `src`, sem a tag `<iframe>` em volta.
+   * Vazio esconde o mapa e mostra o endereço em texto, que já basta.
+   */
+  mapaEmbed: '',
 
-  // --- O que a empresa diz de si (texto do site oficial) -------------------
+  // --- Primeira dobra (texto do site oficial) -----------------------------
+  chamada: 'Assistência autorizada de aparelhos médicos e estéticos em RS',
+  subChamada: 'Suporte completo com certificação e laudo técnico.',
+  /**
+   * O site em produção promete duas coisas diferentes: a primeira dobra diz
+   * "90 dias" e a seção de serviços diz "até 6 meses". Prazo de garantia é
+   * promessa contratual, então as duas não podiam continuar no ar. Confirmado
+   * com o Lucas em agosto de 2026: são 90 dias.
+   *
+   * Este campo é a resposta única. Todo lugar que fala de garantia lê daqui,
+   * então não há como o site voltar a se contradizer.
+   */
+  garantia: '90 dias',
+  clientesAtendidos: 'mais de 300',
+
+  // --- Sobre (texto do site oficial, palavra por palavra) -----------------
+  sobreTitulo: 'Alta performance e preço justo',
+  sobre: [
+    'A Dtechmed nasceu para ser a solução inteligente na manutenção, ' +
+      'calibragem e conserto de equipamentos médicos, estéticos e odontológicos.',
+    'Com equipe qualificada, serviços rápidos e foco total na segurança e ' +
+      'eficácia dos tratamentos, oferecemos soluções personalizadas, com ' +
+      'confiança, transparência e excelente custo-benefício.',
+  ],
+
   missao:
     'Oferecer assistência técnica especializada, ágil e segura, garantindo o ' +
     'desempenho dos equipamentos e a continuidade dos serviços.',
@@ -107,19 +179,84 @@ export const EMPRESA: DadosEmpresa = {
     'cliente em primeiro lugar e buscando a inovação constante em cada solução ' +
     'entregue.',
 
-  /** Os dois serviços que o site oficial descreve. */
+  // --- Os seis serviços (texto do site oficial) ---------------------------
   servicos: [
     {
       titulo: 'Manutenção corretiva',
       texto:
-        'Reparo completo de equipamentos com defeito, com substituição de peças originais.',
+        'Conserto completo de equipamentos com defeito, com reposição de peças originais.',
+      icone: 'chave',
     },
     {
       titulo: 'Manutenção preventiva',
       texto:
-        'Revisões periódicas para prevenir falhas e prolongar a vida útil dos equipamentos.',
+        'Revisões periódicas para evitar falhas e prolongar a vida útil dos equipamentos.',
+      icone: 'calendario',
+    },
+    {
+      titulo: 'Calibração',
+      texto:
+        'Ajustes técnicos e validações mantendo o equipamento preciso e dentro das normas.',
+      icone: 'medidor',
+    },
+    {
+      titulo: 'Laudos técnicos',
+      texto:
+        'Documentos técnicos com diagnóstico completo, usados em garantias e seguros.',
+      icone: 'laudo',
+    },
+    {
+      titulo: 'Logística segura',
+      texto:
+        'Recebemos e enviamos seu equipamento com embalagem especial e rastreamento.',
+      icone: 'caixa',
+    },
+    {
+      titulo: 'Garantia completa',
+      texto:
+        'Cobrimos com garantia os equipamentos e as manutenções realizadas na nossa oficina.',
+      icone: 'escudo',
     },
   ],
+
+  /** As marcas exibidas no site oficial, na ordem em que aparecem. */
+  marcas: [
+    'HTM',
+    'IBRAMED',
+    'Medical San',
+    'KLD Biosistemas',
+    'Fismatek',
+    'Body Health',
+    'Bioset',
+    'Tonederm',
+    'Adoxy',
+  ],
+
+  // --- Google Meu Negócio (transcrito do site oficial) --------------------
+  google: {
+    nota: 5,
+    quantidade: 3,
+    avaliacoes: [
+      {
+        autor: 'Vendasalugue Estética',
+        quando: 'há 1 ano',
+        nota: 5,
+        texto: 'Rapidez e agilidade no atendimento',
+      },
+      {
+        autor: 'Cari Barbieri',
+        quando: 'há 1 ano',
+        nota: 5,
+        texto: '',
+      },
+      {
+        autor: 'Agata Campos Fontoura',
+        quando: 'há 1 ano',
+        nota: 5,
+        texto: '',
+      },
+    ],
+  },
 }
 
 /** Endereço numa linha, do jeito que se lê em voz alta. */
@@ -132,4 +269,9 @@ export function enderecoEmUmaLinha(): string {
 export function linkWhatsapp(mensagem?: string): string {
   const base = `https://wa.me/${EMPRESA.whatsapp}`
   return mensagem ? `${base}?text=${encodeURIComponent(mensagem)}` : base
+}
+
+/** O @ do Instagram sem a arroba, para montar a URL. */
+export function instagramUsuario(): string {
+  return EMPRESA.instagram.replace(/^@/, '')
 }

@@ -1,110 +1,261 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
 import Link from 'next/link'
-import { EMPRESA, linkWhatsapp } from '@/lib/empresa'
+import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
 import { FormularioRetirada } from './formulario-retirada'
+import { FundoVideo } from './fundo-video'
+import { ICONES, IconeEstrela, IconeInstagram, IconeLocal, IconeZap } from './icones'
 import estilo from './site.module.css'
 
 /**
  * Home institucional.
  *
- * A primeira dobra mostra o produto trabalhando — a linha do tempo de uma
- * ordem — em vez de uma foto de banco de imagens. A tese é que a DTECH entrega
- * prontuário, então a prova disso tem que estar visível antes de qualquer
- * argumento escrito.
+ * ---------------------------------------------------------------------------
+ * A DIREÇÃO (o contrato que sobrevive à construção)
+ * ---------------------------------------------------------------------------
+ * TESE. O site em produção vende autoridade: 300 clientes, nove marcas, cinco
+ * estrelas. Isso funciona e fica. O que ele não conta é o que a DTECH faz de
+ * diferente depois que o aparelho entra na van — e é aí que mora o motivo de
+ * escolher esta oficina em vez da que cobra R$ 200 a menos. Então a página
+ * mantém a autoridade na frente e coloca o PRONTUÁRIO como a virada: você
+ * acompanha cada etapa, com nome de quem fez e hora.
  *
- * Renderizada estaticamente: é a página mais visitada e a que mais depende de
- * abrir rápido no 4G de quem está com o aparelho parado.
+ * MUNDO VISUAL. O azul-petróleo profundo e o laranja da marca deles, que já
+ * estão no mercado e nos cartões — trocar a paleta seria jogar fora
+ * reconhecimento construído. Superfícies escuras onde o assunto é o
+ * equipamento parado (a urgência), claras onde o assunto é o processo (a
+ * calma). A tipografia de display é serifada romana, não itálica: autoridade
+ * técnica, não editorial de revista.
+ *
+ * MOVIMENTO. Um momento autoral só: a linha do prontuário se desenhando de
+ * cima para baixo conforme entra na tela, com as etapas acendendo em sequência.
+ * É movimento que EXPLICA o produto — a passagem do tempo numa ordem de
+ * serviço — e não um fade-up genérico repetido em toda seção. O resto do
+ * movimento é entrada discreta, guiada por scroll, e some inteiro para quem
+ * pede menos movimento.
+ *
+ * PRIMEIRA DOBRA. Vídeo da oficina ao fundo, a promessa em uma frase, a
+ * garantia visível, e as marcas logo abaixo — porque a primeira pergunta de
+ * quem chega é "vocês mexem no MEU aparelho?".
+ * ---------------------------------------------------------------------------
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ESTA PÁGINA NÃO É PRÉ-RENDERIZADA
+ * ---------------------------------------------------------------------------
+ * Ela era `force-static`, e isso a quebrava em produção de um jeito silencioso.
+ *
+ * A Content-Security-Policy do sistema usa um nonce novo a cada requisição, e é
+ * ele que autoriza os scripts do Next a rodar. Página pré-renderizada é
+ * congelada no build: o HTML sai com um nonce que não existe mais na hora de
+ * servir, o navegador recusa TODOS os pedaços de JavaScript, e o React nunca
+ * hidrata.
+ *
+ * O sintoma era cruel de achar porque a página continuava bonita: o HTML e o
+ * CSS chegam inteiros. O que morria era só o que depende de JavaScript — e o
+ * que depende de JavaScript aqui é justamente o formulário "Conta pra gente o
+ * que houve". Ou seja: a página de captação de clientes ficava linda e não
+ * enviava nada, sem um erro na tela para denunciar.
+ *
+ * Renderizar por requisição custa microssegundos: é um componente de servidor
+ * sem consulta a banco nenhuma. Não é preço, é a única opção que preserva as
+ * duas coisas — a política com nonce e um formulário que funciona.
+ *
+ * E precisa ser `force-dynamic`, não a simples remoção do `force-static`: sem
+ * nenhuma API dinâmica na página, o Next a pré-renderiza por conta própria e o
+ * problema volta calado.
  */
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 
+/**
+ * O vídeo é opcional, e a checagem acontece no build.
+ *
+ * Sem isto, um `<video>` apontando para um arquivo inexistente ficaria no HTML
+ * de todo visitante pedindo dois arquivos que dão 404. Com isto, ou o vídeo
+ * existe e entra, ou o bloco simplesmente não é renderizado e o fundo pintado
+ * pelo CSS assume — que é a mesma cor, então ninguém percebe falta.
+ */
+const TEM_VIDEO = ['oficina.mp4', 'oficina.webm'].some((f) =>
+  existsSync(path.join(process.cwd(), 'public', 'video', f)),
+)
+const TEM_POSTER = existsSync(path.join(process.cwd(), 'public', 'video', 'oficina.jpg'))
+
+/** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
 const ETAPAS = [
-  ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 14:22'],
-  ['Recebido na oficina · 8 fotos', 'Técnico · Rafael S.', '08/08 17:05'],
-  ['Laudo e orçamento enviados', 'Gestora · Camila R.', '09/08 10:40'],
-  ['Orçamento aprovado e assinado', 'Cliente · portal, CNPJ conferido', '09/08 16:18'],
-  ['Em manutenção · troca da fonte', 'Técnico · Rafael S.', '12/08 09:12'],
-] as const
-
-const AVISOS = [
-  ['01', 'Agendamento', 'Você chama pelo site ou WhatsApp e recebe a data com janela de horário.'],
-  ['02', 'Retirada', 'O motorista apresenta a ordem na tela e coleta sua assinatura no local.'],
-  ['03', 'Entrada', 'Técnico registra no mínimo seis fotos do estado em que o aparelho chegou.'],
-  ['04', 'Orçamento', 'Item a item, com prazo e garantia. Você aprova por link e assina na tela.'],
-  ['05', 'Execução', 'Só começa depois da sua aprovação. Testes finais ficam anexados à ordem.'],
-  ['06', 'Devolução', 'Levamos de volta e coletamos sua assinatura na entrega, com localização.'],
+  ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 · 14:22'],
+  ['Recebido na oficina · 8 fotos', 'Técnico · Rafael S.', '08/08 · 17:05'],
+  ['Laudo e orçamento enviados', 'Gestora · Camila R.', '09/08 · 10:40'],
+  ['Orçamento aprovado e assinado', 'Cliente · portal, CNPJ conferido', '09/08 · 16:18'],
+  ['Em manutenção · troca da fonte', 'Técnico · Rafael S.', '12/08 · 09:12'],
 ] as const
 
 const ESPECIALIDADES = [
-  ['Estética', 'Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.', ['Fonte e placa', 'Ponteira e aplicador', 'Sistema de refrigeração', 'Calibração de potência']],
-  ['Médico', 'Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.', ['Sensor e cabo', 'Bateria interna', 'Placa de aquisição', 'Teste funcional']],
-  ['Odontológico', 'Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.', ['Sistema hidráulico', 'Pneumática', 'Resistência', 'Vedação e câmara']],
-  ['Hospitalar', 'Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.', ['Comando elétrico', 'Atuador e motor', 'Sensor de pressão', 'Rotina preventiva']],
+  [
+    'Estética',
+    'Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.',
+  ],
+  ['Médico', 'Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.'],
+  ['Odontológico', 'Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.'],
+  ['Hospitalar', 'Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.'],
 ] as const
 
 export default function Home() {
+  const anoAtual = new Date().getFullYear()
+
   return (
     <>
       <header className={estilo.topo}>
-        <div className={estilo.container}>
-          <div className={estilo.topoIn}>
-            <Link href="/" className={estilo.marca} aria-label="DTECH MED, página inicial">
-              <span className={estilo.marcaD}>D</span>
-              <span className={estilo.marcaTxt}>
-                TECH<b>MED</b>
-              </span>
+        <div className={`${estilo.container} ${estilo.topoIn}`}>
+          <Link href="/" className={estilo.marca} aria-label="DTECH MED, página inicial">
+            <span className={estilo.marcaD}>D</span>
+            <span className={estilo.marcaTxt}>
+              TECH<b>MED</b>
+            </span>
+          </Link>
+          <nav className={estilo.nav} aria-label="Principal">
+            <a href="#servicos">Serviços</a>
+            <a href="#prontuario">Como acompanhamos</a>
+            <a href="#a-empresa">A empresa</a>
+            <a href="#onde-estamos">Onde estamos</a>
+            <Link href="/entrar" className={estilo.navEntrar}>
+              Entrar
             </Link>
-            <nav className={estilo.nav}>
-              <a href="#como-funciona">Como funciona</a>
-              <a href="#a-empresa">A empresa</a>
-              <a href="#especialidades">Especialidades</a>
-              <a href="#solicitar">Solicitar retirada</a>
-              <Link href="/entrar" className={estilo.navEntrar}>
-                Entrar
-              </Link>
-            </nav>
-          </div>
+          </nav>
         </div>
       </header>
 
-      <main>
-        {/* ---------------- Primeira dobra ---------------- */}
+      <main id="conteudo">
+        {/* ================= PRIMEIRA DOBRA ================= */}
         <section className={estilo.dobra}>
-          <div className={`${estilo.container} ${estilo.dobraGrid}`}>
-            <div>
-              <h1 className={estilo.tese}>
-                Seu equipamento tem <em>prontuário</em>.
-              </h1>
-              <p className={estilo.sub}>
-                Consertamos aparelho de estética, médico, odontológico e hospitalar,
-                de qualquer marca. A gente busca na sua sala, registra cada passo e
-                devolve funcionando, com laudo, garantia e assinatura.
-              </p>
-              <div className={estilo.acoes}>
-                <a href="#solicitar" className={estilo.btn}>
-                  Solicitar retirada
-                </a>
-                <a href="#como-funciona" className={`${estilo.btn} ${estilo.btnLinha}`}>
-                  Ver como funciona
-                </a>
-              </div>
+          {TEM_VIDEO ? (
+            <FundoVideo pôster={TEM_POSTER ? '/video/oficina.jpg' : ''} />
+          ) : null}
+          <div className={estilo.dobraVeu} aria-hidden="true" />
+
+          <div className={`${estilo.container} ${estilo.dobraIn}`}>
+            <h1 className={estilo.tese}>{EMPRESA.chamada}</h1>
+            <p className={estilo.sub}>
+              {EMPRESA.subChamada} E, do começo ao fim, você acompanha cada etapa
+              pelo celular — com nome de quem mexeu e a hora.
+            </p>
+
+            <div className={estilo.acoes}>
+              <a
+                href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                className={estilo.btn}
+              >
+                <IconeZap className={estilo.btnIcone} />
+                Peça orçamento no WhatsApp
+              </a>
+              <a href="#solicitar" className={`${estilo.btn} ${estilo.btnLinha}`}>
+                Solicitar retirada pelo site
+              </a>
             </div>
 
-            {/* O produto trabalhando, não um mockup decorativo. */}
+            <p className={estilo.selo}>
+              Serviço com garantia de {EMPRESA.garantia} · Laudo técnico em toda entrega
+            </p>
+          </div>
+
+          {/* As marcas na primeira dobra, não escondidas lá embaixo: a primeira
+              pergunta de quem chega é se mexemos no aparelho DELE. */}
+          <div className={estilo.marcasFaixa}>
+            <div className={estilo.container}>
+              <h2 className={estilo.marcasTitulo}>
+                Atendemos as marcas do mercado
+              </h2>
+              <ul className={estilo.marcasLista}>
+                {EMPRESA.marcas.map((m) => (
+                  <li key={m}>{m}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= SERVIÇOS ================= */}
+        <section id="servicos" className={`${estilo.secao} claro`}>
+          <div className={estilo.container}>
+            <h2 className={estilo.h2}>O que podemos resolver para você</h2>
+            <p className={estilo.lead}>
+              Soluções completas para garantir a continuidade do seu trabalho, sem
+              interrupções.
+            </p>
+
+            {/* Lista, não grade de cards do mesmo tamanho: o ícone anda ao lado
+                do título, no fluxo, sem ladrilho arredondado em volta. */}
+            <ul className={estilo.servicos}>
+              {EMPRESA.servicos.map((s) => {
+                const Icone = ICONES[s.icone]
+                return (
+                  <li key={s.titulo} className={estilo.servico}>
+                    <Icone className={estilo.servicoIcone} />
+                    <div>
+                      <h3>{s.titulo}</h3>
+                      <p>{s.texto}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+
+            <div className={estilo.especialidades}>
+              <h3 className={estilo.h3}>Inclusive a marca que ninguém quer pegar</h3>
+              <p className={estilo.lead}>
+                Se a peça saiu de linha, procuramos equivalente e contamos antes,
+                não depois. Você decide se vale.
+              </p>
+              <dl className={estilo.espLista}>
+                {ESPECIALIDADES.map(([nome, texto]) => (
+                  <div key={nome} className={estilo.esp}>
+                    <dt>{nome}</dt>
+                    <dd>{texto}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= O PRONTUÁRIO — o momento autoral ================= */}
+        <section id="prontuario" className={estilo.secao}>
+          <div className={`${estilo.container} ${estilo.prontGrid}`}>
+            <div className={estilo.prontTexto}>
+              <h2 className={estilo.h2}>
+                Seu equipamento tem <em>prontuário</em>
+              </h2>
+              <p className={estilo.lead}>
+                Toda oficina promete avisar. A diferença aqui é que o aviso não
+                depende de alguém lembrar: a mensagem sai sozinha quando a etapa
+                vira, e fica registrada.
+              </p>
+              <ul className={estilo.prontLista}>
+                <li>Assinatura colhida na tela, no local, com data e hora.</li>
+                <li>No mínimo seis fotos do estado em que o aparelho chegou.</li>
+                <li>Orçamento item a item, aprovado por link, com CPF/CNPJ conferido.</li>
+                <li>Nada é executado antes da sua aprovação.</li>
+                <li>Histórico que não pode ser alterado depois — nem por nós.</li>
+              </ul>
+            </div>
+
+            {/* A linha do tempo se desenhando é o único momento de movimento
+                autoral da página. Ele explica o produto: a passagem do tempo
+                dentro de uma ordem de serviço. */}
             <div className={estilo.console}>
               <div className={estilo.csBarra}>
-                <span className={estilo.csPontos}>
-                  <i /><i /><i />
-                </span>
-                <span className={estilo.csTit}>PAINEL DE ACOMPANHAMENTO</span>
+                <span className={estilo.csTit}>Acompanhamento da ordem</span>
+                <span className={estilo.csOs}>#DT-2419</span>
               </div>
               <div className={estilo.csCab}>
-                <p className={estilo.gravFria}>Ordem de serviço</p>
-                <p className={estilo.csOs}>#DT-2419</p>
                 <p className={estilo.csEq}>Laser Lavieen · Duo</p>
                 <p className={estilo.csNs}>NS 8842-LV-2021 · 220V · Clínica Bella Pelle</p>
               </div>
               <ol className={estilo.lt}>
                 {ETAPAS.map(([nome, quem, hora], i) => (
-                  <li key={nome} className={i === ETAPAS.length - 1 ? estilo.etAgora : estilo.etFeita}>
+                  <li
+                    key={nome}
+                    className={i === ETAPAS.length - 1 ? estilo.etAgora : estilo.etFeita}
+                    style={{ '--i': i } as React.CSSProperties}
+                  >
                     <span className={estilo.etPonto} aria-hidden="true" />
                     <span className={estilo.etTxt}>
                       <strong>{nome}</strong>
@@ -118,103 +269,171 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ---------------- Como funciona ---------------- */}
-        <section id="como-funciona" className={estilo.secao}>
+        {/* ================= A EMPRESA ================= */}
+        <section id="a-empresa" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <p className={estilo.grav}>O caminho do seu aparelho</p>
-            <h2 className={estilo.h2}>Você fica sabendo seis vezes.</h2>
-            <p className={estilo.lead}>
-              E não precisa ligar nenhuma delas para perguntar. A mensagem sai
-              sozinha quando a etapa vira.
-            </p>
-            <ol className={estilo.passos}>
-              {AVISOS.map(([n, titulo, texto]) => (
-                <li key={n} className={estilo.passo}>
-                  <span className={estilo.passoNum}>{n}</span>
-                  <div>
-                    <h3>{titulo}</h3>
-                    <p>{texto}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
+            <div className={estilo.sobreGrid}>
+              <div>
+                <h2 className={estilo.h2}>{EMPRESA.sobreTitulo}</h2>
+                {EMPRESA.sobre.map((p) => (
+                  <p key={p.slice(0, 24)} className={estilo.sobreP}>
+                    {p}
+                  </p>
+                ))}
+                <a
+                  href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                  className={estilo.btn}
+                >
+                  <IconeZap className={estilo.btnIcone} />
+                  Peça orçamento no WhatsApp
+                </a>
+              </div>
 
-        {/* ---------------- O que a empresa faz e no que acredita ----------
-            Texto do site oficial da DTECH MED, palavra por palavra. Missão,
-            visão e valores não foram reescritos: são o que a empresa já diz
-            de si, e reescrevê-los seria trocar a voz dela pela nossa. */}
-        <section id="a-empresa" className={estilo.secao}>
-          <div className={estilo.container}>
-            <p className={estilo.grav}>O serviço</p>
-            <h2 className={estilo.h2}>Conserta o que quebrou. E evita o próximo.</h2>
-            <div className={estilo.grade2}>
-              {EMPRESA.servicos.map((s) => (
-                <article key={s.titulo} className={estilo.carta}>
-                  <h3>{s.titulo}</h3>
-                  <p>{s.texto}</p>
-                </article>
-              ))}
+              <div className={estilo.numeros}>
+                <p className={estilo.numeroGrande}>{EMPRESA.clientesAtendidos}</p>
+                <p className={estilo.numeroTexto}>
+                  clientes atendidos. Somos referência na manutenção de equipamentos
+                  médico-estéticos, odontológicos e hospitalares.
+                </p>
+              </div>
             </div>
 
             <div className={estilo.principios}>
               <div>
-                <p className={estilo.grav}>Missão</p>
-                <p className={estilo.principioTexto}>{EMPRESA.missao}</p>
+                <h3>Missão</h3>
+                <p>{EMPRESA.missao}</p>
               </div>
               <div>
-                <p className={estilo.grav}>Visão</p>
-                <p className={estilo.principioTexto}>{EMPRESA.visao}</p>
+                <h3>Visão</h3>
+                <p>{EMPRESA.visao}</p>
               </div>
               <div>
-                <p className={estilo.grav}>Valores</p>
-                <p className={estilo.principioTexto}>{EMPRESA.valores}</p>
+                <h3>Valores</h3>
+                <p>{EMPRESA.valores}</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ---------------- Especialidades (superfície clara) ---------------- */}
-        <section id="especialidades" className={`${estilo.secao} claro`}>
+        {/* ================= AVALIAÇÕES DO GOOGLE ================= */}
+        <section className={estilo.secao} aria-labelledby="tit-google">
           <div className={estilo.container}>
-            <p className={estilo.grav}>O que atendemos</p>
-            <h2 className={estilo.h2}>Inclusive a marca que ninguém quer pegar.</h2>
-            <p className={estilo.lead}>
-              Se a peça saiu de linha, a gente procura equivalente e te conta antes,
-              não depois. Você decide se vale.
-            </p>
-            <div className={estilo.grade4}>
-              {ESPECIALIDADES.map(([nome, texto, itens]) => (
-                <article key={nome} className={estilo.carta}>
-                  <h3>{nome}</h3>
-                  <p>{texto}</p>
-                  <ul>
-                    {itens.map((i) => (
-                      <li key={i}>{i}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
+            <div className={estilo.notaBloco}>
+              <p className={estilo.notaValor}>
+                {EMPRESA.google.nota.toFixed(1).replace('.', ',')}
+              </p>
+              <p className={estilo.notaEstrelas} aria-hidden="true">
+                {Array.from({ length: EMPRESA.google.nota }, (_, i) => (
+                  <IconeEstrela key={i} />
+                ))}
+              </p>
+              <h2 id="tit-google" className={estilo.notaTexto}>
+                {EMPRESA.google.nota} de 5 no Google, em{' '}
+                {EMPRESA.google.quantidade} avaliações
+              </h2>
             </div>
+
+            <ul className={estilo.avaliacoes}>
+              {EMPRESA.google.avaliacoes.map((a) => (
+                <li key={a.autor} className={estilo.avaliacao}>
+                  <p className={estilo.avEstrelas} aria-label={`${a.nota} de 5 estrelas`}>
+                    {Array.from({ length: a.nota }, (_, i) => (
+                      <IconeEstrela key={i} />
+                    ))}
+                  </p>
+                  {/* Avaliação sem texto escrito é comum, e inventar uma frase
+                      no lugar seria falsificar depoimento de cliente real. */}
+                  {a.texto ? (
+                    <blockquote className={estilo.avTexto}>{a.texto}</blockquote>
+                  ) : (
+                    <p className={estilo.avSemTexto}>Avaliou com {a.nota} estrelas.</p>
+                  )}
+                  <p className={estilo.avAutor}>
+                    <strong>{a.autor}</strong>
+                    <span>{a.quando}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            {EMPRESA.googleMeuNegocio ? (
+              <p className={estilo.centralizado}>
+                <a
+                  href={EMPRESA.googleMeuNegocio}
+                  className={`${estilo.btn} ${estilo.btnLinha}`}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Ver todas as avaliações no Google
+                </a>
+              </p>
+            ) : null}
           </div>
         </section>
 
-        {/* ---------------- Solicitar ---------------- */}
+        {/* ================= INSTAGRAM ================= */}
+        {EMPRESA.instagram ? (
+          <section className={`${estilo.secao} claro`} aria-labelledby="tit-insta">
+            <div className={`${estilo.container} ${estilo.instaBloco}`}>
+              <IconeInstagram className={estilo.instaIcone} />
+              <h2 id="tit-insta" className={estilo.h2}>
+                Bastidores da oficina
+              </h2>
+              <p className={estilo.lead}>
+                Equipamento aberto, peça trocada, teste final. O que acontece antes
+                de o aparelho voltar funcionando.
+              </p>
+              <a
+                href={`https://instagram.com/${instagramUsuario()}`}
+                className={estilo.btn}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                Seguir {EMPRESA.instagram}
+              </a>
+            </div>
+          </section>
+        ) : null}
+
+        {/* ================= SOLICITAR ================= */}
         <section id="solicitar" className={estilo.secao}>
           <div className={`${estilo.container} ${estilo.estreito}`}>
-            <p className={estilo.grav}>Solicitar retirada</p>
-            <h2 className={estilo.h2}>Conta pra gente o que houve.</h2>
+            <h2 className={estilo.h2}>Conta pra gente o que houve</h2>
             <p className={estilo.lead}>
-              A gente responde em até 24 horas úteis, já com a data da retirada.
+              Respondemos em até 24 horas úteis, já com a data da retirada.
             </p>
             <FormularioRetirada whatsapp={EMPRESA.whatsapp} />
             <p className={estilo.contatoDireto}>
               Prefere falar agora?{' '}
-              <a href={linkWhatsapp(`Olá! Preciso de manutenção em um equipamento.`)} className={estilo.linkZap}>
+              <a
+                href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                className={estilo.linkZap}
+              >
                 {EMPRESA.telefoneExibicao}
               </a>
             </p>
+          </div>
+        </section>
+
+        {/* ================= ONDE ESTAMOS ================= */}
+        <section id="onde-estamos" className={`${estilo.secao} claro`}>
+          <div className={estilo.container}>
+            <h2 className={estilo.h2}>Onde estamos</h2>
+            <p className={estilo.endereco}>
+              <IconeLocal className={estilo.enderecoIcone} />
+              <span>{enderecoEmUmaLinha()}</span>
+            </p>
+            {EMPRESA.mapaEmbed ? (
+              <div className={estilo.mapa}>
+                <iframe
+                  src={EMPRESA.mapaEmbed}
+                  title={`Mapa até a ${EMPRESA.nome}`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              </div>
+            ) : null}
           </div>
         </section>
       </main>
@@ -234,7 +453,7 @@ export default function Home() {
             </p>
           </div>
           <div>
-            <h4>Contato</h4>
+            <h3>Contato</h3>
             <ul>
               <li>
                 <a href={linkWhatsapp()}>{EMPRESA.telefoneExibicao}</a>
@@ -249,7 +468,11 @@ export default function Home() {
               ) : null}
               {EMPRESA.instagram ? (
                 <li>
-                  <a href={`https://instagram.com/${EMPRESA.instagram.replace('@', '')}`}>
+                  <a
+                    href={`https://instagram.com/${instagramUsuario()}`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
                     {EMPRESA.instagram}
                   </a>
                 </li>
@@ -257,7 +480,7 @@ export default function Home() {
             </ul>
           </div>
           <div>
-            <h4>Endereço</h4>
+            <h3>Endereço</h3>
             <ul>
               <li>
                 {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.numero}
@@ -271,7 +494,9 @@ export default function Home() {
           </div>
         </div>
         <div className={`${estilo.container} ${estilo.rodFim}`}>
-          <span>© {new Date().getFullYear()} {EMPRESA.razaoSocial}</span>
+          <span>
+            © {anoAtual} {EMPRESA.razaoSocial}
+          </span>
           <Link href="/entrar">Acesso ao sistema</Link>
         </div>
       </footer>

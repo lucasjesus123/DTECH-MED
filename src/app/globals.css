@@ -6,6 +6,18 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* O topo do site é fixo. Sem esta linha, clicar num item do menu leva o alvo
+   para o topo da janela — ou seja, para DEBAIXO do cabeçalho, que cobre o
+   título justamente da seção que a pessoa pediu para ver. É um dos defeitos
+   mais comuns em página com menu âncora, e um dos mais fáceis de não notar em
+   teste automatizado: o scroll acontece, só que no lugar errado. */
+:where([id]) { scroll-margin-top: 92px; }
+
+/* Rolagem suave, exceto para quem pede menos movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 :root {
   /* --- Base escura: violeta levado ao quase-preto ---------------------- */
   --bg:        #08040F;

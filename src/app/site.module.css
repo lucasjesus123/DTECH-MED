@@ -1,291 +1,1089 @@
-/* Site institucional. Mesmo mundo visual do painel e dos apps. */
+/* ==========================================================================
+   DTECH MED — site institucional
+   --------------------------------------------------------------------------
+   Todas as cores, tamanhos e espaçamentos vêm dos tokens de `globals.css`.
+   Nada de valor literal solto: cor fora do sistema é como um sistema visual
+   começa a se desfazer, um "só desta vez" por vez.
 
-.container { width: 100%; max-width: 1240px; margin-inline: auto; padding-inline: var(--s5); }
-.estreito  { max-width: 780px; }
+   A superfície clara é obtida com a classe `.claro` de globals.css, que
+   reescreve os tokens para o ramo em que aparece. Por isso as regras aqui
+   nunca perguntam "é claro ou escuro?" — elas leem o token e funcionam nos
+   dois.
+   ========================================================================== */
 
-/* ===== Topo ============================================================= */
+.container {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  /* Nunca cola na borda da viewport, nem no celular mais estreito. */
+  padding-inline: var(--s5);
+}
+
+@media (max-width: 640px) {
+  .container { padding-inline: var(--s4); }
+}
+
+.estreito { max-width: 720px; }
+.centralizado { text-align: center; margin-top: var(--s6); }
+
+/* ==========================================================================
+   TOPO
+   ========================================================================== */
+
 .topo {
-  position: sticky; top: 0; z-index: 60;
-  background: rgba(8,4,15,.94);
-  backdrop-filter: blur(16px) saturate(140%);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--borda);
 }
-.topoIn { display: flex; align-items: center; gap: var(--s6); height: 68px; }
-.marca { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
-.marcaD {
-  display: grid; place-items: center; width: 28px; height: 28px;
-  background: var(--vio-forte); color: #fff; border-radius: 3px;
-  font-family: var(--f-display); font-weight: 700; font-size: 20px;
+
+.topoIn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s5);
+  min-height: 68px;
 }
-.marcaTxt { font-family: var(--f-display); font-weight: 700; font-size: 25px; letter-spacing: -.03em; color: var(--txt); }
-.marcaTxt b { color: var(--vio-claro); }
-.nav { display: flex; gap: var(--s5); margin-left: auto; align-items: center; }
-.nav a { text-decoration: none; font-size: var(--t-sm); font-weight: 500; color: var(--txt-2); transition: color 320ms var(--ease); }
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  text-decoration: none;
+  color: var(--txt);
+}
+
+.marcaD {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r);
+  background: var(--vio);
+  color: #fff;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: var(--t-lg);
+  line-height: 1;
+}
+
+.marcaTxt {
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: var(--t-base);
+  letter-spacing: .14em;
+}
+.marcaTxt b { font-weight: 800; }
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+}
+
+.nav a {
+  color: var(--txt-2);
+  text-decoration: none;
+  font-size: var(--t-sm);
+  transition: color 160ms var(--ease);
+}
 .nav a:hover { color: var(--txt); }
+
 .navEntrar {
-  padding: 8px 16px; border: 1px solid var(--borda-viva); border-radius: var(--r);
+  padding: var(--s2) var(--s4);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r);
   color: var(--txt) !important;
 }
 .navEntrar:hover { border-color: var(--vio); }
 
-/* ===== Primeira dobra =================================================== */
-.dobra { padding: var(--s9) 0 var(--s8); }
-.dobraGrid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: center; }
+@media (max-width: 860px) {
+  .nav a:not(.navEntrar) { display: none; }
+}
+
+/* ==========================================================================
+   PRIMEIRA DOBRA
+   --------------------------------------------------------------------------
+   O vídeo mora atrás de um véu. Sem ele, texto branco sobre um quadro claro do
+   vídeo cai para 2:1 de contraste em alguns instantes da reprodução — e o
+   contraste não pode depender de qual quadro está passando.
+   ========================================================================== */
+
+.dobra {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--bg-1);
+}
+
+.dobraVideo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Dessaturado e escurecido: o vídeo é cenário, o texto é o assunto. */
+  filter: saturate(.62) contrast(1.04) brightness(.5);
+}
+
+.dobraVeu {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg,
+      color-mix(in oklab, var(--bg) 72%, transparent) 0%,
+      color-mix(in oklab, var(--bg) 58%, transparent) 42%,
+      var(--bg-1) 100%);
+}
+
+.dobraIn {
+  padding-block: clamp(var(--s7), 8vw, var(--s9)) var(--s8);
+  max-width: 940px;
+}
+
 .tese {
   font-family: var(--f-display);
-  font-size: clamp(2.2rem, 4.3vw, 4.2rem);
-  font-weight: 800; line-height: 1.03; letter-spacing: -.035em;
+  font-weight: 700;
+  /* Teto em 3,2rem, e não no degrau acima. A chamada é uma frase inteira: em
+     tamanho de display ela engole a primeira dobra sozinha, e sobra um vazio
+     entre o botão e as marcas que parece página inacabada. Medido na tela, não
+     estimado. */
+  font-size: clamp(var(--t-2xl), 5vw, var(--t-4xl));
+  line-height: 1.04;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+  color: var(--txt);
+  margin: 0;
 }
-.tese em { font-style: normal; color: var(--vio-claro); }
-.sub { margin-top: var(--s5); font-size: var(--t-lg); color: var(--txt-2); max-width: 46ch; line-height: 1.6; }
-.acoes { display: flex; gap: var(--s3); margin-top: var(--s6); flex-wrap: wrap; }
+
+.sub {
+  margin: var(--s5) 0 0;
+  max-width: 62ch;
+  font-size: clamp(var(--t-base), 2.2vw, var(--t-lg));
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: var(--s7);
+}
+
 .btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 14px 26px; border: 1px solid transparent; border-radius: var(--r);
-  background: var(--vio-forte); color: #fff; font-size: var(--t-base); font-weight: 600;
-  text-decoration: none;
-  transition: background 400ms var(--ease), box-shadow 400ms var(--ease);
-}
-.btn:hover { background: #5B21B6; box-shadow: 0 0 34px -6px var(--brilho); }
-.btnLinha { background: transparent; color: var(--txt); border-color: var(--borda-viva); }
-.btnLinha:hover { background: var(--sup-2); border-color: var(--vio); box-shadow: none; }
-
-/* ===== Console ao vivo ================================================== */
-.console {
-  background: linear-gradient(180deg, var(--sup-2), var(--sup));
-  border: 1px solid var(--borda-viva); border-radius: var(--r-lg);
-  overflow: hidden; box-shadow: 0 30px 70px -24px rgba(0,0,0,.85);
-}
-.csBarra {
-  display: flex; align-items: center; gap: var(--s3);
-  padding: 11px var(--s4); border-bottom: 1px solid var(--borda); background: rgba(0,0,0,.25);
-}
-.csPontos { display: flex; gap: 5px; }
-.csPontos i { width: 8px; height: 8px; border-radius: 50%; background: var(--borda-viva); }
-.csTit { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); letter-spacing: .09em; }
-.csCab { padding: var(--s5) var(--s5) var(--s4); border-bottom: 1px solid var(--borda); }
-.csOs { font-family: var(--f-mono); font-size: var(--t-xl); font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 3px; }
-.csEq { font-size: var(--t-base); font-weight: 600; margin-top: 5px; }
-.csNs { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); margin-top: 2px; }
-
-.lt { list-style: none; margin: 0; padding: var(--s5); position: relative; }
-.lt::before {
-  content: ''; position: absolute; left: 31px; top: 34px; bottom: 34px;
-  width: 1px; background: linear-gradient(180deg, var(--vio-forte), var(--borda));
-}
-.lt li { position: relative; display: flex; gap: var(--s4); padding: 9px 0 9px 26px; }
-.etPonto {
-  position: absolute; left: 0; top: 14px; width: 15px; height: 15px; border-radius: 50%;
-  background: var(--vio); border: 1px solid var(--vio);
-  box-shadow: 0 0 16px -1px var(--brilho);
-}
-.etAgora .etPonto { background: var(--sup); border: 2px solid var(--vio-claro); transform: scale(1.15); }
-.etAgora .etTxt strong { color: var(--vio-claro); }
-.etTxt { flex: 1; min-width: 0; display: grid; gap: 1px; }
-.etTxt strong { font-size: var(--t-sm); font-weight: 600; line-height: 1.35; }
-.etTxt span { font-size: var(--t-xs); color: var(--txt-3); }
-.etHora { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
-
-/* ===== Seções =========================================================== */
-.secao { padding: var(--s10) 0; }
-.grav {
-  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--vio-claro);
-}
-.gravFria {
-  font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--txt-3);
-}
-.h2 {
-  font-family: var(--f-display); font-size: var(--t-3xl); font-weight: 700;
-  line-height: 1.1; letter-spacing: -.03em; margin-top: var(--s4); max-width: 22ch;
-}
-.lead { margin-top: var(--s5); color: var(--txt-2); font-size: var(--t-lg); max-width: 54ch; line-height: 1.6; }
-
-.passos { list-style: none; margin: var(--s7) 0 0; padding: 0; max-width: 74ch; }
-.passo {
-  display: grid; grid-template-columns: 48px 1fr; gap: var(--s4);
-  padding: var(--s5) 0; border-bottom: 1px solid var(--borda);
-}
-.passo:last-child { border-bottom: 0; }
-.passoNum { font-family: var(--f-mono); font-size: var(--t-sm); font-weight: 600; color: var(--vio-claro); padding-top: 3px; }
-.passo h3 { font-size: var(--t-lg); font-weight: 600; letter-spacing: -.02em; }
-.passo p { margin-top: 5px; font-size: var(--t-sm); color: var(--txt-2); line-height: 1.6; }
-
-.grade4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s4); margin-top: var(--s7); }
-.carta {
-  background: var(--bg-1); border: 1px solid var(--borda);
-  border-radius: var(--r-lg); padding: var(--s6) var(--s5);
-  transition: border-color 420ms var(--ease), transform 420ms var(--ease);
-}
-.carta:hover { border-color: var(--borda-viva); transform: translateY(-3px); }
-.carta h3 { font-family: var(--f-display); font-size: var(--t-lg); font-weight: 700; letter-spacing: -.025em; }
-.carta > p { font-size: var(--t-sm); color: var(--txt-2); margin-top: var(--s3); line-height: 1.6; }
-.carta ul {
-  margin: var(--s5) 0 0; padding: var(--s4) 0 0; list-style: none;
-  border-top: 1px solid var(--borda);
-  font-family: var(--f-mono); font-size: var(--t-xs); color: var(--txt-3); line-height: 2.1;
-}
-
-.contatoDireto { margin-top: var(--s6); font-size: var(--t-lg); color: var(--txt-2); }
-.linkZap { color: var(--vio-claro); font-weight: 600; text-decoration: none; }
-.linkZap:hover { text-decoration: underline; }
-
-/* ===== Rodapé =========================================================== */
-.rodape { border-top: 1px solid var(--borda); padding: var(--s8) 0 var(--s6); background: var(--bg-1); }
-.rodGrid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--s7); }
-.rodTexto { font-size: var(--t-sm); max-width: 40ch; line-height: 1.75; color: var(--txt-2); margin-top: var(--s4); }
-.rodape h4 {
-  font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .13em;
-  text-transform: uppercase; color: var(--txt-3); margin-bottom: var(--s4);
-}
-.rodape ul { list-style: none; padding: 0; margin: 0; font-size: var(--t-sm); line-height: 2.2; color: var(--txt-2); }
-.rodape a { color: var(--txt-2); text-decoration: none; transition: color 300ms var(--ease); }
-.rodape a:hover { color: var(--vio-claro); }
-.rodFim {
-  margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid var(--borda);
-  display: flex; justify-content: space-between; gap: var(--s4); flex-wrap: wrap;
-  font-size: var(--t-xs); color: var(--txt-3);
-}
-
-@media (max-width: 1000px) {
-  .dobraGrid, .rodGrid { grid-template-columns: 1fr; }
-  .grade4 { grid-template-columns: repeat(2, 1fr); }
-  .nav a:not(.navEntrar) { display: none; }
-  .dobra { padding: var(--s7) 0 var(--s6); }
-  .secao { padding: var(--s8) 0; }
-}
-@media (max-width: 620px) {
-  .grade4 { grid-template-columns: 1fr; }
-}
-
-/* ===== Formulário de solicitação ======================================== */
-.formSite {
-  display: grid;
-  gap: var(--s4);
-  margin-top: var(--s6);
-  text-align: left;
-}
-.formGrade {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: var(--s4);
-}
-.formCampo {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-.formCampo > span {
-  font-family: var(--f-mono);
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s5);
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: var(--vio);
+  color: #fff;
+  font-family: var(--f-texto);
+  font-size: var(--t-base);
   font-weight: 600;
-  letter-spacing: 0.12em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 180ms var(--ease),
+    transform 180ms var(--ease);
+}
+.btn:hover { background: var(--vio-forte); }
+.btn:active { transform: translateY(1px); }
+
+.btnIcone { width: 20px; height: 20px; flex: none; }
+
+.btnLinha {
+  background: transparent;
+  border-color: var(--borda-viva);
+  color: var(--txt);
+}
+.btnLinha:hover {
+  background: transparent;
+  border-color: var(--vio);
+}
+
+.selo {
+  margin: var(--s5) 0 0;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+
+/* --- Faixa de marcas ------------------------------------------------------
+   Lista estática, e não um carrossel que anda sozinho: marquee exige atenção
+   que não pediu e esconde metade dos nomes a cada instante. Quem quer saber se
+   a própria marca está ali precisa poder LER a lista. */
+
+.marcasFaixa {
+  border-top: 1px solid var(--borda);
+  padding-block: var(--s6);
+  background: color-mix(in oklab, var(--bg) 55%, transparent);
+}
+
+.marcasTitulo {
+  margin: 0 0 var(--s4);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--txt-3);
 }
-.formCampo input,
-.formCampo textarea {
-  width: 100%;
-  background: var(--bg-1);
-  border: 1px solid var(--borda);
-  border-radius: var(--r);
-  padding: 12px 14px;
-  color: var(--txt);
-  font-family: var(--f-texto);
-  font-size: var(--t-base);
-  line-height: 1.5;
-  transition: border-color 240ms var(--ease);
-}
-.formCampo textarea {
-  resize: vertical;
-  min-height: 108px;
-}
-.formCampo input:focus,
-.formCampo textarea:focus {
-  outline: none;
-  border-color: var(--vio);
-  box-shadow: 0 0 0 3px var(--brilho);
-}
-.formCampo input::placeholder,
-.formCampo textarea::placeholder {
-  color: var(--txt-3);
+
+.marcasLista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3) var(--s6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.formSite .btn {
-  justify-self: start;
-  border: 0;
-  cursor: pointer;
-  font-family: var(--f-texto);
-}
-.formSite .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.formErro {
-  padding: 12px 16px;
-  border-radius: var(--r);
-  background: rgba(251, 113, 133, 0.1);
-  border: 1px solid rgba(251, 113, 133, 0.32);
-  color: var(--alerta);
-  font-size: var(--t-sm);
-  line-height: 1.55;
-}
-.formNota {
-  font-size: var(--t-xs);
-  color: var(--txt-3);
-  line-height: 1.5;
-}
-
-/* Fora da tela em vez de display:none — parte dos robôs já pula campo com
-   display:none, e a armadilha só serve enquanto eles caem nela. */
-.armadilha {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-.recebido {
-  margin-top: var(--s6);
-  padding: var(--s6);
-  border-radius: var(--r-lg);
-  background: rgba(45, 212, 160, 0.08);
-  border: 1px solid rgba(45, 212, 160, 0.3);
-  text-align: left;
+.marcasLista li {
+  font-family: var(--f-display);
+  font-size: clamp(var(--t-base), 2.4vw, var(--t-lg));
+  font-weight: 600;
+  letter-spacing: -.01em;
   color: var(--txt-2);
-  font-size: var(--t-base);
-  line-height: 1.65;
 }
-.recebidoTitulo {
+
+/* ==========================================================================
+   SEÇÕES
+   ========================================================================== */
+
+.secao {
+  padding-block: clamp(var(--s8), 9vw, var(--s10));
+  background: var(--bg);
+  color: var(--txt);
+}
+
+/* A superfície clara NÃO é declarada aqui. Ela é a classe global `.claro` de
+   globals.css, que reescreve os tokens (--bg, --txt, --vio…) para o ramo em
+   que aparece. Declarar uma `.claro` local neste módulo faria o CSS Modules
+   renomeá-la, a global nunca casaria, e o site perderia o ritmo entre seções
+   escuras e claras sem nenhum erro aparecer. Foi o que aconteceu na primeira
+   versão desta folha. */
+
+.h2 {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: clamp(var(--t-2xl), 4.4vw, var(--t-4xl));
+  line-height: 1.08;
+  letter-spacing: -.03em;
+  text-wrap: balance;
+  color: var(--txt);
+  margin: 0;
+}
+.h2 em {
+  font-style: normal;
+  color: var(--vio-claro);
+}
+
+.h3 {
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(var(--t-lg), 3vw, var(--t-2xl));
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: var(--txt);
+  /* Mais espaço acima que abaixo: o título pertence ao que vem DEPOIS dele. */
+  margin: var(--s9) 0 var(--s3);
+}
+
+.lead {
+  margin: var(--s4) 0 0;
+  max-width: 68ch;
+  font-size: var(--t-lg);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+
+/* ==========================================================================
+   SERVIÇOS
+   --------------------------------------------------------------------------
+   Lista, não grade de cards iguais. O ícone anda ao lado do título, no fluxo,
+   sem ladrilho arredondado em volta.
+   ========================================================================== */
+
+.servicos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--s6) var(--s7);
+  margin: var(--s7) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.servico {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s4);
+  align-items: start;
+  padding-top: var(--s5);
+  border-top: 1px solid var(--borda);
+}
+
+.servicoIcone {
+  width: 26px;
+  height: 26px;
+  color: var(--vio-claro);
+  margin-top: 2px;
+}
+
+.servico h3 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 600;
+  letter-spacing: -.015em;
+  color: var(--txt);
+}
+
+.servico p {
+  margin: var(--s2) 0 0;
+  font-size: var(--t-base);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+
+/* --- Especialidades como lista de definição ------------------------------ */
+
+.especialidades { margin-top: var(--s8); }
+
+.espLista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s6);
+  margin: var(--s6) 0 0;
+}
+
+.esp dt {
   font-family: var(--f-display);
   font-size: var(--t-lg);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--sinal);
-  margin-bottom: var(--s2);
+  letter-spacing: -.015em;
+  color: var(--vio-claro);
 }
 
-/* ===== A empresa: serviços e princípios ================================== */
-.grade2 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--s4);
-  margin-top: var(--s6);
+.esp dd {
+  margin: var(--s2) 0 0;
+  font-size: var(--t-base);
+  line-height: 1.6;
+  color: var(--txt-2);
 }
+
+/* ==========================================================================
+   PRONTUÁRIO — o momento autoral
+   ========================================================================== */
+
+.prontGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(var(--s6), 6vw, var(--s9));
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .prontGrid { grid-template-columns: 1fr; }
+}
+
+.prontLista {
+  margin: var(--s6) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s4);
+}
+
+.prontLista li {
+  position: relative;
+  padding-left: var(--s5);
+  font-size: var(--t-base);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+
+/* Marcador desenhado, não glifo: fica alinhado à primeira linha em qualquer
+   tamanho de fonte, o que um "•" digitado não garante. */
+.prontLista li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .62em;
+  width: 7px;
+  height: 1px;
+  background: var(--vio-claro);
+}
+
+/* --- O console ----------------------------------------------------------- */
+
+.console {
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  overflow: hidden;
+}
+
+.csBarra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--borda);
+  background: var(--sup-2);
+}
+
+.csTit {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+
+.csOs {
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  color: var(--vio-claro);
+}
+
+.csCab {
+  padding: var(--s5) var(--s5) var(--s4);
+  border-bottom: 1px solid var(--borda);
+}
+
+.csEq {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+
+.csNs {
+  margin: var(--s2) 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+.lt {
+  position: relative;
+  margin: 0;
+  padding: var(--s5);
+  list-style: none;
+  display: grid;
+  gap: var(--s5);
+}
+
+/* A linha que costura as etapas. Ela é o eixo do movimento autoral: cresce de
+   cima para baixo conforme a seção entra na tela. */
+.lt::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--s5) + 5px);
+  top: var(--s6);
+  bottom: var(--s6);
+  width: 1px;
+  background: var(--borda-viva);
+  transform-origin: top;
+}
+
+.etFeita,
+.etAgora {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--s4);
+  align-items: baseline;
+}
+
+.etPonto {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--borda-viva);
+  background: var(--sup);
+  align-self: start;
+  margin-top: .3em;
+  z-index: 1;
+}
+
+.etFeita .etPonto {
+  border-color: var(--sinal);
+  background: var(--sinal);
+}
+
+.etAgora .etPonto {
+  border-color: var(--vio);
+  background: var(--sup);
+  box-shadow: 0 0 0 4px var(--vio-100);
+}
+
+.etTxt { display: grid; gap: 2px; min-width: 0; }
+
+.etTxt strong {
+  font-size: var(--t-base);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--txt);
+}
+
+.etTxt span {
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+.etHora {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   A EMPRESA
+   ========================================================================== */
+
+.sobreGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(var(--s6), 6vw, var(--s9));
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sobreGrid { grid-template-columns: 1fr; }
+}
+
+.sobreP {
+  margin: var(--s5) 0 0;
+  max-width: 62ch;
+  font-size: var(--t-lg);
+  line-height: 1.65;
+  color: var(--txt-2);
+}
+
+.sobreGrid .btn { margin-top: var(--s6); }
+
+.numeros {
+  padding: var(--s6);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+}
+
+.numeroGrande {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(var(--t-2xl), 5vw, var(--t-4xl));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--vio-claro);
+}
+
+.numeroTexto {
+  margin: var(--s3) 0 0;
+  font-size: var(--t-base);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+
 .principios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s6);
+  margin-top: var(--s9);
+  padding-top: var(--s7);
+  border-top: 1px solid var(--borda);
+}
+
+.principios h3 {
+  margin: 0;
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--vio-claro);
+}
+
+.principios p {
+  margin: var(--s3) 0 0;
+  font-size: var(--t-base);
+  line-height: 1.65;
+  color: var(--txt-2);
+}
+
+/* ==========================================================================
+   AVALIAÇÕES DO GOOGLE
+   ========================================================================== */
+
+.notaBloco { text-align: center; }
+
+.notaValor {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(var(--t-4xl), 9vw, var(--t-5xl));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--txt);
+  font-variant-numeric: tabular-nums;
+}
+
+.notaEstrelas {
+  display: flex;
+  justify-content: center;
+  gap: var(--s1);
+  margin: var(--s3) 0 0;
+  color: var(--espera);
+}
+
+.notaTexto {
+  margin: var(--s4) 0 0;
+  font-family: var(--f-texto);
+  font-size: var(--t-base);
+  font-weight: 400;
+  color: var(--txt-2);
+}
+
+.avaliacoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s5);
+  margin: var(--s8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avaliacao {
+  display: grid;
+  align-content: start;
+  gap: var(--s3);
+  padding: var(--s5);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+}
+
+.avEstrelas {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+  color: var(--espera);
+}
+
+.avTexto {
+  margin: 0;
+  font-size: var(--t-lg);
+  line-height: 1.5;
+  color: var(--txt);
+  font-style: normal;
+}
+
+.avSemTexto {
+  margin: 0;
+  font-size: var(--t-base);
+  color: var(--txt-3);
+}
+
+.avAutor {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: var(--t-sm);
+}
+.avAutor strong { color: var(--txt); font-weight: 600; }
+.avAutor span { color: var(--txt-3); }
+
+/* ==========================================================================
+   INSTAGRAM
+   ========================================================================== */
+
+.instaBloco { max-width: 640px; }
+
+.instaIcone {
+  width: 30px;
+  height: 30px;
+  color: var(--vio-claro);
+  margin-bottom: var(--s4);
+}
+
+.instaBloco .btn { margin-top: var(--s6); }
+
+/* ==========================================================================
+   CONTATO E MAPA
+   ========================================================================== */
+
+.contatoDireto {
+  margin: var(--s6) 0 0;
+  font-size: var(--t-base);
+  color: var(--txt-2);
+}
+
+.linkZap {
+  color: var(--vio-claro);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+.endereco {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin: var(--s5) 0 0;
+  font-size: var(--t-lg);
+  line-height: 1.5;
+  color: var(--txt-2);
+}
+
+.enderecoIcone {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--vio-claro);
+}
+
+.mapa {
+  margin-top: var(--s6);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  /* Proporção fixa: sem isto o iframe entra com 150px de altura e o mapa
+     nasce inútil, o que é fácil de não notar em tela grande. */
+  aspect-ratio: 16 / 7;
+}
+
+.mapa iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  filter: grayscale(.2);
+}
+
+@media (max-width: 640px) {
+  .mapa { aspect-ratio: 4 / 3; }
+}
+
+/* ==========================================================================
+   RODAPÉ
+   ========================================================================== */
+
+.rodape {
+  padding-block: var(--s8) var(--s6);
+  border-top: 1px solid var(--borda);
+  background: var(--bg-1);
+  color: var(--txt-2);
+}
+
+.rodGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s7);
+}
+
+@media (max-width: 780px) {
+  .rodGrid { grid-template-columns: 1fr; gap: var(--s6); }
+}
+
+.rodTexto {
+  margin: var(--s4) 0 0;
+  max-width: 46ch;
+  font-size: var(--t-sm);
+  line-height: 1.65;
+  color: var(--txt-3);
+}
+
+.rodape h3 {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt);
+}
+
+.rodape ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s2);
+  /* Piso de 13px: texto funcional abaixo disso é falha de legibilidade, e a
+     regra vale no rodapé como vale em qualquer outro lugar. */
+  font-size: var(--t-sm);
+}
+
+.rodape a {
+  color: var(--txt-2);
+  text-decoration: none;
+}
+.rodape a:hover {
+  color: var(--txt);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rodFim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-top: var(--s7);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+/* ==========================================================================
+   MOVIMENTO
+   --------------------------------------------------------------------------
+   Guiado por scroll, em CSS puro, sem uma linha de JavaScript.
+
+   A escolha não é por elegância: com `animation-timeline`, o conteúdo está
+   VISÍVEL no estado padrão e a animação só existe em quem a suporta. O padrão
+   com JavaScript é o contrário — o conteúdo nasce em `opacity: 0` e depende de
+   um script rodar para aparecer. Se esse script falhar, a página fica em
+   branco com o texto todo lá dentro, invisível. Já aconteceu com meio mundo.
+
+   O momento autoral é UM: a linha do prontuário se desenhando de cima para
+   baixo, com as etapas acendendo em sequência. Ele explica o produto — a
+   passagem do tempo dentro de uma ordem de serviço. O resto da página não
+   ganha entrada nenhuma, de propósito: repetir o mesmo fade-up em toda seção
+   é o oposto de um momento.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+
+    /* A linha cresce enquanto a seção entra. */
+    .lt::before {
+      animation: crescerLinha linear both;
+      animation-timeline: view();
+      animation-range: entry 18% cover 46%;
+    }
+
+    /* Cada etapa acende logo depois da linha passar por ela. O `--i` vem do
+       React e dá o atraso; sem ele, as cinco acenderiam juntas e o movimento
+       perderia justamente a leitura de sequência. */
+    .etFeita,
+    .etAgora {
+      animation: acender linear both;
+      animation-timeline: view();
+      animation-range:
+        entry calc(14% + var(--i) * 7%)
+        entry calc(48% + var(--i) * 7%);
+    }
+  }
+}
+
+@keyframes crescerLinha {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes acender {
+  from { opacity: .25; }
+  to   { opacity: 1; }
+}
+
+/* ==========================================================================
+   SUPERFÍCIES DO NAVEGADOR
+   --------------------------------------------------------------------------
+   Seleção, foco e rolagem vêm com padrões do navegador que não pertencem a
+   sistema de design nenhum. Tematizá-los é o sinal mais barato de que a página
+   foi construída, e não montada.
+   ========================================================================== */
+
+.topo ::selection,
+.secao ::selection,
+.dobra ::selection,
+.rodape ::selection {
+  background: var(--vio-forte);
+  color: #fff;
+}
+
+.topo :focus-visible,
+.secao :focus-visible,
+.dobra :focus-visible,
+.rodape :focus-visible {
+  outline: 2px solid var(--vio-claro);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   FORMULÁRIO DE RETIRADA
+   --------------------------------------------------------------------------
+   Estas classes são consumidas por `formulario-retirada.tsx`. Elas existiam na
+   folha anterior e sumiram quando eu a reescrevi — e o CSS Modules não avisa:
+   uma classe inexistente vira `undefined` no `className`, sem erro nenhum.
+   O sintoma foi um formulário com rótulo e campo lado a lado, sem espaço, e o
+   campo-armadilha do anti-spam VISÍVEL na tela.
+   ========================================================================== */
+
+.formGrade {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--s5);
   margin-top: var(--s7);
-  padding-top: var(--s6);
-  border-top: 1px solid var(--borda);
 }
-.principioTexto {
-  margin-top: var(--s2);
+
+/* Campos que pedem espaço para pensar ocupam a linha toda. */
+.formGrade > .formCampo:has(textarea),
+.formGrade > .formCampo:has(select) {
+  grid-column: 1 / -1;
+}
+
+.formCampo {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.formCampo > span {
   font-size: var(--t-sm);
-  line-height: 1.7;
+  font-weight: 600;
+  color: var(--txt);
+}
+
+.formCampo input,
+.formCampo select,
+.formCampo textarea {
+  width: 100%;
+  padding: var(--s3) var(--s4);
+  /* 48px de alvo: dedo em tela de celular, não ponteiro de mouse. */
+  min-height: 48px;
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r);
+  background: var(--sup);
+  color: var(--txt);
+  font-family: var(--f-texto);
+  /* 16px trava o zoom automático do iOS ao focar o campo. Abaixo disso, o
+     Safari dá um zoom que desloca a página inteira e assusta quem digita. */
+  font-size: var(--t-base);
+  line-height: 1.5;
+  transition: border-color 160ms var(--ease);
+}
+
+.formCampo textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.formCampo input::placeholder,
+.formCampo textarea::placeholder {
+  /* Derivado do texto da superfície, não um cinza genérico: cinza sobre cor
+     lava e cai abaixo do contraste mínimo. */
+  color: var(--txt-3);
+  opacity: 1;
+}
+
+.formCampo input:focus-visible,
+.formCampo select:focus-visible,
+.formCampo textarea:focus-visible {
+  border-color: var(--vio);
+  outline: 2px solid var(--vio-claro);
+  outline-offset: 2px;
+}
+
+/* `:user-invalid`, e não `:invalid`. O segundo marca de vermelho todo campo
+   obrigatório e vazio no instante em que a página abre — acusa a pessoa de um
+   erro que ela ainda não teve chance de cometer. O primeiro só acende depois
+   que ela mexeu no campo e saiu dele. */
+.formCampo input:user-invalid,
+.formCampo textarea:user-invalid {
+  border-color: var(--alerta);
+}
+
+.formErro {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--alerta);
+  border-radius: var(--r);
+  color: var(--alerta);
+  font-size: var(--t-sm);
+}
+
+.formGrade .btn {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.formGrade .btn:disabled {
+  opacity: .55;
+  cursor: progress;
+}
+
+.formNota {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+/* --- A armadilha do anti-spam --------------------------------------------
+   Um campo que pessoa nenhuma vê e que robô de formulário preenche. Se vier
+   preenchido, o envio é descartado.
+
+   NÃO usa `display: none`: parte dos robôs ignora campo escondido assim, e o
+   truque perde a graça. Some da tela sem sair do documento, e sai da ordem de
+   tabulação e do leitor de tela pelos atributos no próprio elemento. */
+.armadilha {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Recebido -------------------------------------------------------------
+   Substitui o formulário depois do envio. */
+
+.recebido {
+  margin-top: var(--s7);
+  padding: var(--s6);
+  border: 1px solid var(--sinal);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+}
+
+.recebidoTitulo {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+
+.recebido p {
+  margin: 0;
+  font-size: var(--t-base);
+  line-height: 1.6;
   color: var(--txt-2);
 }
+
+/* Campo do site oficial, usado pelo formulário para separar a origem. */
+.formSite { grid-column: 1 / -1; }
