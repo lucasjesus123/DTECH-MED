@@ -81,6 +81,22 @@
    formulário se lê descendo pela borda esquerda dos campos. */
 .estreito > h2,
 .estreito > p {
+  /* `margin-inline: auto` REPETIDO aqui, e não herdado da regra de cima.
+     -----------------------------------------------------------------------
+     `.estreito > *` já pedia a margem automática, mas `.h2`, `.lead` e
+     `.contatoDireto` declaram `margin` na forma curta (`margin: X 0 0`), e a
+     forma curta zera as margens laterais. Como as duas regras têm o mesmo
+     peso, quem vem depois ganha — e o bloco voltava para a esquerda.
+
+     O sintoma enganava: o TEXTO ficava centralizado dentro de uma caixa
+     encostada à esquerda. Conferir a propriedade `text-align` dizia "centro" e
+     estava errado; só medir a posição da caixa mostrou. Título em 514, painel
+     em 720.
+
+     Esta regra tem peso maior (classe + elemento), então vence independente da
+     ordem no arquivo. */
+  max-width: 720px;
+  margin-inline: auto;
   text-align: center;
 }
 .centralizado { text-align: center; margin-top: var(--s6); }
