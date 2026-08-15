@@ -1,0 +1,395 @@
+/* ==========================================================================
+   EDITOR DO SITE
+   --------------------------------------------------------------------------
+   Duas colunas que não rolam juntas: os campos rolam de um lado, o site rola do
+   outro. É o que permite ficar mexendo num campo lá embaixo enquanto se olha o
+   topo da página, que é exatamente o que se faz ao editar.
+   ========================================================================== */
+
+.tela {
+  display: flex;
+  flex-direction: column;
+  /* Ocupa a altura toda disponível dentro do painel: a prévia precisa de
+     altura, e altura "o que sobrar" não serve para uma moldura de monitor. */
+  height: calc(100dvh - 2 * var(--s5));
+  min-height: 560px;
+  gap: var(--s4);
+}
+
+.topo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+
+.grav {
+  margin: 0;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+
+.titulo {
+  margin: 2px 0 0;
+  font-family: var(--f-display);
+  font-size: var(--t-2xl);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+
+.topoAcoes {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+}
+
+.versao {
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+.salvar {
+  min-height: 44px;
+  padding: 0 var(--s6);
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(150deg, var(--vio) 0%, var(--vio-forte) 100%);
+  color: #fff;
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -14px var(--brilho);
+  transition: transform 200ms var(--ease), opacity 200ms var(--ease);
+}
+
+.salvar:hover:not(:disabled) { transform: translateY(-1px); }
+
+/* Desabilitado com opacidade E cursor: só a opacidade deixa dúvida sobre se o
+   botão está desligado ou só apagado. */
+.salvar:disabled {
+  opacity: .45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.avisoOk,
+.avisoErro {
+  margin: 0;
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r);
+  font-size: var(--t-sm);
+}
+
+.avisoOk {
+  border: 1px solid color-mix(in oklab, var(--sinal) 45%, transparent);
+  background: color-mix(in oklab, var(--sinal) 12%, transparent);
+  color: var(--txt);
+}
+
+.avisoErro {
+  border: 1px solid color-mix(in oklab, var(--alerta) 55%, transparent);
+  background: color-mix(in oklab, var(--alerta) 12%, transparent);
+  color: var(--txt);
+}
+
+/* --------------------------------------------------------------------------
+   AS DUAS COLUNAS
+   -------------------------------------------------------------------------- */
+
+.corpo {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: var(--s5);
+  /* `min-height: 0` é o que permite as duas colunas rolarem por dentro. Sem
+     ele, item de grade cresce até caber o conteúdo e a página inteira é que
+     rola — a prévia sai da tela e o editor perde a graça. */
+  min-height: 0;
+  flex: 1;
+}
+
+@media (max-width: 1100px) {
+  .tela { height: auto; }
+  .corpo { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   ESQUERDA
+   -------------------------------------------------------------------------- */
+
+.lado {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--linha);
+  border-radius: var(--r-lg);
+  background: var(--branco);
+  overflow: hidden;
+}
+
+.abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: var(--s3);
+  border-bottom: 1px solid var(--linha);
+  background: var(--papel);
+}
+
+.aba,
+.abaAtiva {
+  min-height: 34px;
+  padding: 0 var(--s3);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+
+.aba:hover { background: var(--vio-50); color: var(--ink); }
+
+.abaAtiva {
+  background: var(--vio-800);
+  color: #fff;
+  font-weight: 600;
+}
+
+.campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding: var(--s5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.descricao {
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.campo input,
+.campo textarea,
+.linhaItem textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--branco);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--t-base);
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.campo input:focus-visible,
+.campo textarea:focus-visible,
+.linhaItem textarea:focus-visible {
+  outline: 2px solid var(--vio-800);
+  outline-offset: 1px;
+}
+
+.campo small {
+  font-size: var(--t-xs);
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.grupo {
+  display: grid;
+  gap: var(--s3);
+  margin: 0;
+  padding: var(--s4);
+  border: 1px solid var(--linha);
+  border-radius: var(--r-lg);
+  background: var(--papel);
+}
+
+.grupo legend {
+  padding: 0 6px;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.linhaItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s2);
+  align-items: start;
+}
+
+.cartaoItem {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s3);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--branco);
+}
+
+.cartaoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--t-xs);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.remover {
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--branco);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+
+.remover:hover:not(:disabled) { border-color: var(--selo); color: var(--selo); }
+.remover:disabled { opacity: .35; cursor: default; }
+
+.acrescentar {
+  min-height: 40px;
+  border: 1px dashed var(--linha);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+}
+
+.acrescentar:hover:not(:disabled) { border-color: var(--vio-800); color: var(--vio-800); }
+.acrescentar:disabled { opacity: .4; cursor: default; }
+
+/* --------------------------------------------------------------------------
+   DIREITA — a moldura do monitor
+   -------------------------------------------------------------------------- */
+
+.previaLado {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: var(--s3);
+}
+
+.previaBarra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.previaUrl {
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.previaBotoes { display: flex; gap: var(--s2); }
+
+.medida,
+.medidaAtiva {
+  min-height: 36px;
+  padding: 0 var(--s4);
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: var(--branco);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  cursor: pointer;
+}
+
+.medidaAtiva {
+  border-color: var(--vio-800);
+  background: var(--vio-800);
+  color: #fff;
+  font-weight: 600;
+}
+
+.previaAviso {
+  margin: 0;
+  padding: var(--s3) var(--s4);
+  border: 1px solid color-mix(in oklab, var(--aguarda) 55%, transparent);
+  border-radius: var(--r);
+  background: color-mix(in oklab, var(--aguarda) 12%, transparent);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.linkAviso {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--vio-800);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* A moldura. Borda grossa e cantos arredondados: lê como "tela de aparelho",
+   e é o que separa o site da interface do painel sem precisar de legenda. */
+.moldura,
+.molduraCelular {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 8px solid var(--vio-900);
+  border-radius: 16px;
+  background: var(--vio-900);
+  box-shadow: 0 30px 70px -50px rgb(0 0 0 / .8);
+}
+
+/* No modo celular a moldura estreita e centraliza. A LARGURA é o que importa:
+   é ela que dispara as regras de tela pequena do site, então o que aparece
+   aqui é o layout de celular de verdade, e não uma redução da tela grande. */
+.molduraCelular {
+  width: 390px;
+  max-width: 100%;
+  margin-inline: auto;
+  border-radius: 28px;
+  border-width: 10px;
+}
+
+.iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #08040F;
+}

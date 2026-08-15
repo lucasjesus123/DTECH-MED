@@ -28,6 +28,7 @@ import {
   IconeWhatsapp,
 } from './icones'
 import { Marca } from './marca'
+import { PontePrevia } from './previa'
 import estilo from './site.module.css'
 import { BotaoWhatsapp } from './whatsapp'
 
@@ -188,7 +189,15 @@ const FOTOS_BASTIDORES = (
   .filter(([nome]) => acharFoto(nome) !== null)
   .map(([nome, alt]) => ({ nome, alt }))
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  /* `?previa=1` só é usado pela tela de edição, dentro da moldura. Para o
+     visitante comum nada muda: a ponte simplesmente não é montada. */
+  const ehPrevia = (await searchParams).previa === '1'
+
   /**
    * O conteúdo do site, vindo do banco.
    *
@@ -248,8 +257,8 @@ export default async function Home() {
           <div className={estilo.dobraVeu} aria-hidden="true" />
 
           <div className={`${estilo.container} ${estilo.dobraIn}`}>
-            <h1 className={estilo.tese}>{c.dobra.chamada}</h1>
-            <p className={estilo.sub}>{c.dobra.subChamada}</p>
+            <h1 className={estilo.tese} data-c="dobra.chamada">{c.dobra.chamada}</h1>
+            <p className={estilo.sub} data-c="dobra.subChamada">{c.dobra.subChamada}</p>
 
             <div className={estilo.acoes}>
               <a
@@ -272,7 +281,7 @@ export default async function Home() {
             <dl className={estilo.provas}>
               {c.dobra.provas.map((p, i) => (
                 <div key={`${p.rotulo}-${i}`}>
-                  <dt>{p.rotulo}</dt>
+                  <dt data-c={`dobra.provas.${i}.rotulo`}>{p.rotulo}</dt>
                   <dd>
                     {p.valor}
                     {p.sufixo ? <small>{p.sufixo}</small> : null}
@@ -313,8 +322,8 @@ export default async function Home() {
         {/* ================= SERVIÇOS ================= */}
         <section id="servicos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <h2 className={estilo.h2}>{c.servicos.titulo}</h2>
-            <p className={estilo.lead}>{c.servicos.lead}</p>
+            <h2 className={estilo.h2} data-c="servicos.titulo">{c.servicos.titulo}</h2>
+            <p className={estilo.lead} data-c="servicos.lead">{c.servicos.lead}</p>
 
             {/* Lista, não grade de cards do mesmo tamanho: o ícone anda ao lado
                 do título, no fluxo, sem ladrilho arredondado em volta. */}
@@ -338,8 +347,8 @@ export default async function Home() {
             </ul>
 
             <div className={estilo.especialidades}>
-              <h3 className={estilo.h3}>{c.especialidades.titulo}</h3>
-              <p className={estilo.lead}>{c.especialidades.lead}</p>
+              <h3 className={estilo.h3} data-c="especialidades.titulo">{c.especialidades.titulo}</h3>
+              <p className={estilo.lead} data-c="especialidades.lead">{c.especialidades.lead}</p>
               {/* Quatro superfícies com peso, não quatro parágrafos soltos
                   numa grade de três com um órfão embaixo. Cada uma tem o
                   símbolo da marca em marca d'água, que dá profundidade sem
@@ -380,9 +389,10 @@ export default async function Home() {
           <div className={`${estilo.container} ${estilo.prontGrid}`}>
             <div className={estilo.prontTexto}>
               <h2 className={estilo.h2}>
-                {c.prontuario.titulo} <em>{c.prontuario.destaque}</em>
+                <span data-c="prontuario.titulo">{c.prontuario.titulo}</span>{' '}
+                <em data-c="prontuario.destaque">{c.prontuario.destaque}</em>
               </h2>
-              <p className={estilo.lead}>{c.prontuario.lead}</p>
+              <p className={estilo.lead} data-c="prontuario.lead">{c.prontuario.lead}</p>
               <ul className={estilo.prontLista}>
                 {c.prontuario.itens.map((item, i) => (
                   <li key={`${i}-${item.slice(0, 12)}`}>{item}</li>
@@ -593,10 +603,10 @@ export default async function Home() {
               <div className={estilo.bastGrid}>
                 <div>
                   <IconeInstagram className={estilo.instaIcone} />
-                  <h2 id="tit-insta" className={estilo.h2}>
+                  <h2 id="tit-insta" className={estilo.h2} data-c="bastidores.titulo">
                     {c.bastidores.titulo}
                   </h2>
-                  <p className={estilo.lead}>{c.bastidores.lead}</p>
+                  <p className={estilo.lead} data-c="bastidores.lead">{c.bastidores.lead}</p>
                   <a
                     href={`https://instagram.com/${instagramUsuarioDe(c)}`}
                     className={estilo.btn}
@@ -651,8 +661,8 @@ export default async function Home() {
             campos pretos, nada acontecendo. */}
         <section id="solicitar" className={`${estilo.secao} ${estilo.vivo}`}>
           <div className={`${estilo.container} ${estilo.estreito}`}>
-            <h2 className={estilo.h2}>{c.formulario.titulo}</h2>
-            <p className={estilo.lead}>{c.formulario.lead}</p>
+            <h2 className={estilo.h2} data-c="formulario.titulo">{c.formulario.titulo}</h2>
+            <p className={estilo.lead} data-c="formulario.lead">{c.formulario.lead}</p>
             <FormularioRetirada
               whatsapp={c.contato.whatsapp}
               rotuloBotao={c.formulario.botao}
@@ -677,8 +687,8 @@ export default async function Home() {
             abrir outro aplicativo, e é ali que a visita termina. */}
         <section id="onde-estamos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <h2 className={estilo.h2}>{c.onde.titulo}</h2>
-            <p className={estilo.lead}>{c.onde.lead}</p>
+            <h2 className={estilo.h2} data-c="onde.titulo">{c.onde.titulo}</h2>
+            <p className={estilo.lead} data-c="onde.lead">{c.onde.lead}</p>
 
             <div className={estilo.ondeGrid}>
               <div className={estilo.ondeCartao}>
@@ -846,6 +856,8 @@ export default async function Home() {
       {/* O bloco que o Google lê. Fica no fim porque não é conteúdo visível e
           não deve atrasar a pintura do que a pessoa veio ver. */}
       <DadosEstruturados />
+
+      {ehPrevia ? <PontePrevia /> : null}
     </>
   )
 }

@@ -27,7 +27,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PRIVADAS = ['/painel', '/app']
 const METODOS_ACEITOS = new Set(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
 
-function montarCSP(nonce: string, producao: boolean): string {
+function montarCSP(nonce: string, producao: boolean, ehHome: boolean): string {
   return [
     "default-src 'self'",
     // 'strict-dynamic' deixa um script já autorizado carregar seus próprios
@@ -44,7 +44,23 @@ function montarCSP(nonce: string, producao: boolean): string {
     "media-src 'self'",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
-    "frame-ancestors 'none'",
+    /**
+     * Quem pode colocar ESTA página dentro de um iframe.
+     *
+     * `'none'` em tudo, menos na home — e na home, só o próprio domínio. A
+     * exceção existe para a prévia do editor do site, que mostra a home de
+     * verdade dentro de uma moldura no painel.
+     *
+     * Por que só a home: o editor não precisa emoldurar o painel, o portal do
+     * cliente nem os aplicativos de campo, e essas são justamente as telas em
+     * que um clique enganado tem consequência (aprovar orçamento, finalizar
+     * ordem). Abrir para todas seria pagar um preço sem receber nada.
+     *
+     * E por que `'self'` não é um buraco: para explorar isso, alguém
+     * precisaria conseguir hospedar uma página no NOSSO domínio — se
+     * conseguiu, o iframe é o menor dos problemas.
+     */
+    ehHome ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
     // A ÚNICA exceção da política: o mapa do "Onde estamos".
     //
     // `frame-src` diz o que esta página pode COLOCAR dentro de si; é o oposto
@@ -56,7 +72,13 @@ function montarCSP(nonce: string, producao: boolean): string {
     // moldura. Nenhum script de fora passa a rodar por causa disto, porque
     // `script-src` continua exigindo o nonce da requisição. Um iframe roda em
     // contexto próprio e não alcança o nosso.
-    "frame-src https://www.google.com https://maps.google.com",
+    // `'self'` para a prévia do editor, que carrega a nossa própria home dentro
+    // de uma moldura; o domínio do Google para o mapa do "Onde estamos".
+    //
+    // Isto quase passou: `frame-src` sem `'self'` bloqueia até a própria página,
+    // e o editor abriria com uma moldura em branco sem nenhum erro na tela — só
+    // uma linha no console que ninguém olha.
+    "frame-src 'self' https://www.google.com https://maps.google.com",
     "form-action 'self'",
     "base-uri 'self'",
     "object-src 'none'",
@@ -98,7 +120,9 @@ export function middleware(req: NextRequest) {
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-  const csp = montarCSP(nonce, process.env.NODE_ENV === 'production')
+  // A home é a única página que a prévia do editor precisa emoldurar.
+  const ehHome = pathname === '/'
+  const csp = montarCSP(nonce, process.env.NODE_ENV === 'production', ehHome)
 
   // O Next lê `x-nonce` da requisição e carimba os scripts que ele injeta.
   const cabecalhos = new Headers(req.headers)

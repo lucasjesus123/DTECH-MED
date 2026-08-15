@@ -41,7 +41,19 @@ const nextConfig: NextConfig = {
           // Um ano, com subdomínios. Só surte efeito sob HTTPS.
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
+          /**
+           * `SAMEORIGIN`, e não `DENY`.
+           *
+           * Este cabeçalho é o antecessor do `frame-ancestors`, e navegador
+           * que entende os dois obedece ao mais restritivo — então deixar
+           * `DENY` aqui anularia a exceção que a política concede à home, e a
+           * prévia do editor abriria em branco.
+           *
+           * `SAMEORIGIN` mantém a proteção contra clickjacking de fora, que é
+           * o que este cabeçalho existe para impedir. O controle fino, por
+           * página, continua no `frame-ancestors` do middleware.
+           */
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // Câmera e localização são liberadas porque os apps de campo
           // dependem delas; o resto fica fechado.

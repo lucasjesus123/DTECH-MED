@@ -105,6 +105,9 @@ export default async function LayoutPainel({ children }: { children: React.React
             <Link href="/painel/empresas" className={estilo.latItem}>
               <span aria-hidden="true">⬢</span> Empresas
             </Link>
+            <Link href="/painel/site" className={estilo.latItem}>
+              <span aria-hidden="true">◧</span> Site
+            </Link>
           </>
         ) : null}
 
