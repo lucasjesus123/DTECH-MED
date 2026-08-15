@@ -35,6 +35,10 @@ export const FOTOS = {
   hospitalar: 'hospitalar',
   /** Transporte: van ou caixa lacrada. */
   logistica: 'logistica',
+  /** Segunda foto de bancada, para o carrossel não repetir tão cedo. */
+  bancada2: 'bancada2',
+  /** Um close do trabalho fino: composto sendo aplicado. */
+  detalhe: 'detalhe',
 } as const
 
 export type NomeFoto = keyof typeof FOTOS

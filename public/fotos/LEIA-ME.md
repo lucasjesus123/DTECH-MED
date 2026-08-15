@@ -1,52 +1,57 @@
 # As fotos do site
 
-Sete nomes. Cada arquivo que cair aqui aparece no próximo build; enquanto não
-cair, o site mostra a alternativa que já existe — nunca uma imagem quebrada.
+**As fotos da DTECH já estão aqui.** Foram enviadas pelo Lucas em agosto de
+2026 e recuperadas do registro desta sessão de trabalho, redimensionadas e com
+os metadados removidos (inclusive a localização de GPS que o celular grava sem
+avisar).
 
-| Arquivo | Onde aparece | O que fotografar |
+| Arquivo | O que é | Onde aparece |
 | --- | --- | --- |
-| `oficina` | **primeira dobra, tela cheia** | a bancada com equipamento aberto, de cima ou 3/4, iluminada |
-| `bancada` | seção do prontuário | mão de técnico com ferramenta de precisão dentro do aparelho |
-| `estetica` | card Estética | laser, luz pulsada, criolipólise, radiofrequência |
-| `medico` | card Médico | monitor multiparâmetro, bisturi, bomba de infusão |
-| `odontologico` | card Odontológico | cadeira, autoclave, fotopolimerizador |
-| `hospitalar` | card Hospitalar | autoclave grande, mesa cirúrgica, aspirador |
-| `logistica` | serviço de transporte | van ou caixa lacrada com etiqueta |
+| `oficina` | a sala com o Heccus, o Lipocavity e as criolipólises | **primeira dobra, tela cheia** |
+| `bancada` | mão de luva segurando a ponteira aberta, painel de chaves ao fundo | carrossel dos bastidores |
+| `medico` | placa de circuito aberta, ao lado da pasta térmica | card Médico e carrossel |
+| `estetica` | o Ozonyx sendo configurado no painel | card Estética e carrossel |
+| `bancada2` | o módulo retirado de dentro da ponteira | carrossel |
+| `hospitalar` | equipamento de grande porte aberto, eletrônica à mostra | card Hospitalar e carrossel |
+| `detalhe` | aplicação de composto, trabalho de precisão | carrossel |
 
-A extensão pode ser `.avif`, `.webp` ou `.jpg`, nesta ordem de preferência — a
-primeira que existir é a usada. AVIF pesa cerca de metade de um JPEG para a
-mesma qualidade aparente, e o Next converte sozinho se você mandar JPEG.
+Duas ainda não existem, e o site se vira sem elas: `odontologico` (o card volta
+para a marca d'água) e `logistica`.
 
-**A `oficina` é a que mais importa.** É a primeira coisa que a pessoa vê, e é o
-que faz um site parecer caro ou parecer um panfleto.
-
-## Tamanho
-
-Mande na maior resolução que tiver — o Next redimensiona e serve o tamanho
-certo para cada tela. Mínimo útil: **1600px** no lado maior para a `oficina`,
-**1000px** para as demais.
-
-## Como subir
+## Como trocar ou acrescentar
 
 Pelo GitHub, sem terminal:
 
 1. Abra `https://github.com/lucasjesus123/DTECH-MED/tree/claude/dtech-med-technical-management-mta9r4/public/fotos`
 2. **Add file → Upload files**
-3. Arraste os arquivos, com os nomes exatos da tabela acima
+3. Arraste com o nome exato da tabela (minúsculas, sem acento)
 4. **Commit changes**
 5. Na VPS: `cd /opt/gavetas/DTECHMED && git fetch origin claude/dtech-med-technical-management-mta9r4 && git reset --hard FETCH_HEAD && bash infra/subir.sh`
 
+A extensão pode ser `.avif`, `.webp` ou `.jpg` — a primeira que existir é a
+usada. Mande na maior resolução que tiver: o Next reduz e serve o tamanho certo
+para cada tela. Mínimo útil: **1600px** no lado maior para a `oficina`,
+**1000px** para as demais.
+
+## Duas coisas que valem conferir
+
+**Captura de tela tem barra de aplicativo.** A foto do Ozonyx veio de um story
+e trazia a faixa "Enviar mensagem…" no rodapé; ela foi cortada antes de entrar.
+Se você mandar outra assim, avise — ou corte antes.
+
+**Rosto de gente na foto.** A `oficina` tem alguém refletido ao fundo. No site
+ela aparece escurecida e desfocada pelo véu, então quase não se nota. Se
+preferir, mande outra da mesma sala sem ninguém.
+
 ## Sobre direito de uso
 
-Foto puxada de busca de imagens **não serve** para site comercial: a cobrança
-por uso indevido costuma chegar anos depois e é cara. Três caminhos seguros:
+Estas são fotos da própria oficina, que é o caminho mais seguro dos três — e o
+que funciona melhor, porque cliente reconhece oficina de verdade e desconfia de
+banco de imagens.
 
-- **foto da oficina de vocês** — a melhor de todas, porque cliente reconhece
-  oficina de verdade e desconfia de banco de imagens;
-- **Unsplash** ou **Pexels**, que são gratuitos inclusive para uso comercial;
-- banco pago com a licença no nome da empresa.
-
-Foto de catálogo de fabricante (Cutera, HTM e afins) é material de marketing
-**deles**. Para a DTECH, que é assistência autorizada, usar a imagem da marca
-que atende pode ser aceitável — mas isso se pergunta ao fabricante, não se
-presume.
+Se um dia precisar de foto de fora: **Unsplash** e **Pexels** são gratuitos
+inclusive para uso comercial. Foto puxada de busca de imagens **não serve**: a
+cobrança por uso indevido costuma chegar anos depois e é cara. E foto de
+catálogo de fabricante (Cutera, HTM e afins) é material de marketing **deles** —
+para a DTECH, que é assistência autorizada, isso se pergunta ao fabricante, não
+se presume.

@@ -120,12 +120,12 @@ const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
  */
 const FOTOS_DO_PERFIL = (
   [
-    ['oficina', 'A oficina, com equipamentos em atendimento'],
-    ['bancada', 'Técnico trabalhando na placa de um equipamento aberto'],
-    ['estetica', 'Equipamento estético em manutenção'],
-    ['medico', 'Equipamento médico em manutenção'],
-    ['odontologico', 'Equipamento odontológico em manutenção'],
-    ['hospitalar', 'Equipamento hospitalar em manutenção'],
+    ['oficina', 'A oficina, com vários equipamentos estéticos em atendimento'],
+    ['bancada', 'Técnico com luva segurando a ponteira aberta'],
+    ['estetica', 'Aparelho de ozonioterapia sendo configurado'],
+    ['medico', 'Placa de circuito aberta na bancada'],
+    ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
+    ['detalhe', 'Trabalho de precisão na bancada'],
   ] as const
 )
   .filter(([nome]) => acharFoto(nome) !== null)
@@ -140,13 +140,13 @@ const FOTOS_DO_PERFIL = (
  */
 const FOTOS_BASTIDORES = (
   [
-    ['bancada', 'Técnico trabalhando dentro de um equipamento aberto'],
-    ['oficina', 'A bancada da oficina, com equipamentos em atendimento'],
-    ['estetica', 'Equipamento estético sobre a bancada'],
-    ['medico', 'Equipamento médico sobre a bancada'],
-    ['hospitalar', 'Equipamento hospitalar sobre a bancada'],
-    ['odontologico', 'Equipamento odontológico sobre a bancada'],
-    ['logistica', 'Equipamento embalado para o transporte'],
+    ['bancada', 'Técnico com luva segurando a ponteira aberta, painel de ferramentas ao fundo'],
+    ['oficina', 'A oficina, com vários equipamentos estéticos em atendimento'],
+    ['medico', 'Placa de circuito aberta na bancada, ao lado da pasta térmica'],
+    ['estetica', 'Aparelho de ozonioterapia sendo configurado no painel'],
+    ['bancada2', 'Técnico com o módulo retirado de dentro da ponteira'],
+    ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
+    ['detalhe', 'Aplicação de composto na bancada, em trabalho de precisão'],
   ] as const
 )
   .filter(([nome]) => acharFoto(nome) !== null)
