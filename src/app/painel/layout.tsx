@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
@@ -6,6 +7,19 @@ import { encerrarSessao, lerSessao } from '@/server/auth/sessao'
 import estilo from './painel.module.css'
 import { Credito } from '../credito'
 import { Marca } from '../marca'
+
+/**
+ * O painel nunca é indexado.
+ *
+ * O robots.txt já pede isso, e o login já barra o acesso — mas as duas coisas
+ * falham de jeitos diferentes: robots.txt é pedido, não ordem, e um dia
+ * alguém cola no Twitter um link de tela interna e o buscador vai buscar. O
+ * `noindex` no cabeçalho é a única instrução que o buscador obedece mesmo
+ * quando chega à página por fora.
+ */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+}
 
 /**
  * Moldura do painel.

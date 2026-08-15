@@ -57,6 +57,53 @@ function icone(n: number, margem = 0.24) {
   )
 }
 
+/**
+ * A imagem de compartilhamento (1200x630).
+ *
+ * E o retangulo que aparece quando alguem cola o link no WhatsApp, e o
+ * WhatsApp e por onde a maioria dos clientes chega. Sem ela, o link vira uma
+ * linha de texto cinza no meio da conversa; com ela, vira um cartao.
+ *
+ * O texto vai em fonte generica de sistema de proposito: a fonte da marca nao
+ * existe dentro do renderizador de SVG, e pedir por ela daria uma substituicao
+ * silenciosa e diferente em cada maquina que rodar este script. Aqui o peso
+ * visual vem do simbolo e do contraste, nao do desenho da letra.
+ */
+function compartilhamento() {
+  const L = 1200
+  const A = 630
+  const { larg, alt, transform, d } = lerSimbolo()
+
+  const util = A * 0.42
+  const escala = Math.min(util / larg, util / alt)
+  const x = 96
+  const y = (A - alt * escala) / 2 - 40
+
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${L}" height="${A}" viewBox="0 0 ${L} ${A}">` +
+      `<defs>` +
+      `<radialGradient id="brilho" cx="18%" cy="30%" r="70%">` +
+      `<stop offset="0%" stop-color="#4A0D8F" stop-opacity="0.85"/>` +
+      `<stop offset="100%" stop-color="${FUNDO}" stop-opacity="0"/>` +
+      `</radialGradient>` +
+      `</defs>` +
+      `<rect width="${L}" height="${A}" fill="${FUNDO}"/>` +
+      `<rect width="${L}" height="${A}" fill="url(#brilho)"/>` +
+      `<g transform="translate(${x} ${y}) scale(${escala})">` +
+      `<g transform="${transform}" fill="${TINTA}" fill-rule="evenodd">` +
+      `<path d="${d}"/>` +
+      `</g></g>` +
+      `<text x="96" y="${A - 176}" fill="#F4F0FB" font-family="sans-serif" ` +
+      `font-size="62" font-weight="700" letter-spacing="-1.5">DTECH MED</text>` +
+      `<text x="96" y="${A - 116}" fill="#B9AAD4" font-family="sans-serif" font-size="34">` +
+      `Assistência técnica de equipamentos</text>` +
+      `<text x="96" y="${A - 72}" fill="#B9AAD4" font-family="sans-serif" font-size="34">` +
+      `médicos, estéticos e odontológicos</text>` +
+      `<rect x="96" y="${A - 46}" width="120" height="5" rx="2.5" fill="${TINTA}"/>` +
+      `</svg>`,
+  )
+}
+
 async function main() {
   for (const n of [192, 512]) {
     await sharp(icone(n)).png({ compressionLevel: 9 }).toFile(`public/icone-${n}.png`)
@@ -68,7 +115,8 @@ async function main() {
     await sharp(icone(n, 0.14)).png({ compressionLevel: 9 }).toFile(arquivo)
   }
   await sharp(icone(64, 0.14)).png({ compressionLevel: 9 }).toFile('public/favicon.png')
-  console.log('Ícones gerados a partir do símbolo oficial.')
+  await sharp(compartilhamento()).png({ compressionLevel: 9 }).toFile('public/og.png')
+  console.log('Ícones e imagem de compartilhamento gerados a partir do símbolo oficial.')
 }
 
 void main()

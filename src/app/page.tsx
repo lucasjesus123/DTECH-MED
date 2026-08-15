@@ -3,6 +3,7 @@ import path from 'node:path'
 import Link from 'next/link'
 import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
 import { Credito } from './credito'
+import { DadosEstruturados } from './dados-estruturados'
 import { Foto, acharFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
@@ -686,6 +687,10 @@ export default function Home() {
           página. Assim quem navega por leitor de tela não tromba com ele no
           meio da leitura — encontra no fim, onde se procura contato. */}
       <BotaoWhatsapp />
+
+      {/* O bloco que o Google lê. Fica no fim porque não é conteúdo visível e
+          não deve atrasar a pintura do que a pessoa veio ver. */}
+      <DadosEstruturados />
     </>
   )
 }

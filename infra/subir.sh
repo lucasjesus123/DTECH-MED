@@ -62,6 +62,20 @@ for V in UAZAPI_ADMIN_TOKEN SEED_SUPERADMIN_EMAIL SEED_SUPERADMIN_PASSWORD; do
   grep -qE "^${V}=.+" .env || alerta "$V está vazio (o sistema sobe assim; veja o resumo no fim)"
 done
 
+# APP_URL não é só configuração: é o domínio que o site declara ao Google como
+# o endereço verdadeiro dele (a URL canônica), e é a base de toda imagem de
+# compartilhamento. Apontado para o domínio errado, o Google consolida a
+# reputação no endereço errado e o link colado no WhatsApp sai sem imagem —
+# duas coisas que não dão erro em lugar nenhum e demoram semanas para reverter.
+#
+# Por isso ele é IMPRESSO, e não só conferido: na troca de domínio, é aqui que
+# se percebe que ele ficou para trás.
+URL_PUBLICA=$(grep -E '^APP_URL=' .env | head -1 | cut -d= -f2- | tr -d '"')
+case "$URL_PUBLICA" in
+  https://*) verde "domínio público (APP_URL): $URL_PUBLICA" ;;
+  *) alerta "APP_URL=$URL_PUBLICA — sem https. O Google vai indexar por este endereço." ;;
+esac
+
 # ---------------------------------------------------------------------------
 titulo "2. Fotografia dos vizinhos"
 # ---------------------------------------------------------------------------
