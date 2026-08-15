@@ -74,7 +74,9 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
-  Contador: 'Contador'
+  Contador: 'Contador',
+  ConteudoSite: 'ConteudoSite',
+  ConteudoSiteVersao: 'ConteudoSiteVersao'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -614,6 +616,31 @@ export const ContadorScalarFieldEnum = {
 } as const
 
 export type ContadorScalarFieldEnum = (typeof ContadorScalarFieldEnum)[keyof typeof ContadorScalarFieldEnum]
+
+
+export const ConteudoSiteScalarFieldEnum = {
+  id: 'id',
+  dados: 'dados',
+  versao: 'versao',
+  atualizadoEm: 'atualizadoEm',
+  atualizadoPorId: 'atualizadoPorId'
+} as const
+
+export type ConteudoSiteScalarFieldEnum = (typeof ConteudoSiteScalarFieldEnum)[keyof typeof ConteudoSiteScalarFieldEnum]
+
+
+export const ConteudoSiteVersaoScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  versao: 'versao',
+  dados: 'dados',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  nota: 'nota',
+  criadoEm: 'criadoEm'
+} as const
+
+export type ConteudoSiteVersaoScalarFieldEnum = (typeof ConteudoSiteVersaoScalarFieldEnum)[keyof typeof ConteudoSiteVersaoScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,17 +1,19 @@
+import type { Metadata } from 'next'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import Link from 'next/link'
 import {
-  EMPRESA,
-  enderecoEmUmaLinha,
-  instagramUsuario,
-  linkMaps,
-  linkWhatsapp,
-  mapaUrl,
-} from '@/lib/empresa'
+  enderecoEmUmaLinhaDe,
+  instagramUsuarioDe,
+  linkMapsDe,
+  linkWhatsappDe,
+  mapaUrlDe,
+} from '@/lib/conteudo'
+import { DESENVOLVEDOR } from '@/lib/empresa'
+import { lerConteudo } from '@/server/conteudo'
 import { Credito } from './credito'
 import { DadosEstruturados } from './dados-estruturados'
-import { Foto, acharFoto } from './foto'
+import { FOTOS, Foto, acharFoto, type NomeFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
@@ -89,6 +91,24 @@ import { BotaoWhatsapp } from './whatsapp'
 export const dynamic = 'force-dynamic'
 
 /**
+ * O título e a descrição que o Google mostra saem do conteúdo editável.
+ *
+ * Estavam no layout, fixos no código. Ficar lá significaria o dono poder mudar
+ * todo o texto da página e não conseguir mudar a única frase que aparece na
+ * busca — que é, para quem procura, a primeira coisa que ele lê da empresa.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const c = await lerConteudo()
+  return {
+    title: c.seo.titulo,
+    description: c.seo.descricao,
+    alternates: { canonical: '/' },
+    openGraph: { title: c.seo.titulo, description: c.seo.descricao, url: '/' },
+    twitter: { title: c.seo.titulo, description: c.seo.descricao },
+  }
+}
+
+/**
  * O vídeo é opcional, e a checagem acontece no build.
  *
  * Sem isto, um `<video>` apontando para um arquivo inexistente ficaria no HTML
@@ -118,6 +138,22 @@ const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
  * nada existir, a faixa inteira some, e a seção continua de pé com as
  * avaliações — que é o essencial dela.
  */
+/**
+ * O nome da foto vem do conteúdo editável, ou seja, de um campo de texto que o
+ * dono digita. Ele pode escrever qualquer coisa — inclusive o nome de um
+ * arquivo que não existe, ou um caminho com `..` tentando sair da pasta.
+ *
+ * Esta função é a porteira: só devolve o nome se ele for um dos slots
+ * conhecidos E o arquivo existir. Qualquer outra coisa vira `null`, e quem
+ * chama mostra a alternativa.
+ */
+function fotoValida(nome: string): NomeFoto | null {
+  if (!nome) return null
+  if (!(nome in FOTOS)) return null
+  const n = nome as NomeFoto
+  return acharFoto(n) ? n : null
+}
+
 const FOTOS_DO_PERFIL = (
   [
     ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
@@ -152,52 +188,22 @@ const FOTOS_BASTIDORES = (
   .filter(([nome]) => acharFoto(nome) !== null)
   .map(([nome, alt]) => ({ nome, alt }))
 
-/**
- * A seção só existe se houver o que mostrar nela.
- *
- * Título e botão sozinhos no meio de um bloco vazio não passam impressão de
- * "limpo" — passam impressão de página quebrada, que é pior que não ter a
- * seção.
- */
-const TEM_BASTIDORES =
-  Boolean(EMPRESA.instagram) &&
-  (FOTOS_BASTIDORES.length > 0 || Boolean(EMPRESA.instagramFeed))
-
-/** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
-const ETAPAS = [
-  ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 · 14:22'],
-  ['Recebido na assistência · 8 fotos', 'Técnico · Rafael S.', '08/08 · 17:05'],
-  ['Laudo e orçamento enviados', 'Gestora · Camila R.', '09/08 · 10:40'],
-  ['Orçamento aprovado e assinado', 'Cliente · portal, CNPJ conferido', '09/08 · 16:18'],
-  ['Em manutenção · troca da fonte', 'Técnico · Rafael S.', '12/08 · 09:12'],
-] as const
-
-const ESPECIALIDADES = [
-  {
-    nome: 'Estética',
-    texto:
-      'Laser, luz intensa pulsada, criolipólise, radiofrequência e ultrassom micro e macrofocado.',
-    foto: 'estetica',
-  },
-  {
-    nome: 'Médico',
-    texto: 'Monitor multiparâmetro, bisturi eletrônico, foco cirúrgico e bomba de infusão.',
-    foto: 'medico',
-  },
-  {
-    nome: 'Odontológico',
-    texto: 'Cadeira, refletor, autoclave, compressor, fotopolimerizador e ultrassom.',
-    foto: 'odontologico',
-  },
-  {
-    nome: 'Hospitalar',
-    texto: 'Autoclave de grande porte, mesa cirúrgica, aspirador, seladora e estufa.',
-    foto: 'hospitalar',
-  },
-] as const
-
-export default function Home() {
+export default async function Home() {
+  /**
+   * O conteúdo do site, vindo do banco.
+   *
+   * Uma consulta só, deduplicada pelo `cache` do React — os metadados, os
+   * dados estruturados e esta página pedem a mesma coisa e o banco é
+   * consultado uma vez. Se o banco não responder, ou se ainda não houver nada
+   * gravado, volta o texto de fábrica e o site fica de pé do mesmo jeito.
+   */
+  const c = await lerConteudo()
   const anoAtual = new Date().getFullYear()
+
+  /* Depende do conteúdo, então mora aqui e não no topo do arquivo. */
+  const temBastidores =
+    Boolean(c.redes.instagram) &&
+    (FOTOS_BASTIDORES.length > 0 || Boolean(c.redes.instagramFeed))
 
   return (
     <>
@@ -242,23 +248,20 @@ export default function Home() {
           <div className={estilo.dobraVeu} aria-hidden="true" />
 
           <div className={`${estilo.container} ${estilo.dobraIn}`}>
-            <h1 className={estilo.tese}>{EMPRESA.chamada}</h1>
-            <p className={estilo.sub}>
-              {EMPRESA.subChamada} E você acompanha cada etapa pelo celular, com
-              o nome de quem mexeu e a hora.
-            </p>
+            <h1 className={estilo.tese}>{c.dobra.chamada}</h1>
+            <p className={estilo.sub}>{c.dobra.subChamada}</p>
 
             <div className={estilo.acoes}>
               <a
-                href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                href={linkWhatsappDe(c, 'Olá! Preciso de manutenção em um equipamento.')}
                 className={estilo.btn}
               >
                 <IconeWhatsapp className={estilo.btnIcone} />
-                Peça orçamento no WhatsApp
+                {c.dobra.botaoWhatsapp}
                 <IconeSeta className={estilo.btnSeta} />
               </a>
               <a href="#solicitar" className={`${estilo.btn} ${estilo.btnLinha}`}>
-                Solicitar retirada pelo site
+                {c.dobra.botaoFormulario}
                 <IconeSeta className={estilo.btnSeta} />
               </a>
             </div>
@@ -267,22 +270,15 @@ export default function Home() {
                 da página. É a primeira coisa que responde "posso confiar?" —
                 e cada um deles é verificável. */}
             <dl className={estilo.provas}>
-              <div>
-                <dt>Clientes atendidos</dt>
-                <dd><span data-conta="300">300</span>+</dd>
-              </div>
-              <div>
-                <dt>No Google</dt>
-                <dd>{EMPRESA.google.nota.toFixed(1).replace('.', ',')}</dd>
-              </div>
-              <div>
-                <dt>Marcas atendidas</dt>
-                <dd><span data-conta="9">9</span></dd>
-              </div>
-              <div>
-                <dt>De garantia</dt>
-                <dd>{EMPRESA.garantia.replace(' dias', '')}<small>dias</small></dd>
-              </div>
+              {c.dobra.provas.map((p, i) => (
+                <div key={`${p.rotulo}-${i}`}>
+                  <dt>{p.rotulo}</dt>
+                  <dd>
+                    {p.valor}
+                    {p.sufixo ? <small>{p.sufixo}</small> : null}
+                  </dd>
+                </div>
+              ))}
             </dl>
           </div>
 
@@ -291,7 +287,7 @@ export default function Home() {
           <div className={estilo.marcasFaixa}>
             <div className={estilo.container}>
               <h2 className={estilo.marcasTitulo}>
-                Atendemos as marcas do mercado
+                {c.marcas.titulo}
               </h2>
               {/* A faixa anda. Movimento aqui se justifica porque o conteúdo
                   é uma lista que se repete — e ela PARA no hover e no foco,
@@ -300,12 +296,12 @@ export default function Home() {
                   o leitor de tela a ignora e anuncia as nove uma vez só. */}
               <div className={estilo.marcasPista}>
                 <ul className={estilo.marcasLista}>
-                  {EMPRESA.marcas.map((m) => (
+                  {c.marcas.lista.map((m) => (
                     <li key={m}>{m}</li>
                   ))}
                 </ul>
                 <ul className={estilo.marcasLista} aria-hidden="true">
-                  {EMPRESA.marcas.map((m) => (
+                  {c.marcas.lista.map((m) => (
                     <li key={m}>{m}</li>
                   ))}
                 </ul>
@@ -317,16 +313,13 @@ export default function Home() {
         {/* ================= SERVIÇOS ================= */}
         <section id="servicos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <h2 className={estilo.h2}>O que a gente resolve</h2>
-            <p className={estilo.lead}>
-              Do conserto ao laudo, com peça original e prazo dito na hora de
-              fechar. Seu aparelho volta a trabalhar.
-            </p>
+            <h2 className={estilo.h2}>{c.servicos.titulo}</h2>
+            <p className={estilo.lead}>{c.servicos.lead}</p>
 
             {/* Lista, não grade de cards do mesmo tamanho: o ícone anda ao lado
                 do título, no fluxo, sem ladrilho arredondado em volta. */}
             <ul className={estilo.servicos}>
-              {EMPRESA.servicos.map((s, i) => {
+              {c.servicos.lista.map((s, i) => {
                 const Icone = ICONES[s.icone]
                 return (
                   <li
@@ -345,17 +338,14 @@ export default function Home() {
             </ul>
 
             <div className={estilo.especialidades}>
-              <h3 className={estilo.h3}>Inclusive a marca que ninguém quer pegar</h3>
-              <p className={estilo.lead}>
-                Se a peça saiu de linha, procuramos equivalente e contamos antes,
-                não depois. Você decide se vale.
-              </p>
+              <h3 className={estilo.h3}>{c.especialidades.titulo}</h3>
+              <p className={estilo.lead}>{c.especialidades.lead}</p>
               {/* Quatro superfícies com peso, não quatro parágrafos soltos
                   numa grade de três com um órfão embaixo. Cada uma tem o
                   símbolo da marca em marca d'água, que dá profundidade sem
                   precisar de foto — e sai na hora em que a foto chegar. */}
               <ul className={estilo.espLista}>
-                {ESPECIALIDADES.map((e, i) => (
+                {c.especialidades.lista.map((e, i) => (
                   <li
                     key={e.nome}
                     className={estilo.esp}
@@ -364,10 +354,10 @@ export default function Home() {
                     {/* Quando a foto existe ela assume o fundo do card; quando
                         não, fica a marca d'água. Nunca as duas, e nunca uma
                         caixa de imagem quebrada. */}
-                    {acharFoto(e.foto) ? (
+                    {fotoValida(e.foto) ? (
                       <span className={estilo.espFoto} aria-hidden="true">
                         <Foto
-                          nome={e.foto}
+                          nome={fotoValida(e.foto)!}
                           alt=""
                           larguras="(max-width: 720px) 100vw, 50vw"
                           className={estilo.espFotoImg}
@@ -390,19 +380,13 @@ export default function Home() {
           <div className={`${estilo.container} ${estilo.prontGrid}`}>
             <div className={estilo.prontTexto}>
               <h2 className={estilo.h2}>
-                Seu equipamento tem <em>prontuário</em>
+                {c.prontuario.titulo} <em>{c.prontuario.destaque}</em>
               </h2>
-              <p className={estilo.lead}>
-                Toda assistência promete avisar. A diferença aqui é que o aviso não
-                depende de alguém lembrar: a mensagem sai sozinha quando a etapa
-                vira, e fica registrada.
-              </p>
+              <p className={estilo.lead}>{c.prontuario.lead}</p>
               <ul className={estilo.prontLista}>
-                <li>Assinatura na tela, ali na retirada, com data e horário.</li>
-                <li>Pelo menos seis fotos de como o aparelho chegou.</li>
-                <li>Orçamento item a item, aprovado por link, com CPF ou CNPJ conferido.</li>
-                <li>Ninguém abre nada antes de você aprovar.</li>
-                <li>Histórico que não dá para alterar depois. Nem nós conseguimos.</li>
+                {c.prontuario.itens.map((item, i) => (
+                  <li key={`${i}-${item.slice(0, 12)}`}>{item}</li>
+                ))}
               </ul>
             </div>
 
@@ -412,25 +396,27 @@ export default function Home() {
             <div className={estilo.console}>
               <div className={estilo.csBarra}>
                 <span className={estilo.csTit}>Acompanhamento da ordem</span>
-                <span className={estilo.csOs}>#DT-2419</span>
+                <span className={estilo.csOs}>{c.prontuario.ordemExemplo.numero}</span>
               </div>
               <div className={estilo.csCab}>
-                <p className={estilo.csEq}>Laser Lavieen · Duo</p>
-                <p className={estilo.csNs}>NS 8842-LV-2021 · 220V · Clínica Bella Pelle</p>
+                <p className={estilo.csEq}>{c.prontuario.ordemExemplo.equipamento}</p>
+                <p className={estilo.csNs}>{c.prontuario.ordemExemplo.detalhe}</p>
               </div>
               <ol className={estilo.lt}>
-                {ETAPAS.map(([nome, quem, hora], i) => (
+                {c.prontuario.etapas.map((etapa, i) => (
                   <li
-                    key={nome}
-                    className={i === ETAPAS.length - 1 ? estilo.etAgora : estilo.etFeita}
+                    key={`${i}-${etapa.titulo.slice(0, 12)}`}
+                    className={
+                      i === c.prontuario.etapas.length - 1 ? estilo.etAgora : estilo.etFeita
+                    }
                     style={{ '--i': i } as React.CSSProperties}
                   >
                     <span className={estilo.etPonto} aria-hidden="true" />
                     <span className={estilo.etTxt}>
-                      <strong>{nome}</strong>
-                      <span>{quem}</span>
+                      <strong>{etapa.titulo}</strong>
+                      <span>{etapa.quem}</span>
                     </span>
-                    <time className={estilo.etHora}>{hora}</time>
+                    <time className={estilo.etHora}>{etapa.quando}</time>
                   </li>
                 ))}
               </ol>
@@ -443,26 +429,25 @@ export default function Home() {
           <div className={estilo.container}>
             <div className={estilo.sobreGrid}>
               <div>
-                <h2 className={estilo.h2}>{EMPRESA.sobreTitulo}</h2>
-                {EMPRESA.sobre.map((p) => (
+                <h2 className={estilo.h2}>{c.sobre.titulo}</h2>
+                {c.sobre.paragrafos.map((p) => (
                   <p key={p.slice(0, 24)} className={estilo.sobreP}>
                     {p}
                   </p>
                 ))}
                 <a
-                  href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                  href={linkWhatsappDe(c, 'Olá! Preciso de manutenção em um equipamento.')}
                   className={estilo.btn}
                 >
                   <IconeWhatsapp className={estilo.btnIcone} />
-                  Peça orçamento no WhatsApp
+                  {c.sobre.botao}
                 </a>
               </div>
 
               <div className={estilo.numeros}>
-                <p className={estilo.numeroGrande}>{EMPRESA.clientesAtendidos}</p>
+                <p className={estilo.numeroGrande}>{c.sobre.clientesNumero}</p>
                 <p className={estilo.numeroTexto}>
-                  clientes atendidos. Somos referência na manutenção de equipamentos
-                  médico-estéticos, odontológicos e hospitalares.
+                  {c.sobre.clientesTexto}
                 </p>
               </div>
             </div>
@@ -470,15 +455,15 @@ export default function Home() {
             <div className={estilo.principios}>
               <div>
                 <h3>Missão</h3>
-                <p>{EMPRESA.missao}</p>
+                <p>{c.sobre.missao}</p>
               </div>
               <div>
                 <h3>Visão</h3>
-                <p>{EMPRESA.visao}</p>
+                <p>{c.sobre.visao}</p>
               </div>
               <div>
                 <h3>Valores</h3>
-                <p>{EMPRESA.valores}</p>
+                <p>{c.sobre.valores}</p>
               </div>
             </div>
           </div>
@@ -499,32 +484,32 @@ export default function Home() {
               <div className={estilo.gmnTopo}>
                 <IconeGoogle className={estilo.gmnG} />
                 <div>
-                  <strong className={estilo.gmnNome}>{EMPRESA.nome}</strong>
+                  <strong className={estilo.gmnNome}>{c.identidade.nome}</strong>
                   <span className={estilo.gmnCategoria}>
-                    Assistência técnica · {EMPRESA.endereco.cidade}, {EMPRESA.endereco.uf}
+                    Assistência técnica · {c.endereco.cidade}, {c.endereco.uf}
                   </span>
                 </div>
               </div>
 
               <div className={estilo.gmnNota}>
                 <p className={estilo.notaValor}>
-                  {EMPRESA.google.nota.toFixed(1).replace('.', ',')}
+                  {c.google.nota.toFixed(1).replace('.', ',')}
                 </p>
                 <div>
                   <p className={estilo.notaEstrelas} aria-hidden="true">
-                    {Array.from({ length: EMPRESA.google.nota }, (_, i) => (
+                    {Array.from({ length: c.google.nota }, (_, i) => (
                       <IconeEstrela key={i} />
                     ))}
                   </p>
                   <h2 id="tit-google" className={estilo.notaTexto}>
-                    {EMPRESA.google.nota} de 5 no Google, em{' '}
-                    {EMPRESA.google.quantidade} avaliações
+                    {c.google.nota} de 5 no Google, em{' '}
+                    {c.google.quantidade} avaliações
                   </h2>
                 </div>
               </div>
 
               <ul className={estilo.avaliacoes}>
-                {EMPRESA.google.avaliacoes.map((a) => (
+                {c.google.avaliacoes.map((a) => (
                   <li key={a.autor} className={estilo.avaliacao}>
                     <div className={estilo.avCabeca}>
                       {/* A bolinha com a inicial é o que o Google mostra quando
@@ -560,7 +545,7 @@ export default function Home() {
                   faixa nenhuma. */}
               {FOTOS_DO_PERFIL.length > 0 ? (
                 <div className={estilo.gmnFotos}>
-                  <p className={estilo.gmnFotosTit}>Fotos da assistência</p>
+                  <p className={estilo.gmnFotosTit}>{c.google.tituloFotos}</p>
                   <ul className={estilo.gmnTira}>
                     {FOTOS_DO_PERFIL.map(({ nome, alt }) => (
                       <li key={nome} className={estilo.gmnTiraItem}>
@@ -576,16 +561,16 @@ export default function Home() {
                 </div>
               ) : null}
 
-              {EMPRESA.googleMeuNegocio ? (
+              {c.redes.googleMeuNegocio ? (
                 <p className={estilo.gmnAcao}>
                   <a
-                    href={EMPRESA.googleMeuNegocio}
+                    href={c.redes.googleMeuNegocio}
                     className={`${estilo.btn} ${estilo.btnLinha}`}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     <IconeGoogle className={estilo.btnIcone} />
-                    Ver todas as avaliações no Google
+                    {c.google.botao}
                   </a>
                 </p>
               ) : null}
@@ -602,31 +587,28 @@ export default function Home() {
 
             Só aparece quando existir foto em `public/fotos/` ou um feed do
             Instagram configurado. */}
-        {TEM_BASTIDORES ? (
+        {temBastidores ? (
           <section className={`${estilo.secao} claro`} aria-labelledby="tit-insta">
             <div className={estilo.container}>
               <div className={estilo.bastGrid}>
                 <div>
                   <IconeInstagram className={estilo.instaIcone} />
                   <h2 id="tit-insta" className={estilo.h2}>
-                    Bastidores da assistência
+                    {c.bastidores.titulo}
                   </h2>
-                  <p className={estilo.lead}>
-                    Equipamento aberto, peça trocada, teste final. O que acontece
-                    antes de o aparelho voltar funcionando.
-                  </p>
+                  <p className={estilo.lead}>{c.bastidores.lead}</p>
                   <a
-                    href={`https://instagram.com/${instagramUsuario()}`}
+                    href={`https://instagram.com/${instagramUsuarioDe(c)}`}
                     className={estilo.btn}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     <IconeInstagram className={estilo.btnIcone} />
-                    Seguir {EMPRESA.instagram}
+                    {c.bastidores.botao} {c.redes.instagram}
                   </a>
                 </div>
 
-                {EMPRESA.instagramFeed ? (
+                {c.redes.instagramFeed ? (
                   <InstagramFeed className={estilo.instaGrade} />
                 ) : (
                   /* O carrossel. Duas cópias da mesma lista, uma atrás da
@@ -669,18 +651,20 @@ export default function Home() {
             campos pretos, nada acontecendo. */}
         <section id="solicitar" className={`${estilo.secao} ${estilo.vivo}`}>
           <div className={`${estilo.container} ${estilo.estreito}`}>
-            <h2 className={estilo.h2}>Conta pra gente o que houve</h2>
-            <p className={estilo.lead}>
-              Respondemos em até 24 horas úteis, já com a data da retirada.
-            </p>
-            <FormularioRetirada whatsapp={EMPRESA.whatsapp} />
+            <h2 className={estilo.h2}>{c.formulario.titulo}</h2>
+            <p className={estilo.lead}>{c.formulario.lead}</p>
+            <FormularioRetirada
+              whatsapp={c.contato.whatsapp}
+              rotuloBotao={c.formulario.botao}
+              nota={c.formulario.nota}
+            />
             <p className={estilo.contatoDireto}>
-              Prefere falar agora?{' '}
+              {c.formulario.contatoDireto}{' '}
               <a
-                href={linkWhatsapp('Olá! Preciso de manutenção em um equipamento.')}
+                href={linkWhatsappDe(c, 'Olá! Preciso de manutenção em um equipamento.')}
                 className={estilo.linkZap}
               >
-                {EMPRESA.telefoneExibicao}
+                {c.contato.telefoneExibicao}
               </a>
             </p>
           </div>
@@ -693,23 +677,20 @@ export default function Home() {
             abrir outro aplicativo, e é ali que a visita termina. */}
         <section id="onde-estamos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
-            <h2 className={estilo.h2}>Onde estamos</h2>
-            <p className={estilo.lead}>
-              Assistência própria em {EMPRESA.endereco.cidade}. Retiramos e
-              entregamos, mas se preferir trazer, a porta é esta.
-            </p>
+            <h2 className={estilo.h2}>{c.onde.titulo}</h2>
+            <p className={estilo.lead}>{c.onde.lead}</p>
 
             <div className={estilo.ondeGrid}>
               <div className={estilo.ondeCartao}>
                 <p className={estilo.endereco}>
                   <IconeLocal className={estilo.enderecoIcone} />
                   <span>
-                    <strong>{EMPRESA.endereco.logradouro}, {EMPRESA.endereco.numero}</strong>
-                    {EMPRESA.endereco.complemento ? <>{' · '}{EMPRESA.endereco.complemento}</> : null}
+                    <strong>{c.endereco.logradouro}, {c.endereco.numero}</strong>
+                    {c.endereco.complemento ? <>{' · '}{c.endereco.complemento}</> : null}
                     <br />
-                    {EMPRESA.endereco.bairro} · {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+                    {c.endereco.bairro} · {c.endereco.cidade}/{c.endereco.uf}
                     <br />
-                    CEP {EMPRESA.endereco.cep}
+                    CEP {c.endereco.cep}
                   </span>
                 </p>
 
@@ -717,20 +698,20 @@ export default function Home() {
                   <div>
                     <dt>Telefone e WhatsApp</dt>
                     <dd>
-                      <a href={linkWhatsapp()}>{EMPRESA.telefoneExibicao}</a>
+                      <a href={linkWhatsappDe(c)}>{c.contato.telefoneExibicao}</a>
                     </dd>
                   </div>
-                  {EMPRESA.horarioAtendimento ? (
+                  {c.contato.horarioAtendimento ? (
                     <div>
                       <dt>Atendimento</dt>
-                      <dd>{EMPRESA.horarioAtendimento}</dd>
+                      <dd>{c.contato.horarioAtendimento}</dd>
                     </div>
                   ) : null}
-                  {EMPRESA.email ? (
+                  {c.contato.email ? (
                     <div>
                       <dt>E-mail</dt>
                       <dd>
-                        <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                        <a href={`mailto:${c.contato.email}`}>{c.contato.email}</a>
                       </dd>
                     </div>
                   ) : null}
@@ -738,23 +719,23 @@ export default function Home() {
 
                 <div className={estilo.ondeAcoes}>
                   <a
-                    href={linkMaps()}
+                    href={linkMapsDe(c)}
                     className={estilo.btn}
                     rel="noopener noreferrer"
                     target="_blank"
                   >
                     <IconeLocal className={estilo.btnIcone} />
-                    Como chegar
+                    {c.onde.botaoRota}
                   </a>
-                  {EMPRESA.googleMeuNegocio ? (
+                  {c.redes.googleMeuNegocio ? (
                     <a
-                      href={EMPRESA.googleMeuNegocio}
+                      href={c.redes.googleMeuNegocio}
                       className={`${estilo.btn} ${estilo.btnLinha}`}
                       rel="noopener noreferrer"
                       target="_blank"
                     >
                       <IconeGoogle className={estilo.btnIcone} />
-                      Ver no Google
+                      {c.onde.botaoGoogle}
                     </a>
                   ) : null}
                 </div>
@@ -766,8 +747,8 @@ export default function Home() {
                   primeira dobra numa seção que a maioria nunca alcança. */}
               <div className={estilo.mapa}>
                 <iframe
-                  src={mapaUrl()}
-                  title={`Mapa até a ${EMPRESA.nome}, em ${EMPRESA.endereco.cidade}`}
+                  src={mapaUrlDe(c)}
+                  title={`Mapa até a ${c.identidade.nome}, em ${c.endereco.cidade}`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   allowFullScreen
@@ -783,22 +764,22 @@ export default function Home() {
           <div>
             <Marca larguraPx={164} />
             <p className={estilo.rodTexto}>
-              {EMPRESA.razaoSocial}. {EMPRESA.descricaoSite}, de qualquer marca.
-              {EMPRESA.cnpj ? ` CNPJ ${EMPRESA.cnpj}.` : ''}
+              {c.identidade.razaoSocial}. {c.identidade.descricaoSite}, de qualquer marca.
+              {c.identidade.cnpj ? ` CNPJ ${c.identidade.cnpj}.` : ''}
             </p>
           </div>
           <div>
             <h3>Contato</h3>
             <ul>
               <li>
-                <a href={linkWhatsapp()}>{EMPRESA.telefoneExibicao}</a>
+                <a href={linkWhatsappDe(c)}>{c.contato.telefoneExibicao}</a>
               </li>
               {/* Campo vazio some da tela. Melhor faltar um horário do que
                   publicar um que não é o verdadeiro. */}
-              {EMPRESA.horarioAtendimento ? <li>{EMPRESA.horarioAtendimento}</li> : null}
-              {EMPRESA.email ? (
+              {c.contato.horarioAtendimento ? <li>{c.contato.horarioAtendimento}</li> : null}
+              {c.contato.email ? (
                 <li>
-                  <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                  <a href={`mailto:${c.contato.email}`}>{c.contato.email}</a>
                 </li>
               ) : null}
             </ul>
@@ -807,25 +788,25 @@ export default function Home() {
                 no rodapé ninguém lê: reconhece a forma. Cada um só aparece se
                 o endereço existir de verdade — link vazio vira 404, e 404 no
                 rodapé some do radar por meses. */}
-            {EMPRESA.instagram || EMPRESA.googleMeuNegocio ? (
+            {c.redes.instagram || c.redes.googleMeuNegocio ? (
               <p className={estilo.rodRedes}>
-                {EMPRESA.instagram ? (
+                {c.redes.instagram ? (
                   <a
-                    href={`https://instagram.com/${instagramUsuario()}`}
+                    href={`https://instagram.com/${instagramUsuarioDe(c)}`}
                     rel="noopener noreferrer"
                     target="_blank"
-                    aria-label={`Instagram da ${EMPRESA.nome}, ${EMPRESA.instagram}`}
+                    aria-label={`Instagram da ${c.identidade.nome}, ${c.redes.instagram}`}
                   >
                     <IconeInstagram />
-                    <span>{EMPRESA.instagram}</span>
+                    <span>{c.redes.instagram}</span>
                   </a>
                 ) : null}
-                {EMPRESA.googleMeuNegocio ? (
+                {c.redes.googleMeuNegocio ? (
                   <a
-                    href={EMPRESA.googleMeuNegocio}
+                    href={c.redes.googleMeuNegocio}
                     rel="noopener noreferrer"
                     target="_blank"
-                    aria-label={`Perfil da ${EMPRESA.nome} no Google, com as avaliações`}
+                    aria-label={`Perfil da ${c.identidade.nome} no Google, com as avaliações`}
                   >
                     <IconeGoogle />
                     <span>Avaliar no Google</span>
@@ -838,19 +819,19 @@ export default function Home() {
             <h3>Endereço</h3>
             <ul>
               <li>
-                {EMPRESA.endereco.logradouro}, {EMPRESA.endereco.numero}
+                {c.endereco.logradouro}, {c.endereco.numero}
               </li>
-              <li>{EMPRESA.endereco.bairro}</li>
+              <li>{c.endereco.bairro}</li>
               <li>
-                {EMPRESA.endereco.cidade} · {EMPRESA.endereco.uf}
+                {c.endereco.cidade} · {c.endereco.uf}
               </li>
-              <li>CEP {EMPRESA.endereco.cep}</li>
+              <li>CEP {c.endereco.cep}</li>
             </ul>
           </div>
         </div>
         <div className={`${estilo.container} ${estilo.rodFim}`}>
           <span>
-            © {anoAtual} {EMPRESA.razaoSocial}
+            © {anoAtual} {c.identidade.razaoSocial}
           </span>
           <Credito className={estilo.credito} />
           <Link href="/entrar">Acesso ao sistema</Link>

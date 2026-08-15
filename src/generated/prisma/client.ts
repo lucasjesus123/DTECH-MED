@@ -174,3 +174,30 @@ export type AuditLog = Prisma.AuditLogModel
  * Incrementada com bloqueio de linha dentro da transação.
  */
 export type Contador = Prisma.ContadorModel
+/**
+ * Model ConteudoSite
+ * ---------------------------------------------------------------------------
+ * CONTEÚDO DO SITE
+ * ---------------------------------------------------------------------------
+ * O texto e as escolhas do site institucional, editáveis pelo painel do Super
+ * Admin em vez de por alteração de código.
+ * 
+ * Uma LINHA SÓ, de id fixo. O site é um: o da matriz. Não é conteúdo de
+ * franquia — se fosse, teria `tenantId` e cada uma editaria o seu. Fixar o id
+ * é o que impede duas linhas concorrentes existirem e ninguém saber qual vale.
+ * 
+ * O conteúdo vai em `Json` e não em cinquenta colunas porque ele MUDA de forma:
+ * hoje são seis serviços, amanhã são oito, depois entra uma seção nova. Cada
+ * mudança dessas viraria uma migração de banco. A forma é garantida na
+ * entrada, por um esquema de validação, e não pelo formato da tabela.
+ */
+export type ConteudoSite = Prisma.ConteudoSiteModel
+/**
+ * Model ConteudoSiteVersao
+ * Cada gravação vira uma linha aqui, ANTES de o conteúdo novo entrar.
+ * 
+ * Sem isto, um deslize na tela de edição apaga o texto do site e não há como
+ * voltar: o conteúdo anterior não existe em lugar nenhum. Com isto, voltar é
+ * escolher uma linha e apertar um botão.
+ */
+export type ConteudoSiteVersao = Prisma.ConteudoSiteVersaoModel

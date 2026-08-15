@@ -420,7 +420,9 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
-  Contador: 'Contador'
+  Contador: 'Contador',
+  ConteudoSite: 'ConteudoSite',
+  ConteudoSiteVersao: 'ConteudoSiteVersao'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -436,7 +438,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2216,6 +2218,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ConteudoSite: {
+      payload: Prisma.$ConteudoSitePayload<ExtArgs>
+      fields: Prisma.ConteudoSiteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConteudoSiteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConteudoSiteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        findFirst: {
+          args: Prisma.ConteudoSiteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConteudoSiteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        findMany: {
+          args: Prisma.ConteudoSiteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>[]
+        }
+        create: {
+          args: Prisma.ConteudoSiteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        createMany: {
+          args: Prisma.ConteudoSiteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConteudoSiteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>[]
+        }
+        delete: {
+          args: Prisma.ConteudoSiteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        update: {
+          args: Prisma.ConteudoSiteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        deleteMany: {
+          args: Prisma.ConteudoSiteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConteudoSiteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConteudoSiteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>[]
+        }
+        upsert: {
+          args: Prisma.ConteudoSiteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSitePayload>
+        }
+        aggregate: {
+          args: Prisma.ConteudoSiteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConteudoSite>
+        }
+        groupBy: {
+          args: Prisma.ConteudoSiteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConteudoSiteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConteudoSiteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConteudoSiteCountAggregateOutputType> | number
+        }
+      }
+    }
+    ConteudoSiteVersao: {
+      payload: Prisma.$ConteudoSiteVersaoPayload<ExtArgs>
+      fields: Prisma.ConteudoSiteVersaoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConteudoSiteVersaoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConteudoSiteVersaoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        findFirst: {
+          args: Prisma.ConteudoSiteVersaoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConteudoSiteVersaoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        findMany: {
+          args: Prisma.ConteudoSiteVersaoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>[]
+        }
+        create: {
+          args: Prisma.ConteudoSiteVersaoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        createMany: {
+          args: Prisma.ConteudoSiteVersaoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConteudoSiteVersaoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>[]
+        }
+        delete: {
+          args: Prisma.ConteudoSiteVersaoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        update: {
+          args: Prisma.ConteudoSiteVersaoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConteudoSiteVersaoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConteudoSiteVersaoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConteudoSiteVersaoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConteudoSiteVersaoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConteudoSiteVersaoPayload>
+        }
+        aggregate: {
+          args: Prisma.ConteudoSiteVersaoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConteudoSiteVersao>
+        }
+        groupBy: {
+          args: Prisma.ConteudoSiteVersaoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConteudoSiteVersaoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConteudoSiteVersaoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConteudoSiteVersaoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2778,6 +2928,31 @@ export const ContadorScalarFieldEnum = {
 export type ContadorScalarFieldEnum = (typeof ContadorScalarFieldEnum)[keyof typeof ContadorScalarFieldEnum]
 
 
+export const ConteudoSiteScalarFieldEnum = {
+  id: 'id',
+  dados: 'dados',
+  versao: 'versao',
+  atualizadoEm: 'atualizadoEm',
+  atualizadoPorId: 'atualizadoPorId'
+} as const
+
+export type ConteudoSiteScalarFieldEnum = (typeof ConteudoSiteScalarFieldEnum)[keyof typeof ConteudoSiteScalarFieldEnum]
+
+
+export const ConteudoSiteVersaoScalarFieldEnum = {
+  id: 'id',
+  siteId: 'siteId',
+  versao: 'versao',
+  dados: 'dados',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  nota: 'nota',
+  criadoEm: 'criadoEm'
+} as const
+
+export type ConteudoSiteVersaoScalarFieldEnum = (typeof ConteudoSiteVersaoScalarFieldEnum)[keyof typeof ConteudoSiteVersaoScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3335,6 +3510,8 @@ export type GlobalOmitConfig = {
   lead?: Prisma.LeadOmit
   auditLog?: Prisma.AuditLogOmit
   contador?: Prisma.ContadorOmit
+  conteudoSite?: Prisma.ConteudoSiteOmit
+  conteudoSiteVersao?: Prisma.ConteudoSiteVersaoOmit
 }
 
 /* Types for Logging */

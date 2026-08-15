@@ -17,7 +17,15 @@ const inicial: RespostaLead = { ok: false, motivo: '' }
  * que o técnico lê antes de encostar no aparelho, e "faz um barulho quando
  * esquenta" vale mais que qualquer código de erro escolhido de uma lista.
  */
-export function FormularioRetirada({ whatsapp }: { whatsapp: string }) {
+export function FormularioRetirada({
+  whatsapp,
+  rotuloBotao,
+  nota,
+}: {
+  whatsapp: string
+  rotuloBotao: string
+  nota: string
+}) {
   const [estado, acao, pendente] = useActionState(pedirRetirada, inicial)
 
   if (estado.ok) {
@@ -92,12 +100,11 @@ export function FormularioRetirada({ whatsapp }: { whatsapp: string }) {
       </div>
 
       <button type="submit" className={estilo.btn} disabled={pendente}>
-        {pendente ? 'Enviando…' : 'Solicitar retirada'}
+        {pendente ? 'Enviando…' : rotuloBotao}
       </button>
 
       <p className={estilo.formNota}>
-        Usamos seus dados só para atender este chamado. Nada de lista de
-        disparo.
+        {nota}
       </p>
     </form>
   )
