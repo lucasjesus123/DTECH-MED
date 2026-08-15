@@ -10,6 +10,7 @@ import { FundoVideo } from './fundo-video'
 import {
   ICONES,
   IconeEstrela,
+  IconeGoogle,
   IconeInstagram,
   IconeLocal,
   IconeSeta,
@@ -98,6 +99,28 @@ const TEM_POSTER = existsSync(path.join(process.cwd(), 'public', 'video', 'ofici
  * de verdade.
  */
 const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
+
+/**
+ * As fotos da faixa do perfil do Google, na ordem em que fazem sentido para
+ * quem está decidindo se manda o aparelho: primeiro a oficina, depois a mão
+ * trabalhando, depois os tipos de equipamento.
+ *
+ * A lista é filtrada no build: só sobra o que existe em `public/fotos/`. Se
+ * nada existir, a faixa inteira some, e a seção continua de pé com as
+ * avaliações — que é o essencial dela.
+ */
+const FOTOS_DO_PERFIL = (
+  [
+    ['oficina', 'A oficina, com equipamentos em atendimento'],
+    ['bancada', 'Técnico trabalhando na placa de um equipamento aberto'],
+    ['estetica', 'Equipamento estético em manutenção'],
+    ['medico', 'Equipamento médico em manutenção'],
+    ['odontologico', 'Equipamento odontológico em manutenção'],
+    ['hospitalar', 'Equipamento hospitalar em manutenção'],
+  ] as const
+)
+  .filter(([nome]) => acharFoto(nome) !== null)
+  .map(([nome, alt]) => ({ nome, alt }))
 
 /** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
 const ETAPAS = [
@@ -420,59 +443,112 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= AVALIAÇÕES DO GOOGLE ================= */}
-        <section className={estilo.secao} aria-labelledby="tit-google">
-          <div className={estilo.container}>
-            <div className={estilo.notaBloco}>
-              <p className={estilo.notaValor}>
-                {EMPRESA.google.nota.toFixed(1).replace('.', ',')}
-              </p>
-              <p className={estilo.notaEstrelas} aria-hidden="true">
-                {Array.from({ length: EMPRESA.google.nota }, (_, i) => (
-                  <IconeEstrela key={i} />
-                ))}
-              </p>
-              <h2 id="tit-google" className={estilo.notaTexto}>
-                {EMPRESA.google.nota} de 5 no Google, em{' '}
-                {EMPRESA.google.quantidade} avaliações
-              </h2>
-            </div>
+        {/* ================= AVALIAÇÕES DO GOOGLE =================
+            Montado como o painel do Google Meu Negócio: o "G" à vista, o nome
+            e a categoria do jeito que o Google mostra, a nota, as avaliações
+            com a bolinha de inicial, e a faixa de fotos embaixo.
 
-            <ul className={estilo.avaliacoes}>
-              {EMPRESA.google.avaliacoes.map((a) => (
-                <li key={a.autor} className={estilo.avaliacao}>
-                  <p className={estilo.avEstrelas} aria-label={`${a.nota} de 5 estrelas`}>
-                    {Array.from({ length: a.nota }, (_, i) => (
+            A forma emprestada não é enfeite: nota de cinco estrelas escrita
+            num site qualquer não vale nada, e a mesma nota com a cara da fonte
+            de onde ela veio vale. Nenhum número aqui é inventado — todos saem
+            do perfil real, transcritos em `src/lib/empresa.ts`. */}
+        <section className={`${estilo.secao} ${estilo.vivo}`} aria-labelledby="tit-google">
+          <div className={estilo.container}>
+            <div className={estilo.gmn}>
+              <div className={estilo.gmnTopo}>
+                <IconeGoogle className={estilo.gmnG} />
+                <div>
+                  <strong className={estilo.gmnNome}>{EMPRESA.nome}</strong>
+                  <span className={estilo.gmnCategoria}>
+                    Assistência técnica · {EMPRESA.endereco.cidade}, {EMPRESA.endereco.uf}
+                  </span>
+                </div>
+              </div>
+
+              <div className={estilo.gmnNota}>
+                <p className={estilo.notaValor}>
+                  {EMPRESA.google.nota.toFixed(1).replace('.', ',')}
+                </p>
+                <div>
+                  <p className={estilo.notaEstrelas} aria-hidden="true">
+                    {Array.from({ length: EMPRESA.google.nota }, (_, i) => (
                       <IconeEstrela key={i} />
                     ))}
                   </p>
-                  {/* Avaliação sem texto escrito é comum, e inventar uma frase
-                      no lugar seria falsificar depoimento de cliente real. */}
-                  {a.texto ? (
-                    <blockquote className={estilo.avTexto}>{a.texto}</blockquote>
-                  ) : (
-                    <p className={estilo.avSemTexto}>Avaliou com {a.nota} estrelas.</p>
-                  )}
-                  <p className={estilo.avAutor}>
-                    <strong>{a.autor}</strong>
-                    <span>{a.quando}</span>
-                  </p>
-                </li>
-              ))}
-            </ul>
+                  <h2 id="tit-google" className={estilo.notaTexto}>
+                    {EMPRESA.google.nota} de 5 no Google, em{' '}
+                    {EMPRESA.google.quantidade} avaliações
+                  </h2>
+                </div>
+              </div>
 
-            {EMPRESA.googleMeuNegocio ? (
-              <p className={estilo.centralizado}>
-                <a
-                  href={EMPRESA.googleMeuNegocio}
-                  className={`${estilo.btn} ${estilo.btnLinha}`}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Ver todas as avaliações no Google
-                </a>
-              </p>
-            ) : null}
+              <ul className={estilo.avaliacoes}>
+                {EMPRESA.google.avaliacoes.map((a) => (
+                  <li key={a.autor} className={estilo.avaliacao}>
+                    <div className={estilo.avCabeca}>
+                      {/* A bolinha com a inicial é o que o Google mostra quando
+                          a pessoa não tem foto de perfil. Puxar a foto de
+                          verdade exigiria a API do Google e o consentimento
+                          dela; a inicial dá o mesmo reconhecimento sem isso. */}
+                      <span className={estilo.avInicial} aria-hidden="true">
+                        {a.autor.trim().charAt(0).toUpperCase()}
+                      </span>
+                      <span className={estilo.avAutor}>
+                        <strong>{a.autor}</strong>
+                        <span>{a.quando}</span>
+                      </span>
+                    </div>
+                    <p className={estilo.avEstrelas} aria-label={`${a.nota} de 5 estrelas`}>
+                      {Array.from({ length: a.nota }, (_, i) => (
+                        <IconeEstrela key={i} />
+                      ))}
+                    </p>
+                    {/* Avaliação sem texto escrito é comum, e inventar uma frase
+                        no lugar seria falsificar depoimento de cliente real. */}
+                    {a.texto ? (
+                      <blockquote className={estilo.avTexto}>{a.texto}</blockquote>
+                    ) : (
+                      <p className={estilo.avSemTexto}>Avaliou com {a.nota} estrelas.</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              {/* A faixa de fotos, como a aba "Fotos" do perfil. Só entra se
+                  houver foto: uma faixa vazia com título "Fotos" é pior que
+                  faixa nenhuma. */}
+              {FOTOS_DO_PERFIL.length > 0 ? (
+                <div className={estilo.gmnFotos}>
+                  <p className={estilo.gmnFotosTit}>Fotos da oficina</p>
+                  <ul className={estilo.gmnTira}>
+                    {FOTOS_DO_PERFIL.map(({ nome, alt }) => (
+                      <li key={nome} className={estilo.gmnTiraItem}>
+                        <Foto
+                          nome={nome}
+                          alt={alt}
+                          larguras="(max-width: 720px) 45vw, 220px"
+                          className={estilo.gmnTiraImg}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {EMPRESA.googleMeuNegocio ? (
+                <p className={estilo.gmnAcao}>
+                  <a
+                    href={EMPRESA.googleMeuNegocio}
+                    className={`${estilo.btn} ${estilo.btnLinha}`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <IconeGoogle className={estilo.btnIcone} />
+                    Ver todas as avaliações no Google
+                  </a>
+                </p>
+              ) : null}
+            </div>
           </div>
         </section>
 
@@ -501,7 +577,11 @@ export default function Home() {
         ) : null}
 
         {/* ================= SOLICITAR ================= */}
-        <section id="solicitar" className={estilo.secao}>
+        {/* `vivo` põe o fundo animado atrás desta seção. Ela é a seção que
+            decide o negócio — é onde a pessoa escreve o que houve com o
+            aparelho — e estava sendo a mais apagada da página: preto liso,
+            campos pretos, nada acontecendo. */}
+        <section id="solicitar" className={`${estilo.secao} ${estilo.vivo}`}>
           <div className={`${estilo.container} ${estilo.estreito}`}>
             <h2 className={estilo.h2}>Conta pra gente o que houve</h2>
             <p className={estilo.lead}>

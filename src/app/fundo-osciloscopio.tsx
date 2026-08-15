@@ -40,11 +40,29 @@ import estilo from './site.module.css'
  *    está atrás.
  */
 
-/** Dois traços: o de cima é o sinal medido, o de baixo é a referência. */
+/**
+ * Dois traços: o de cima é o sinal medido, o de baixo é a referência.
+ *
+ * As opacidades e os brilhos foram baixados depois de ver a página no ar. O
+ * desenho estava competindo com a chamada em vez de ficar atrás dela: a onda
+ * cruzava o texto e o olho ia junto com ela. Fundo bom é o que só se nota
+ * quando se procura.
+ *
+ * Se um dia quiser voltar a subir, mexa aqui e em GRADE logo abaixo — os dois
+ * juntos, senão a grade fica mais forte que o sinal, que é o contrário de um
+ * osciloscópio de verdade.
+ */
 const TRACOS = [
-  { amplitude: 0.20, frequencia: 1.7, velocidade: 0.55, largura: 1.8, opacidade: 1.0, brilho: 16 },
-  { amplitude: 0.11, frequencia: 2.9, velocidade: -0.34, largura: 1.1, opacidade: 0.45, brilho: 8 },
+  { amplitude: 0.20, frequencia: 1.7, velocidade: 0.55, largura: 1.4, opacidade: 0.4, brilho: 9 },
+  { amplitude: 0.11, frequencia: 2.9, velocidade: -0.34, largura: 1.0, opacidade: 0.18, brilho: 5 },
 ] as const
+
+/** As três camadas da grade, da mais discreta para a mais forte. */
+const GRADE = {
+  quadriculado: 0.24,
+  linhaDeZero: 0.28,
+  marcasDeEscala: 0.2,
+} as const
 
 export function FundoOsciloscopio() {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -88,7 +106,7 @@ export function FundoOsciloscopio() {
       const passo = 44 * dpr
       gc.lineWidth = 1
       gc.strokeStyle = cor.linha
-      gc.globalAlpha = 0.5
+      gc.globalAlpha = GRADE.quadriculado
 
       gc.beginPath()
       for (let x = 0; x <= larg; x += passo) {
@@ -102,7 +120,7 @@ export function FundoOsciloscopio() {
       gc.stroke()
 
       // A linha de zero, mais forte: é a referência contra a qual se mede.
-      gc.globalAlpha = 0.55
+      gc.globalAlpha = GRADE.linhaDeZero
       gc.strokeStyle = cor.eixo
       gc.beginPath()
       gc.moveTo(0, Math.round(alt / 2) + 0.5)
@@ -110,7 +128,7 @@ export function FundoOsciloscopio() {
       gc.stroke()
 
       // Marcas de escala no eixo, como as de um instrumento de verdade.
-      gc.globalAlpha = 0.4
+      gc.globalAlpha = GRADE.marcasDeEscala
       gc.beginPath()
       for (let x = 0; x <= larg; x += passo / 4) {
         gc.moveTo(Math.round(x) + 0.5, alt / 2 - 3 * dpr)

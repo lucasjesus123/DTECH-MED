@@ -509,6 +509,93 @@
   color: var(--txt);
 }
 
+/* ==========================================================================
+   FUNDO VIVO
+   --------------------------------------------------------------------------
+   Uma classe que se acrescenta a `.secao` e a enche de movimento: tres
+   manchas de luz violeta que passeiam devagar, uma malha tecnica por cima, e
+   um brilho que corre a borda de baixo.
+
+   Tudo em CSS, sem uma linha de JavaScript. Isso importa por tres motivos:
+   nao pesa no pacote que o visitante baixa, nao trava enquanto a pagina
+   carrega, e o navegador roda as animacoes na placa de video, fora da linha
+   principal, porque elas mexem SO em `transform` e `opacity`.
+
+   As manchas ficam em `::before`, a malha em `::after`, ambos com `z-index`
+   negativo e `pointer-events: none`, entao nao atrapalham clique nem selecao
+   de texto. `isolation: isolate` prende o empilhamento na propria secao, para
+   o fundo nunca subir por cima do conteudo da secao vizinha.
+   ========================================================================== */
+
+.vivo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* As manchas de luz. Tres gradientes radiais num elemento so, girando e
+   respirando juntos: um unico elemento animado em vez de tres. */
+.vivo::before {
+  content: '';
+  position: absolute;
+  /* Maior que a secao de proposito: as manchas entram e saem pela borda em
+     vez de encostarem e pararem, que e o que denuncia o truque. */
+  inset: -35%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 22% 28%, color-mix(in oklab, var(--vio) 46%, transparent), transparent 68%),
+    radial-gradient(32% 38% at 78% 22%, color-mix(in oklab, var(--acao) 34%, transparent), transparent 66%),
+    radial-gradient(42% 44% at 62% 82%, color-mix(in oklab, var(--vio-forte) 52%, transparent), transparent 70%);
+  filter: blur(46px);
+  opacity: .5;
+  animation: passear 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* A malha tecnica, que amarra o fundo ao assunto: quem calibra trabalha sobre
+   grade. Ela desliza um quadrado inteiro e volta ao inicio, entao o laco e
+   invisivel. A mascara a apaga nas bordas, senao a secao ganha uma moldura
+   quadriculada que ninguem pediu. */
+.vivo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--vio-claro) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--vio-claro) 12%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(78% 68% at 50% 45%, #000 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(78% 68% at 50% 45%, #000 30%, transparent 100%);
+  animation: correrMalha 24s linear infinite;
+  will-change: background-position;
+}
+
+@keyframes passear {
+  0%   { transform: translate3d(-4%, -3%, 0) scale(1);    opacity: .52; }
+  50%  { transform: translate3d( 3%,  4%, 0) scale(1.14); opacity: .72; }
+  100% { transform: translate3d( 5%, -2%, 0) scale(1.04); opacity: .56; }
+}
+
+@keyframes correrMalha {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 56px 56px, 56px 56px; }
+}
+
+/* Movimento reduzido: as manchas ficam, paradas e mais discretas. Apagar o
+   fundo inteiro puniria quem pediu menos movimento com uma pagina mais pobre;
+   o que incomoda e o movimento, nao a cor. */
+@media (prefers-reduced-motion: reduce) {
+  .vivo::before {
+    animation: none;
+    opacity: .34;
+    transform: none;
+  }
+  .vivo::after { animation: none; }
+}
+
 /* A superfície clara NÃO é declarada aqui. Ela é a classe global `.claro` de
    globals.css, que reescreve os tokens (--bg, --txt, --vio…) para o ramo em
    que aparece. Declarar uma `.claro` local neste módulo faria o CSS Modules
@@ -961,12 +1048,58 @@
    AVALIAÇÕES DO GOOGLE
    ========================================================================== */
 
-.notaBloco { text-align: center; }
+/* O painel inteiro, emprestando a forma do cartao do Google Meu Negocio: uma
+   caixa unica, com o cabecalho identificando a fonte. Solto na pagina, o "5,0"
+   era so um numero grande; dentro de uma moldura com o "G" em cima, ele vira
+   uma nota de terceiro, que e o que ele e. */
+.gmn {
+  max-width: 900px;
+  margin-inline: auto;
+  padding: clamp(var(--s5), 4vw, var(--s7));
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  box-shadow: 0 24px 60px -40px rgb(0 0 0 / .9);
+}
+
+.gmnTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding-bottom: var(--s5);
+  border-bottom: 1px solid var(--borda);
+}
+
+.gmnG { width: 30px; height: 30px; flex: none; }
+
+.gmnNome {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+
+.gmnCategoria {
+  display: block;
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
+
+/* Nota e estrelas lado a lado, e nao empilhadas no centro: e assim que o
+   Google mostra, e a leitura fica em uma linha so. */
+.gmnNota {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  padding: var(--s6) 0 0;
+}
 
 .notaValor {
   margin: 0;
   font-family: var(--f-display);
-  font-size: clamp(var(--t-4xl), 9vw, var(--t-5xl));
+  font-size: clamp(var(--t-3xl), 7vw, var(--t-4xl));
   font-weight: 700;
   line-height: 1;
   letter-spacing: -.04em;
@@ -976,14 +1109,13 @@
 
 .notaEstrelas {
   display: flex;
-  justify-content: center;
   gap: var(--s1);
-  margin: var(--s3) 0 0;
+  margin: 0;
   color: var(--espera);
 }
 
 .notaTexto {
-  margin: var(--s4) 0 0;
+  margin: var(--s2) 0 0;
   font-family: var(--f-texto);
   font-size: var(--t-base);
   font-weight: 400;
@@ -992,21 +1124,105 @@
 
 .avaliacoes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: var(--s5);
-  margin: var(--s8) 0 0;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--s4);
+  margin: var(--s6) 0 0;
   padding: 0;
   list-style: none;
+}
+
+/* --- cabeca da avaliacao: bolinha com a inicial + nome ------------------- */
+
+.avCabeca {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.avInicial {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--vio) 0%, var(--vio-forte) 100%);
+  color: #fff;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* --- a faixa de fotos, como a aba "Fotos" do perfil ---------------------- */
+
+.gmnFotos {
+  margin-top: var(--s6);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--borda);
+}
+
+.gmnFotosTit {
+  margin: 0 0 var(--s3);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+
+/* Rola de lado em vez de quebrar em varias linhas: com duas fotos hoje e seis
+   amanha, a faixa nao muda de altura nem deixa buraco na grade. */
+.gmnTira {
+  display: flex;
+  gap: var(--s3);
+  margin: 0;
+  padding: 0 0 var(--s2);
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.gmnTiraItem {
+  position: relative;
+  flex: none;
+  width: clamp(150px, 40vw, 220px);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+  scroll-snap-align: start;
+}
+
+.gmnTiraImg {
+  object-fit: cover;
+  transition: transform 420ms var(--ease);
+}
+
+.gmnTiraItem:hover .gmnTiraImg { transform: scale(1.05); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gmnTiraItem:hover .gmnTiraImg { transform: none; }
+}
+
+.gmnAcao {
+  margin: var(--s6) 0 0;
+  text-align: center;
 }
 
 .avaliacao {
   display: grid;
   align-content: start;
   gap: var(--s3);
-  padding: var(--s5);
+  padding: var(--s4);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  background: var(--sup);
+  /* Um degrau acima do fundo do painel. Com a mesma cor de `.gmn`, os tres
+     cartoes sumiam dentro da moldura e viravam um bloco de texto so. */
+  background: var(--sup-2);
 }
 
 .avEstrelas {
@@ -1018,8 +1234,10 @@
 
 .avTexto {
   margin: 0;
-  font-size: var(--t-lg);
-  line-height: 1.5;
+  /* Era `--t-lg`, quando o depoimento era o maior elemento da secao. Dentro do
+     painel ele nao pode competir com a nota; `--t-base` o poe no lugar. */
+  font-size: var(--t-base);
+  line-height: 1.55;
   color: var(--txt);
   font-style: normal;
 }
@@ -1032,10 +1250,13 @@
 
 .avAutor {
   display: grid;
-  gap: 2px;
+  gap: 1px;
   margin: 0;
+  min-width: 0;
   font-size: var(--t-sm);
 }
+/* Nome comprido de clinica nao pode empurrar a bolinha para fora do cartao. */
+.avAutor strong { overflow-wrap: anywhere; }
 .avAutor strong { color: var(--txt); font-weight: 600; }
 .avAutor span { color: var(--txt-3); }
 
@@ -1410,9 +1631,23 @@
   cursor: progress;
 }
 
+/* O campo de texto longo fica FORA de `.formGrade` (ele ocupa a largura toda,
+   nao entra na grade de duas colunas). Por isso nao herdava o `gap` dela, e o
+   rotulo "O que esta acontecendo?" nascia colado no campo de cima. */
+.formSite > .formCampo {
+  margin-top: var(--s5);
+}
+
+/* O botao de enviar precisa de folga por cima. Ele encostava exatamente na
+   borda do campo de texto — sem sobreposicao de layout, mas o halo neon subia
+   por cima do campo e a leitura era de dois elementos colados. */
+.formSite > button[type='submit'] {
+  margin-top: var(--s5);
+}
+
 .formNota {
   grid-column: 1 / -1;
-  margin: 0;
+  margin: var(--s4) 0 0;
   font-size: var(--t-sm);
   color: var(--txt-3);
 }
@@ -1464,7 +1699,34 @@
 }
 
 /* Campo do site oficial, usado pelo formulário para separar a origem. */
-.formSite { grid-column: 1 / -1; }
+/* O formulario, sobre o fundo animado, vira um painel de vidro: translucido,
+   com as manchas de luz passando por tras dele desfocadas.
+
+   `backdrop-filter` e caro em area grande, mas aqui a area e um cartao, nao a
+   tela toda — e o ganho e o que separa o formulario do fundo sem precisar de
+   uma cor chapada que mataria o movimento atras.
+
+   O `@supports` importa: sem ele, num navegador que nao faz `backdrop-filter`
+   o formulario ficaria transparente de verdade, com a malha quadriculada
+   passando por cima dos campos. Por isso o fundo opaco vem primeiro, como
+   base, e so e trocado pelo translucido onde o desfoque existe. */
+.formSite {
+  grid-column: 1 / -1;
+  margin-top: var(--s6);
+  padding: clamp(var(--s5), 4vw, var(--s6));
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  box-shadow: 0 30px 70px -50px rgb(0 0 0 / 1);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .formSite {
+    background: color-mix(in oklab, var(--sup) 62%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    backdrop-filter: blur(14px) saturate(1.15);
+  }
+}
 
 /* --- Crédito de quem construiu -------------------------------------------
    Discreto, mas com o link legível. Sublinhado com folga, para o traço não
