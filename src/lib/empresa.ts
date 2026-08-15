@@ -248,7 +248,7 @@ export const EMPRESA: DadosEmpresa = {
     {
       titulo: 'Garantia completa',
       texto:
-        'Cobrimos com garantia os equipamentos e as manutenções realizadas na nossa oficina.',
+        'Cobrimos com garantia os equipamentos e as manutenções feitas aqui na assistência.',
       icone: 'escudo',
     },
   ],

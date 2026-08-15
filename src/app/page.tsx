@@ -120,7 +120,7 @@ const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
  */
 const FOTOS_DO_PERFIL = (
   [
-    ['oficina', 'A oficina, com vários equipamentos estéticos em atendimento'],
+    ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
     ['bancada', 'Técnico com luva segurando a ponteira aberta'],
     ['estetica', 'Aparelho de ozonioterapia sendo configurado'],
     ['medico', 'Placa de circuito aberta na bancada'],
@@ -141,7 +141,7 @@ const FOTOS_DO_PERFIL = (
 const FOTOS_BASTIDORES = (
   [
     ['bancada', 'Técnico com luva segurando a ponteira aberta, painel de ferramentas ao fundo'],
-    ['oficina', 'A oficina, com vários equipamentos estéticos em atendimento'],
+    ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
     ['medico', 'Placa de circuito aberta na bancada, ao lado da pasta térmica'],
     ['estetica', 'Aparelho de ozonioterapia sendo configurado no painel'],
     ['bancada2', 'Técnico com o módulo retirado de dentro da ponteira'],
@@ -166,7 +166,7 @@ const TEM_BASTIDORES =
 /** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
 const ETAPAS = [
   ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 · 14:22'],
-  ['Recebido na oficina · 8 fotos', 'Técnico · Rafael S.', '08/08 · 17:05'],
+  ['Recebido na assistência · 8 fotos', 'Técnico · Rafael S.', '08/08 · 17:05'],
   ['Laudo e orçamento enviados', 'Gestora · Camila R.', '09/08 · 10:40'],
   ['Orçamento aprovado e assinado', 'Cliente · portal, CNPJ conferido', '09/08 · 16:18'],
   ['Em manutenção · troca da fonte', 'Técnico · Rafael S.', '12/08 · 09:12'],
@@ -230,7 +230,7 @@ export default function Home() {
             <div className={estilo.dobraFoto}>
               <Foto
                 nome="oficina"
-                alt="Bancada da oficina, com um equipamento aberto em manutenção"
+                alt="Bancada da assistência, com um equipamento aberto em manutenção"
                 prioridade
                 larguras="100vw"
                 className={estilo.dobraFotoImg}
@@ -393,7 +393,7 @@ export default function Home() {
                 Seu equipamento tem <em>prontuário</em>
               </h2>
               <p className={estilo.lead}>
-                Toda oficina promete avisar. A diferença aqui é que o aviso não
+                Toda assistência promete avisar. A diferença aqui é que o aviso não
                 depende de alguém lembrar: a mensagem sai sozinha quando a etapa
                 vira, e fica registrada.
               </p>
@@ -560,7 +560,7 @@ export default function Home() {
                   faixa nenhuma. */}
               {FOTOS_DO_PERFIL.length > 0 ? (
                 <div className={estilo.gmnFotos}>
-                  <p className={estilo.gmnFotosTit}>Fotos da oficina</p>
+                  <p className={estilo.gmnFotosTit}>Fotos da assistência</p>
                   <ul className={estilo.gmnTira}>
                     {FOTOS_DO_PERFIL.map(({ nome, alt }) => (
                       <li key={nome} className={estilo.gmnTiraItem}>
@@ -609,7 +609,7 @@ export default function Home() {
                 <div>
                   <IconeInstagram className={estilo.instaIcone} />
                   <h2 id="tit-insta" className={estilo.h2}>
-                    Bastidores da oficina
+                    Bastidores da assistência
                   </h2>
                   <p className={estilo.lead}>
                     Equipamento aberto, peça trocada, teste final. O que acontece
@@ -695,7 +695,7 @@ export default function Home() {
           <div className={estilo.container}>
             <h2 className={estilo.h2}>Onde estamos</h2>
             <p className={estilo.lead}>
-              Oficina própria em {EMPRESA.endereco.cidade}. Retiramos e
+              Assistência própria em {EMPRESA.endereco.cidade}. Retiramos e
               entregamos, mas se preferir trazer, a porta é esta.
             </p>
 

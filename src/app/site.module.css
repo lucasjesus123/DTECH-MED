@@ -71,6 +71,18 @@
    passa a pedir uma ação — e centralizar tira a distração da lateral. O resto
    do site segue o trilho da esquerda. */
 .estreito > * { max-width: 720px; margin-inline: auto; }
+
+/* O título, o parágrafo e a linha do telefone centralizados junto com o
+   painel. Antes só o painel estava no meio e os textos ficavam encostados na
+   esquerda: a seção parecia dois blocos diferentes empilhados por engano.
+
+   Vale só para os filhos DIRETOS. Dentro do formulário nada é centralizado —
+   rótulo de campo centralizado obriga o olho a procurar onde cada um começa, e
+   formulário se lê descendo pela borda esquerda dos campos. */
+.estreito > h2,
+.estreito > p {
+  text-align: center;
+}
 .centralizado { text-align: center; margin-top: var(--s6); }
 
 /* ==========================================================================
@@ -421,24 +433,69 @@
 
    Divisores em vez de quatro caixas: card do mesmo tamanho repetido quatro
    vezes é o container preguiçoso. Uma linha entre eles agrupa sem encaixotar. */
+/* A barra de números, agora numa placa de vidro.
+   -------------------------------------------------------------------------
+   Ela nasceu sobre um fundo desenhado, onde uma linha fina bastava para
+   separá-la. Com a foto da assistência atrás, os números passaram a disputar
+   com o que estava na imagem: o "5,0" caía em cima de um aparelho branco e o
+   rótulo cinza sumia.
+
+   A placa resolve os dois de uma vez — desfoca o que está atrás e devolve um
+   fundo estável para o texto, sem tapar a foto. E ganha divisórias entre os
+   números, que é o que faz quatro dados lidos em fila não virarem uma frase
+   só. */
 .provas {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, auto));
-  justify-content: start;
-  gap: var(--s6);
-  margin: var(--s8) 0 0;
-  padding-top: var(--s5);
-  border-top: 1px solid var(--borda);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: var(--s7) 0 0;
+  padding: var(--s5) var(--s4);
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid color-mix(in oklab, var(--borda-viva) 70%, transparent);
+  border-radius: var(--r-lg);
+  background: color-mix(in oklab, var(--bg) 55%, transparent);
+  box-shadow: 0 20px 50px -40px rgb(0 0 0 / 1);
 }
 
-.provas > div { display: grid; gap: var(--s1); }
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .provas {
+    background: color-mix(in oklab, var(--bg) 34%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.2);
+  }
+}
+
+.provas > div {
+  display: grid;
+  gap: var(--s2);
+  padding-inline: clamp(var(--s4), 2.4vw, var(--s6));
+}
+
+/* Divisória entre um número e o outro, menos antes do primeiro. */
+.provas > div + div {
+  border-left: 1px solid color-mix(in oklab, var(--borda-viva) 55%, transparent);
+}
+
+@media (max-width: 720px) {
+  .provas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s5) 0;
+    width: 100%;
+  }
+  /* Em duas colunas, a divisória da esquerda cai no terceiro item, que agora
+     começa uma linha nova — e divisória no começo da linha parece defeito. */
+  .provas > div:nth-child(odd) { border-left: 0; }
+}
 
 .provas dt {
   order: 2;
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: var(--txt-3);
+  /* Um degrau mais claro que `--txt-3`: sobre a placa translúcida com a foto
+     por trás, o cinza mais escuro perdia contraste. */
+  color: var(--txt-2);
 }
 
 .provas dd {
@@ -1931,15 +1988,28 @@
 
 /* O botao de enviar precisa de folga por cima. Ele encostava exatamente na
    borda do campo de texto — sem sobreposicao de layout, mas o halo neon subia
-   por cima do campo e a leitura era de dois elementos colados. */
+   por cima do campo e a leitura era de dois elementos colados.
+
+   Centralizado no painel, junto com o resto do bloco. `width: fit-content` com
+   `margin-inline: auto` centraliza sem esticar o botao pela largura toda, que
+   e o erro comum aqui. */
 .formSite > button[type='submit'] {
+  /* `display: flex` junto, e não só `margin-inline: auto`.
+     O botão é `inline-flex`, e margem automática não centraliza elemento de
+     linha — ele fica onde o texto o deixaria, encostado na esquerda. Foi o que
+     aconteceu na primeira tentativa. Virando bloco flexível, a margem passa a
+     valer. */
+  display: flex;
+  width: fit-content;
   margin-top: var(--s5);
+  margin-inline: auto;
 }
 
 .formNota {
   grid-column: 1 / -1;
   margin: var(--s4) 0 0;
   font-size: var(--t-sm);
+  text-align: center;
   color: var(--txt-3);
 }
 
