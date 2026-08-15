@@ -23,7 +23,25 @@
   .container { padding-inline: var(--s4); }
 }
 
-.estreito { max-width: 720px; }
+/* ==========================================================================
+   O TRILHO
+   --------------------------------------------------------------------------
+   Toda seção da página começa na MESMA margem esquerda. Isso não é preciosismo
+   de régua: o olho de quem rola a página usa essa borda como trilho, e cada
+   seção que começa dois dedos para dentro lê como "outro site colado aqui".
+
+   O erro que isto conserta: `.container` centraliza (`margin-inline: auto`), e
+   os blocos de leitura estreita eram feitos ENCOLHENDO o próprio container.
+   Encolher um elemento centralizado o puxa dos DOIS lados — então a primeira
+   dobra começava 120px à direita das outras seções, o formulário 230px, e o
+   bloco do Instagram 270px. Medido, não estimado.
+
+   A correção mantém o container sempre com a mesma largura, e limita quem
+   encolhe: o CONTEÚDO dentro dele. A margem esquerda fica igual em todas, e a
+   linha de texto continua com o comprimento certo para ler.
+   ========================================================================== */
+
+.estreito > * { max-width: 720px; }
 .centralizado { text-align: center; margin-top: var(--s6); }
 
 /* ==========================================================================
@@ -213,6 +231,13 @@
 
 .dobraIn {
   padding-block: clamp(var(--s7), 8vw, var(--s9)) var(--s8);
+}
+
+/* A chamada e o parágrafo param antes da borda direita para a linha não ficar
+   longa demais de ler. Os botões e os números NÃO entram nesta trava: eles são
+   blocos, não texto corrido, e cabem melhor espalhados. */
+.dobraIn > .tese,
+.dobraIn > .sub {
   max-width: 940px;
 }
 
@@ -1054,7 +1079,9 @@
    uma nota de terceiro, que e o que ele e. */
 .gmn {
   max-width: 900px;
-  margin-inline: auto;
+  /* Alinhado ao trilho, e não centralizado. Centralizado, ele nascia 140px à
+     direita de "Onde estamos" logo abaixo, e a página ganhava um degrau. */
+  margin-inline: 0 auto;
   padding: clamp(var(--s5), 4vw, var(--s7));
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
@@ -1264,7 +1291,7 @@
    INSTAGRAM
    ========================================================================== */
 
-.instaBloco { max-width: 640px; }
+.instaBloco > * { max-width: 640px; }
 
 /* A grade das publicações. Quadrada, como o Instagram mostra, para as fotos
    ficarem reconhecíveis como "post" e não como banco de imagem. */
