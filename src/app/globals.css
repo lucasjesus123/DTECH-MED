@@ -57,7 +57,12 @@
   --f-texto:   var(--fonte-texto, system-ui), system-ui, -apple-system, sans-serif;
   --f-mono:    var(--fonte-mono, ui-monospace), ui-monospace, "SF Mono", Menlo, monospace;
 
-  --t-xs:   0.6875rem;
+  /* 12px, e não 11px. Onze é o degrau em que a legenda começa a ser adivinhada
+     em vez de lida — e as nossas legendas carregam informação que importa
+     ("CLIENTES ATENDIDOS", "DE GARANTIA", o rótulo de cada campo). Doze é o
+     piso que as diretrizes de acessibilidade tratam como texto pequeno
+     aceitável; abaixo disso é decoração. */
+  --t-xs:   0.75rem;
   --t-sm:   0.8125rem;
   --t-base: 1rem;
   --t-lg:   1.25rem;
@@ -169,6 +174,21 @@
 }
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+/*
+ * A letra cresce junto com a tela, em dois degraus.
+ *
+ * Num monitor de 27 ou 34 polegadas a pessoa senta mais longe do que num
+ * notebook, e 16px lá é o que 13px é aqui. Como todo o sistema de tamanhos e
+ * espaçamentos é escrito em `rem`, mexer aqui reescala a página inteira de uma
+ * vez — texto, respiro entre seções, altura de botão — mantendo as proporções.
+ *
+ * Em `html`, e não em `body`: só o elemento raiz define o que `rem` significa.
+ * E os degraus são discretos de propósito: 6% e 12%. Mais que isso e a página
+ * passa a parecer uma captura ampliada em vez de um site desenhado.
+ */
+@media (min-width: 1700px) { html { font-size: 17px; } }
+@media (min-width: 2600px) { html { font-size: 18px; } }
 
 body {
   margin: 0;

@@ -210,8 +210,10 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  /* 40px: era 34, e fechar por engano um painel que a pessoa acabou de abrir
+     e' o tipo de erro que faz desistir do contato. */
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
   border-radius: 50%;

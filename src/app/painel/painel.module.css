@@ -355,7 +355,7 @@
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(310px, 100%), 1fr));
   gap: var(--s3);
 }
 .cardOrdem {
@@ -693,7 +693,7 @@
 }
 .pares {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
   gap: var(--s4) var(--s5);
 }
 .par { display: grid; gap: 3px; min-width: 0; }
@@ -767,7 +767,7 @@
 /* ----- Galeria de fotos -------------------------------------------------- */
 .galeria {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(104px, 100%), 1fr));
   gap: var(--s2);
 }
 .foto {
@@ -798,7 +798,7 @@
 .form { display: grid; gap: var(--s4); }
 .grade {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: var(--s4);
 }
 .rotulo {

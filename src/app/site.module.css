@@ -23,6 +23,31 @@
   .container { padding-inline: var(--s4); }
 }
 
+/* --------------------------------------------------------------------------
+   TELAS GRANDES
+   --------------------------------------------------------------------------
+   Travar em 1180px é a escolha certa até uns 1600px de tela: acima disso, a
+   linha de texto ficaria longa demais para o olho voltar sem se perder.
+
+   Mas num monitor de 2560 ou 3440 essa mesma trava deixa 1130px de vazio de
+   cada lado, e o site parece uma coluna estreita esquecida no meio da tela.
+   Quem tem monitor grande comprou área de tela, não moldura.
+
+   A saída é subir em degraus, e não linearmente: o container cresce, e o
+   comprimento da linha de texto continua protegido pelos limites em `ch` dos
+   parágrafos. O que ganha espaço são as GRADES — os seis serviços, os quatro
+   cartões de especialidade, as avaliações — que é onde a área extra vira
+   informação a mais na tela em vez de linha comprida.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 1700px) {
+  .container { max-width: 1360px; }
+}
+
+@media (min-width: 2200px) {
+  .container { max-width: 1560px; }
+}
+
 /* ==========================================================================
    O TRILHO
    --------------------------------------------------------------------------
@@ -97,6 +122,10 @@
 .marca {
   display: inline-flex;
   align-items: center;
+  /* O logotipo tem 25px de altura desenhada; o alvo precisa de 44. Ele e o
+     unico jeito de voltar para o topo em muitos sites, e errar o toque nele
+     irrita mais do que parece. */
+  min-height: 44px;
   gap: var(--s2);
   text-decoration: none;
   color: var(--txt);
@@ -135,7 +164,15 @@
   gap: var(--s5);
 }
 
+/* 44px de altura de alvo, e nao so o tamanho da letra.
+   O texto do menu tem 21px de altura; o dedo mira em 44. A diferenca vira
+   toque errado no iPad, onde o menu aparece e a navegacao e por toque. O
+   `display: inline-flex` com `align-items: center` cresce a area clicavel sem
+   afastar os itens visualmente. */
 .nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--txt-2);
   text-decoration: none;
   font-size: var(--t-sm);
@@ -671,7 +708,7 @@
 
 .servicos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: var(--s6) var(--s7);
   margin: var(--s7) 0 0;
   padding: 0;
@@ -1045,7 +1082,7 @@
 
 .principios {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: var(--s6);
   margin-top: var(--s9);
   padding-top: var(--s7);
@@ -1151,7 +1188,7 @@
 
 .avaliacoes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: var(--s4);
   margin: var(--s6) 0 0;
   padding: 0;
@@ -1363,6 +1400,10 @@
 }
 
 .linkZap {
+  /* Alvo de 44px sem quebrar a frase em que ele mora: `inline-block` com
+     preenchimento vertical cresce a area de toque e mantem o texto na linha. */
+  display: inline-block;
+  padding-block: var(--s3);
   color: var(--vio-claro);
   font-weight: 600;
   text-decoration: underline;
@@ -1439,7 +1480,15 @@
   color: var(--txt);
 }
 
-.ondeDados a { color: var(--vio-claro); text-decoration: none; }
+/* O telefone do cartao de localizacao e um dos toques mais provaveis da
+   pagina inteira: quem chegou ate aqui quer falar. Alvo de 44px. */
+.ondeDados a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--vio-claro);
+  text-decoration: none;
+}
 .ondeDados a:hover { text-decoration: underline; }
 
 /* `margin-top: auto` cola as acoes no fim do cartao, alinhadas com a base do
@@ -1514,6 +1563,12 @@
   color: var(--txt);
 }
 
+.rodape ul a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
 .rodape ul {
   margin: 0;
   padding: 0;
@@ -1533,6 +1588,14 @@
   color: var(--txt);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Os links da barra de baixo do rodape (o credito e "Acesso ao sistema")
+   tinham 18 e 21px de altura de alvo. Ficam com 40. */
+.rodFim a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
 }
 
 .rodFim {
@@ -1682,7 +1745,7 @@
 
 .formGrade {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: var(--s5);
   margin-top: var(--s7);
 }
