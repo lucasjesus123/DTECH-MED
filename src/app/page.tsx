@@ -647,18 +647,38 @@ export default function Home() {
                   <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
                 </li>
               ) : null}
-              {EMPRESA.instagram ? (
-                <li>
+            </ul>
+
+            {/* Os perfis, com o ícone de cada um. Ícone e não só texto porque
+                no rodapé ninguém lê: reconhece a forma. Cada um só aparece se
+                o endereço existir de verdade — link vazio vira 404, e 404 no
+                rodapé some do radar por meses. */}
+            {EMPRESA.instagram || EMPRESA.googleMeuNegocio ? (
+              <p className={estilo.rodRedes}>
+                {EMPRESA.instagram ? (
                   <a
                     href={`https://instagram.com/${instagramUsuario()}`}
                     rel="noopener noreferrer"
                     target="_blank"
+                    aria-label={`Instagram da ${EMPRESA.nome}, ${EMPRESA.instagram}`}
                   >
-                    {EMPRESA.instagram}
+                    <IconeInstagram />
+                    <span>{EMPRESA.instagram}</span>
                   </a>
-                </li>
-              ) : null}
-            </ul>
+                ) : null}
+                {EMPRESA.googleMeuNegocio ? (
+                  <a
+                    href={EMPRESA.googleMeuNegocio}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    aria-label={`Perfil da ${EMPRESA.nome} no Google, com as avaliações`}
+                  >
+                    <IconeGoogle />
+                    <span>Avaliar no Google</span>
+                  </a>
+                ) : null}
+              </p>
+            ) : null}
           </div>
           <div>
             <h3>Endereço</h3>

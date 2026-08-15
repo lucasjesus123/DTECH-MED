@@ -131,18 +131,29 @@ export const EMPRESA: DadosEmpresa = {
 
   // --- Redes --------------------------------------------------------------
   /**
-   * PENDENTE. Uma busca devolveu `@dtechassistenciaslz`, mas é outra empresa,
-   * de outra cidade — e publicar o Instagram do concorrente no seu site é pior
-   * que não publicar nenhum. Preencha com o @ verdadeiro.
+   * Confirmado pelo Lucas em agosto de 2026.
+   *
+   * Vale registrar o quase-erro: uma busca tinha devolvido
+   * `@dtechassistenciaslz`, que é outra empresa, de outra cidade. Publicar o
+   * Instagram do concorrente no próprio site é pior que não publicar nenhum, e
+   * por isso o campo ficou vazio até vir a confirmação de quem é dono do
+   * perfil, em vez de ser preenchido com o resultado da busca.
    */
-  instagram: '',
+  instagram: '@dtechmed_assistencia',
   /** PENDENTE: informar a página do Facebook, se houver. */
   facebook: '',
   /**
-   * PENDENTE. No Google Meu Negócio: Início → Compartilhar → copiar o link.
-   * Com ele preenchido, o bloco de avaliações ganha o botão "avaliar no Google".
+   * O link de compartilhamento do perfil, enviado pelo Lucas.
+   *
+   * É um encurtador do próprio Google: ele redireciona para a ficha no Maps. O
+   * botão do site funciona assim, e o Google segue o redirecionamento quando lê
+   * o `sameAs` dos dados estruturados.
+   *
+   * Se um dia quiser trocar pelo endereço completo do Maps (aquele comprido,
+   * com `/maps/place/`), pode: os dois servem, e o completo é mais estável
+   * porque não depende do encurtador continuar existindo.
    */
-  googleMeuNegocio: '',
+  googleMeuNegocio: 'https://share.google/pKuHef6hDaApJqmRN',
   /**
    * PENDENTE. No Google Maps: buscar o endereço → Compartilhar → Incorporar um
    * mapa → copiar SÓ o valor do `src`, sem a tag `<iframe>` em volta.

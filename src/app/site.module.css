@@ -1728,6 +1728,44 @@
   }
 }
 
+/* Os perfis no rodapé. Pílulas em vez de linha de texto: no rodapé o olho
+   varre, não lê, e a forma de pílula com ícone é reconhecida sem leitura. */
+.rodRedes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: var(--s4) 0 0;
+}
+
+.rodRedes a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  /* 40px de altura: alvo de toque no celular, onde o rodapé é o lugar em que
+     mais se erra o dedo. */
+  min-height: 40px;
+  padding: var(--s2) var(--s4);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  background: var(--sup);
+  color: var(--txt-2);
+  font-size: var(--t-sm);
+  text-decoration: none;
+  transition: border-color 220ms var(--ease), color 220ms var(--ease), transform 220ms var(--ease);
+}
+
+.rodRedes a:hover {
+  border-color: var(--vio);
+  color: var(--txt);
+  transform: translateY(-2px);
+}
+
+.rodRedes svg { width: 18px; height: 18px; flex: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rodRedes a:hover { transform: none; }
+}
+
 /* --- Crédito de quem construiu -------------------------------------------
    Discreto, mas com o link legível. Sublinhado com folga, para o traço não
    cortar as descendentes das letras. */
