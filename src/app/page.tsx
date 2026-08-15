@@ -131,6 +131,38 @@ const FOTOS_DO_PERFIL = (
   .filter(([nome]) => acharFoto(nome) !== null)
   .map(([nome, alt]) => ({ nome, alt }))
 
+/**
+ * As fotos que rodam no carrossel dos bastidores.
+ *
+ * A mesma pasta das outras, filtrada no build: só entra o que existe. Se não
+ * existir nenhuma E não houver feed do Instagram configurado, a seção inteira
+ * não é renderizada — ver `TEM_BASTIDORES` logo abaixo.
+ */
+const FOTOS_BASTIDORES = (
+  [
+    ['bancada', 'Técnico trabalhando dentro de um equipamento aberto'],
+    ['oficina', 'A bancada da oficina, com equipamentos em atendimento'],
+    ['estetica', 'Equipamento estético sobre a bancada'],
+    ['medico', 'Equipamento médico sobre a bancada'],
+    ['hospitalar', 'Equipamento hospitalar sobre a bancada'],
+    ['odontologico', 'Equipamento odontológico sobre a bancada'],
+    ['logistica', 'Equipamento embalado para o transporte'],
+  ] as const
+)
+  .filter(([nome]) => acharFoto(nome) !== null)
+  .map(([nome, alt]) => ({ nome, alt }))
+
+/**
+ * A seção só existe se houver o que mostrar nela.
+ *
+ * Título e botão sozinhos no meio de um bloco vazio não passam impressão de
+ * "limpo" — passam impressão de página quebrada, que é pior que não ter a
+ * seção.
+ */
+const TEM_BASTIDORES =
+  Boolean(EMPRESA.instagram) &&
+  (FOTOS_BASTIDORES.length > 0 || Boolean(EMPRESA.instagramFeed))
+
 /** As etapas do prontuário. Uma ordem real, do jeito que ela aparece no painel. */
 const ETAPAS = [
   ['Retirada assinada pelo cliente', 'Motorista · Adriano M.', '08/08 · 14:22'],
@@ -561,32 +593,71 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= INSTAGRAM ================= */}
-        {EMPRESA.instagram ? (
-          <section className={`${estilo.secao} claro`} aria-labelledby="tit-insta">
-            <div className={`${estilo.container} ${estilo.instaBloco}`}>
-              <IconeInstagram className={estilo.instaIcone} />
-              <h2 id="tit-insta" className={estilo.h2}>
-                Bastidores da oficina
-              </h2>
-              <p className={estilo.lead}>
-                Equipamento aberto, peça trocada, teste final. O que acontece antes
-                de o aparelho voltar funcionando.
-              </p>
-              {/* A grade só existe quando houver endereço de feed configurado
-                  E o serviço responder. Nos dois casos em que não houver, ela
-                  simplesmente não é renderizada e o botão abaixo continua
-                  cumprindo o papel. */}
-              <InstagramFeed className={estilo.instaGrade} />
+        {/* ================= BASTIDORES =================
+            Texto à esquerda, carrossel à direita.
 
-              <a
-                href={`https://instagram.com/${instagramUsuario()}`}
-                className={estilo.btn}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Seguir {EMPRESA.instagram}
-              </a>
+            A seção INTEIRA some quando não há o que mostrar. Antes ela ficava
+            no ar com só um título e um botão no meio de um bloco branco vazio,
+            e seção vazia num site não parece minimalista: parece quebrada.
+
+            Só aparece quando existir foto em `public/fotos/` ou um feed do
+            Instagram configurado. */}
+        {TEM_BASTIDORES ? (
+          <section className={`${estilo.secao} claro`} aria-labelledby="tit-insta">
+            <div className={estilo.container}>
+              <div className={estilo.bastGrid}>
+                <div>
+                  <IconeInstagram className={estilo.instaIcone} />
+                  <h2 id="tit-insta" className={estilo.h2}>
+                    Bastidores da oficina
+                  </h2>
+                  <p className={estilo.lead}>
+                    Equipamento aberto, peça trocada, teste final. O que acontece
+                    antes de o aparelho voltar funcionando.
+                  </p>
+                  <a
+                    href={`https://instagram.com/${instagramUsuario()}`}
+                    className={estilo.btn}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <IconeInstagram className={estilo.btnIcone} />
+                    Seguir {EMPRESA.instagram}
+                  </a>
+                </div>
+
+                {EMPRESA.instagramFeed ? (
+                  <InstagramFeed className={estilo.instaGrade} />
+                ) : (
+                  /* O carrossel. Duas cópias da mesma lista, uma atrás da
+                     outra: quando a primeira termina de passar, a segunda está
+                     exatamente onde a primeira começou, e o laço não tem
+                     emenda. A cópia é escondida de leitores de tela para a
+                     mesma foto não ser anunciada duas vezes. */
+                  <div className={estilo.bastFaixa}>
+                    <div className={estilo.bastPista}>
+                      {[false, true].map((copia) => (
+                        <ul
+                          key={String(copia)}
+                          className={estilo.bastLista}
+                          aria-hidden={copia || undefined}
+                        >
+                          {FOTOS_BASTIDORES.map(({ nome, alt }) => (
+                            <li key={nome}>
+                              <Foto
+                                nome={nome}
+                                alt={copia ? '' : alt}
+                                larguras="(max-width: 860px) 60vw, 300px"
+                                className={estilo.bastImg}
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         ) : null}

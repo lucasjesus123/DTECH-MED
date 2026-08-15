@@ -66,7 +66,11 @@
    linha de texto continua com o comprimento certo para ler.
    ========================================================================== */
 
-.estreito > * { max-width: 720px; }
+/* `.estreito` é a coluna centralizada. Duas seções usam: o formulário e o
+   bloco do Instagram. Elas são as duas em que a página PARA de apresentar e
+   passa a pedir uma ação — e centralizar tira a distração da lateral. O resto
+   do site segue o trilho da esquerda. */
+.estreito > * { max-width: 720px; margin-inline: auto; }
 .centralizado { text-align: center; margin-top: var(--s6); }
 
 /* ==========================================================================
@@ -1116,9 +1120,13 @@
    uma nota de terceiro, que e o que ele e. */
 .gmn {
   max-width: 900px;
-  /* Alinhado ao trilho, e não centralizado. Centralizado, ele nascia 140px à
-     direita de "Onde estamos" logo abaixo, e a página ganhava um degrau. */
-  margin-inline: 0 auto;
+  /* A ÚNICA exceção do trilho, e por decisão do Lucas.
+     Eu tinha alinhado este painel à esquerda junto com o resto. Ele pediu
+     centralizado, e faz sentido: os outros blocos são conteúdo da DTECH e
+     seguem a margem da página; este é uma peça de fora, com a cara do Google.
+     Centralizado, ele se lê como citação — algo trazido de outro lugar — em
+     vez de mais uma seção do site. */
+  margin-inline: auto;
   padding: clamp(var(--s5), 4vw, var(--s7));
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
@@ -1328,7 +1336,84 @@
    INSTAGRAM
    ========================================================================== */
 
-.instaBloco > * { max-width: 640px; }
+/* --------------------------------------------------------------------------
+   BASTIDORES: texto à esquerda, carrossel à direita
+   -------------------------------------------------------------------------- */
+
+.bastGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(var(--s5), 4vw, var(--s8));
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .bastGrid { grid-template-columns: 1fr; }
+}
+
+/* A moldura que recorta. O corte tem que ficar AQUI, e não na pista que anda:
+   máscara aplicada ao que se move viaja junto com ele, e o resultado é um
+   corte duro que parte a foto ao meio no lugar errado. */
+.bastFaixa {
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+
+.bastPista {
+  display: flex;
+  gap: var(--s4);
+  width: max-content;
+}
+
+.bastLista {
+  display: flex;
+  gap: var(--s4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex: none;
+}
+
+.bastLista li {
+  position: relative;
+  flex: none;
+  width: clamp(190px, 24vw, 300px);
+  /* Retrato: as fotos de bancada e de equipamento em pé pedem vertical, e é o
+     formato que o celular tira. Quadrado cortaria a cabeça do aparelho. */
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+}
+
+.bastImg { object-fit: cover; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bastPista { animation: correrBastidores 46s linear infinite; }
+  /* Para no ponteiro e no foco: quem quer olhar uma foto precisa poder parar,
+     e quem navega por teclado também. */
+  .bastFaixa:hover .bastPista,
+  .bastFaixa:focus-within .bastPista { animation-play-state: paused; }
+}
+
+/* Anda exatamente a largura de UMA cópia mais o vão entre as duas. No fim do
+   ciclo a segunda cópia está no lugar onde a primeira começou, então o salto
+   de volta ao início não se vê. */
+@keyframes correrBastidores {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-50% - var(--s4) / 2)); }
+}
+
+/* Sem movimento, vira uma grade comum e a cópia sai de cena. */
+@media (prefers-reduced-motion: reduce) {
+  .bastFaixa { mask-image: none; -webkit-mask-image: none; }
+  .bastPista { width: 100%; }
+  .bastPista > ul[aria-hidden='true'] { display: none; }
+  .bastLista { flex-wrap: wrap; }
+}
 
 /* A grade das publicações. Quadrada, como o Instagram mostra, para as fotos
    ficarem reconhecíveis como "post" e não como banco de imagem. */
@@ -1387,7 +1472,7 @@
   margin-bottom: var(--s4);
 }
 
-.instaBloco .btn { margin-top: var(--s6); }
+.bastGrid .btn { margin-top: var(--s6); }
 
 /* ==========================================================================
    CONTATO E MAPA
