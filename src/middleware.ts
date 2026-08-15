@@ -45,6 +45,18 @@ function montarCSP(nonce: string, producao: boolean): string {
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "frame-ancestors 'none'",
+    // A ÚNICA exceção da política: o mapa do "Onde estamos".
+    //
+    // `frame-src` diz o que esta página pode COLOCAR dentro de si; é o oposto
+    // de `frame-ancestors`, que continua 'none' e impede que alguém coloque a
+    // nossa página dentro da dele. Os dois nomes se parecem e fazem coisas
+    // opostas — trocá-los é o erro clássico aqui.
+    //
+    // A exceção é nominal e mínima: só o domínio do Google Maps, e só para
+    // moldura. Nenhum script de fora passa a rodar por causa disto, porque
+    // `script-src` continua exigindo o nonce da requisição. Um iframe roda em
+    // contexto próprio e não alcança o nosso.
+    "frame-src https://www.google.com https://maps.google.com",
     "form-action 'self'",
     "base-uri 'self'",
     "object-src 'none'",

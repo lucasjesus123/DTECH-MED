@@ -1,13 +1,21 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import Link from 'next/link'
-import { EMPRESA, enderecoEmUmaLinha, instagramUsuario, linkWhatsapp } from '@/lib/empresa'
+import {
+  EMPRESA,
+  enderecoEmUmaLinha,
+  instagramUsuario,
+  linkMaps,
+  linkWhatsapp,
+  mapaUrl,
+} from '@/lib/empresa'
 import { Credito } from './credito'
 import { DadosEstruturados } from './dados-estruturados'
 import { Foto, acharFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
+import { InstagramFeed } from './instagram-feed'
 import {
   ICONES,
   IconeEstrela,
@@ -565,6 +573,12 @@ export default function Home() {
                 Equipamento aberto, peça trocada, teste final. O que acontece antes
                 de o aparelho voltar funcionando.
               </p>
+              {/* A grade só existe quando houver endereço de feed configurado
+                  E o serviço responder. Nos dois casos em que não houver, ela
+                  simplesmente não é renderizada e o botão abaixo continua
+                  cumprindo o papel. */}
+              <InstagramFeed className={estilo.instaGrade} />
+
               <a
                 href={`https://instagram.com/${instagramUsuario()}`}
                 className={estilo.btn}
@@ -601,25 +615,94 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ================= ONDE ESTAMOS ================= */}
+        {/* ================= ONDE ESTAMOS =================
+            Endereço à esquerda, mapa à direita. Não é preferência estética: a
+            pessoa que chega nesta seção já decidiu falar com a DTECH e está
+            respondendo "dá para eu ir até lá?". Endereço sem mapa obriga ela a
+            abrir outro aplicativo, e é ali que a visita termina. */}
         <section id="onde-estamos" className={`${estilo.secao} claro`}>
           <div className={estilo.container}>
             <h2 className={estilo.h2}>Onde estamos</h2>
-            <p className={estilo.endereco}>
-              <IconeLocal className={estilo.enderecoIcone} />
-              <span>{enderecoEmUmaLinha()}</span>
+            <p className={estilo.lead}>
+              Oficina própria em {EMPRESA.endereco.cidade}. Retiramos e
+              entregamos, mas se preferir trazer, a porta é esta.
             </p>
-            {EMPRESA.mapaEmbed ? (
+
+            <div className={estilo.ondeGrid}>
+              <div className={estilo.ondeCartao}>
+                <p className={estilo.endereco}>
+                  <IconeLocal className={estilo.enderecoIcone} />
+                  <span>
+                    <strong>{EMPRESA.endereco.logradouro}, {EMPRESA.endereco.numero}</strong>
+                    {EMPRESA.endereco.complemento ? <>{' · '}{EMPRESA.endereco.complemento}</> : null}
+                    <br />
+                    {EMPRESA.endereco.bairro} · {EMPRESA.endereco.cidade}/{EMPRESA.endereco.uf}
+                    <br />
+                    CEP {EMPRESA.endereco.cep}
+                  </span>
+                </p>
+
+                <dl className={estilo.ondeDados}>
+                  <div>
+                    <dt>Telefone e WhatsApp</dt>
+                    <dd>
+                      <a href={linkWhatsapp()}>{EMPRESA.telefoneExibicao}</a>
+                    </dd>
+                  </div>
+                  {EMPRESA.horarioAtendimento ? (
+                    <div>
+                      <dt>Atendimento</dt>
+                      <dd>{EMPRESA.horarioAtendimento}</dd>
+                    </div>
+                  ) : null}
+                  {EMPRESA.email ? (
+                    <div>
+                      <dt>E-mail</dt>
+                      <dd>
+                        <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+
+                <div className={estilo.ondeAcoes}>
+                  <a
+                    href={linkMaps()}
+                    className={estilo.btn}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <IconeLocal className={estilo.btnIcone} />
+                    Como chegar
+                  </a>
+                  {EMPRESA.googleMeuNegocio ? (
+                    <a
+                      href={EMPRESA.googleMeuNegocio}
+                      className={`${estilo.btn} ${estilo.btnLinha}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <IconeGoogle className={estilo.btnIcone} />
+                      Ver no Google
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+
+              {/* `loading="lazy"` importa mais aqui do que numa imagem: o mapa
+                  do Google carrega scripts e várias imagens, e é o elemento
+                  mais pesado da página. Sem isso, ele disputa banda com a
+                  primeira dobra numa seção que a maioria nunca alcança. */}
               <div className={estilo.mapa}>
                 <iframe
-                  src={EMPRESA.mapaEmbed}
-                  title={`Mapa até a ${EMPRESA.nome}`}
+                  src={mapaUrl()}
+                  title={`Mapa até a ${EMPRESA.nome}, em ${EMPRESA.endereco.cidade}`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   allowFullScreen
                 />
               </div>
-            ) : null}
+            </div>
           </div>
         </section>
       </main>

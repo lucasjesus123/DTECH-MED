@@ -71,6 +71,8 @@ type DadosEmpresa = {
     cep: string
   }
   instagram: string
+  /** Endereço JSON de um serviço de feed. Vazio esconde a grade. */
+  instagramFeed: string
   facebook: string
   /** Link do perfil no Google Meu Negócio, para o botão "avaliar". */
   googleMeuNegocio: string
@@ -140,6 +142,20 @@ export const EMPRESA: DadosEmpresa = {
    * perfil, em vez de ser preenchido com o resultado da busca.
    */
   instagram: '@dtechmed_assistencia',
+  /**
+   * PENDENTE — e opcional.
+   *
+   * Cole aqui o endereço JSON que um serviço de feed gera depois que você
+   * conectar o @dtechmed_assistencia (Behold, LightWidget, SnapWidget). Com
+   * ele preenchido, a grade das últimas publicações aparece na seção
+   * "Bastidores da oficina". Vazio, a seção fica com o texto e o botão de
+   * seguir, que é o essencial.
+   *
+   * Deixamos assim, e não com o app do Facebook, porque o serviço assume o
+   * trabalho de renovar o token — que vence a cada 60 dias e, quando vence sem
+   * ninguém olhando, o feed morre em silêncio.
+   */
+  instagramFeed: '',
   /** PENDENTE: informar a página do Facebook, se houver. */
   facebook: '',
   /**
@@ -295,6 +311,33 @@ export const DESENVOLVEDOR = {
   nome: 'Grupo Conexão',
   site: 'https://conexaomkt.com.br',
 } as const
+
+/** O endereço do jeito que se digita numa busca de mapa. */
+export function enderecoParaBusca(): string {
+  const e = EMPRESA.endereco
+  return `${EMPRESA.nome}, ${e.logradouro}, ${e.numero} - ${e.bairro}, ${e.cidade} - ${e.uf}, ${e.cep}`
+}
+
+/**
+ * O endereço do mapa embutido.
+ *
+ * Se você colar em `mapaEmbed` o endereço que o Google Maps dá em
+ * "Compartilhar → Incorporar um mapa", ele ganha: é o oficial, aceita ajuste
+ * de zoom e de recorte, e não depende de nada não documentado.
+ *
+ * Sem ele, montamos o mapa a partir do endereço escrito. Funciona sem chave de
+ * API e sem cadastro — que é o motivo de ser o padrão aqui: um mapa que
+ * aparece sozinho vale mais que um mapa perfeito que ninguém configurou.
+ */
+export function mapaUrl(): string {
+  if (EMPRESA.mapaEmbed) return EMPRESA.mapaEmbed
+  return `https://www.google.com/maps?q=${encodeURIComponent(enderecoParaBusca())}&output=embed`
+}
+
+/** Abrir no aplicativo do Maps, para quem vai dirigir até lá. */
+export function linkMaps(): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoParaBusca())}`
+}
 
 /** Link do WhatsApp, com mensagem já digitada para a pessoa só apertar enviar. */
 export function linkWhatsapp(mensagem?: string): string {
