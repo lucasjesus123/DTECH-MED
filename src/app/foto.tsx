@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import Image from 'next/image'
+import { versaoFotoDoSite } from '@/server/arquivos/storage'
 
 /**
  * As fotos do site, com degradação graciosa.
@@ -11,13 +12,14 @@ import Image from 'next/image'
  * e o mais fácil de deixar passar, porque em desenvolvimento o arquivo
  * costuma estar lá.
  *
- * Aqui a existência é conferida NO BUILD, com `existsSync`. Se o arquivo não
- * existe, o componente devolve `null` e quem chama mostra o que tiver de
- * alternativa — a marca d'água, o osciloscópio, ou nada. Ninguém vê caixa
- * quebrada, e ninguém precisa lembrar de tirar a tag.
+ * Aqui a existência é conferida A CADA PEDIDO. Se o arquivo não existe, o
+ * componente devolve `null` e quem chama mostra o que tiver de alternativa — a
+ * marca d'água, o osciloscópio, ou nada. Ninguém vê caixa quebrada, e ninguém
+ * precisa lembrar de tirar a tag.
  *
- * Assim as fotos podem ser adicionadas uma a uma, sem tocar em código: cai o
- * arquivo com o nome certo em `public/fotos/`, e ele aparece no próximo build.
+ * A cada pedido, e não uma vez na partida, porque as fotos agora entram pelo
+ * painel: o dono envia uma e ela precisa aparecer no recarregar seguinte, não
+ * no próximo deploy.
  */
 
 const PASTA = 'fotos'
@@ -46,10 +48,33 @@ export type NomeFoto = keyof typeof FOTOS
 /**
  * Onde a foto está, ou `null`.
  *
- * Procura em três extensões, na ordem de preferência de peso: AVIF pesa menos
- * que WebP, que pesa menos que JPEG, para a mesma qualidade aparente.
+ * ---------------------------------------------------------------------------
+ * DUAS ORIGENS, NESTA ORDEM
+ * ---------------------------------------------------------------------------
+ *  1. **A que o dono enviou pelo painel**, guardada no acervo. Ganha sempre:
+ *     se ele trocou a foto pela tela, é essa que ele quer ver.
+ *  2. **A que veio na imagem do sistema**, em `public/fotos/`. É o piso — a
+ *     foto de fábrica, que continua valendo enquanto ninguém enviar outra.
+ *
+ * Tirar a foto enviada pelo painel faz o site voltar sozinho para a de fábrica.
+ * É o que transforma "trocar a foto" numa operação sem medo: dá para desfazer.
+ *
+ * Entre as de fábrica, a busca é por peso: AVIF pesa menos que WebP, que pesa
+ * menos que JPEG, para a mesma qualidade aparente.
+ *
+ * ---------------------------------------------------------------------------
+ * O `?v=` NÃO É ENFEITE
+ * ---------------------------------------------------------------------------
+ * O número é o instante em que o arquivo foi gravado. Sem ele, o Next
+ * continuaria servindo a versão otimizada antiga — que ele guarda indexada pela
+ * URL — e o dono enviaria a foto nova, veria a velha, enviaria de novo, e
+ * concluiria que o sistema não salva. Aconteceu neste projeto, com as fotos de
+ * `public/fotos` trocadas por arquivos de mesmo nome.
  */
 export function acharFoto(nome: NomeFoto): string | null {
+  const enviada = versaoFotoDoSite(FOTOS[nome])
+  if (enviada !== null) return `/foto-site/${nome}?v=${enviada}`
+
   for (const ext of ['avif', 'webp', 'jpg']) {
     const rel = `/${PASTA}/${FOTOS[nome]}.${ext}`
     if (existsSync(path.join(process.cwd(), 'public', PASTA, `${FOTOS[nome]}.${ext}`))) {

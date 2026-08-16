@@ -1,3 +1,4 @@
+import { statSync } from 'node:fs'
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp, { type Metadata } from 'sharp'
@@ -138,6 +139,128 @@ export async function guardarAssinatura(entrada: {
   const caminho = path.join(entrada.tenantId, entrada.ordemId, 'assinaturas', `${hash.slice(0, 16)}.png`)
   await gravar(caminho, png)
   return { ok: true, caminho, hash }
+}
+
+/* ==========================================================================
+   AS FOTOS DO SITE
+   --------------------------------------------------------------------------
+   Estas são de outra natureza que as de cima, e por isso ficam num lugar
+   separado com regras próprias.
+
+   As fotos de ordem de serviço são PRIVADAS: pertencem a uma empresa, provam o
+   estado de um equipamento, e saem por uma rota que confere sessão e escopo.
+   As do site são o oposto — existem para serem vistas por qualquer pessoa que
+   abrir a página. Servi-las pela rota autenticada seria pedir login para ver a
+   home.
+
+   O que elas herdam das outras é o cuidado no caminho: o nome nunca vem do
+   cliente. Só os slots conhecidos entram, e é o servidor que monta o arquivo.
+
+   Ficam no acervo (`/app/storage`), e não em `public/`, por um motivo prático:
+   `public/` está dentro da imagem do Docker, que é descartada e reconstruída a
+   cada publicação. Foto enviada pelo painel ali sumiria no deploy seguinte,
+   sem aviso. O acervo é volume, e sobrevive.
+   ========================================================================== */
+
+/** A pasta das fotos do site dentro do acervo. */
+const PASTA_SITE = 'site'
+
+/**
+ * Recebe uma foto do site pelo painel.
+ *
+ * Mesmo tratamento das outras — os BYTES decidem se é imagem, e o arquivo é
+ * reescrito para descartar EXIF e qualquer coisa enxertada no fim. A diferença
+ * é o tamanho: esta vai ocupar a tela inteira num monitor grande, então o lado
+ * maior vai a 2200px em vez de 1600.
+ */
+export async function guardarFotoDoSite(entrada: {
+  slot: string
+  arquivo: File
+}): Promise<{ ok: true; bytes: number; largura: number; altura: number } | { ok: false; motivo: string }> {
+  const { arquivo } = entrada
+
+  if (!/^[a-z0-9]+$/.test(entrada.slot)) return { ok: false, motivo: 'Lugar de foto desconhecido.' }
+  if (!arquivo || arquivo.size === 0) return { ok: false, motivo: 'O arquivo chegou vazio.' }
+  if (arquivo.size > LIMITE_BYTES) {
+    return {
+      ok: false,
+      motivo: `Foto muito pesada (${(arquivo.size / 1024 / 1024).toFixed(1)} MB). O limite é 8 MB.`,
+    }
+  }
+  if (!TIPOS.has(arquivo.type)) {
+    return { ok: false, motivo: 'Formato não aceito. Envie JPG, PNG ou WebP.' }
+  }
+
+  const bruto = Buffer.from(await arquivo.arrayBuffer())
+  let meta: Metadata
+  try {
+    meta = await sharp(bruto).metadata()
+  } catch {
+    return { ok: false, motivo: 'O arquivo enviado não é uma imagem válida.' }
+  }
+  if (!meta.width || !meta.height) {
+    return { ok: false, motivo: 'Não foi possível ler as dimensões da imagem.' }
+  }
+  // Foto de site que entra com 400px de largura fica borrada em tela cheia, e
+  // o dono só descobre depois de publicar. Melhor recusar com o número na mão.
+  if (meta.width < 900) {
+    return {
+      ok: false,
+      motivo: `A imagem tem ${meta.width}px de largura. Para o site, o mínimo é 900px — abaixo disso ela aparece borrada em tela grande.`,
+    }
+  }
+
+  const normalizada = await sharp(bruto)
+    .rotate()
+    .resize(2200, 2200, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 82, mozjpeg: true })
+    .toBuffer({ resolveWithObject: true })
+
+  await gravar(path.join(PASTA_SITE, `${entrada.slot}.jpg`), normalizada.data)
+
+  return {
+    ok: true,
+    bytes: normalizada.data.length,
+    largura: normalizada.info.width,
+    altura: normalizada.info.height,
+  }
+}
+
+/**
+ * A "versão" da foto enviada para um slot, ou `null` se não houver nenhuma.
+ *
+ * O número é o instante da última gravação. Ele entra na URL da imagem, e é o
+ * que faz a troca de foto aparecer NA HORA.
+ *
+ * Sem ele, o defeito é dos que enganam: o Next guarda a versão otimizada de
+ * cada imagem indexada pela URL. Trocar o arquivo mantendo a URL faz o site
+ * continuar servindo a foto velha, do cache, por tempo indeterminado. O dono
+ * envia a nova, vê a antiga, envia de novo, e conclui que o sistema não salva.
+ * Aconteceu neste projeto com as fotos de `public/fotos`.
+ *
+ * Síncrona de propósito: quem chama é a montagem da página, que precisa do
+ * caminho antes de renderizar.
+ */
+export function versaoFotoDoSite(slot: string): number | null {
+  if (!/^[a-z0-9]+$/.test(slot)) return null
+  try {
+    const st = statSync(seguro(path.join(PASTA_SITE, `${slot}.jpg`)))
+    return Math.trunc(st.mtimeMs)
+  } catch {
+    return null
+  }
+}
+
+/** Lê os bytes de uma foto do site. `null` se não existir. */
+export async function lerFotoDoSite(slot: string): Promise<Buffer | null> {
+  if (!/^[a-z0-9]+$/.test(slot)) return null
+  return lerArquivo(path.join(PASTA_SITE, `${slot}.jpg`))
+}
+
+/** Tira a foto enviada, fazendo o site voltar para a que vem na imagem. */
+export async function apagarFotoDoSite(slot: string): Promise<void> {
+  if (!/^[a-z0-9]+$/.test(slot)) return
+  await apagarArquivo(path.join(PASTA_SITE, `${slot}.jpg`))
 }
 
 async function gravar(relativo: string, dados: Buffer): Promise<void> {

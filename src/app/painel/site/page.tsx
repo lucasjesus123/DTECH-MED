@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { CONTEUDO_PADRAO, interpretarConteudo } from '@/lib/conteudo'
 import { comEscopo } from '@/lib/db'
+import { listarFotosDoSite } from '@/server/acoes/site-fotos'
 import { exigirSuperAdmin } from '@/server/auth/guarda'
 import EditorDoSite from './editor'
 
@@ -35,11 +36,17 @@ export default async function PaginaSite() {
     ? interpretarConteudo(linha.dados)
     : { conteudo: CONTEUDO_PADRAO }
 
+  // Quais lugares já têm foto enviada. Lido aqui, no servidor, para a aba de
+  // fotos abrir com as miniaturas certas em vez de piscar vazia e preencher
+  // depois.
+  const fotos = await listarFotosDoSite()
+
   return (
     <EditorDoSite
       inicial={conteudo}
       versao={linha?.versao ?? 0}
       atualizadoEm={linha?.atualizadoEm?.toISOString() ?? null}
+      fotos={fotos}
     />
   )
 }

@@ -133,16 +133,29 @@ const TEM_POSTER = existsSync(path.join(process.cwd(), 'public', 'video', 'ofici
  * nunca ficar com um retângulo vazio, e sai de cena assim que houver material
  * de verdade.
  */
-const TEM_FOTO_DOBRA = acharFoto('oficina') !== null
+/**
+ * Função, e não constante.
+ *
+ * Como constante isto era avaliado UMA VEZ, quando o módulo carrega — ou seja,
+ * na partida do processo. Com as fotos entrando pelo painel, isso significaria
+ * que a foto enviada só apareceria depois de reiniciar o contêiner: o dono
+ * envia, recarrega, não vê nada, e conclui que não funcionou.
+ *
+ * A página é montada a cada pedido, então a conta sai barata e a resposta é
+ * sempre a de agora.
+ */
+function temFotoNaDobra() {
+  return acharFoto('oficina') !== null
+}
 
 /**
  * As fotos da faixa do perfil do Google, na ordem em que fazem sentido para
  * quem está decidindo se manda o aparelho: primeiro a oficina, depois a mão
  * trabalhando, depois os tipos de equipamento.
  *
- * A lista é filtrada no build: só sobra o que existe em `public/fotos/`. Se
- * nada existir, a faixa inteira some, e a seção continua de pé com as
- * avaliações — que é o essencial dela.
+ * A lista é filtrada a cada pedido: só sobra o que existe, seja foto enviada
+ * pelo painel ou foto de fábrica. Se nada existir, a faixa inteira some, e a
+ * seção continua de pé com as avaliações — que é o essencial dela.
  */
 /**
  * O nome da foto vem do conteúdo editável, ou seja, de um campo de texto que o
@@ -160,39 +173,43 @@ function fotoValida(nome: string): NomeFoto | null {
   return acharFoto(n) ? n : null
 }
 
-const FOTOS_DO_PERFIL = (
-  [
-    ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
-    ['bancada', 'Técnico com luva segurando a ponteira aberta'],
-    ['estetica', 'Aparelho de ozonioterapia sendo configurado'],
-    ['medico', 'Placa de circuito aberta na bancada'],
-    ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
-    ['detalhe', 'Trabalho de precisão na bancada'],
-  ] as const
-)
-  .filter(([nome]) => acharFoto(nome) !== null)
-  .map(([nome, alt]) => ({ nome, alt }))
+const CANDIDATAS_DO_PERFIL = [
+  ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
+  ['bancada', 'Técnico com luva segurando a ponteira aberta'],
+  ['estetica', 'Aparelho de ozonioterapia sendo configurado'],
+  ['medico', 'Placa de circuito aberta na bancada'],
+  ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
+  ['detalhe', 'Trabalho de precisão na bancada'],
+] as const
+
+function fotosDoPerfil() {
+  return CANDIDATAS_DO_PERFIL.filter(([nome]) => acharFoto(nome) !== null).map(
+    ([nome, alt]) => ({ nome, alt }),
+  )
+}
 
 /**
  * As fotos que rodam no carrossel dos bastidores.
  *
- * A mesma pasta das outras, filtrada no build: só entra o que existe. Se não
- * existir nenhuma E não houver feed do Instagram configurado, a seção inteira
- * não é renderizada — ver `TEM_BASTIDORES` logo abaixo.
+ * Os mesmos lugares das outras, filtrados a cada pedido: só entra o que existe.
+ * Se não existir nenhuma E não houver feed do Instagram configurado, a seção
+ * inteira não é renderizada.
  */
-const FOTOS_BASTIDORES = (
-  [
-    ['bancada', 'Técnico com luva segurando a ponteira aberta, painel de ferramentas ao fundo'],
-    ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
-    ['medico', 'Placa de circuito aberta na bancada, ao lado da pasta térmica'],
-    ['estetica', 'Aparelho de ozonioterapia sendo configurado no painel'],
-    ['bancada2', 'Técnico com o módulo retirado de dentro da ponteira'],
-    ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
-    ['detalhe', 'Aplicação de composto na bancada, em trabalho de precisão'],
-  ] as const
-)
-  .filter(([nome]) => acharFoto(nome) !== null)
-  .map(([nome, alt]) => ({ nome, alt }))
+const CANDIDATAS_BASTIDORES = [
+  ['bancada', 'Técnico com luva segurando a ponteira aberta, painel de ferramentas ao fundo'],
+  ['oficina', 'A assistência, com vários equipamentos estéticos em atendimento'],
+  ['medico', 'Placa de circuito aberta na bancada, ao lado da pasta térmica'],
+  ['estetica', 'Aparelho de ozonioterapia sendo configurado no painel'],
+  ['bancada2', 'Técnico com o módulo retirado de dentro da ponteira'],
+  ['hospitalar', 'Equipamento de grande porte aberto, com a eletrônica à mostra'],
+  ['detalhe', 'Aplicação de composto na bancada, em trabalho de precisão'],
+] as const
+
+function fotosDosBastidores() {
+  return CANDIDATAS_BASTIDORES.filter(([nome]) => acharFoto(nome) !== null).map(
+    ([nome, alt]) => ({ nome, alt }),
+  )
+}
 
 export default async function Home({
   searchParams,
@@ -202,6 +219,12 @@ export default async function Home({
   /* `?previa=1` só é usado pela tela de edição, dentro da moldura. Para o
      visitante comum nada muda: a ponte simplesmente não é montada. */
   const ehPrevia = (await searchParams).previa === '1'
+
+  /* Quais fotos existem AGORA. Calculado uma vez por requisição, e não na
+     partida do processo: é o que faz a foto enviada pelo painel aparecer no
+     recarregar seguinte, em vez de só depois de reiniciar o contêiner. */
+  const fotosPerfil = fotosDoPerfil()
+  const fotosBastidores = fotosDosBastidores()
 
   /**
    * O conteúdo do site, vindo do banco.
@@ -217,7 +240,7 @@ export default async function Home({
   /* Depende do conteúdo, então mora aqui e não no topo do arquivo. */
   const temBastidores =
     Boolean(c.redes.instagram) &&
-    (FOTOS_BASTIDORES.length > 0 || Boolean(c.redes.instagramFeed))
+    (fotosBastidores.length > 0 || Boolean(c.redes.instagramFeed))
 
   return (
     <>
@@ -246,7 +269,7 @@ export default async function Home({
               traço de sinal são o instrumento do ofício de quem calibra. */}
           {TEM_VIDEO ? (
             <FundoVideo pôster={TEM_POSTER ? '/video/oficina.jpg' : ''} />
-          ) : TEM_FOTO_DOBRA ? (
+          ) : temFotoNaDobra() ? (
             <div className={estilo.dobraFoto}>
               <Foto
                 nome="oficina"
@@ -558,11 +581,11 @@ export default async function Home({
               {/* A faixa de fotos, como a aba "Fotos" do perfil. Só entra se
                   houver foto: uma faixa vazia com título "Fotos" é pior que
                   faixa nenhuma. */}
-              {FOTOS_DO_PERFIL.length > 0 ? (
+              {fotosPerfil.length > 0 ? (
                 <div className={estilo.gmnFotos}>
                   <p className={estilo.gmnFotosTit}>{c.google.tituloFotos}</p>
                   <ul className={estilo.gmnTira}>
-                    {FOTOS_DO_PERFIL.map(({ nome, alt }) => (
+                    {fotosPerfil.map(({ nome, alt }) => (
                       <li key={nome} className={estilo.gmnTiraItem}>
                         <Foto
                           nome={nome}
@@ -639,7 +662,7 @@ export default async function Home({
                           className={estilo.bastLista}
                           aria-hidden={copia || undefined}
                         >
-                          {FOTOS_BASTIDORES.map(({ nome, alt }) => (
+                          {fotosBastidores.map(({ nome, alt }) => (
                             <li key={nome}>
                               <Foto
                                 nome={nome}

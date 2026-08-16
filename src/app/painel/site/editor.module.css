@@ -393,3 +393,125 @@
   display: block;
   background: #08040F;
 }
+
+/* --------------------------------------------------------------------------
+   ABA DE FOTOS
+   --------------------------------------------------------------------------
+   Miniatura à esquerda, explicação e botões à direita. A miniatura é pequena de
+   propósito: ela responde "qual está lá hoje?", e quem quiser conferir de
+   verdade olha a prévia do lado, que mostra a foto no tamanho real e no lugar
+   real da página.
+   -------------------------------------------------------------------------- */
+
+.fotoLinha {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--s3);
+  align-items: start;
+}
+
+.fotoMiniatura {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 72px;
+  overflow: hidden;
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--papel);
+}
+
+.fotoMiniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fotoVazia {
+  font-size: var(--t-xs);
+  line-height: 1.3;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.fotoTexto { display: grid; gap: var(--s2); }
+
+.fotoBotoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+/* O campo de arquivo do navegador não se deixa estilizar, então o `input` fica
+   escondido dentro da etiqueta e ela vira o botão. A etiqueta continua sendo o
+   rótulo do campo, então clicar nela abre o seletor sem nenhum JavaScript — e
+   o foco pelo teclado continua funcionando. */
+.fotoEscolher {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--s4);
+  border: 1px solid var(--vio-800);
+  border-radius: 999px;
+  background: var(--vio-800);
+  color: #fff;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fotoEscolher:hover { opacity: .9; }
+
+.fotoEscolher:has(input:focus-visible) {
+  outline: 2px solid var(--vio-800);
+  outline-offset: 2px;
+}
+
+.fotoEscolher input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.fotoEscolher:has(input:disabled) {
+  opacity: .5;
+  cursor: default;
+}
+
+/* --------------------------------------------------------------------------
+   ABA DE HISTÓRICO
+   -------------------------------------------------------------------------- */
+
+.versoes {
+  display: grid;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.versaoItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  padding: var(--s3);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--branco);
+  font-size: var(--t-sm);
+  color: var(--ink);
+}
+
+.versaoQuando {
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}

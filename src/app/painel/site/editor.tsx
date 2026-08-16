@@ -3,8 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import type { Conteudo } from '@/lib/conteudo'
 import { salvarConteudo } from '@/server/acoes/conteudo'
+import type { SlotFoto } from '@/server/acoes/site-fotos'
 import { ABAS, escrever, ler, type Aba, type Campo } from './campos'
 import estilo from './editor.module.css'
+import Fotos from './fotos'
+import Historico from './historico'
 
 /**
  * O EDITOR DO SITE.
@@ -34,9 +37,26 @@ import estilo from './editor.module.css'
  * sem avisar é pior que ser honesto sobre o limite.
  */
 
-type Props = { inicial: Conteudo; versao: number; atualizadoEm: string | null }
+type Props = {
+  inicial: Conteudo
+  versao: number
+  atualizadoEm: string | null
+  fotos: SlotFoto[]
+}
 
-export default function EditorDoSite({ inicial, versao, atualizadoEm }: Props) {
+/**
+ * Duas abas que não são seções do site.
+ *
+ * Elas moram na mesma fileira das outras porque é onde a pessoa procura, mas
+ * funcionam por conta própria: Fotos envia na hora, sem passar pelo botão
+ * Salvar, e Histórico só lê e restaura. Marcá-las aqui, em vez de misturá-las
+ * na lista de seções, é o que mantém o `ABAS` como o que ele é — a descrição
+ * do conteúdo editável, e nada além disso.
+ */
+const ABA_FOTOS = '__fotos'
+const ABA_HISTORICO = '__historico'
+
+export default function EditorDoSite({ inicial, versao, atualizadoEm, fotos }: Props) {
   const [conteudo, setConteudo] = useState<Conteudo>(inicial)
   const [abaId, setAbaId] = useState(ABAS[0]!.id)
   const [versaoAtual, setVersaoAtual] = useState(versao)
@@ -48,6 +68,7 @@ export default function EditorDoSite({ inicial, versao, atualizadoEm }: Props) {
   const moldura = useRef<HTMLIFrameElement>(null)
   const pontePronta = useRef(false)
 
+  const abaEspecial = abaId === ABA_FOTOS || abaId === ABA_HISTORICO
   const aba = useMemo(() => ABAS.find((a) => a.id === abaId) ?? ABAS[0]!, [abaId])
 
   /** Houve mudança desde que a tela abriu? Serve para o aviso de sair sem salvar. */
@@ -188,9 +209,40 @@ export default function EditorDoSite({ inicial, versao, atualizadoEm }: Props) {
                 {a.nome}
               </button>
             ))}
+
+            <button
+              type="button"
+              className={abaId === ABA_FOTOS ? estilo.abaAtiva : estilo.aba}
+              onClick={() => setAbaId(ABA_FOTOS)}
+              aria-current={abaId === ABA_FOTOS ? 'true' : undefined}
+            >
+              Fotos
+            </button>
+            <button
+              type="button"
+              className={abaId === ABA_HISTORICO ? estilo.abaAtiva : estilo.aba}
+              onClick={() => setAbaId(ABA_HISTORICO)}
+              aria-current={abaId === ABA_HISTORICO ? 'true' : undefined}
+            >
+              Histórico
+            </button>
           </nav>
 
           <div className={estilo.campos}>
+            {abaId === ABA_FOTOS ? <Fotos inicial={fotos} /> : null}
+
+            {abaId === ABA_HISTORICO ? (
+              <Historico
+                versaoAtual={versaoAtual}
+                aoRestaurar={(v) => {
+                  setVersaoAtual(v)
+                  setPrecisaRecarregar(true)
+                }}
+              />
+            ) : null}
+
+            {abaEspecial ? null : (
+              <>
             <p className={estilo.descricao}>{aba.descricao}</p>
 
             {aba.campos.map((campo) => (
@@ -293,6 +345,8 @@ export default function EditorDoSite({ inicial, versao, atualizadoEm }: Props) {
                 </fieldset>
               )
             })}
+              </>
+            )}
           </div>
         </div>
 
