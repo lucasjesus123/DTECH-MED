@@ -43,7 +43,25 @@ alerta() { printf '  \033[33m!\033[0m %s\n' "$1"; }
 morre()  { printf '\n  \033[31m✗ %s\033[0m\n\n' "$1" >&2; exit 1; }
 titulo() { printf '\n\033[1m%s\033[0m\n' "$1"; }
 
-codigo() { curl -s -o /dev/null -w '%{http_code}' --max-time 12 "$1" 2>/dev/null || echo 000; }
+# Devolve o código HTTP, ou 000 quando não houve resposta nenhuma.
+#
+# O `|| echo 000` que estava aqui produzia "000000": quando o endereço não
+# responde, o curl imprime "000" E sai com código de erro, então o `echo`
+# acrescentava outro. Número inventado num relatório de saúde é pior que
+# número ausente, porque parece um código de verdade.
+codigo() {
+  local c
+  c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 12 "$1" 2>/dev/null)
+  [ -n "$c" ] || c=000
+  printf '%s' "$c"
+}
+
+# O nome resolve para algum IP? É a primeira pergunta quando um endereço não
+# responde, e a resposta separa "DNS ainda não propagou" de "a portaria não
+# conhece o nome" — dois problemas com donos diferentes.
+resolve() {
+  getent ahostsv4 "$1" 2>/dev/null | awk 'NR==1{print $1}'
+}
 
 # ---------------------------------------------------------------------------
 # Desfazer à mão, depois do fato.
@@ -111,13 +129,43 @@ docker ps --format '{{.Names}}' | grep -qx "$PORTARIA" \
   || morre "o contêiner da portaria ('$PORTARIA') não está rodando. Confira o nome com: docker ps"
 verde "portaria encontrada: $PORTARIA"
 
+# Todos os nomes que ESTE arquivo atende, lidos das linhas de abertura de bloco:
+# sem indentação, sem comentário, terminando em `{`.
+#
+# Ler do arquivo, e não de uma lista repetida no script, é o que impede este
+# relatório de mentir no dia em que alguém acrescentar um domínio lá e esquecer
+# daqui. A mesma lista serve para duas coisas: conferir os redirecionamentos no
+# fim, e não confundir um endereço nosso com um vizinho.
+CABECALHOS=$(awk '/^[^#[:space:]{].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' infra/caddy/dtechmed.caddy)
+verde "o nosso bloco atende: $(printf '%s' "$CABECALHOS" | tr '\n' ' ')"
+
 # ---------------------------------------------------------------------------
 titulo "3. Fotografia dos vizinhos, antes de tocar em nada"
 # ---------------------------------------------------------------------------
+# Os nomes dos vizinhos são LIDOS da configuração da própria portaria, e não de
+# uma lista escrita aqui.
+#
+# A lista escrita à mão parece mais simples e mente calada: um nome errado nela
+# aparece como vizinho fora do ar (e a gente aprende a ignorar), e um vizinho
+# novo que ninguém acrescentou aqui simplesmente não é vigiado. Lido da
+# configuração, o conjunto é exatamente quem a portaria atende hoje.
+DESCOBERTOS=$(docker exec "$PORTARIA" sh -c \
+  'cat /etc/caddy/Caddyfile /data/sites-extra/*.caddy 2>/dev/null' 2>/dev/null \
+  | awk '/^[^#[:space:]{].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' \
+  | tr ' ' '\n' | sed 's#^https\?://##' | grep '\.' | sort -u \
+  | grep -vxF "$(printf '%s' "$CABECALHOS" | tr ' ' '\n')")
+
+if [ -n "$DESCOBERTOS" ]; then
+  read -r -a VIZINHOS <<< "$(printf '%s ' $DESCOBERTOS)"
+  verde "$(printf '%s\n' $DESCOBERTOS | grep -c .) nome(s) de vizinho lidos da configuração da portaria"
+else
+  alerta "não consegui ler os nomes da portaria — usando a lista de reserva"
+fi
+
 declare -A ANTES
 for V in "${VIZINHOS[@]}"; do
   ANTES[$V]=$(codigo "https://$V")
-  printf '      %-28s %s\n' "$V" "${ANTES[$V]}"
+  printf '      %-32s %s\n' "$V" "${ANTES[$V]}"
 done
 
 # Vizinho que JÁ estava fora do ar não pode ser confundido com estrago nosso —
@@ -187,9 +235,13 @@ for V in "${VIZINHOS[@]}"; do
   D=$(codigo "https://$V")
   if [ "${ANTES[$V]}" != "000" ] && [ "$D" = "000" ]; then
     QUEBROU="$QUEBROU $V"
-    printf '      %-28s %s → %s  \033[31mCAIU\033[0m\n' "$V" "${ANTES[$V]}" "$D"
+    printf '      %-32s %s → %s  \033[31mCAIU\033[0m\n' "$V" "${ANTES[$V]}" "$D"
+  elif [ "$D" = "000" ]; then
+    # Já estava assim antes de encostarmos. Não é estrago nosso, e também não é
+    # motivo para ficar quieto: pode ser um vizinho fora do ar de verdade.
+    printf '      %-32s %s → %s  (já estava assim antes)\n' "$V" "${ANTES[$V]}" "$D"
   else
-    printf '      %-28s %s → %s\n' "$V" "${ANTES[$V]}" "$D"
+    printf '      %-32s %s → %s\n' "$V" "${ANTES[$V]}" "$D"
   fi
 done
 
@@ -234,22 +286,34 @@ titulo "9. E os endereços que só apontam o caminho?"
 # O caminho e a busca precisam atravessar inteiros. É o que garante que um link
 # de ordem de serviço mandado por WhatsApp abra a ordem, e não a home — o token
 # vive na URL, e perder a URL é perder o acesso.
-#
-# Os nomes saem das linhas de abertura de bloco do próprio arquivo: sem
-# indentação, sem comentário, terminando em `{`. Ler do arquivo, e não de uma
-# lista repetida aqui, é o que impede este relatório de mentir no dia em que
-# alguém acrescentar um domínio lá e esquecer daqui.
-CABECALHOS=$(awk '/^[^#[:space:]].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' infra/caddy/dtechmed.caddy)
+MUDOS=""
 for OUTRO in $CABECALHOS; do
   [ "$OUTRO" != "$DOMINIO" ] || continue
-  DESTINO=$(curl -sI --max-time 12 "https://$OUTRO/os/teste?x=1" 2>/dev/null | grep -i '^location:' | tr -d '\r' | awk '{print $2}')
   COD=$(codigo "https://$OUTRO")
-  if [ -n "$DESTINO" ]; then
-    printf '      %-28s %s → %s\n' "$OUTRO" "$COD" "$DESTINO"
+  DESTINO=$(curl -sI --max-time 12 "https://$OUTRO/os/teste?x=1" 2>/dev/null | grep -i '^location:' | tr -d '\r' | awk '{print $2}')
+
+  if [ "$COD" = "000" ]; then
+    # Sem resposta NÃO é "atende direto". Chamar as duas coisas pelo mesmo nome
+    # foi um defeito real deste relatório: um endereço que não subiu aparecia
+    # com uma legenda tranquilizadora ao lado.
+    IP=$(resolve "$OUTRO")
+    if [ -z "$IP" ]; then
+      printf '      %-32s sem resposta  \033[33mo nome não resolve — falta o registro A no painel do domínio\033[0m\n' "$OUTRO"
+    else
+      printf '      %-32s sem resposta  \033[33maponta para %s — DNS ainda propagando, ou o certificado saindo\033[0m\n' "$OUTRO" "$IP"
+    fi
+    MUDOS="$MUDOS $OUTRO"
+  elif [ -n "$DESTINO" ]; then
+    printf '      %-32s %s → %s\n' "$OUTRO" "$COD" "$DESTINO"
   else
-    printf '      %-28s %s (atende direto)\n' "$OUTRO" "$COD"
+    printf '      %-32s %s (atende direto)\n' "$OUTRO" "$COD"
   fi
 done
+
+if [ -n "$MUDOS" ]; then
+  alerta "endereço(s) ainda sem resposta:$MUDOS"
+  alerta "o site principal está no ar; estes são os que faltam. Confira o DNS deles e rode este script de novo."
+fi
 
 # ---------------------------------------------------------------------------
 titulo "Pronto"
