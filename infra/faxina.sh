@@ -101,10 +101,23 @@ if [ "$PENDURADAS" -eq 0 ]; then
   verde 'nenhuma imagem pendurada — as construções não estão deixando sobra'
 fi
 if [ "$PENDURADAS" -gt 0 ]; then
-  alerta "$PENDURADAS imagem(ns) pendurada(s) — cada subir.sh deixa uma para trás"
-  nota "São versões antigas, já substituídas. Nenhum contêiner em pé depende delas."
-  nota "Mas elas não têm nome, então não dá para saber se alguma é de vizinho:"
-  nota "o --limpar apaga só as que a NOSSA imagem substituiu, uma a uma."
+  alerta "$PENDURADAS imagem(ns) pendurada(s) — versões antigas, já substituídas"
+  nota 'Nenhum contêiner em pé depende delas.'
+  nota ''
+  # Isto não é sobre espaço.
+  #
+  # Uma imagem construída antes do .dockerignore carrega uma cópia do .env de
+  # produção congelada dentro dela: a ENCRYPTION_KEY, o SESSION_SECRET, as
+  # senhas do banco. Reconstruir a imagem tira o segredo da NOVA e deixa a
+  # antiga intacta, sem nome, no disco.
+  #
+  # É a forma mais teimosa desse vazamento: trocar a senha no .env não muda o
+  # que está lá dentro, e nenhuma ferramenta de segredo olha para camadas de
+  # imagem sem nome.
+  grave 'Imagem pendurada de antes do .dockerignore guarda uma cópia do .env.'
+  nota 'Trocar a senha no arquivo NÃO muda o que está congelado dentro dela.'
+  nota 'Elas não têm nome, então o --limpar não sai apagando: ele confere o'
+  nota 'rótulo do projeto em cada uma e leva só as da nossa gaveta.'
 fi
 
 # ---------------------------------------------------------------------------
