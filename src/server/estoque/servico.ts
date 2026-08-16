@@ -1,6 +1,6 @@
 import { Prisma } from '@/generated/prisma/client'
 import { TipoMovimentoEstoque as TM } from '@/generated/prisma/enums'
-import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
+import { comEscopo, type ContextoAcesso, type Transacao, exigirEmpresa } from '@/lib/db'
 
 /**
  * Estoque.
@@ -172,7 +172,7 @@ export async function reservarDoOrcamento(
 
     let n = 0
     for (const i of itens) {
-      const r = await movimentar(tx, ctx.tenantId!, autor, {
+      const r = await movimentar(tx, exigirEmpresa(ctx), autor, {
         pecaId: i.pecaId!,
         tipo: TM.RESERVA,
         quantidade: Number(i.quantidade),
@@ -201,7 +201,7 @@ export async function consumirNaExecucao(
     })
     let n = 0
     for (const r of reservas) {
-      const m = await movimentar(tx, ctx.tenantId!, autor, {
+      const m = await movimentar(tx, exigirEmpresa(ctx), autor, {
         pecaId: r.pecaId,
         tipo: TM.SAIDA,
         quantidade: Number(r.quantidade),
@@ -235,7 +235,7 @@ export async function liberarReservas(
     let n = 0
     for (const r of reservas) {
       if (jaSaiu.has(r.pecaId)) continue
-      await movimentar(tx, ctx.tenantId!, autor, {
+      await movimentar(tx, exigirEmpresa(ctx), autor, {
         pecaId: r.pecaId,
         tipo: TM.LIBERACAO,
         quantidade: Number(r.quantidade),

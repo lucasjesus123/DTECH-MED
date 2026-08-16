@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Papel } from '@/generated/prisma/enums'
 import { hashDocumento } from '@/lib/cripto'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 
@@ -93,7 +93,7 @@ export async function salvarCliente(_anterior: Resposta, form: FormData): Promis
 
     const cliente = v.id
       ? await tx.cliente.update({ where: { id: v.id }, data: dados, select: { id: true } })
-      : await tx.cliente.create({ data: { tenantId: a.ctx.tenantId!, ...dados }, select: { id: true } })
+      : await tx.cliente.create({ data: { tenantId: exigirEmpresa(a.ctx), ...dados }, select: { id: true } })
 
     return { ok: true as const, id: cliente.id }
   })
@@ -172,7 +172,7 @@ export async function salvarEquipamento(_anterior: Resposta, form: FormData): Pr
 
     const eq = v.id
       ? await tx.equipamento.update({ where: { id: v.id }, data: dados, select: { id: true } })
-      : await tx.equipamento.create({ data: { tenantId: a.ctx.tenantId!, ...dados }, select: { id: true } })
+      : await tx.equipamento.create({ data: { tenantId: exigirEmpresa(a.ctx), ...dados }, select: { id: true } })
 
     return { ok: true as const, id: eq.id }
   })

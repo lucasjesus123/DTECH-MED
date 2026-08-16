@@ -6,8 +6,18 @@ const owner = new Client({ connectionString: process.env.DIRECT_DATABASE_URL })
 const app = new Client({ connectionString: process.env.DATABASE_URL!.replace(/\?.*$/, '') })
 await owner.connect(); await app.connect()
 
-// Depois do FORCE ROW LEVEL SECURITY, nem o dono lê fora do escopo — por isso
-// a lista de empresas vem pelo contexto de Super Admin, e não "de graça".
+// `FORCE ROW LEVEL SECURITY` alcança o DONO da tabela, mas NÃO alcança
+// superusuário — e `dtechmed_owner` é superusuário, porque é o papel que roda
+// as migrações e precisa criar tabela, política e função.
+//
+// Isso não é brecha, e vale entender por quê: este papel nunca atende
+// requisição da web. A aplicação conecta com `dtechmed_app`, que é
+// `NOSUPERUSER NOBYPASSRLS` — e é sobre ele que o isolamento tem de valer.
+// O papel do dono só é usado pelo CLI, na hora de migrar.
+//
+// A versão anterior deste comentário dizia "nem o dono lê fora do escopo".
+// Estava errado, e um teste que afirma mais do que prova é pior que teste
+// nenhum: ele ensina a confiar no lugar errado.
 await owner.query(`BEGIN`)
 await owner.query(`SELECT set_config('app.is_super_admin', 'on', true)`)
 const tenants = await owner.query(`SELECT id, slug FROM tenants ORDER BY slug`)
@@ -15,8 +25,8 @@ await owner.query(`COMMIT`)
 console.log('empresas no banco:', tenants.rows.map(r => r.slug).join(', ') || '(nenhuma)')
 
 const total = await owner.query(`SELECT count(*)::int n FROM ordens`)
-console.log(`\nDONO (dtechmed_owner), sem definir app.tenant_id:`)
-console.log(`  ordens visíveis: ${total.rows[0].n}`)
+console.log(`\nDONO (dtechmed_owner) — SUPERUSUÁRIO, usado só pelas migrações:`)
+console.log(`  ordens visíveis: ${total.rows[0].n}  (superusuário ignora RLS, por definição)`)
 
 const alvo = tenants.rows[0]?.id ?? ''
 await app.query(`BEGIN`)

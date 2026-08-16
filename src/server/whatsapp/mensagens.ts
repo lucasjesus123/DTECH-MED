@@ -90,7 +90,7 @@ export const TEMPLATES: Record<string, Construtor> = {
     montar([
       saudacao(d),
       '',
-      `${equipamento(d)} saiu daí agora e já está vindo para a nossa oficina ✅`,
+      `${equipamento(d)} saiu daí agora e já está vindo para a nossa assistência ✅`,
       '',
       d.motorista && `🚚 Motorista: ${d.motorista}`,
       d.endereco && `📍 ${d.endereco}`,
@@ -106,7 +106,7 @@ export const TEMPLATES: Record<string, Construtor> = {
       saudacao(d),
       '',
       `Recebemos o aviso de que ${equipamento(d)} foi despachado 📦`,
-      `Assim que chegar na oficina, a gente te confirma.`,
+      `Assim que chegar na assistência, a gente te confirma.`,
       '',
       `Ordem ${d.numeroOrdem}.`,
       d.linkPortal && `Acompanhe por aqui: ${d.linkPortal}`,
@@ -117,7 +117,7 @@ export const TEMPLATES: Record<string, Construtor> = {
     montar([
       saudacao(d),
       '',
-      `${equipamento(d)} chegou na nossa oficina 🔧`,
+      `${equipamento(d)} chegou na nossa assistência 🔧`,
       d.qtdFotos ? `Registramos ${d.qtdFotos} fotos do estado em que ele chegou.` : null,
       '',
       `O próximo passo é a análise técnica. Assim que tivermos o diagnóstico, te mandamos o orçamento.`,

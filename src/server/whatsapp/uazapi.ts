@@ -1,5 +1,5 @@
 import { cifrar, decifrar } from '@/lib/cripto'
-import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
+import { comEscopo, type ContextoAcesso, type Transacao, exigirEmpresa } from '@/lib/db'
 import { env } from '@/lib/env'
 
 /**
@@ -188,7 +188,7 @@ export async function limites(token: string) {
 export async function tokenDaEmpresa(ctx: ContextoAcesso): Promise<string | null> {
   return comEscopo(ctx, async (tx) => {
     const i = await tx.whatsappInstance.findUnique({
-      where: { tenantId: ctx.tenantId! },
+      where: { tenantId: exigirEmpresa(ctx) },
       select: { uazTokenCifrado: true, status: true },
     })
     if (!i?.uazTokenCifrado) return null
@@ -212,9 +212,9 @@ export async function guardarToken(ctx: ContextoAcesso, dados: {
 }) {
   return comEscopo(ctx, async (tx) => {
     await tx.whatsappInstance.upsert({
-      where: { tenantId: ctx.tenantId! },
+      where: { tenantId: exigirEmpresa(ctx) },
       create: {
-        tenantId: ctx.tenantId!,
+        tenantId: exigirEmpresa(ctx),
         uazInstanceId: dados.uazInstanceId,
         // Cifrado em repouso: quem lê o banco não sai enviando mensagem pelo
         // número do cliente.

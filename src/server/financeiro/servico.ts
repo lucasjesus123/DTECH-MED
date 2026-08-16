@@ -1,5 +1,5 @@
 import type { FormaPagamento } from '@/generated/prisma/enums'
-import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { comEscopo, type ContextoAcesso, exigirEmpresa } from '@/lib/db'
 import { aplicarBaixa, formatarBRL } from '@/lib/dinheiro'
 
 /**
@@ -98,7 +98,7 @@ export async function darBaixa(
     for (const p of entrada.pagamentos) {
       await tx.pagamento.create({
         data: {
-          tenantId: ctx.tenantId!,
+          tenantId: exigirEmpresa(ctx),
           faturaId: f.id,
           forma: p.forma,
           valorCentavos: p.valorCentavos,
@@ -239,11 +239,11 @@ export async function emitirFatura(
 
     // Numeração por empresa, com bloqueio de linha: duas faturas emitidas ao
     // mesmo tempo não podem receber o mesmo número.
-    const numero = await proximoNumero(tx, ctx.tenantId!, 'fatura')
+    const numero = await proximoNumero(tx, exigirEmpresa(ctx), 'fatura')
 
     const f = await tx.fatura.create({
       data: {
-        tenantId: ctx.tenantId!,
+        tenantId: exigirEmpresa(ctx),
         ordemId,
         clienteId: ordem.clienteId,
         numero,

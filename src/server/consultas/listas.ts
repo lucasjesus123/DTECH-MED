@@ -1,5 +1,5 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
+import { comEscopo, prisma, type ContextoAcesso, exigirEmpresa } from '@/lib/db'
 
 /**
  * Consultas de listagem do painel.
@@ -545,8 +545,16 @@ export async function leadPorId(ctx: ContextoAcesso, id: string) {
 
 export async function painelWhatsapp(ctx: ContextoAcesso) {
   return comEscopo(ctx, async (tx) => {
-    const instancia = await tx.whatsappInstance.findUnique({
-      where: { tenantId: ctx.tenantId! },
+    /**
+     * O Super Admin não tem empresa, e a conexão do WhatsApp é DE uma empresa.
+     *
+     * Antes isto era `ctx.tenantId!`, e a tela devolvia erro 500 para o dono da
+     * plataforma — em uma tela que ele abre pelo menu. Consultar sem empresa
+     * não é erro dele: é uma pergunta sem resposta possível, e a resposta certa
+     * é "não há conexão para mostrar", não uma quebra.
+     */
+    const instancia = ctx.tenantId === null ? null : await tx.whatsappInstance.findUnique({
+      where: { tenantId: ctx.tenantId },
       // O token cifrado NÃO entra na seleção. Ele não tem por que sair do
       // servidor, e o jeito de garantir isso é não carregá-lo.
       select: {

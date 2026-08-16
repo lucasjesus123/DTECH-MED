@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Prisma } from '@/generated/prisma/client'
 import { Papel, TipoMovimentoEstoque } from '@/generated/prisma/enums'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
@@ -80,7 +80,7 @@ export async function salvarPeca(_anterior: Resposta, form: FormData): Promise<R
     } else {
       await tx.peca.create({
         data: {
-          tenantId: a.ctx.tenantId!,
+          tenantId: exigirEmpresa(a.ctx),
           ...dados,
           custoMedioCentavos: aCentavos(v.custoMedio),
         },
@@ -125,7 +125,7 @@ export async function lancarMovimento(_anterior: Resposta, form: FormData): Prom
   }
 
   const r = await comEscopo(a.ctx, (tx) =>
-    movimentar(tx, a.ctx.tenantId!, a.ator, {
+    movimentar(tx, exigirEmpresa(a.ctx), a.ator, {
       pecaId: v.pecaId,
       tipo: v.tipo as TipoMovimentoEstoque,
       quantidade: v.quantidade,

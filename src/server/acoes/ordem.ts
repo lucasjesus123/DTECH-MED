@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { hashDocumento, novoToken } from '@/lib/cripto'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
@@ -81,9 +81,9 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
 
   const ordemId = await comEscopo(a.ctx, async (tx) => {
     const cliente = await tx.cliente.upsert({
-      where: { tenantId_documento: { tenantId: a.ctx.tenantId!, documento: v.clienteDocumento } },
+      where: { tenantId_documento: { tenantId: exigirEmpresa(a.ctx), documento: v.clienteDocumento } },
       create: {
-        tenantId: a.ctx.tenantId!,
+        tenantId: exigirEmpresa(a.ctx),
         tipo: v.clienteDocumento.length === 11 ? 'PF' : 'PJ',
         nome: v.clienteNome,
         documento: v.clienteDocumento,
@@ -110,7 +110,7 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
         : null) ??
       (await tx.equipamento.create({
         data: {
-          tenantId: a.ctx.tenantId!,
+          tenantId: exigirEmpresa(a.ctx),
           clienteId: cliente.id,
           marca: v.marca,
           modelo: v.modelo,
@@ -121,8 +121,8 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
 
     const ordem = await tx.ordem.create({
       data: {
-        tenantId: a.ctx.tenantId!,
-        numero: await proximoNumero(tx, a.ctx.tenantId!, 'ordem'),
+        tenantId: exigirEmpresa(a.ctx),
+        numero: await proximoNumero(tx, exigirEmpresa(a.ctx), 'ordem'),
         clienteId: cliente.id,
         equipamentoId: equipamento.id,
         defeitoRelatado: v.defeito,
@@ -221,13 +221,13 @@ export async function anexarFotos(form: FormData): Promise<Resposta<{ total: num
 
   let gravadas = 0
   for (const arquivo of arquivos.slice(0, 12)) {
-    const r = await guardarFoto({ tenantId: a.ctx.tenantId!, ordemId, arquivo })
+    const r = await guardarFoto({ tenantId: exigirEmpresa(a.ctx), ordemId, arquivo })
     if (!r.ok) return { ok: false, motivo: r.motivo }
 
     await comEscopo(a.ctx, async (tx) => {
       await tx.foto.create({
         data: {
-          tenantId: a.ctx.tenantId!,
+          tenantId: exigirEmpresa(a.ctx),
           ordemId,
           categoria: categoria as never,
           caminho: r.caminho,
@@ -326,7 +326,7 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
   }
 
   const img = await guardarAssinatura({
-    tenantId: a.ctx.tenantId!,
+    tenantId: exigirEmpresa(a.ctx),
     ordemId: v.ordemId,
     dataUrl: v.dataUrl,
   })
@@ -336,7 +336,7 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
   await comEscopo(a.ctx, async (tx) => {
     await tx.assinatura.create({
       data: {
-        tenantId: a.ctx.tenantId!,
+        tenantId: exigirEmpresa(a.ctx),
         ordemId: v.ordemId,
         tipo: v.tipo,
         assinanteNome: v.assinanteNome,

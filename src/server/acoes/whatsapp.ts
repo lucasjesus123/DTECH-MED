@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { Papel } from '@/generated/prisma/enums'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { conectar, criarInstancia, guardarToken, status, tokenDaEmpresa } from '@/server/whatsapp/uazapi'
@@ -44,7 +44,7 @@ export async function conectarWhatsapp(): Promise<Resposta<{ qrcode: string | nu
 
     if (!token) {
       const empresa = await comEscopo(a.ctx, (tx) =>
-        tx.tenant.findUnique({ where: { id: a.ctx.tenantId! }, select: { nome: true } }),
+        tx.tenant.findUnique({ where: { id: exigirEmpresa(a.ctx) }, select: { nome: true } }),
       )
       if (!empresa) return { ok: false, motivo: 'Empresa não encontrada.' }
 
@@ -91,7 +91,7 @@ export async function atualizarStatusWhatsapp(): Promise<Resposta<{ conectado: b
     const s = await status(token)
     await comEscopo(a.ctx, async (tx) => {
       await tx.whatsappInstance.update({
-        where: { tenantId: a.ctx.tenantId! },
+        where: { tenantId: exigirEmpresa(a.ctx) },
         data: {
           status: s.conectado ? 'CONECTADA' : 'DESCONECTADA',
           profileName: s.profileName,

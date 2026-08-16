@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { Prisma } from '@/generated/prisma/client'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos, calcularTotal } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
@@ -143,9 +143,9 @@ export async function salvarOrcamento(
         })
       : await tx.orcamento.create({
           data: {
-            tenantId: a.ctx.tenantId!,
+            tenantId: exigirEmpresa(a.ctx),
             ordemId: v.ordemId,
-            numero: atual?.numero ?? (await proximoNumero(tx, a.ctx.tenantId!, 'orcamento')),
+            numero: atual?.numero ?? (await proximoNumero(tx, exigirEmpresa(a.ctx), 'orcamento')),
             // Versão nova preserva a que o cliente já viu.
             versao: atual ? atual.versao + 1 : 1,
             status: 'EM_REVISAO',
@@ -159,7 +159,7 @@ export async function salvarOrcamento(
 
     await tx.orcamentoItem.createMany({
       data: linhas.map((l) => ({
-        tenantId: a.ctx.tenantId!,
+        tenantId: exigirEmpresa(a.ctx),
         orcamentoId: orcamento.id,
         tipo: l.tipo,
         pecaId: l.tipo === 'PECA' && l.pecaId ? l.pecaId : null,

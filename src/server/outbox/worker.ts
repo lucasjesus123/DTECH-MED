@@ -210,8 +210,15 @@ async function enviarAvisoDaEtapa(job: Job) {
     return
   }
 
-  const token = await comEscopo({ tenantId: job.tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
-    tokenDaEmpresaNaTx(tx, job.tenantId!),
+  // Todo trabalho de WhatsApp nasce dentro de uma empresa. Se um chegar sem
+  // ela, o certo é falhar ESTE trabalho com uma frase que se entende — e não
+  // deixar o banco recusar o nulo lá dentro, com um erro que ninguém liga ao
+  // trabalho que o causou.
+  const empresa = job.tenantId
+  if (!empresa) throw new Error('Trabalho de WhatsApp sem empresa; nada foi enviado.')
+
+  const token = await comEscopo({ tenantId: empresa, userId: null, ehSuperAdmin: false }, (tx) =>
+    tokenDaEmpresaNaTx(tx, empresa),
   )
   if (!token) {
     throw new Error('WhatsApp da empresa não está conectado.')
@@ -259,8 +266,9 @@ async function registrarMensagem(
 
 /** Marcador do gerador de PDF, implementado em src/server/documentos. */
 async function gerarDocumento(job: Job) {
+  if (!job.tenantId) throw new Error('Trabalho de documento sem empresa; nada foi gerado.')
   const { gerarPdfDaOrdem } = await import('@/server/documentos/gerar')
-  await gerarPdfDaOrdem(job.payload as never, job.tenantId!)
+  await gerarPdfDaOrdem(job.payload as never, job.tenantId)
 }
 
 // ---------------------------------------------------------------------------

@@ -41,6 +41,47 @@ export type ContextoAcesso = {
 export type Transacao = Parameters<Parameters<PrismaClient['$transaction']>[0]>[0]
 
 /**
+ * Erro de quem pediu algo de empresa sem estar em uma.
+ *
+ * É o caso do Super Admin: ele administra a plataforma, não pertence a nenhuma
+ * franquia. Toda tela e toda ação que trabalha sobre dados de UMA empresa
+ * precisa de um `tenantId`, e ele não tem.
+ */
+export class SemEmpresaError extends Error {
+  constructor(oQue = 'Esta operação') {
+    super(
+      `${oQue} pertence a uma empresa, e o administrador da plataforma não está em nenhuma. ` +
+        'Entre pela conta de um usuário da empresa.',
+    )
+    this.name = 'SemEmpresaError'
+  }
+}
+
+/**
+ * A empresa do contexto, ou um erro que se entende.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO EXISTE
+ * ---------------------------------------------------------------------------
+ * O código escrevia `exigirEmpresa(ctx)` em 31 lugares. A exclamação cala o
+ * compilador dizendo "confie, não é nulo" — e para o Super Admin ele É nulo,
+ * sempre.
+ *
+ * O resultado foi encontrado num teste que abriu todas as telas com todos os
+ * papéis: a tela do WhatsApp devolvia erro 500 para o dono da plataforma e
+ * funcionava para todos os outros. Erro de banco cru na tela, sem explicação,
+ * numa tela que ele pode abrir pelo menu.
+ *
+ * Trocar a exclamação por esta função não faz o Super Admin passar a ter
+ * empresa — não deveria mesmo. O que ela faz é transformar uma quebra
+ * incompreensível numa frase que diz o que houve e o que fazer.
+ */
+export function exigirEmpresa(ctx: ContextoAcesso, oQue?: string): string {
+  if (!ctx.tenantId) throw new SemEmpresaError(oQue)
+  return ctx.tenantId
+}
+
+/**
  * Roda `fn` dentro de uma transação já carimbada com a empresa do contexto.
  *
  * Use `set_config(..., true)` em vez de `SET LOCAL app.tenant_id = '...'`

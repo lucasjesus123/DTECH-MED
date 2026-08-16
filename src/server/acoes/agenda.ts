@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { avancarOrdem } from '@/server/ordem/motor'
@@ -69,7 +69,7 @@ export async function agendar(_anterior: Resposta, form: FormData): Promise<Resp
 
     await tx.agendamento.create({
       data: {
-        tenantId: a.ctx.tenantId!,
+        tenantId: exigirEmpresa(a.ctx),
         ordemId: v.ordemId,
         tipo: v.tipo,
         status: v.motoristaId ? 'ATRIBUIDO' : 'PENDENTE',

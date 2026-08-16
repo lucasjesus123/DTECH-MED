@@ -22,6 +22,15 @@ export default async function Whatsapp() {
   const { ctx } = await exigirNivel(Papel.GESTOR)
   const { instancia, mensagens, fila } = await painelWhatsapp(ctx)
 
+  /**
+   * O dono da plataforma não tem empresa, e a conexão do WhatsApp é de uma.
+   *
+   * Ele chega aqui pelo menu, então a tela precisa dizer alguma coisa. Dizer
+   * "não conectado" seria mentira — não é que o número caiu, é que a pergunta
+   * não se aplica a ele.
+   */
+  const semEmpresa = ctx.tenantId === null
+
   const descartados = fila.DESCARTADO ?? 0
   const pendentes = fila.PENDENTE ?? 0
 
@@ -34,12 +43,21 @@ export default async function Whatsapp() {
         </div>
       </div>
 
+      {semEmpresa ? (
+        <p className={estilo.vazio}>
+          A conexão do WhatsApp pertence a cada empresa, e o administrador da
+          plataforma não está em nenhuma. Para ver ou conectar um número, entre
+          com um usuário da empresa. Em <strong>Plataforma → Empresas</strong> dá
+          para ver quais já estão conectadas.
+        </p>
+      ) : (
       <Conexao
         status={instancia?.status ?? null}
         numero={instancia?.numero ?? null}
         profileName={instancia?.profileName ?? null}
         ultimoStatusEm={instancia?.ultimoStatusEm?.toISOString() ?? null}
       />
+      )}
 
       <div className={estilo.resumo}>
         <Indicador rotulo="Na fila" valor={String(pendentes)} nota="aguardando o próximo disparo" />

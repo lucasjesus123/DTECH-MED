@@ -99,7 +99,7 @@ export const TRANSICOES: Transicao[] = [
     de: T.COLETADO,
     para: T.RECEBIDO_NA_EMPRESA,
     tipo: 'ordem.recebida',
-    titulo: 'Recebido na oficina',
+    titulo: 'Recebido na assistência',
     papeis: [P.TECNICO, ...CENTRAL],
     avisaCliente: true,
     // O estado em que o aparelho chegou, antes de alguém encostar a chave.
@@ -388,7 +388,7 @@ export const ROTULO_ETAPA: Record<EtapaOrdem, string> = {
   RETIRADA_AGENDADA: 'Retirada agendada',
   EM_ROTA_RETIRADA: 'Motorista a caminho',
   COLETADO: 'Coletado',
-  RECEBIDO_NA_EMPRESA: 'Recebido na oficina',
+  RECEBIDO_NA_EMPRESA: 'Recebido na assistência',
   EM_ANALISE: 'Em análise',
   ORCAMENTO_INTERNO: 'Orçamento em revisão',
   ORCAMENTO_ENVIADO: 'Orçamento enviado',
