@@ -129,15 +129,34 @@ docker ps --format '{{.Names}}' | grep -qx "$PORTARIA" \
   || morre "o contêiner da portaria ('$PORTARIA') não está rodando. Confira o nome com: docker ps"
 verde "portaria encontrada: $PORTARIA"
 
-# Todos os nomes que ESTE arquivo atende, lidos das linhas de abertura de bloco:
-# sem indentação, sem comentário, terminando em `{`.
+# Os nomes que um arquivo de configuração atende, lidos das linhas de abertura de
+# bloco: sem indentação, sem comentário, terminando em `{`.
 #
 # Ler do arquivo, e não de uma lista repetida no script, é o que impede este
 # relatório de mentir no dia em que alguém acrescentar um domínio lá e esquecer
-# daqui. A mesma lista serve para duas coisas: conferir os redirecionamentos no
-# fim, e não confundir um endereço nosso com um vizinho.
-CABECALHOS=$(awk '/^[^#[:space:]{].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' infra/caddy/dtechmed.caddy)
+# daqui.
+nomes_de_bloco() {
+  awk '/^[^#[:space:]{].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' \
+    | tr ' ' '\n' | sed 's#^https\?://##' | grep '\.' | sort -u
+}
+
+CABECALHOS=$(nomes_de_bloco < infra/caddy/dtechmed.caddy)
 verde "o nosso bloco atende: $(printf '%s' "$CABECALHOS" | tr '\n' ' ')"
+
+# Os nomes que o arquivo JÁ INSTALADO atende — que podem não ser os mesmos.
+#
+# Isto não é redundância. Esta execução pode estar justamente REMOVENDO um nome:
+# foi o que aconteceu quando o domínio .com saiu. Sem esta leitura, um nome que
+# está no ar hoje pelo arquivo antigo e sai no arquivo novo seria contado como
+# vizinho, apareceria de pé na fotografia do "antes", cairia depois da recarga —
+# e o desfazer automático reverteria uma mudança CORRETA, concluindo que tinha
+# derrubado o site de outra pessoa.
+#
+# Um mecanismo de desfazer que dispara sozinho precisa errar para o lado de não
+# disparar. Um rollback automático em falso é pior que rollback nenhum, porque
+# desfaz sem ninguém pedir e ainda ensina a duvidar do alarme.
+NOSSOS_INSTALADOS=$(docker exec "$PORTARIA" cat "$NOSSO" 2>/dev/null | nomes_de_bloco)
+NOSSOS=$(printf '%s\n%s\n' "$CABECALHOS" "$NOSSOS_INSTALADOS" | grep . | sort -u)
 
 # ---------------------------------------------------------------------------
 titulo "3. Fotografia dos vizinhos, antes de tocar em nada"
@@ -151,9 +170,7 @@ titulo "3. Fotografia dos vizinhos, antes de tocar em nada"
 # configuração, o conjunto é exatamente quem a portaria atende hoje.
 DESCOBERTOS=$(docker exec "$PORTARIA" sh -c \
   'cat /etc/caddy/Caddyfile /data/sites-extra/*.caddy 2>/dev/null' 2>/dev/null \
-  | awk '/^[^#[:space:]{].*\{[[:space:]]*$/ { sub(/[[:space:]]*\{[[:space:]]*$/, ""); gsub(/,/, " "); print }' \
-  | tr ' ' '\n' | sed 's#^https\?://##' | grep '\.' | sort -u \
-  | grep -vxF "$(printf '%s' "$CABECALHOS" | tr ' ' '\n')")
+  | nomes_de_bloco | grep -vxF "$NOSSOS")
 
 if [ -n "$DESCOBERTOS" ]; then
   read -r -a VIZINHOS <<< "$(printf '%s ' $DESCOBERTOS)"
