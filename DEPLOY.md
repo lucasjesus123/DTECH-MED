@@ -738,10 +738,20 @@ Os três têm que dizer `https://dtechmed.com.br`.
 
 O Caddy já contou aos navegadores. Falta contar ao buscador, e isso é no [Search Console](https://search.google.com/search-console):
 
-1. Cadastre `dtechmed.com.br` como propriedade e confirme a posse (o Registro.br permite por registro TXT).
-2. Em **Sitemaps**, envie `sitemap.xml`.
-3. Cadastre `dtechmed.com` também, e use **Configurações → Mudança de endereço** apontando para `dtechmed.com.br`. É o que acelera a transferência da reputação; sem isso o 301 funciona igual, só demora mais.
-4. No **Google Meu Negócio**, troque o site do perfil para `https://dtechmed.com.br`. O perfil é uma das maiores fontes de visita de uma assistência técnica local, e ele continuaria mandando gente para o endereço velho.
+1. **Cadastre a propriedade.** Escolha **Prefixo do URL** e digite `https://dtechmed.com.br`.
+2. **Prove que o site é seu.** Na lista de métodos, escolha **Tag HTML**. O Google mostra uma linha assim:
+
+   ```html
+   <meta name="google-site-verification" content="AbC123..." />
+   ```
+
+   Copie **só o que está entre as aspas do `content`**, entre no sistema em **Site → Busca do Google → Código de verificação do Google**, cole e salve. Volte ao Search Console e clique em **Verificar**.
+
+   > Este campo existe para você não precisar do terminal nem de mim para uma coisa que leva trinta segundos. Ele mora no conteúdo do site, junto do título e da descrição da busca, e vale imediatamente depois do salvar — sem publicação, sem reiniciar nada. Vazio, nenhuma etiqueta é escrita na página.
+
+3. **Envie o sitemap.** Em **Sitemaps**, digite `sitemap.xml` e envie.
+4. **Cadastre o `dtechmed.com` também** e use **Configurações → Mudança de endereço** apontando para `dtechmed.com.br`. É o que acelera a transferência da reputação; sem isso o 301 funciona igual, só demora mais.
+5. **No Google Meu Negócio, troque o site do perfil** para `https://dtechmed.com.br`. Este é o item que mais custa dinheiro se ficar esquecido: para assistência técnica local, o perfil costuma trazer mais visita que a busca — e enquanto não for trocado, ele continua mandando cliente para o endereço velho.
 
 ### 14.7 — Aposente o endereço de ensaio
 

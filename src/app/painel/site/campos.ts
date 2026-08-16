@@ -357,6 +357,16 @@ export const ABAS: Aba[] = [
         tipo: 'area',
         ajuda: 'Entre 120 e 160 caracteres é a faixa que costuma aparecer inteira.',
       },
+      {
+        caminho: 'seo.verificacaoGoogle',
+        rotulo: 'Código de verificação do Google',
+        tipo: 'texto',
+        ajuda:
+          'Só para provar ao Google que o site é seu. No Search Console, escolha ' +
+          '"Prefixo do URL", depois "Tag HTML", e cole aqui SÓ o código de dentro das ' +
+          'aspas do content — não a linha inteira. Salve, e volte lá para clicar em ' +
+          'Verificar. Pode deixar vazio: enquanto estiver, nada é escrito na página.',
+      },
     ],
   },
 ]

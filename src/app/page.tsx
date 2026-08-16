@@ -100,12 +100,17 @@ export const dynamic = 'force-dynamic'
  */
 export async function generateMetadata(): Promise<Metadata> {
   const c = await lerConteudo()
+  const codigo = c.seo.verificacaoGoogle.trim()
   return {
     title: c.seo.titulo,
     description: c.seo.descricao,
     alternates: { canonical: '/' },
     openGraph: { title: c.seo.titulo, description: c.seo.descricao, url: '/' },
     twitter: { title: c.seo.titulo, description: c.seo.descricao },
+    // A etiqueta só existe quando há código. Escrever uma etiqueta de
+    // verificação vazia é pior que não escrever: o Google lê, não confere, e a
+    // propriedade fica pendente sem dizer por quê.
+    ...(codigo ? { verification: { google: codigo } } : {}),
   }
 }
 

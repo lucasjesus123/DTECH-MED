@@ -195,6 +195,19 @@ export const esquemaConteudo = z.object({
   seo: z.object({
     titulo: t(120),
     descricao: t(320),
+    /**
+     * O código que o Google Search Console pede para provar que o site é seu.
+     *
+     * Fica aqui, e não numa variável de ambiente, por um motivo prático: quem
+     * abre o Search Console é o dono, e o código chega para ele numa tela do
+     * Google, em segundos. Se morasse no `.env`, cada verificação de domínio
+     * exigiria alguém com acesso ao terminal da VPS e um deploy — para colar um
+     * texto de quarenta caracteres.
+     *
+     * Vazio é o normal: enquanto estiver assim, nenhuma etiqueta é escrita na
+     * página.
+     */
+    verificacaoGoogle: opc(120),
   }),
 })
 
@@ -361,6 +374,7 @@ export const CONTEUDO_PADRAO: Conteudo = {
     descricao:
       'Consertamos aparelho de estética, médico, odontológico e hospitalar, de qualquer marca. ' +
       'A gente busca na sua sala, registra cada passo e devolve funcionando, com laudo, garantia e assinatura.',
+    verificacaoGoogle: '',
   },
 }
 
