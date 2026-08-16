@@ -69,11 +69,17 @@
 # -----------------------------------------------------------------------------
 # QUEM ATENDE DE VERDADE
 # -----------------------------------------------------------------------------
-# O endereço de ensaio segue aqui de propósito, e não no bloco de redirecionamento:
-# enquanto o DNS dos domínios novos propaga — o que pode levar horas — ele é o
-# caminho que continua funcionando. Aposentá-lo é o último passo da virada, uma
-# semana depois, e não o primeiro.
-dtechmed.com.br, conexevolution.online {
+# Um nome só.
+#
+# O endereço de ensaio (conexevolution.online) ficou aqui durante a virada, para
+# ter um caminho funcionando enquanto o DNS do domínio novo propagava. Cumprida
+# essa função, ele saiu — e sair é a parte que se esquece.
+#
+# Endereço de ensaio deixado no ar é uma porta a menos vigiada apontando para o
+# mesmo sistema: o mesmo login, o mesmo painel, os mesmos dados de cliente, num
+# nome que ninguém mais olha. E no dia em que o registro daquele domínio
+# expirar, é uma porta que outra pessoa pode registrar e passar a controlar.
+dtechmed.com.br {
 	encode zstd gzip
 
 	# Seis fotos de celular numa tacada. A aplicação limita 8 MB por foto.

@@ -529,10 +529,11 @@ O endereço é o `dtechmed.com.br`, sem `www`. Mas o `www` também precisa abrir
 | Endereço | O que faz |
 | --- | --- |
 | `dtechmed.com.br` | **atende o site** |
-| `conexevolution.online` | atende também, por mais uma semana |
 | `www.dtechmed.com.br` | 301 para `dtechmed.com.br` |
 
-Quem digitar qualquer um dos três cai no site. A diferença é invisível para a pessoa e decisiva para o Google.
+Durante a virada o endereço de ensaio (`conexevolution.online`) atende junto, para haver um caminho funcionando enquanto o DNS do domínio novo propaga. Ele sai no passo 14.7.
+
+Quem digitar qualquer um dos dois cai no site. A diferença é invisível para a pessoa e decisiva para o Google.
 
 > **Por que o `www` não serve o site junto.** Para o buscador, endereço diferente é página diferente até prova em contrário. Duas cópias da mesma home competindo entre si, e a reputação que o site leva meses construindo dividida em vez de somada. O sintoma é o pior tipo: o site funciona perfeitamente enquanto vai ficando para trás na busca, e nada em lugar nenhum acusa erro.
 >
@@ -556,7 +557,7 @@ Se o primeiro `dig` devolver um IP que não é `169.58.76.233`, é lá que o sit
 ```bash
 cd /opt/gavetas/DTECHMED
 git pull
-bash infra/virar-dominio.sh dtechmed.com.br conexevolution.online
+bash infra/virar-dominio.sh dtechmed.com.br conexevolution.online   # o de ensaio sai no 14.7
 ```
 
 O primeiro domínio é o principal: vai no `APP_URL` e é para ele que a portaria manda o `www`. Os demais entram só na lista de origens aceitas, cada um com e sem `www`. O endereço de ensaio **fica na lista** — enquanto o DNS propaga os dois respondem, e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
@@ -748,11 +749,51 @@ O Caddy já contou aos navegadores. Falta contar ao buscador, e isso é no [Sear
 
 ### 14.7 — Aposente o endereço de ensaio
 
-Depois de **uma semana** com o `dtechmed.com.br` estável, tire o `conexevolution.online` de circulação: remova os registros A do painel de DNS, o nome da linha `ALLOWED_ORIGINS` do `.env` e o nome da primeira linha do bloco do Caddy (no repositório, por `git`, nunca por `sed`). Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema — e, no dia em que o domínio expirar, é uma porta que outra pessoa pode registrar.
+Com o `dtechmed.com.br` estável, tire o `conexevolution.online` de circulação.
+
+> **Por que isto não é opcional.** Endereço de ensaio deixado no ar é uma porta a menos vigiada apontando para o mesmo sistema: o mesmo login, o mesmo painel, os mesmos dados de cliente, num nome que ninguém mais olha. E no dia em que o registro daquele domínio expirar, é uma porta que outra pessoa pode registrar e passar a controlar.
+>
+> **O que se perde.** Quem tiver link antigo apontando para o endereço de ensaio — um orçamento mandado por WhatsApp, uma aba aberta — perde o acesso na hora. Ele deixa de responder por completo, e não redireciona: um endereço de ensaio que continua respondendo, mesmo que só para mandar embora, continua sendo um nome vivo apontando para cá.
+
+O nome já saiu do arquivo do Caddy no repositório. Na VPS:
+
+```bash
+cd /opt/gavetas/DTECHMED
+git pull
+```
+
+🚨 **O `git pull` vem primeiro, e não é formalidade.** O `publicar-dominio.sh` desfaz sozinho quando um endereço que estava de pé para de responder depois da recarga — e é exatamente isso que esta mudança faz com o endereço de ensaio. Sem a correção que trata os nomes do arquivo instalado como nossos, o script reverteria esta remoção achando que tinha derrubado o site de um vizinho.
+
+```bash
+bash infra/virar-dominio.sh dtechmed.com.br
+bash infra/subir.sh
+bash infra/publicar-dominio.sh
+```
+
+O primeiro tira o nome da lista de origens aceitas, o segundo reconstrói, o terceiro reinstala a portaria. No fim, o passo 9 tem que listar **só** o `www.dtechmed.com.br`.
+
+**Confira que ele realmente saiu:**
+
+```bash
+curl -sI https://conexevolution.online | head -1   # tem que falhar ou dar 404
+curl -sI https://dtechmed.com.br | head -1        # HTTP/2 200
+```
+
+Por último, **remova os registros A do `conexevolution.online` no painel de DNS**. Enquanto eles apontarem para esta máquina, o nome continua chegando na portaria — só que sem ninguém para atendê-lo.
 
 ### Se precisar desfazer
 
-Nada aqui é irreversível, mas o DNS tem o tempo dele. Na ordem:
+Nada aqui é irreversível, mas o DNS tem o tempo dele.
+
+**Se você ainda está no meio da virada** (passos 14.3 a 14.5), o caminho é um comando:
+
+```bash
+cd /opt/gavetas/DTECHMED && bash infra/publicar-dominio.sh --desfazer
+```
+
+Ele restaura a configuração que a portaria tinha antes e manda reler. O endereço de ensaio volta a atender, e o `dtechmed.com.br` para de responder.
+
+**Se você já passou do 14.7** e o endereço de ensaio foi aposentado, não existe mais para onde voltar sozinho — o desfazer restauraria uma configuração que também não o atende. Aí o caminho é o inverso da virada, e leva o tempo do DNS:
 
 ```bash
 # 1. A portaria volta a não conhecer os nomes novos (5 segundos)
@@ -760,13 +801,11 @@ docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy
 docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
 docker kill -s USR1 portal-da-estetica-web-1
 
-# 2. O DNS volta para o IP que você anotou lá em cima (minutos a horas)
-#    — no painel de cada domínio, à mão.
-
-# 3. A gaveta volta ao endereço de ensaio
-cd /opt/gavetas/DTECHMED && nano .env   # APP_URL=https://conexevolution.online
-bash infra/subir.sh
+# 2. O DNS do dtechmed.com.br volta para o IP que você anotou no começo do
+#    passo 14, no painel do domínio, à mão (minutos a horas).
 ```
+
+O site antigo volta quando o DNS propagar. **É por isso que o IP anotado no início do passo 14 importa:** sem ele, esta é uma volta que não tem como ser feita.
 
 ---
 
