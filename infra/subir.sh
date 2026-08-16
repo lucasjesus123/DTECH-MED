@@ -217,6 +217,33 @@ for ROTA in / /entrar; do
   verde "$ROTA → 200"
 done
 
+# O endereço que o site declara ao buscador tem que ser o mesmo do .env.
+#
+# Esta conferência nasceu de um defeito real: o robots.txt e o sitemap.xml eram
+# resolvidos durante a construção da imagem, então uma troca de domínio feita do
+# jeito natural — editar o .env, reiniciar — deixava os dois apontando para o
+# endereço velho. O site novo respondia certo, as páginas traziam a canônica
+# certa, e só esses dois arquivos continuavam mandando o Google para o lugar
+# errado. Ninguém os abre depois de uma virada; o sintoma aparece semanas
+# depois, quando já custou posição na busca.
+#
+# Os dois passaram a ser gerados a cada pedido. Isto aqui é a prova de que
+# continuam assim: se um dia alguém tirar o `force-dynamic`, o deploy avisa.
+for ARQUIVO in robots.txt sitemap.xml; do
+  CORPO=$(curl -s "http://127.0.0.1:5400/${ARQUIVO}" || true)
+  if printf '%s' "$CORPO" | grep -qF "$URL_PUBLICA"; then
+    verde "/$ARQUIVO declara $URL_PUBLICA"
+  else
+    # No sitemap o endereço vive dentro de <loc>. Sem este primeiro recorte, a
+    # mensagem mostraria a URL do esquema XML (sitemaps.org) como se fosse o
+    # endereço configurado — um erro apontando para o lugar errado, que é pior
+    # que erro nenhum.
+    ENCONTRADO=$(printf '%s' "$CORPO" | grep -oE '<loc>[^<]+</loc>' | head -1 | sed 's/<[^>]*>//g')
+    [ -n "$ENCONTRADO" ] || ENCONTRADO=$(printf '%s' "$CORPO" | grep -oiE '^(Host|Sitemap): *\S+' | head -1 | awk '{print $2}')
+    morre "/$ARQUIVO declara '${ENCONTRADO:-nada}' e o .env diz '$URL_PUBLICA'. É este endereço que o Google vai indexar — não coloque em uso assim."
+  fi
+done
+
 # O Caddy chega por este endereço, não pelo 127.0.0.1. Se esta linha falhar, o
 # passo da portaria vai dar 502 — e a causa é invisível olhando só o log do app.
 C=$(curl -s -o /dev/null -w '%{http_code}' http://172.17.0.1:5400/api/health || echo 000)

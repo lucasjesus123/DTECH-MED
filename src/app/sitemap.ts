@@ -14,9 +14,16 @@ import { env } from '@/lib/env'
  * distinta para o buscador; listá-lo seria repetir a mesma página cinco vezes
  * e diluir o sinal.
  *
- * `lastModified` sai da data do processo, que é a hora em que este build subiu
- * — que é exatamente quando o conteúdo mudou pela última vez.
+ * `lastModified` sai do relógio do servidor no momento do pedido.
  */
+
+/**
+ * Gerado a cada pedido, pelo mesmo motivo explicado no `robots.ts`: o `url`
+ * abaixo sai do `APP_URL`, e um sitemap resolvido no build guardaria o domínio
+ * antigo para sempre depois de uma troca de endereço.
+ */
+export const dynamic = 'force-dynamic'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {

@@ -19,6 +19,26 @@ import { env } from '@/lib/env'
  * indexada só serve para aparecer na busca do nome da empresa acima da home,
  * e para dar alvo a quem varre a internet procurando formulário de senha.
  */
+
+/**
+ * Gerado a cada pedido, e não uma vez no build.
+ *
+ * Por padrão o Next resolve este arquivo durante a construção da imagem e
+ * grava o resultado em disco. Com o `APP_URL` no meio, isso significa que o
+ * endereço declarado ao Google fica CONGELADO no endereço que estava no `.env`
+ * na hora do build — e uma troca de domínio, feita do jeito natural (editar o
+ * `.env`, reiniciar), não mudaria uma vírgula aqui.
+ *
+ * O defeito é silencioso: o site novo responde certo, as páginas trazem a
+ * canônica certa, e só o `robots.txt` e o `sitemap.xml` continuam apontando o
+ * buscador para o domínio velho. Ninguém olha esses dois arquivos depois de uma
+ * virada; o sintoma aparece semanas depois, no Search Console.
+ *
+ * Duas linhas de configuração custam menos que essa aula. São dois arquivos de
+ * texto pedidos por robô, algumas vezes ao dia — gerar na hora não pesa nada.
+ */
+export const dynamic = 'force-dynamic'
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {

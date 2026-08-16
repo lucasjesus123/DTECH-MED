@@ -303,9 +303,11 @@ Você deve ver o bloco da MINHAMECANICA, que serve de espelho: é a prova de que
 
 Os domínios já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos. **Não os edite pelo terminal.**
 
+O arquivo tem **dois blocos**: o que atende o site e o que redireciona os outros endereços para ele. O passo 14 explica o desenho; aqui só confira que os dois chegaram inteiros.
+
 ```bash
 cd /opt/gavetas/DTECHMED
-grep -n '^conexevolution' infra/caddy/dtechmed.caddy
+grep -n '^dtechmed.com.br,\|^www.dtechmed' infra/caddy/dtechmed.caddy
 
 # Nenhum colchete nas linhas que não são comentário. Tem que dar 0.
 grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\[' 
@@ -392,7 +394,7 @@ Se aparecer `issuer= ... Caddy Local Authority`, o certificado público **não**
 
 ```bash
 curl -sI https://conexevolution.online | grep -iE 'strict-transport|content-security|x-frame|nosniff|^server'
-# HSTS, CSP com nonce, X-Frame-Options: DENY, X-Content-Type-Options: nosniff
+# HSTS, CSP com nonce, X-Frame-Options: SAMEORIGIN, X-Content-Type-Options: nosniff
 # e NENHUMA linha "server:"
 ```
 
@@ -425,7 +427,7 @@ docker compose -p dtechmed exec db psql -U dtechmed_owner -d dtechmed -c \
 # dtechmed_app   → f | f | f
 # dtechmed_owner → f | f | f
 
-curl -s -o /dev/null -w "%{http_code}\n" -X TRACE https://dtechmed.com.br
+curl -s -o /dev/null -w "%{http_code}\n" -X TRACE https://conexevolution.online
 # 405
 ```
 
@@ -444,7 +446,7 @@ osv-scanner --lockfile=/opt/gavetas/DTECHMED/package-lock.json
 
 ## Passo 11 — Conecte o WhatsApp
 
-1. Entre em `https://dtechmed.com.br/entrar` com o Super Admin.
+1. Entre em `https://conexevolution.online/entrar` com o Super Admin (depois da virada do passo 14, `https://dtechmed.com.br/entrar`).
 2. Troque a senha (o sistema exige no primeiro acesso).
 3. Vá em **Empresas → Cadastrar empresa** e crie a DTECH MED com o identificador **`dtechmed-lajeado`** — precisa bater com o `SITE_TENANT_SLUG` do `.env`, senão os contatos do site não chegam a lugar nenhum.
 4. Entre com o usuário administrador que você acabou de criar.
@@ -520,10 +522,41 @@ Se o item 14 mostrar **histórico alterado**, pare e me chame: alguma coisa mexe
 
 Só depois de os 14 itens acima passarem no endereço de ensaio. Antes disso, virar o domínio é trocar um site que funciona por um que você ainda não conferiu.
 
+São **dois domínios** — `dtechmed.com.br` e `dtechmed.com` — e cada um com a versão `www`. Quatro endereços, mais o de ensaio.
+
+### O desenho: um atende, três apontam
+
+| Endereço | O que faz |
+| --- | --- |
+| `dtechmed.com.br` | **atende o site** |
+| `conexevolution.online` | atende também, por mais uma semana |
+| `www.dtechmed.com.br` | 301 para `dtechmed.com.br` |
+| `dtechmed.com` | 301 para `dtechmed.com.br` |
+| `www.dtechmed.com` | 301 para `dtechmed.com.br` |
+
+Quem digitar qualquer um dos cinco cai no site. A diferença é invisível para a pessoa e decisiva para o Google.
+
+> **Por que não servir o site nos cinco.** Para o buscador, endereço diferente é página diferente até prova em contrário. Cinco cópias da mesma home competindo entre si, e a reputação que o site leva meses construindo dividida por cinco em vez de somada. O sintoma é o pior tipo: o site funciona perfeitamente enquanto vai ficando para trás na busca, e nada em lugar nenhum acusa erro.
+>
+> O `301` é o código que diz "mudou de casa, e é definitivo". O buscador transfere a reputação para o destino e passa a mostrar só ele.
+>
+> **O escolhido é o `.com.br`, sem `www`.** Empresa brasileira, atendimento em Lajeado, cliente que procura no Google digita `.com.br`. O `.com` fica registrado, protegido e apontando para casa — que é exatamente o valor de ter os dois.
+
+🚨 **Antes de qualquer comando, entenda o que este passo faz.** Se o `dtechmed.com.br` hoje abre o site antigo da empresa, virar o DNS **derruba o site antigo** e coloca este no lugar. Não há meio-termo e não há volta imediata: desfazer é outra troca de DNS, com o mesmo tempo de propagação. Confira o que está no ar hoje antes de mexer:
+
+```bash
+dig +short dtechmed.com.br
+dig +short dtechmed.com
+curl -sI https://dtechmed.com.br | head -1
+```
+
+Se o primeiro `dig` devolver um IP que não é `169.58.76.233`, é lá que o site antigo mora. Guarde esse endereço num papel: é para ele que você volta se precisar desfazer.
+
 ### 14.1 — Prepare a gaveta para o novo endereço
 
 ```bash
 cd /opt/gavetas/DTECHMED
+git pull
 nano .env
 ```
 
@@ -531,68 +564,186 @@ Troque as duas linhas:
 
 ```bash
 APP_URL=https://dtechmed.com.br
-ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://conexevolution.online
+ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://dtechmed.com,https://www.dtechmed.com,https://conexevolution.online
 ```
 
 O endereço de ensaio **fica na lista**. Enquanto o DNS propaga, os dois respondem — e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
 
+Agora suba com **reconstrução**, e não só um `up -d`:
+
 ```bash
-docker compose -p dtechmed up -d
+bash infra/subir.sh
 ```
 
-### 14.2 — Ensine a portaria os três nomes
+> **Por que reconstruir, e não só reiniciar.** O `APP_URL` é o endereço que o site declara ao Google como o verdadeiro dele. Uma parte disso é resolvida quando a imagem é construída — e uma imagem antiga carregaria o domínio velho para dentro do site novo, sem erro nenhum, sem sintoma nenhum, até alguém abrir o Search Console semanas depois.
+>
+> O `infra/subir.sh` reconstrói, confere as 11 variáveis obrigatórias, confere o banco, confere os vizinhos antes e depois — e **imprime o `APP_URL` na tela**. Leia essa linha. Ela existe para este momento.
+
+**Confira que o endereço novo pegou:**
 
 ```bash
-docker exec portal-da-estetica-web-1 sh -c \
-  'sed -i "s/^conexevolution.online {/dtechmed.com.br, www.dtechmed.com.br, conexevolution.online {/" /data/sites-extra/dtechmed.caddy'
+curl -s http://127.0.0.1:5400/robots.txt | grep -i host
+curl -s http://127.0.0.1:5400/sitemap.xml | grep -o '<loc>[^<]*</loc>'
+```
 
-docker exec portal-da-estetica-web-1 head -1 /data/sites-extra/dtechmed.caddy
-# tem que mostrar os tres nomes na mesma linha
+Os dois têm que dizer `https://dtechmed.com.br`. Se ainda disserem `conexevolution.online`, o `.env` não foi salvo ou o `subir.sh` não chegou ao fim — **pare aqui**, porque é exatamente isso que o Google vai ler.
 
+### 14.2 — Vire o DNS
+
+Os dois domínios provavelmente estão em painéis diferentes: o `.com.br` no **Registro.br**, o `.com` no registrador onde ele foi comprado. Em cada um, aponte para `169.58.76.233`:
+
+| Domínio | Tipo | Nome | Valor |
+| --- | --- | --- | --- |
+| dtechmed.com.br | A | `@` | `169.58.76.233` |
+| dtechmed.com.br | A | `www` | `169.58.76.233` |
+| dtechmed.com | A | `@` | `169.58.76.233` |
+| dtechmed.com | A | `www` | `169.58.76.233` |
+
+Se o painel deixar escolher o TTL, coloque **300** antes de trocar. É o tempo que o mundo guarda a resposta antiga; com 300 segundos, um erro se conserta em cinco minutos em vez de em um dia.
+
+Espere propagar — pode levar de minutos a algumas horas:
+
+```bash
+dig +short dtechmed.com.br      # 169.58.76.233
+dig +short www.dtechmed.com.br  # 169.58.76.233
+dig +short dtechmed.com         # 169.58.76.233
+dig +short www.dtechmed.com     # 169.58.76.233
+```
+
+**Só siga quando os quatro devolverem o IP da VPS.** O Caddy só consegue emitir certificado para um domínio que já aponta para cá; instalar antes é pedir certificado para uma casa onde ele ainda não mora, e o pedido falha.
+
+> **Neste intervalo o `dtechmed.com.br` fica fora do ar.** O DNS já aponta para cá e a portaria ainda não conhece o nome — são os minutos entre o passo 14.2 e o 14.3. Por isso os dois se fazem em sequência, sem pausa para o café, e de madrugada. O `conexevolution.online` continua respondendo o tempo todo.
+
+### 14.3 — Ensine a portaria os quatro nomes
+
+Os nomes já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos, e chegaram pelo `git reset` do passo 14.1. **Não os edite pelo terminal** — o motivo está no passo 8.2, e o preço de errar aqui são os três sites da máquina juntos.
+
+```bash
+cd /opt/gavetas/DTECHMED
+
+# Os dois blocos: o que atende e o que redireciona.
+grep -n '^dtechmed.com.br,\|^www.dtechmed' infra/caddy/dtechmed.caddy
+
+# Nenhum colchete fora dos comentários. Tem que dar 0.
+grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\['
+```
+
+Se o segundo `grep` não devolver `0`, o arquivo está contaminado. Refaça o `git reset --hard` e **não instale**.
+
+```bash
+docker cp infra/caddy/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
 docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
 ```
 
-Ainda **não reinicie**. O Caddy só consegue emitir certificado para um domínio que já aponta para cá — então o DNS vem primeiro.
+Tem que terminar com `Valid configuration`. O `validate` lê o Caddyfile do vizinho **e** os arquivos importados, incluindo o nosso — então um erro de sintaxe aparece aqui, com os três sites ainda no ar.
 
-### 14.3 — Vire o DNS
+🚨 **Se o `validate` falhar, PARE.** Desfaça com `docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy`, valide de novo para confirmar que voltou ao normal, e me chame. Enquanto a portaria não reler, nada mudou para ninguém.
 
-No painel do domínio, aponte para `169.58.76.233`:
+### 14.4 — Faça a portaria reler
 
-| Tipo | Nome | Valor |
-| --- | --- | --- |
-| A | `@` | `169.58.76.233` |
-| A | `www` | `169.58.76.233` |
-
-Espere propagar:
+Sem interrupção nenhuma:
 
 ```bash
-dig +short dtechmed.com.br     # tem que virar 169.58.76.233
-dig +short www.dtechmed.com.br # idem
+docker kill -s USR1 portal-da-estetica-web-1
+sleep 5
+curl -sI https://dtechmed.com.br | head -1
 ```
 
-### 14.4 — Só então, reinicie a portaria
+`USR1` manda o Caddy reler a configuração sem derrubar uma conexão sequer. Se responder `HTTP/2 200`, acabou — os vizinhos nem perceberam.
+
+**Só se o `curl` não responder 200**, use o reinício, que custa 2 a 4 segundos de indisponibilidade para os três sites:
 
 ```bash
 docker restart portal-da-estetica-web-1
+sleep 8
+curl -sI https://dtechmed.com.br | head -1
 ```
 
-Outros 2 a 4 segundos de indisponibilidade para os três sites. Mesma recomendação: escolha a hora.
+### 14.5 — Confira, nesta ordem
 
-**Confira:**
+Os vizinhos primeiro, de propósito: se algo deu errado, é neles que precisamos saber antes.
 
 ```bash
-curl -sI https://dtechmed.com.br | head -1        # HTTP/2 200
-curl -sI https://www.dtechmed.com.br | head -1    # HTTP/2 200
-curl -sI https://portaldaestetica.com.br | head -1 # o vizinho continua de pe
-
-echo | openssl s_client -connect dtechmed.com.br:443 -servername dtechmed.com.br 2>/dev/null \
-  | openssl x509 -noout -issuer
-# issuer= ... Let's Encrypt ...
+curl -sI https://minhamecanica.online | head -1        # vizinho 1 — HTTP/2 200
+curl -sI https://portaldaestetica.com.br | head -1     # vizinho 2 — HTTP/2 200
+docker ps --format '{{.Names}}' | grep -vc dtechmed    # tem que dar 15
 ```
 
-### 14.5 — Aposente o endereço de ensaio
+Agora o nosso. O endereço que atende:
 
-Depois de uma semana com o `dtechmed.com.br` estável, tire o `conexevolution.online` de circulação: remova os registros A do painel de DNS, o nome da linha `ALLOWED_ORIGINS` do `.env` e o nome da primeira linha do bloco do Caddy. Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema — e, no dia em que o domínio expirar, é uma porta que outra pessoa pode registrar.
+```bash
+curl -sI https://dtechmed.com.br | head -1             # HTTP/2 200
+curl -sI https://conexevolution.online | head -1       # HTTP/2 200
+```
+
+E os três que apontam. Cada um tem que devolver `301` **e** um `location` para `https://dtechmed.com.br`:
+
+```bash
+for D in www.dtechmed.com.br dtechmed.com www.dtechmed.com; do
+  printf '%-24s %s\n' "$D" "$(curl -sI https://$D | grep -iE '^HTTP|^location' | tr -d '\r' | tr '\n' ' ')"
+done
+```
+
+O caminho e a busca precisam atravessar o redirecionamento inteiros — é o que garante que um link de ordem de serviço mandado por WhatsApp com o domínio `.com` continue abrindo a ordem certa, e não a home:
+
+```bash
+curl -sI "https://dtechmed.com/os/teste123?x=1" | grep -i '^location'
+# location: https://dtechmed.com.br/os/teste123?x=1
+```
+
+Os certificados, um por endereço:
+
+```bash
+for D in dtechmed.com.br www.dtechmed.com.br dtechmed.com www.dtechmed.com; do
+  printf '%-24s ' "$D"
+  echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null \
+    | openssl x509 -noout -issuer
+done
+# os quatro: issuer= ... Let's Encrypt ...
+```
+
+Se algum disser `Caddy Local Authority`, o certificado público daquele nome não saiu — quase sempre é DNS que ainda não propagou. Espere e repita; o Caddy tenta sozinho.
+
+Por fim, o endereço que o site declara ao Google:
+
+```bash
+curl -s https://dtechmed.com.br/robots.txt | grep -i host
+curl -s https://dtechmed.com.br/sitemap.xml | grep -o '<loc>[^<]*</loc>'
+curl -s https://dtechmed.com.br | grep -o '<link rel="canonical"[^>]*>'
+```
+
+Os três têm que dizer `https://dtechmed.com.br`.
+
+### 14.6 — Avise o Google
+
+O Caddy já contou aos navegadores. Falta contar ao buscador, e isso é no [Search Console](https://search.google.com/search-console):
+
+1. Cadastre `dtechmed.com.br` como propriedade e confirme a posse (o Registro.br permite por registro TXT).
+2. Em **Sitemaps**, envie `sitemap.xml`.
+3. Cadastre `dtechmed.com` também, e use **Configurações → Mudança de endereço** apontando para `dtechmed.com.br`. É o que acelera a transferência da reputação; sem isso o 301 funciona igual, só demora mais.
+4. No **Google Meu Negócio**, troque o site do perfil para `https://dtechmed.com.br`. O perfil é uma das maiores fontes de visita de uma assistência técnica local, e ele continuaria mandando gente para o endereço velho.
+
+### 14.7 — Aposente o endereço de ensaio
+
+Depois de **uma semana** com o `dtechmed.com.br` estável, tire o `conexevolution.online` de circulação: remova os registros A do painel de DNS, o nome da linha `ALLOWED_ORIGINS` do `.env` e o nome da primeira linha do bloco do Caddy (no repositório, por `git`, nunca por `sed`). Endereço de ensaio esquecido no ar é uma porta a menos vigiada apontando para o mesmo sistema — e, no dia em que o domínio expirar, é uma porta que outra pessoa pode registrar.
+
+### Se precisar desfazer
+
+Nada aqui é irreversível, mas o DNS tem o tempo dele. Na ordem:
+
+```bash
+# 1. A portaria volta a não conhecer os nomes novos (5 segundos)
+docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy
+docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
+docker kill -s USR1 portal-da-estetica-web-1
+
+# 2. O DNS volta para o IP que você anotou lá em cima (minutos a horas)
+#    — no painel de cada domínio, à mão.
+
+# 3. A gaveta volta ao endereço de ensaio
+cd /opt/gavetas/DTECHMED && nano .env   # APP_URL=https://conexevolution.online
+bash infra/subir.sh
+```
 
 ---
 

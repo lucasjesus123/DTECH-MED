@@ -37,12 +37,39 @@
 # vizinhos. Aconteceu neste deploy, com um `sed` que parecia inofensivo.
 # Edite este arquivo no repositório e traga por `git pull`.
 #
-# Hoje: o domínio de ensaio.
-# Na virada: acrescente dtechmed.com.br e o subdomínio www dele na mesma linha,
-# separados por vírgula, e mantenha o de ensaio por uma semana.
+# =============================================================================
+# POR QUE SÃO DOIS BLOCOS, E NÃO UM COM CINCO NOMES
+# =============================================================================
+# A empresa tem dois domínios — dtechmed.com.br e dtechmed.com — e cada um tem
+# a versão com "www". São cinco endereços contando o de ensaio, e todos abrem o
+# mesmo site.
+#
+# Servir o mesmo conteúdo nos cinco é a solução óbvia e a errada. Para o
+# buscador, endereço diferente é PÁGINA diferente até prova em contrário: cinco
+# cópias da mesma home competindo entre si, e a reputação que o site constrói
+# dividida por cinco em vez de somada. É o que se chama de conteúdo duplicado, e
+# o estrago é justamente aquele que ninguém percebe — o site funciona
+# perfeitamente enquanto vai ficando para trás na busca.
+#
+# Então UM endereço serve o site e os outros mandam para ele, com um 301, que é
+# o código que significa "mudou de casa, e é definitivo". O buscador entende o
+# recado, transfere a reputação para o endereço de destino e passa a mostrar só
+# ele. Para quem digita, não muda nada: escreveu dtechmed.com, caiu no site.
+#
+# O escolhido é o dtechmed.com.br, sem "www". Empresa brasileira, atendimento em
+# Lajeado, cliente que procura no Google digita ".com.br". O ".com" fica
+# guardado, protegido e apontando para casa.
 # =============================================================================
 
-conexevolution.online, www.conexevolution.online {
+
+# -----------------------------------------------------------------------------
+# QUEM ATENDE DE VERDADE
+# -----------------------------------------------------------------------------
+# O endereço de ensaio segue aqui de propósito, e não no bloco de redirecionamento:
+# enquanto o DNS dos domínios novos propaga — o que pode levar horas — ele é o
+# caminho que continua funcionando. Aposentá-lo é o último passo da virada, uma
+# semana depois, e não o primeiro.
+dtechmed.com.br, conexevolution.online {
 	encode zstd gzip
 
 	# Seis fotos de celular numa tacada. A aplicação limita 8 MB por foto.
@@ -80,6 +107,29 @@ conexevolution.online, www.conexevolution.online {
 	}
 
 	# A única coisa que tiramos da resposta é a assinatura do servidor.
+	header {
+		-Server
+	}
+}
+
+# -----------------------------------------------------------------------------
+# QUEM SÓ APONTA O CAMINHO
+# -----------------------------------------------------------------------------
+# Três nomes, uma linha de resposta. Não passam pela aplicação: o Caddy responde
+# o 301 ali mesmo, na portaria, sem gastar um pedido da gaveta.
+#
+# O `{uri}` carrega junto o caminho e a busca. Sem ele, alguém que recebeu por
+# WhatsApp um link de ordem de serviço apontando para o domínio .com cairia na
+# home e perderia a página — e o token na URL, que é o que abre o portal do
+# cliente, iria embora com ele. Com o `{uri}`, o endereço inteiro atravessa.
+#
+# `permanent` é o 301. O 302 (temporário) parece mais prudente e é pior aqui:
+# o buscador não transfere reputação num redirecionamento temporário, e o
+# navegador não guarda — os dois ficam esperando o dia em que o endereço volta a
+# responder sozinho, que não vai chegar.
+www.dtechmed.com.br, dtechmed.com, www.dtechmed.com {
+	redir https://dtechmed.com.br{uri} permanent
+
 	header {
 		-Server
 	}

@@ -773,7 +773,8 @@ Registrado com evidência, para não se perder numa próxima revisão:
 - **FATO** — Token de sessão guardado apenas como HMAC-SHA256. O valor do cookie **não aparece no banco**: busca pelo prefixo do token real devolveu 0 ocorrências.
 - **FATO** — Cookie de sessão com `httpOnly=true`, `secure=true`, `sameSite=Strict`, expiração de 12 horas.
 - **FATO** — CSP por requisição com nonce e `strict-dynamic`, sem `unsafe-inline` em script.
-- **FATO** — Cabeçalhos presentes: HSTS (1 ano, `includeSubDomains`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` restritiva. Sem `X-Powered-By`.
+- **FATO** — Cabeçalhos presentes: HSTS (1 ano, `includeSubDomains`), `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` restritiva. Sem `X-Powered-By`.
+  - O `SAMEORIGIN` substituiu o `DENY` quando a prévia do editor do site passou a abrir a home dentro do painel. A trava de verdade é o `frame-ancestors` da CSP, montado por requisição: `'self'` **só na home**, `'none'` em todo o resto — painel, aplicativos e portal do cliente seguem impossíveis de embutir. O `X-Frame-Options` é o antecessor desse mecanismo e não aceita exceção por rota; mantê-lo em `DENY` anularia a exceção nos navegadores que obedecem ao mais restritivo dos dois.
 - **FATO** — CSRF: POST com `Origin` forjada devolve **403**; com a origem correta, segue.
 - **FATO** — Travessia de caminho barrada em `/api/foto` e `/api/documento`.
 - **FATO** — Rota privada sem sessão redireciona para `/entrar?destino=…`, e o destino só é aceito se for interno.
