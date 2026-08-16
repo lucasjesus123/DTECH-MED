@@ -122,9 +122,6 @@ SUJEIRA=$(grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\[')
 [ "$SUJEIRA" = "0" ] || morre "o arquivo tem $SUJEIRA linha(s) com colchete fora de comentário — ele passou por algum lugar que transformou nome em link. Refaça com: git checkout -- infra/caddy/dtechmed.caddy"
 verde "nenhum colchete fora dos comentários"
 
-grep -q "^${DOMINIO}," infra/caddy/dtechmed.caddy \
-  || alerta "não achei uma linha começando com '$DOMINIO,' no arquivo. Siga só se souber o motivo."
-
 docker ps --format '{{.Names}}' | grep -qx "$PORTARIA" \
   || morre "o contêiner da portaria ('$PORTARIA') não está rodando. Confira o nome com: docker ps"
 verde "portaria encontrada: $PORTARIA"
@@ -142,6 +139,18 @@ nomes_de_bloco() {
 
 CABECALHOS=$(nomes_de_bloco < infra/caddy/dtechmed.caddy)
 verde "o nosso bloco atende: $(printf '%s' "$CABECALHOS" | tr '\n' ' ')"
+
+# O domínio do .env precisa estar entre eles. Sem isso, a portaria vai atender
+# um nome e a aplicação vai declarar outro ao Google — os dois funcionando, e
+# nenhum sinal de que discordam.
+#
+# A conferência anterior procurava a linha "dtechmed.com.br," COM a vírgula, o
+# que só valia enquanto o bloco tinha mais de um nome. No dia em que o endereço
+# de ensaio saiu e o nome ficou sozinho na linha, ela passou a acusar problema
+# numa configuração correta. Aviso que dispara no caso certo é pior que aviso
+# nenhum: ensina a ignorar todos os outros.
+printf '%s\n' "$CABECALHOS" | grep -qxF "$DOMINIO" \
+  || alerta "o APP_URL aponta para '$DOMINIO', que não está entre os nomes do arquivo do Caddy. Siga só se souber o motivo."
 
 # Os nomes que o arquivo JÁ INSTALADO atende — que podem não ser os mesmos.
 #
