@@ -38,27 +38,31 @@
 # Edite este arquivo no repositório e traga por `git pull`.
 #
 # =============================================================================
-# POR QUE SÃO DOIS BLOCOS, E NÃO UM COM CINCO NOMES
+# POR QUE SÃO DOIS BLOCOS, E NÃO UM COM TRÊS NOMES
 # =============================================================================
-# A empresa tem dois domínios — dtechmed.com.br e dtechmed.com — e cada um tem
-# a versão com "www". São cinco endereços contando o de ensaio, e todos abrem o
-# mesmo site.
+# O endereço da empresa é o dtechmed.com.br, sem "www". Empresa brasileira,
+# atendimento em Lajeado, cliente que procura no Google digita ".com.br".
 #
-# Servir o mesmo conteúdo nos cinco é a solução óbvia e a errada. Para o
-# buscador, endereço diferente é PÁGINA diferente até prova em contrário: cinco
-# cópias da mesma home competindo entre si, e a reputação que o site constrói
-# dividida por cinco em vez de somada. É o que se chama de conteúdo duplicado, e
-# o estrago é justamente aquele que ninguém percebe — o site funciona
-# perfeitamente enquanto vai ficando para trás na busca.
+# Mas o "www" também precisa abrir: muita gente ainda digita, e link antigo
+# espalhado por aí carrega o prefixo. A tentação é servir o site nos dois — e é
+# a solução óbvia e a errada. Para o buscador, endereço diferente é PÁGINA
+# diferente até prova em contrário: duas cópias da mesma home competindo entre
+# si, e a reputação que o site constrói dividida em vez de somada. É o que se
+# chama de conteúdo duplicado, e o estrago é justamente aquele que ninguém
+# percebe — o site funciona perfeitamente enquanto vai ficando para trás na
+# busca.
 #
-# Então UM endereço serve o site e os outros mandam para ele, com um 301, que é
-# o código que significa "mudou de casa, e é definitivo". O buscador entende o
-# recado, transfere a reputação para o endereço de destino e passa a mostrar só
-# ele. Para quem digita, não muda nada: escreveu dtechmed.com, caiu no site.
+# Então um endereço serve e o outro manda para ele, com um 301, que é o código
+# que significa "mudou de casa, e é definitivo". O buscador transfere a
+# reputação para o destino e passa a mostrar só ele. Para quem digita, não muda
+# nada.
 #
-# O escolhido é o dtechmed.com.br, sem "www". Empresa brasileira, atendimento em
-# Lajeado, cliente que procura no Google digita ".com.br". O ".com" fica
-# guardado, protegido e apontando para casa.
+# O domínio .com foi considerado e ficou de fora, por decisão do dono. Se um dia
+# entrar, o lugar dele é o segundo bloco, junto do "www" — e só DEPOIS de o DNS
+# dele apontar para esta máquina. Nome escrito aqui sem DNS apontando para cá faz
+# o Caddy tentar emitir certificado repetidamente para um endereço que nunca
+# valida: barulho no log de uma peça compartilhada, e pedidos recusados que
+# contam para o limite da Let's Encrypt.
 # =============================================================================
 
 
@@ -115,19 +119,19 @@ dtechmed.com.br, conexevolution.online {
 # -----------------------------------------------------------------------------
 # QUEM SÓ APONTA O CAMINHO
 # -----------------------------------------------------------------------------
-# Três nomes, uma linha de resposta. Não passam pela aplicação: o Caddy responde
-# o 301 ali mesmo, na portaria, sem gastar um pedido da gaveta.
+# Uma linha de resposta. Não passa pela aplicação: o Caddy responde o 301 ali
+# mesmo, na portaria, sem gastar um pedido da gaveta.
 #
 # O `{uri}` carrega junto o caminho e a busca. Sem ele, alguém que recebeu por
-# WhatsApp um link de ordem de serviço apontando para o domínio .com cairia na
-# home e perderia a página — e o token na URL, que é o que abre o portal do
-# cliente, iria embora com ele. Com o `{uri}`, o endereço inteiro atravessa.
+# WhatsApp um link de ordem de serviço com o "www" na frente cairia na home e
+# perderia a página — e o token na URL, que é o que abre o portal do cliente,
+# iria embora com ele. Com o `{uri}`, o endereço inteiro atravessa.
 #
 # `permanent` é o 301. O 302 (temporário) parece mais prudente e é pior aqui:
 # o buscador não transfere reputação num redirecionamento temporário, e o
 # navegador não guarda — os dois ficam esperando o dia em que o endereço volta a
 # responder sozinho, que não vai chegar.
-www.dtechmed.com.br, dtechmed.com, www.dtechmed.com {
+www.dtechmed.com.br {
 	redir https://dtechmed.com.br{uri} permanent
 
 	header {

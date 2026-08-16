@@ -522,31 +522,30 @@ Se o item 14 mostrar **histórico alterado**, pare e me chame: alguma coisa mexe
 
 Só depois de os 14 itens acima passarem no endereço de ensaio. Antes disso, virar o domínio é trocar um site que funciona por um que você ainda não conferiu.
 
-São **dois domínios** — `dtechmed.com.br` e `dtechmed.com` — e cada um com a versão `www`. Quatro endereços, mais o de ensaio.
+O endereço é o `dtechmed.com.br`, sem `www`. Mas o `www` também precisa abrir, e o endereço de ensaio precisa continuar de pé por mais uma semana.
 
-### O desenho: um atende, três apontam
+### O desenho: um atende, um aponta
 
 | Endereço | O que faz |
 | --- | --- |
 | `dtechmed.com.br` | **atende o site** |
 | `conexevolution.online` | atende também, por mais uma semana |
 | `www.dtechmed.com.br` | 301 para `dtechmed.com.br` |
-| `dtechmed.com` | 301 para `dtechmed.com.br` |
-| `www.dtechmed.com` | 301 para `dtechmed.com.br` |
 
-Quem digitar qualquer um dos cinco cai no site. A diferença é invisível para a pessoa e decisiva para o Google.
+Quem digitar qualquer um dos três cai no site. A diferença é invisível para a pessoa e decisiva para o Google.
 
-> **Por que não servir o site nos cinco.** Para o buscador, endereço diferente é página diferente até prova em contrário. Cinco cópias da mesma home competindo entre si, e a reputação que o site leva meses construindo dividida por cinco em vez de somada. O sintoma é o pior tipo: o site funciona perfeitamente enquanto vai ficando para trás na busca, e nada em lugar nenhum acusa erro.
+> **Por que o `www` não serve o site junto.** Para o buscador, endereço diferente é página diferente até prova em contrário. Duas cópias da mesma home competindo entre si, e a reputação que o site leva meses construindo dividida em vez de somada. O sintoma é o pior tipo: o site funciona perfeitamente enquanto vai ficando para trás na busca, e nada em lugar nenhum acusa erro.
 >
 > O `301` é o código que diz "mudou de casa, e é definitivo". O buscador transfere a reputação para o destino e passa a mostrar só ele.
 >
-> **O escolhido é o `.com.br`, sem `www`.** Empresa brasileira, atendimento em Lajeado, cliente que procura no Google digita `.com.br`. O `.com` fica registrado, protegido e apontando para casa — que é exatamente o valor de ter os dois.
+> **O escolhido é o `.com.br`, sem `www`.** Empresa brasileira, atendimento em Lajeado, cliente que procura no Google digita `.com.br`.
+>
+> **E o `.com`?** Foi considerado e ficou de fora, por decisão do dono. Se um dia entrar, o lugar dele é o bloco de redirecionamento do `infra/caddy/dtechmed.caddy`, junto do `www` — e só **depois** de o DNS dele apontar para esta máquina. Nome escrito lá sem DNS apontando para cá faz o Caddy tentar emitir certificado repetidamente para um endereço que nunca valida: barulho no log de uma peça compartilhada, e pedidos recusados que contam para o limite da Let's Encrypt.
 
 🚨 **Antes de qualquer comando, entenda o que este passo faz.** Se o `dtechmed.com.br` hoje abre o site antigo da empresa, virar o DNS **derruba o site antigo** e coloca este no lugar. Não há meio-termo e não há volta imediata: desfazer é outra troca de DNS, com o mesmo tempo de propagação. Confira o que está no ar hoje antes de mexer:
 
 ```bash
 dig +short dtechmed.com.br
-dig +short dtechmed.com
 curl -sI https://dtechmed.com.br | head -1
 ```
 
@@ -557,10 +556,10 @@ Se o primeiro `dig` devolver um IP que não é `169.58.76.233`, é lá que o sit
 ```bash
 cd /opt/gavetas/DTECHMED
 git pull
-bash infra/virar-dominio.sh dtechmed.com.br dtechmed.com conexevolution.online
+bash infra/virar-dominio.sh dtechmed.com.br conexevolution.online
 ```
 
-O primeiro domínio é o principal: vai no `APP_URL` e é para ele que a portaria manda todos os outros. Os demais entram só na lista de origens aceitas. O endereço de ensaio **fica na lista** — enquanto o DNS propaga os dois respondem, e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
+O primeiro domínio é o principal: vai no `APP_URL` e é para ele que a portaria manda o `www`. Os demais entram só na lista de origens aceitas, cada um com e sem `www`. O endereço de ensaio **fica na lista** — enquanto o DNS propaga os dois respondem, e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
 
 O script guarda uma cópia do `.env` anterior, mostra o antes e o depois, e **não sobe nada**.
 
@@ -589,14 +588,12 @@ Os dois têm que dizer `https://dtechmed.com.br`. Se ainda disserem `conexevolut
 
 ### 14.2 — Vire o DNS
 
-Os dois domínios provavelmente estão em painéis diferentes: o `.com.br` no **Registro.br**, o `.com` no registrador onde ele foi comprado. Em cada um, aponte para `169.58.76.233`:
+No painel do `dtechmed.com.br` — normalmente o **Registro.br** — aponte para `169.58.76.233`:
 
-| Domínio | Tipo | Nome | Valor |
-| --- | --- | --- | --- |
-| dtechmed.com.br | A | `@` | `169.58.76.233` |
-| dtechmed.com.br | A | `www` | `169.58.76.233` |
-| dtechmed.com | A | `@` | `169.58.76.233` |
-| dtechmed.com | A | `www` | `169.58.76.233` |
+| Tipo | Nome | Valor |
+| --- | --- | --- |
+| A | `@` | `169.58.76.233` |
+| A | `www` | `169.58.76.233` |
 
 Se o painel deixar escolher o TTL, coloque **300** antes de trocar. É o tempo que o mundo guarda a resposta antiga; com 300 segundos, um erro se conserta em cinco minutos em vez de em um dia.
 
@@ -605,15 +602,13 @@ Espere propagar — pode levar de minutos a algumas horas:
 ```bash
 dig +short dtechmed.com.br      # 169.58.76.233
 dig +short www.dtechmed.com.br  # 169.58.76.233
-dig +short dtechmed.com         # 169.58.76.233
-dig +short www.dtechmed.com     # 169.58.76.233
 ```
 
-**Só siga quando os quatro devolverem o IP da VPS.** O Caddy só consegue emitir certificado para um domínio que já aponta para cá; instalar antes é pedir certificado para uma casa onde ele ainda não mora, e o pedido falha.
+**Só siga quando os dois devolverem o IP da VPS.** O Caddy só consegue emitir certificado para um domínio que já aponta para cá; instalar antes é pedir certificado para uma casa onde ele ainda não mora, e o pedido falha.
 
 > **Neste intervalo o `dtechmed.com.br` fica fora do ar.** O DNS já aponta para cá e a portaria ainda não conhece o nome — são os minutos entre o passo 14.2 e o 14.3. Por isso os dois se fazem em sequência, sem pausa para o café, e de madrugada. O `conexevolution.online` continua respondendo o tempo todo.
 
-### 14.3 — Ensine a portaria os quatro nomes
+### 14.3 — Ensine a portaria os nomes novos
 
 Os nomes já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos, e chegaram pelo `git reset` do passo 14.1. **Não os edite pelo terminal** — o motivo está no passo 8.2, e o preço de errar aqui são os três sites da máquina juntos.
 
@@ -696,30 +691,28 @@ curl -sI https://dtechmed.com.br | head -1             # HTTP/2 200
 curl -sI https://conexevolution.online | head -1       # HTTP/2 200
 ```
 
-E os três que apontam. Cada um tem que devolver `301` **e** um `location` para `https://dtechmed.com.br`:
+E o que aponta. Tem que devolver `301` **e** um `location` para `https://dtechmed.com.br`:
 
 ```bash
-for D in www.dtechmed.com.br dtechmed.com www.dtechmed.com; do
-  printf '%-24s %s\n' "$D" "$(curl -sI https://$D | grep -iE '^HTTP|^location' | tr -d '\r' | tr '\n' ' ')"
-done
+curl -sI https://www.dtechmed.com.br | grep -iE '^HTTP|^location'
 ```
 
 O caminho e a busca precisam atravessar o redirecionamento inteiros — é o que garante que um link de ordem de serviço mandado por WhatsApp com o domínio `.com` continue abrindo a ordem certa, e não a home:
 
 ```bash
-curl -sI "https://dtechmed.com/os/teste123?x=1" | grep -i '^location'
+curl -sI "https://www.dtechmed.com.br/os/teste123?x=1" | grep -i '^location'
 # location: https://dtechmed.com.br/os/teste123?x=1
 ```
 
 Os certificados, um por endereço:
 
 ```bash
-for D in dtechmed.com.br www.dtechmed.com.br dtechmed.com www.dtechmed.com; do
+for D in dtechmed.com.br www.dtechmed.com.br; do
   printf '%-24s ' "$D"
   echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null \
     | openssl x509 -noout -issuer
 done
-# os quatro: issuer= ... Let's Encrypt ...
+# os dois: issuer= ... Let's Encrypt ...
 ```
 
 Se algum disser `Caddy Local Authority`, o certificado público daquele nome não saiu — quase sempre é DNS que ainda não propagou. Espere e repita; o Caddy tenta sozinho.
@@ -750,7 +743,7 @@ O Caddy já contou aos navegadores. Falta contar ao buscador, e isso é no [Sear
    > Este campo existe para você não precisar do terminal nem de mim para uma coisa que leva trinta segundos. Ele mora no conteúdo do site, junto do título e da descrição da busca, e vale imediatamente depois do salvar — sem publicação, sem reiniciar nada. Vazio, nenhuma etiqueta é escrita na página.
 
 3. **Envie o sitemap.** Em **Sitemaps**, digite `sitemap.xml` e envie.
-4. **Cadastre o `dtechmed.com` também** e use **Configurações → Mudança de endereço** apontando para `dtechmed.com.br`. É o que acelera a transferência da reputação; sem isso o 301 funciona igual, só demora mais.
+4. **Se o site antigo tinha propriedade no Search Console**, entre nela e use **Configurações → Mudança de endereço** apontando para `dtechmed.com.br`. É o que acelera a transferência da reputação; sem isso o 301 funciona igual, só demora mais.
 5. **No Google Meu Negócio, troque o site do perfil** para `https://dtechmed.com.br`. Este é o item que mais custa dinheiro se ficar esquecido: para assistência técnica local, o perfil costuma trazer mais visita que a busca — e enquanto não for trocado, ele continua mandando cliente para o endereço velho.
 
 ### 14.7 — Aposente o endereço de ensaio
