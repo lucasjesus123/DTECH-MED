@@ -897,3 +897,126 @@
   text-underline-offset: 3px;
 }
 .rodape a:hover { color: var(--vio-claro); }
+
+/* ==========================================================================
+   PLANILHA DE CLIENTES — exportar e importar
+   ========================================================================== */
+
+.cartao {
+  margin-bottom: var(--s5);
+  padding: var(--s5);
+  border: 1px solid var(--linha);
+  border-radius: var(--r-lg);
+  background: var(--branco);
+}
+
+.cartaoTitulo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.015em;
+  color: var(--ink);
+}
+
+.cartaoNota {
+  margin: var(--s2) 0 0;
+  max-width: 72ch;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.planilhaTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s5);
+  flex-wrap: wrap;
+}
+
+.planilhaBotoes {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+/* Botão de contorno, para o que não é a ação principal do cartão. */
+.btnLinha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 var(--s5);
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: var(--branco);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+
+.btnLinha:hover:not(:disabled) { border-color: var(--vio-800); color: var(--vio-800); }
+.btnLinha:disabled { opacity: .45; cursor: default; }
+
+.planilhaCorpo {
+  display: grid;
+  gap: var(--s4);
+  margin-top: var(--s5);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--linha);
+}
+
+.campoArquivo {
+  display: grid;
+  gap: 6px;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.campoArquivo input {
+  padding: var(--s3);
+  border: 1px dashed var(--linha);
+  border-radius: var(--r);
+  background: var(--papel);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.planilhaRelatorio {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  border: 1px solid var(--linha);
+  border-radius: var(--r);
+  background: var(--papel);
+}
+
+.aviso {
+  margin: 0;
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* A lista de recusas rola por dentro: com 300 linhas ruins, ela empurraria a
+   página inteira para baixo e esconderia os botões que resolvem o problema. */
+.planilhaRecusas {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 0 var(--s4);
+  max-height: 320px;
+  overflow-y: auto;
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.planilhaRecusas strong { color: var(--selo); }

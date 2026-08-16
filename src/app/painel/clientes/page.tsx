@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { exigirSessao } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
+import Planilha from './planilha'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Clientes', robots: { index: false } }
@@ -30,6 +31,11 @@ export default async function Clientes({
       </div>
 
       {q.novo ? <FormularioCliente /> : null}
+
+      {/* Exportar e importar. Fica acima da busca porque é operação sobre a
+          carteira INTEIRA, e não sobre o que o filtro mostra — colocá-la depois
+          da busca sugeriria que exporta só o resultado filtrado. */}
+      <Planilha />
 
       <form method="get" className={estilo.filtros}>
         <div className={estilo.busca}>
