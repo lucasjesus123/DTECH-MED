@@ -67,7 +67,52 @@ const schema = z.object({
   LEAD_RATE_LIMIT_MAX: z.coerce.number().int().default(5),
 })
 
+/**
+ * Os valores de mentira que o Dockerfile usa para a construção passar.
+ *
+ * Eles existem porque o `next build` precisa que as variáveis obrigatórias
+ * estejam preenchidas para montar as páginas pré-renderizadas, e o `.env` de
+ * produção — corretamente — não entra na imagem.
+ *
+ * O risco de ter valores de fachada é um só, e é grave: alguém sobe a
+ * aplicação a partir do estágio de construção, esquece de passar o `.env`, e
+ * ela funciona. Funcionando com uma chave que está escrita num Dockerfile
+ * versionado, ou seja, pública. Sessão assinada com chave conhecida é sessão
+ * que qualquer um forja, e nada na tela denuncia.
+ *
+ * Por isso a lista é conferida em execução. Em construção eles passam; servindo
+ * gente, não passam.
+ */
+const FACHADA = new Set([
+  'Q09OU1RSVUNBTy1TRU0tU0VHUkVETy1SRUFMLTAwMDE=',
+  'Q09OU1RSVUNBTy1TRU0tU0VHUkVETy1SRUFMLTAwMDI=',
+  'construcao-sem-segredo-real',
+])
+
+/**
+ * Estamos dentro do `next build`?
+ *
+ * O Next define esta variável durante a construção e não a define ao servir.
+ * É o que permite ser tolerante num momento e intransigente no outro.
+ */
+const emConstrucao = process.env.NEXT_PHASE === 'phase-production-build'
+
 function carregar() {
+  if (!emConstrucao) {
+    const usados = (['SESSION_SECRET', 'ENCRYPTION_KEY', 'DOCUMENT_HASH_SALT'] as const).filter(
+      (n) => FACHADA.has(process.env[n] ?? ''),
+    )
+    if (usados.length > 0) {
+      throw new Error(
+        `Configuração inválida. O servidor não vai subir assim:\n` +
+          usados.map((n) => `  • ${n}: está com o valor de fachada da construção`).join('\n') +
+          '\n\nEsses valores estão escritos no Dockerfile, ou seja, são públicos. Eles servem\n' +
+          'só para o `next build` terminar. Passe o .env de produção ao contêiner —\n' +
+          'no compose isso é o `env_file: .env`.',
+      )
+    }
+  }
+
   const r = schema.safeParse(process.env)
   if (!r.success) {
     const problemas = r.error.issues

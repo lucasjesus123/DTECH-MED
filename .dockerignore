@@ -1,0 +1,59 @@
+# =============================================================================
+# O que NÃO entra na construção da imagem
+# =============================================================================
+# Este arquivo existe por um motivo de segurança, e não de velocidade.
+#
+# O `COPY . .` do Dockerfile leva para dentro da imagem tudo o que estiver na
+# pasta. Sem esta lista, isso incluía o `.env` de produção — com a
+# ENCRYPTION_KEY que decifra os tokens de WhatsApp de todas as franquias, o
+# SESSION_SECRET que assina as sessões, e as senhas dos dois papéis do banco.
+#
+# A imagem final (`runner`) não os carregava, porque ela copia arquivos
+# escolhidos a dedo do estágio de construção. Mas o estágio de construção FICA
+# no disco da máquina como imagem própria — e o serviço `migrador` roda a partir
+# dele. Na prática, qualquer um que executasse algo nesta VPS lia os segredos
+# com:
+#
+#     docker compose -p dtechmed --profile manutencao run --rm migrador cat /app/.env
+#
+# Segredo em imagem de contêiner é o vazamento mais silencioso que existe:
+# ele não aparece em log, não aparece em `git status`, e sobrevive a qualquer
+# troca de senha feita no `.env` — porque a cópia dentro da imagem não muda.
+#
+# O `.git` sai pela mesma razão. Ele carrega o histórico inteiro, e histórico é
+# onde segredo apagado continua existindo.
+# =============================================================================
+
+# ---------- Segredos ----------
+.env
+.env.*
+!.env.example
+
+# ---------- Histórico e ferramentas ----------
+.git
+.gitignore
+.github
+.claude
+
+# ---------- Coisas que a construção refaz do zero ----------
+# Copiá-las é pior que inútil: uma `node_modules` da máquina de fora pode ter
+# binários compilados para outra arquitetura, e aí a imagem quebra em execução
+# com um erro que não aponta para lugar nenhum.
+node_modules
+.next
+out
+dist
+worker/dist
+
+# ---------- Dados que pertencem ao servidor, não à imagem ----------
+storage
+backups
+*.sql
+*.sql.gz
+
+# ---------- Ruído ----------
+*.log
+.DS_Store
+coverage
+.vscode
+.idea

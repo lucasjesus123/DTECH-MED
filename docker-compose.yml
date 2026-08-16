@@ -100,6 +100,15 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
+      args:
+        # O endereço público entra na CONSTRUÇÃO, e não só na execução.
+        #
+        # Os segredos ficaram de fora da imagem (ver .dockerignore), mas este
+        # não é segredo e precisa ser o de verdade: ele é gravado nas etiquetas
+        # de compartilhamento das páginas pré-renderizadas, que são resolvidas
+        # durante o build. Sem passá-lo aqui, elas sairiam com o endereço de
+        # fachada do Dockerfile.
+        APP_URL: ${APP_URL:-http://localhost:3000}
     container_name: dtechmed_app
     restart: unless-stopped
     env_file: .env
@@ -153,6 +162,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: runner
+      args:
+        APP_URL: ${APP_URL:-http://localhost:3000}
     container_name: dtechmed_worker
     restart: unless-stopped
     command: ["node", "worker/dist/index.js"]
@@ -188,6 +199,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
+      args:
+        APP_URL: ${APP_URL:-http://localhost:3000}
     # Sem `container_name`, ao contrário dos outros: este serviço é chamado com
     # `docker compose run`, que cria um contêiner descartável por execução. Um
     # nome fixo brigaria com isso.

@@ -18,6 +18,38 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# ---------------------------------------------------------------------------
+# VALORES DE FACHADA, SÓ PARA A CONSTRUÇÃO PASSAR
+# ---------------------------------------------------------------------------
+# O `.dockerignore` mantém o `.env` de produção fora da imagem — os segredos
+# não têm por que existir aqui dentro. Mas o `next build` precisa que as
+# variáveis obrigatórias EXISTAM: o `layout.tsx` importa a validação de
+# ambiente, e ela é executada ao montar as páginas pré-renderizadas (a de 404,
+# a de erro). Sem nada preenchido, a construção para na coleta das páginas —
+# medido, não suposto.
+#
+# Então entram valores de mentira, escolhidos para serem impossíveis de
+# confundir com os de verdade. Eles ficam só neste estágio; a imagem final não
+# os declara, porque ela copia arquivos escolhidos e não herda ambiente.
+#
+# E, para o caso de alguém um dia subir a aplicação a partir do estágio de
+# construção sem passar o `.env`, o `src/lib/env.ts` RECUSA estes valores em
+# execução. Chave publicada num Dockerfile assinando sessão de verdade seria
+# pior que nenhuma trava — e é o tipo de coisa que ninguém percebe até ser
+# tarde.
+ENV DATABASE_URL="postgresql://construcao:construcao@construcao:5432/construcao" \
+    SESSION_SECRET="Q09OU1RSVUNBTy1TRU0tU0VHUkVETy1SRUFMLTAwMDE=" \
+    ENCRYPTION_KEY="Q09OU1RSVUNBTy1TRU0tU0VHUkVETy1SRUFMLTAwMDI=" \
+    DOCUMENT_HASH_SALT="construcao-sem-segredo-real"
+
+# O endereço público, ao contrário dos de cima, NÃO é segredo — e precisa ser o
+# de verdade. Ele é o que a página de 404 grava nas etiquetas de
+# compartilhamento, e essas são resolvidas durante a construção. O compose
+# passa o valor do `.env`; o padrão aqui só serve para um `docker build` solto.
+ARG APP_URL=http://localhost:3000
+ENV APP_URL=$APP_URL
+
 RUN npx prisma generate \
  && npm run build \
  && npx tsx --version >/dev/null 2>&1 || true

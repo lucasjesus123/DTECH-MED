@@ -158,6 +158,8 @@ cd /opt/gavetas/DTECHMED && bash infra/gerar-env.sh conexevolution.online
 ```bash
 cd /opt/gavetas/DTECHMED
 ls -l .env                      # tem que aparecer -rw------- (600)
+# O .env NÃO pode estar dentro da imagem. Tem que dizer "No such file":
+docker compose -p dtechmed --profile manutencao run --rm migrador ls -l /app/.env 2>&1 | tail -1
 grep -c '^[A-Z_]*=$' .env       # tem que dar 3: os que faltam preencher
 grep -o 'postgresql://[^:]*' .env   # dtechmed_app e dtechmed_owner
 ```
