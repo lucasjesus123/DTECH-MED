@@ -617,46 +617,67 @@ dig +short www.dtechmed.com     # 169.58.76.233
 
 Os nomes já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos, e chegaram pelo `git reset` do passo 14.1. **Não os edite pelo terminal** — o motivo está no passo 8.2, e o preço de errar aqui são os três sites da máquina juntos.
 
+Um comando só:
+
 ```bash
-cd /opt/gavetas/DTECHMED
-
-# Os dois blocos: o que atende e o que redireciona.
-grep -n '^dtechmed.com.br,\|^www.dtechmed' infra/caddy/dtechmed.caddy
-
-# Nenhum colchete fora dos comentários. Tem que dar 0.
-grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\['
+cd /opt/gavetas/DTECHMED && bash infra/publicar-dominio.sh
 ```
 
-Se o segundo `grep` não devolver `0`, o arquivo está contaminado. Refaça o `git reset --hard` e **não instale**.
+> **Por que este passo é script, e todo o resto do guia é comando.** Tudo o mais mexe só na nossa gaveta. Este mexe na **portaria**, da qual dependem outros dois sistemas — uma configuração que o Caddy não consiga carregar derruba os três sites juntos.
+>
+> Feito à mão, a proteção é a pessoa: ela lê a saída do `validate`, decide se está bom, e se algo der errado depois da recarga ela precisa lembrar dos comandos de desfazer, na ordem certa, com o site fora do ar e o telefone tocando. Isso não é proteção, é esperança.
+>
+> O script guarda a configuração atual antes de tocar em nada, fotografa os vizinhos, recusa o arquivo se ele tiver colchete fora de comentário, restaura e sai se o `validate` recusar (a portaria nem chega a reler), e — depois da recarga — confere os vizinhos de novo e **desfaz sozinho** se algum caiu. O pior caso deixa de ser "três sites fora do ar até alguém acordar" e passa a ser "trinta segundos e tudo como estava".
+
+Ele para sozinho, sem tocar na portaria, se qualquer uma destas não passar:
+
+| Conferência | Por que ela existe |
+| --- | --- |
+| a aplicação responde em `172.17.0.1:5400` | publicar antes disso troca "site antigo" por "502" |
+| `robots.txt` e `sitemap.xml` declaram o `APP_URL` | é o endereço que o Google vai indexar |
+| nenhum colchete fora dos comentários | é a assinatura do texto que passou por um cliente que transforma `www.` em link |
+| a portaria está rodando | erro de nome do contêiner é o engano mais comum aqui |
+
+**O que fazer com cada final:**
+
+- **Terminou com "Pronto"** — acabou. Siga para o 14.6.
+- **Parou antes de instalar** — nada foi tocado, os três sites seguem como estavam. A mensagem diz o que corrigir.
+- **Desfez sozinho** — a portaria voltou ao estado anterior e recarregou. Me chame com a saída inteira.
+- **Saiu com "ainda não respondeu 200"** — quase sempre é o certificado saindo. Espere dois minutos e rode `curl -sI https://dtechmed.com.br | head -1`.
+
+Para voltar atrás depois, com tudo funcionando:
 
 ```bash
+bash infra/publicar-dominio.sh --desfazer
+```
+
+### 14.4 — Se precisar fazer à mão
+
+O script faz isto, nesta ordem. Está aqui para quando você quiser entender o que ele fez, ou fazer passo a passo:
+
+```bash
+# guarda o que está lá hoje
+docker exec portal-da-estetica-web-1 cp /data/sites-extra/dtechmed.caddy /data/sites-extra/.dtechmed.caddy.anterior
+
 docker cp infra/caddy/dtechmed.caddy portal-da-estetica-web-1:/data/sites-extra/dtechmed.caddy
+docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
+# tem que terminar com "Valid configuration"
+
+docker kill -s USR1 portal-da-estetica-web-1
+sleep 6
+curl -sI https://dtechmed.com.br | head -1
+```
+
+`USR1` manda o Caddy reler sem derrubar uma conexão sequer, e não depende da API de administração — que neste Caddy está desligada com `admin off`.
+
+🚨 **Se o `validate` falhar, PARE** e restaure antes de qualquer outra coisa:
+
+```bash
+docker exec portal-da-estetica-web-1 cp /data/sites-extra/.dtechmed.caddy.anterior /data/sites-extra/dtechmed.caddy
 docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
 ```
 
-Tem que terminar com `Valid configuration`. O `validate` lê o Caddyfile do vizinho **e** os arquivos importados, incluindo o nosso — então um erro de sintaxe aparece aqui, com os três sites ainda no ar.
-
-🚨 **Se o `validate` falhar, PARE.** Desfaça com `docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy`, valide de novo para confirmar que voltou ao normal, e me chame. Enquanto a portaria não reler, nada mudou para ninguém.
-
-### 14.4 — Faça a portaria reler
-
-Sem interrupção nenhuma:
-
-```bash
-docker kill -s USR1 portal-da-estetica-web-1
-sleep 5
-curl -sI https://dtechmed.com.br | head -1
-```
-
-`USR1` manda o Caddy reler a configuração sem derrubar uma conexão sequer. Se responder `HTTP/2 200`, acabou — os vizinhos nem perceberam.
-
-**Só se o `curl` não responder 200**, use o reinício, que custa 2 a 4 segundos de indisponibilidade para os três sites:
-
-```bash
-docker restart portal-da-estetica-web-1
-sleep 8
-curl -sI https://dtechmed.com.br | head -1
-```
+Enquanto a portaria não reler, nada mudou para ninguém.
 
 ### 14.5 — Confira, nesta ordem
 
