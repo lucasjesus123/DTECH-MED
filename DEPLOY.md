@@ -557,17 +557,16 @@ Se o primeiro `dig` devolver um IP que não é `169.58.76.233`, é lá que o sit
 ```bash
 cd /opt/gavetas/DTECHMED
 git pull
-nano .env
+bash infra/virar-dominio.sh dtechmed.com.br dtechmed.com conexevolution.online
 ```
 
-Troque as duas linhas:
+O primeiro domínio é o principal: vai no `APP_URL` e é para ele que a portaria manda todos os outros. Os demais entram só na lista de origens aceitas. O endereço de ensaio **fica na lista** — enquanto o DNS propaga os dois respondem, e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
 
-```bash
-APP_URL=https://dtechmed.com.br
-ALLOWED_ORIGINS=https://dtechmed.com.br,https://www.dtechmed.com.br,https://dtechmed.com,https://www.dtechmed.com,https://conexevolution.online
-```
+O script guarda uma cópia do `.env` anterior, mostra o antes e o depois, e **não sobe nada**.
 
-O endereço de ensaio **fica na lista**. Enquanto o DNS propaga, os dois respondem — e quem estiver com a aba antiga aberta não toma 403 no meio de um orçamento.
+> **Por que um script e não o `nano`.** A lista de origens precisa das versões com `www`. Alguns clientes de terminal e de chat convertem qualquer texto começando com `www.` num link, com colchetes e parênteses em volta — foi o que derrubou os três sites da máquina uma vez, num `sed` que parecia inofensivo. Aqui os nomes com `www` são **montados pelo script** a partir do domínio raiz que você digitou; eles nunca passam pela área de transferência.
+>
+> Num `.env` esse erro é pior que no Caddy, porque não derruba nada na hora: a aplicação sobe, o site abre, e só o formulário de contato passa a devolver 403 para todo mundo, dias depois, sem ninguém ligar uma coisa à outra.
 
 Agora suba com **reconstrução**, e não só um `up -d`:
 
