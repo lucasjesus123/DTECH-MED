@@ -94,6 +94,12 @@ done
 # Imagem pendurada é a versão anterior de algo que foi reconstruído. A nossa
 # gaveta gera uma a cada `subir.sh`, e elas vão se acumulando.
 PENDURADAS=$(docker images -f dangling=true -q 2>/dev/null | wc -l)
+if [ "$PENDURADAS" -eq 0 ]; then
+  # Dizer que não há é parte do relatório. Silêncio aqui seria lido como "não
+  # conferi" — e foi o que eu mesmo presumi ao prever um acúmulo que não existe:
+  # este Docker substitui a imagem sem deixar a anterior para trás.
+  verde 'nenhuma imagem pendurada — as construções não estão deixando sobra'
+fi
 if [ "$PENDURADAS" -gt 0 ]; then
   alerta "$PENDURADAS imagem(ns) pendurada(s) — cada subir.sh deixa uma para trás"
   nota "São versões antigas, já substituídas. Nenhum contêiner em pé depende delas."
@@ -107,8 +113,19 @@ titulo "5. Cache de construção"
 CACHE=$(docker system df --format '{{.Type}}\t{{.Size}}' 2>/dev/null | awk -F'\t' '/Build Cache/{print $2}')
 nota "ocupa: ${CACHE:-desconhecido}"
 nota 'É o que faz um subir.sh levar 40 segundos em vez de 6 minutos.'
-nota "Apagar não quebra nada; só torna a próxima construção lenta — de todos."
-nota "Comando, se um dia o disco apertar de verdade: docker builder prune -f"
+nota 'Apagar não quebra nada; só torna a próxima construção lenta — de todos,'
+nota 'porque o cache é da máquina, não da gaveta.'
+nota ''
+# `docker builder prune -f` apaga o cache inteiro, inclusive o que foi usado
+# hoje. É o conselho que se encontra por aí, e é grosso demais: joga fora
+# justamente as camadas quentes, que são as que economizam tempo.
+#
+# O `until` mantém o que anda sendo usado e leva o que ninguém toca há uma
+# semana — que é onde mora quase todo o volume, porque cada dependência trocada
+# deixa a camada antiga para trás.
+nota 'Se um dia o disco apertar, comece pelo que está parado há uma semana:'
+nota '    docker builder prune --filter until=168h -f'
+nota 'Só se isso não bastar, o cache inteiro: docker builder prune -f'
 
 # ---------------------------------------------------------------------------
 titulo "6. Registros dos contêineres"
@@ -186,13 +203,32 @@ done
 # ---------------------------------------------------------------------------
 titulo "9. Fora do Docker"
 # ---------------------------------------------------------------------------
+# Os dois blocos abaixo só sugerem quando há o que fazer.
+#
+# Um relatório que manda aparar um registro de 169 MB para 200 MB não está
+# ajudando: está gastando a atenção de quem lê num conselho que não faz nada.
+# Repetido algumas vezes, ensina a passar os olhos pela seção inteira — e aí o
+# dia em que houver algo de verdade, também passa.
 if command -v journalctl >/dev/null; then
-  nota "registros do sistema (journal): $(journalctl --disk-usage 2>/dev/null | grep -oE '[0-9.]+[KMG]' | head -1 || echo '?')"
-  nota "para aparar em 200 MB: journalctl --vacuum-size=200M"
+  JB=$(journalctl --disk-usage 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)?[KMG]' | head -1)
+  nota "registros do sistema (journal): ${JB:-?}"
+  case "$JB" in
+    *G) alerta "acima de 1 GB — vale aparar: journalctl --vacuum-size=200M" ;;
+    *M) N=${JB%M}; N=${N%%.*}
+        [ "${N:-0}" -ge 500 ] && alerta "para aparar: journalctl --vacuum-size=200M" \
+                              || nota 'tamanho normal, nada a fazer.' ;;
+    *) nota 'tamanho normal, nada a fazer.' ;;
+  esac
 fi
 if [ -d /var/cache/apt ]; then
-  nota "cache do apt: $(du -sh /var/cache/apt 2>/dev/null | cut -f1)"
-  nota "para limpar: apt-get clean"
+  AK=$(du -sk /var/cache/apt 2>/dev/null | cut -f1)
+  nota "cache do apt: $(humano $(( ${AK:-0} * 1024 )))"
+  # Cache de pacote é puro descarte: o apt rebaixa o que precisar de novo.
+  if [ "${AK:-0}" -ge 102400 ]; then
+    alerta 'acima de 100 MB, e é descarte puro. Para limpar: apt-get clean'
+  else
+    nota 'pequeno, não compensa mexer.'
+  fi
 fi
 
 # ---------------------------------------------------------------------------
