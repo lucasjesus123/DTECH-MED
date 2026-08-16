@@ -146,8 +146,36 @@ fi
 # ---------------------------------------------------------------------------
 titulo "5. Migrações"
 # ---------------------------------------------------------------------------
+# O `up -d --build` acima NÃO constrói o migrador.
+#
+# Ele tem `profiles: ["manutencao"]`, e serviço com perfil fica de fora do `up`.
+# O Compose constrói a imagem dele na PRIMEIRA vez que alguém a executa, e
+# nunca mais. Ou seja: sem esta linha, todo deploy roda as migrações a partir do
+# código que existia no dia em que a imagem nasceu.
+#
+# O sintoma é do pior tipo, porque parece sucesso. O Prisma lê as migrações de
+# DENTRO da imagem: se a mais nova não está lá, ele não a conhece, informa "No
+# pending migrations to apply" e sai com zero. O deploy dá tudo verde, e a
+# tabela nova simplesmente não existe no banco.
+#
+# Foi o que aconteceu aqui: a imagem tinha 10 migrações e o repositório, 11.
+compose --profile manutencao build migrador
 compose --profile manutencao run --rm migrador
-verde "migrações aplicadas"
+
+# A conferência que teria pegado aquilo no dia.
+#
+# Conta as pastas de migração do repositório e compara com as que o banco
+# registra como aplicadas. É a pergunta certa — "o banco está no ponto que este
+# código espera?" — e não admite resposta parecida com sim.
+NO_REPO=$(find prisma/migrations -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+NO_BANCO=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
+  "SELECT count(*) FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL" \
+  2>/dev/null | tr -d ' ')
+if [ "${NO_BANCO:-0}" = "$NO_REPO" ]; then
+  verde "$NO_BANCO migrações aplicadas — o banco está no ponto que este código espera"
+else
+  morre "o repositório tem $NO_REPO migrações e o banco registra ${NO_BANCO:-0}. O banco NÃO está no ponto deste código — não coloque em uso."
+fi
 
 TABELAS=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
   "SELECT count(*) FROM pg_tables WHERE schemaname='public'" | tr -d ' ')
