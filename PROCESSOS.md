@@ -11,36 +11,37 @@ Tirado da máquina de estados do código, não de memória. Se um dia divergir, 
 É o órgão vital. Todo equipamento que entra percorre esta linha, e cada passagem de etapa fica registrada com **quem fez**, **quando** e **de onde** — é isso que vira o prontuário que o cliente lê.
 
 ```mermaid
-flowchart TD
-    A["1 · Solicitação recebida<br/><i>site ou WhatsApp</i>"] --> B["2 · Ordem de retirada gerada<br/><i>central</i>"]
-    B --> C["3 · Retirada agendada<br/><i>data, hora e motorista</i>"]
-    C --> D["4 · Em rota de retirada<br/><i>motorista saiu</i>"]
-    D --> E["5 · Coletado<br/><i>cliente assinou</i>"]
-    E --> F["6 · Recebido na empresa<br/><i>técnico deu entrada com fotos</i>"]
-    F --> G["7 · Em análise<br/><i>diagnóstico e parecer</i>"]
-    G --> H["8 · Orçamento interno<br/><i>gestora revisa e fecha</i>"]
-    H --> I["9 · Orçamento enviado<br/><i>WhatsApp do cliente</i>"]
+flowchart TB
+    subgraph R["RETIRADA · central e motorista"]
+        direction LR
+        A1["1<br/>Solicitação<br/>recebida"] --> A2["2<br/>Ordem<br/>gerada"] --> A3["3<br/>Retirada<br/>agendada"] --> A4["4<br/>Em rota<br/>de retirada"] --> A5["5<br/>Coletado<br/><i>assinado</i>"]
+    end
 
-    I --> J["10 · Aprovado<br/><i>cliente assinou · virou contrato</i>"]
-    I --> R["Reprovado"]
+    subgraph D["DIAGNÓSTICO · técnico e gestão"]
+        direction LR
+        B1["6<br/>Recebido<br/><i>com fotos</i>"] --> B2["7<br/>Em<br/>análise"] --> B3["8<br/>Orçamento<br/>interno"] --> B4["9<br/>Orçamento<br/>enviado"]
+    end
 
-    J --> K["11 · Em manutenção"]
-    K --> L["12 · Manutenção concluída<br/><i>testes finais aprovados</i>"]
-    L --> M["13 · Aprovação da gestão"]
-    M --> N["14 · Faturamento"]
-    N --> O["15 · Faturado<br/><i>pago · liberado</i>"]
-    O --> P["16 · Em rota de entrega"]
-    P --> Q["17 · Entregue<br/><i>assinado na porta</i>"]
-    Q --> S["18 · Finalizado<br/><i>baixa final</i>"]
+    subgraph E["EXECUÇÃO · técnico e gestão"]
+        direction LR
+        C1["10<br/>Aprovado<br/><i>virou contrato</i>"] --> C2["11<br/>Em<br/>manutenção"] --> C3["12<br/>Manutenção<br/>concluída"] --> C4["13<br/>Aprovação<br/>da gestão"]
+    end
 
-    R --> T["Devolvido sem reparo"]
-    T --> P
+    subgraph F["FECHAMENTO · financeiro e motorista"]
+        direction LR
+        D1["14<br/>Faturamento"] --> D2["15<br/>Faturado<br/><i>pago</i>"] --> D3["16<br/>Em rota<br/>de entrega"] --> D4["17<br/>Entregue<br/><i>assinado</i>"] --> D5["18<br/>Finalizado"]
+    end
 
-    style A fill:#6D28D9,color:#fff
-    style J fill:#0F6B4F,color:#fff
-    style S fill:#0F6B4F,color:#fff
-    style R fill:#A8203C,color:#fff
-    style T fill:#8A5300,color:#fff
+    A5 --> B1
+    B4 --> C1
+    B4 -.->|"recusou"| X["Devolvido<br/>sem reparo"]
+    C4 --> D1
+    X -.-> D3
+
+    style A1 fill:#6D28D9,color:#fff,stroke:#4A0D8F
+    style C1 fill:#0F6B4F,color:#fff,stroke:#0A4A37
+    style D5 fill:#0F6B4F,color:#fff,stroke:#0A4A37
+    style X fill:#8A5300,color:#fff,stroke:#5C3800
 ```
 
 **Ramos alternativos**, que existem porque a vida real tem: `Orçamento reprovado` → o aparelho volta sem conserto. `Cancelado` → a ordem é encerrada antes do fim. Nenhum dos dois apaga o histórico; eles são mais uma etapa registrada.
@@ -50,25 +51,17 @@ flowchart TD
 ## 2. Quem faz o quê
 
 ```mermaid
-flowchart LR
-    SA["SUPER ADMIN<br/><i>dono da plataforma</i>"] -->|cria| EMP["Empresa"]
-    SA -->|cria| ADM["ADMIN DA EMPRESA"]
-    ADM -->|cria| USR["Usuários da empresa"]
+flowchart TB
+    SA["SUPER ADMIN<br/><i>dono da plataforma</i>"] --> EMP["Empresa"] --> ADM["ADMIN DA EMPRESA"] --> USR["Usuários"]
 
-    USR --> AT["ATENDENTE"]
-    USR --> GE["GESTOR"]
-    USR --> TE["TÉCNICO"]
-    USR --> MO["MOTORISTA"]
-    USR --> FI["FINANCEIRO"]
+    USR --> AT["ATENDENTE<br/><i>etapas 1–3</i><br/>cadastra cliente<br/>gera ordem · agenda"]
+    USR --> MO["MOTORISTA<br/><i>etapas 4, 5, 16, 17</i><br/>retira e entrega<br/>coleta assinatura"]
+    USR --> TE["TÉCNICO<br/><i>etapas 6, 7, 11, 12</i><br/>recebe · fotografa<br/>lauda · executa"]
+    USR --> GE["GESTOR<br/><i>etapas 8, 13, 18</i><br/>aprova orçamento<br/>aprova serviço · baixa"]
+    USR --> FI["FINANCEIRO<br/><i>etapas 14, 15</i><br/>lança pagamento<br/>fecha fatura"]
 
-    AT -->|"cadastra cliente<br/>gera ordem · agenda"| E1["Etapas 1–3"]
-    MO -->|"retira e entrega<br/>coleta assinatura"| E2["Etapas 4, 5, 16, 17"]
-    TE -->|"recebe · fotografa<br/>lauda · executa"| E3["Etapas 6, 7, 11, 12"]
-    GE -->|"aprova orçamento<br/>aprova serviço · dá baixa"| E4["Etapas 8, 13, 18"]
-    FI -->|"lança pagamento<br/>fecha fatura"| E5["Etapas 14, 15"]
-
-    style SA fill:#6D28D9,color:#fff
-    style ADM fill:#4A0D8F,color:#fff
+    style SA fill:#6D28D9,color:#fff,stroke:#4A0D8F
+    style ADM fill:#4A0D8F,color:#fff,stroke:#3A0A70
 ```
 
 O papel decide **o que aparece na tela** e **o que a pessoa pode fazer**. As duas coisas são conferidas separadamente: esconder o botão é conforto, quem autoriza de verdade é a trava na ação e a política no banco.
