@@ -1230,3 +1230,180 @@
 }
 
 .planilhaRecusas strong { color: var(--selo); }
+
+
+/* ==========================================================================
+   NEON COM SIGNIFICADO
+   --------------------------------------------------------------------------
+   Brilho colorido é decoração na maior parte dos sistemas, e por isso costuma
+   ser evitado com razão. Aqui ele carrega informação, e a regra é uma só:
+
+       ACENDE O QUE ESTÁ VIVO AGORA. O resto fica apagado.
+
+   O sinal de conexão, a etapa aberta da esteira, a tela em que a pessoa está,
+   o último evento da linha do tempo, a ação principal da página. Cinco coisas.
+   Se acendesse na sexta, todas voltariam a ser adesivo — o valor do neon está
+   inteiro em ele ser raro.
+
+   Neon é luz, e luz precisa de escuro para existir. Por isso nada aqui usa a
+   mesma cor nos dois temas: no escuro o halo é largo e o violeta é claro; no
+   claro o halo encurta e o violeta escurece, virando tinta saturada com anel
+   nítido. Tentar o mesmo valor nos dois deixa o claro com uma mancha lavada —
+   foi exatamente o que a primeira versão desta seção fazia.
+   ========================================================================== */
+
+/* --- 1. O radar: "estamos ao vivo" ---------------------------------------
+   Anel que nasce no ponto e se abre até sumir, como uma varredura. Fica ao
+   lado do nome da empresa conectada porque é disso que ele fala — a conexão
+   está de pé. Espalhado pela tela, seria enfeite piscante.
+
+   Dois anéis defasados pela metade do ciclo: um só parece piscar; dois leem
+   como varredura contínua. */
+.pulso {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sinal);
+  box-shadow:
+    0 0 0 3px var(--sinal-veu),
+    0 0 var(--neon-raio) var(--neon-sinal);
+  flex-shrink: 0;
+}
+.pulso::before,
+.pulso::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sinal);
+  animation: radar 2200ms cubic-bezier(0.16, 0.8, 0.4, 1) infinite;
+}
+.pulso::after { animation-delay: 1100ms; }
+
+/* O limite de 2,5 não é gosto: é o espaço que existe. O ponto fica a 11px da
+   borda da pílula e a 12px da primeira letra, então um anel que passe de ~10px
+   de raio atravessa o "D" de DTECH MED. Renderizado, isso aparece como um
+   arco riscando o nome da empresa a cada dois segundos. */
+@keyframes radar {
+  0%   { transform: scale(1);   opacity: .9; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* --- 2. A etapa aberta da esteira ----------------------------------------
+   Ela já era violeta chapado; o que faltava era dizer que é AQUI que o
+   trabalho está agora, e não apenas que é aqui que se clicou. O anel de 1px
+   sustenta a leitura no tema claro, onde o halo sozinho não aparece. */
+.degrauAtivo,
+.degrauAtivo:hover {
+  box-shadow:
+    var(--sombra-3),
+    0 0 0 1px var(--neon),
+    0 0 var(--neon-raio) var(--neon-veu);
+}
+/* O bico também acende, senão fica um triângulo opaco pendurado num card
+   que brilha. */
+.degrauAtivo::before {
+  box-shadow: 0 0 var(--neon-raio) var(--neon-veu);
+}
+
+/* O trilho da esteira ganha um miolo violeta: ele deixa de ser um fio cinza
+   de separação e passa a ler como a linha por onde a peça anda. */
+.esteira::before {
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--vio-borda) 8%,
+    var(--neon-veu) 50%,
+    var(--vio-borda) 92%,
+    transparent
+  );
+}
+
+/* --- 3. A tela em que a pessoa está --------------------------------------
+   A barra da esquerda do item ativo. A lateral é a única peça que não troca
+   com o tema — é sempre escura — então aqui o neon pode ser sempre luz. */
+.latItemAtivo::before {
+  box-shadow:
+    0 0 8px rgba(167, 139, 250, .95),
+    0 0 18px rgba(139, 92, 246, .55);
+}
+.latItemAtivo {
+  box-shadow: inset 0 0 22px -8px rgba(139, 92, 246, .55);
+}
+
+/* --- 4. A ação principal da página ---------------------------------------
+   Uma por tela, no cabeçalho. Acender a única ação primária é o oposto de
+   acender tudo: o brilho vira a resposta a "e agora, o que eu faço aqui?". */
+.btnPrimario {
+  box-shadow: 0 6px 20px -8px var(--neon-veu);
+  transition:
+    box-shadow 180ms var(--ease),
+    transform 180ms var(--ease),
+    background 180ms var(--ease);
+}
+.btnPrimario:hover {
+  box-shadow:
+    0 0 0 1px var(--neon),
+    0 8px 26px -6px var(--neon-veu);
+  transform: translateY(-1px);
+}
+
+/* --- 5. O último evento da linha do tempo --------------------------------
+   O ponto verde do prontuário: onde a ordem parou. Era o único lugar do
+   arquivo com um verde cravado em rgba — agora usa o mesmo token do radar,
+   e portanto acompanha o tema. */
+.eventoAtual::before {
+  background: var(--sinal);
+  box-shadow:
+    0 0 0 3px var(--bg-1),
+    0 0 var(--neon-raio) var(--neon-sinal);
+}
+
+/* --- O alarme também é neon, e vermelho ----------------------------------
+   Aqui o brilho não é vida, é urgência: a faixa na base do degrau com ordem
+   parada. Mesma gramática, cor oposta. */
+.degrauGrita::after {
+  box-shadow: 0 -2px 12px -1px var(--neon-grita);
+}
+.atrasado {
+  text-shadow: 0 0 12px var(--neon-grita);
+}
+
+/* --- O que responde ao toque ---------------------------------------------
+   Não acende sozinho: acende sob o cursor. Enquanto ninguém aponta, a tela
+   continua calma; quando aponta, o item responde com a mesma luz do resto —
+   é o que dá a sensação de sistema vivo em vez de captura de tela. */
+.cardOrdem:hover {
+  border-color: var(--neon);
+  box-shadow: 0 0 var(--neon-raio) -6px var(--neon-veu);
+}
+.indicador {
+  transition:
+    border-color 200ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+.indicador:hover {
+  border-color: var(--vio-borda);
+  box-shadow: var(--sombra-1), 0 0 var(--neon-raio) -8px var(--neon-veu);
+}
+.abaAtiva {
+  box-shadow: 0 2px 12px -6px var(--neon);
+}
+.avatar {
+  box-shadow: 0 0 0 1px var(--vio-borda), 0 0 14px -6px var(--neon-veu);
+}
+
+/**
+ * Quem pede menos movimento não recebe varredura.
+ *
+ * Animação em laço infinito é a que mais incomoda quem tem sensibilidade
+ * vestibular, e esta fica na periferia da visão o expediente inteiro. O ponto
+ * continua aceso e continua dizendo "ao vivo" — ele só para de girar. O resto
+ * do neon é estático e permanece: nada aqui depende de movimento para
+ * significar o que significa.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .pulso::before,
+  .pulso::after { animation: none; opacity: 0; }
+}

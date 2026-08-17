@@ -75,6 +75,24 @@
   --vio-tinta:  light-dark(#3A0A70, #4A0D8F);
   --brilho:     light-dark(rgba(109, 40, 217, .18), rgba(139, 92, 246, .40));
 
+  /* --- Neon --------------------------------------------------------------
+     `--brilho` é sombra de botão: fraco de propósito, porque aparece em
+     dezenas de lugares. Neon é outra coisa — acende só no que está VIVO
+     agora, e por isso pode ser forte.
+
+     Os dois temas não podem receber o mesmo valor. Neon é LUZ, e luz só
+     existe contra o escuro: o mesmo halo que brilha sobre #08040F vira
+     borrão lavado sobre branco. No claro, então, o neon vira TINTA — anel
+     nítido e halo curto — e no escuro vira luz de verdade, com halo largo.
+     É a diferença entre um letreiro à noite e o mesmo letreiro apagado ao
+     meio-dia: não se imita um com o outro. */
+  --neon:       light-dark(rgba(109, 40, 217, .55), rgba(167, 139, 250, .95));
+  --neon-veu:   light-dark(rgba(109, 40, 217, .20), rgba(139, 92, 246, .60));
+  --neon-sinal: light-dark(rgba(15, 107, 79, .60),  rgba(45, 212, 160, .95));
+  --neon-grita: light-dark(rgba(168, 32, 60, .55),  rgba(251, 113, 133, .90));
+  /* Raio do halo. No claro ele é curto para não borrar; no escuro respira. */
+  --neon-raio:  light-dark(10px, 26px);
+
   /* --- Estados ---------------------------------------------------------- */
   --sinal:      light-dark(#0F6B4F, #2DD4A0);   /* ao vivo, aprovado, ok */
   --alerta:     light-dark(#A8203C, #FB7185);   /* atrasado, parado, reprovado */
