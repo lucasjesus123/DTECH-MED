@@ -63,13 +63,47 @@ async function main() {
     tx.cliente.findMany({ include: { equipamentos: true }, orderBy: { criadoEm: 'asc' } }),
   )
 
+  /**
+   * O movimento de uma assistência que já roda, e não uma etapa de amostra.
+   *
+   * A proporção não é aleatória. Num negócio de manutenção, a maior parte do
+   * volume está ATRÁS — serviço já entregue, faturado, fechado — e só uma
+   * fatia está em andamento agora. Um cenário com uma ordem por etapa mostra a
+   * esteira bonita e não tem o que somar: relatório de faturamento com uma
+   * linha não é relatório, é exemplo.
+   *
+   * Por isso são 10 ordens finalizadas e 3 faturadas contra 9 em andamento.
+   * O painel do dia mostra o trabalho vivo, e o financeiro tem histórico para
+   * fechar mês.
+   */
   const roteiros: Array<{ ate: E; defeito: string }> = [
-    { ate: E.RETIRADA_AGENDADA, defeito: 'Liga mas não dispara. Ontem senti cheiro de queimado.' },
-    { ate: E.RECEBIDO_NA_EMPRESA, defeito: 'Autoclave não fecha o ciclo, para na secagem.' },
-    { ate: E.ORCAMENTO_ENVIADO, defeito: 'Perde vácuo no aplicador e desliga sozinho.' },
-    { ate: E.EM_MANUTENCAO, defeito: 'Bisturi sem corte no modo coagulação.' },
-    { ate: E.FATURADO, defeito: 'Autoclave desarma o disjuntor ao iniciar o ciclo.' },
+    // --- Fechadas: o histórico que alimenta relatório ----------------------
     { ate: E.FINALIZADO, defeito: 'Cadeira não sobe. Barulho de bomba forçando.' },
+    { ate: E.FINALIZADO, defeito: 'Autoclave para no meio do ciclo e apita três vezes.' },
+    { ate: E.FINALIZADO, defeito: 'Aplicador esquenta demais e desarma na metade da sessão.' },
+    { ate: E.FINALIZADO, defeito: 'Painel não responde ao toque no canto direito.' },
+    { ate: E.FINALIZADO, defeito: 'Perda de pressão. Não sustenta o vácuo por mais de um minuto.' },
+    { ate: E.FINALIZADO, defeito: 'Ruído alto no compressor desde a última manutenção.' },
+    { ate: E.FINALIZADO, defeito: 'Display apaga sozinho depois de vinte minutos ligado.' },
+    { ate: E.FINALIZADO, defeito: 'Não aquece. A resistência parece não estar recebendo carga.' },
+    { ate: E.FINALIZADO, defeito: 'Pedal sem resposta. Testei outro pedal e funcionou.' },
+    { ate: E.FINALIZADO, defeito: 'Vaza água pela base quando enche o reservatório.' },
+
+    // --- Faturadas: pagas, esperando a entrega -----------------------------
+    { ate: E.FATURADO, defeito: 'Autoclave desarma o disjuntor ao iniciar o ciclo.' },
+    { ate: E.FATURADO, defeito: 'Ponteira sem emissão. A luz acende mas não sai o disparo.' },
+    { ate: E.FATURADO, defeito: 'Erro E-04 na tela toda vez que passa de 60% de potência.' },
+
+    // --- Em andamento: o que o painel do dia mostra ------------------------
+    { ate: E.RETIRADA_AGENDADA, defeito: 'Liga mas não dispara. Ontem senti cheiro de queimado.' },
+    { ate: E.RETIRADA_AGENDADA, defeito: 'Parou de vez. Não liga nem na tomada da sala ao lado.' },
+    { ate: E.RECEBIDO_NA_EMPRESA, defeito: 'Autoclave não fecha o ciclo, para na secagem.' },
+    { ate: E.RECEBIDO_NA_EMPRESA, defeito: 'Bomba fazendo barulho e o braço descendo sozinho.' },
+    { ate: E.ORCAMENTO_ENVIADO, defeito: 'Perde vácuo no aplicador e desliga sozinho.' },
+    { ate: E.ORCAMENTO_ENVIADO, defeito: 'Tela riscada por dentro e toque falhando na lateral.' },
+    { ate: E.EM_MANUTENCAO, defeito: 'Bisturi sem corte no modo coagulação.' },
+    { ate: E.EM_MANUTENCAO, defeito: 'Cabo de força esquentando junto ao conector do aparelho.' },
+    { ate: E.EM_MANUTENCAO, defeito: 'Refrigeração fraca. O gel esquenta no meio do procedimento.' },
   ]
 
   if (clientes.length === 0) throw new Error('Sem clientes. Rode antes: npm run db:seed -- --demo')
