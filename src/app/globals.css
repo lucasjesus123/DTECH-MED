@@ -18,7 +18,11 @@
   html { scroll-behavior: smooth; }
 }
 
-:root {
+:root,
+.claro,
+[data-tema='claro'],
+[data-tema='escuro'],
+[data-tema='sistema'] {
   /* =======================================================================
      UMA PALETA, DOIS TEMAS
      -----------------------------------------------------------------------
@@ -38,8 +42,22 @@
      cor de instrumento luminoso não sobrevive em papel.
      ======================================================================= */
 
-  /* O site é escuro por desenho, e não por preferência de quem visita. Só o
-     painel troca de tema, e ele declara o próprio `color-scheme`. */
+  /* =======================================================================
+     POR QUE A LISTA DE SELETORES ACIMA, E NÃO SÓ `:root`
+     -----------------------------------------------------------------------
+     Esta linha foi a causa de o tema claro não funcionar, e de o site quebrar
+     junto. Vale escrever o motivo, porque ele não é óbvio e custa uma tarde.
+
+     Propriedade personalizada é resolvida NO ELEMENTO ONDE É DECLARADA, e daí
+     em diante só desce herdada, já pronta. Com os tokens só em `:root`, o
+     `--bg` era calculado na raiz — onde o esquema é escuro — e descia com o
+     valor escuro. Trocar o `color-scheme` num `div` lá embaixo não fazia o
+     `--bg` recalcular: ele já era um valor, não mais uma fórmula.
+
+     Declarando a mesma lista também nos seletores de tema, cada um recalcula
+     os tokens com o próprio esquema. Continua sendo UMA lista de cores — a
+     mesma regra, com mais de um seletor —, então não há como divergir.
+     ======================================================================= */
   color-scheme: dark;
 
   /* --- Superfícies, do fundo para a frente ------------------------------ */
