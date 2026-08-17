@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { podeVer } from '@/server/auth/guarda'
 import { encerrarSessao, lerSessao } from '@/server/auth/sessao'
+import { lerTema } from '@/server/acoes/tema'
 import estilo from './painel.module.css'
+import Navegacao, { type GrupoNav, type ItemNav } from './nav'
+import SeletorDeTema from './tema'
 import { Credito } from '../credito'
 import { Marca } from '../marca'
 
@@ -52,83 +54,100 @@ export default async function LayoutPainel({ children }: { children: React.React
     redirect('/entrar')
   }
 
+  const tema = await lerTema()
+
+  /**
+   * A navegação, montada no SERVIDOR e entregue pronta ao componente cliente.
+   *
+   * Quem decide o que cada papel enxerga continua sendo o servidor — a lista
+   * abaixo já sai filtrada. O cliente só sabe destacar onde a pessoa está; ele
+   * nunca recebe um item que ela não poderia ver e depois o esconde com CSS.
+   * A diferença importa: esconder no navegador é enfeite, não permissão.
+   */
+  const grupos: GrupoNav[] = [
+    {
+      titulo: 'A esteira',
+      itens: [
+        { href: '/painel', rotulo: 'Painel do dia', icone: 'mostrador' },
+        { href: '/painel/ordens', rotulo: 'Ordens', icone: 'ordens' },
+        { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
+      ],
+    },
+    {
+      titulo: 'Cadastros',
+      itens: [
+        { href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' },
+        { href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' },
+      ],
+    },
+  ]
+
+  const retaguarda: ItemNav[] = []
+  if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
+  if (podeVer(p, Papel.FINANCEIRO)) retaguarda.push({ href: '/painel/financeiro', rotulo: 'Financeiro', icone: 'financeiro' })
+  if (podeVer(p, Papel.GESTOR)) retaguarda.push({ href: '/painel/whatsapp', rotulo: 'WhatsApp', icone: 'balao' })
+  if (retaguarda.length > 0) grupos.push({ titulo: 'Retaguarda', itens: retaguarda })
+
+  if (p === Papel.SUPER_ADMIN) {
+    grupos.push({
+      titulo: 'Plataforma',
+      itens: [
+        { href: '/painel/empresas', rotulo: 'Empresas', icone: 'empresas' },
+        { href: '/painel/site', rotulo: 'Site', icone: 'site' },
+      ],
+    })
+  }
+
   return (
-    <div className={estilo.app}>
+    /**
+     * O tema vive AQUI, no invólucro do painel, e não no `<html>`.
+     *
+     * O site institucional é escuro por desenho — a primeira dobra foi
+     * composta para o escuro, e não é preferência de quem visita. Só o painel
+     * troca. Amarrar o tema ao `<html>` faria a escolha de quem trabalha no
+     * sistema vazar para a home que o cliente vê.
+     */
+    <div className={estilo.app} data-tema={tema}>
       <aside className={estilo.lateral}>
         <div className={estilo.latMarca}>
-          <Marca larguraPx={150} />
+          <Marca larguraPx={132} />
         </div>
 
-        <p className={estilo.latGrupo}>A esteira</p>
-        <Link href="/painel" className={estilo.latItem}>
-          <span aria-hidden="true">◉</span> Painel do dia
-        </Link>
-        <Link href="/painel/ordens" className={estilo.latItem}>
-          <span aria-hidden="true">▤</span> Ordens
-        </Link>
-        <Link href="/painel/agenda" className={estilo.latItem}>
-          <span aria-hidden="true">◷</span> Agenda de rota
-        </Link>
+        {/* O crachá. Numa plataforma multiempresa, saber COM QUE PODER você
+            está olhando é tão importante quanto saber onde está: as mesmas
+            telas mostram coisas diferentes para papéis diferentes. */}
+        <div className={estilo.cracha}>
+          <span className={estilo.crachaPapel}>{rotuloPapel(p)}</span>
+          <strong className={estilo.crachaEmpresa}>
+            {sessao.tenantNome ?? 'Plataforma'}
+          </strong>
+        </div>
 
-        <p className={estilo.latGrupo}>Cadastros</p>
-        <Link href="/painel/clientes" className={estilo.latItem}>
-          <span aria-hidden="true">☰</span> Clientes
-        </Link>
-        <Link href="/painel/equipamentos" className={estilo.latItem}>
-          <span aria-hidden="true">⬒</span> Equipamentos
-        </Link>
+        <Navegacao grupos={grupos} />
 
-        {podeVer(p, Papel.TECNICO) ? (
-          <>
-            <p className={estilo.latGrupo}>Retaguarda</p>
-            <Link href="/painel/estoque" className={estilo.latItem}>
-              <span aria-hidden="true">▣</span> Estoque
-            </Link>
-          </>
-        ) : null}
+        <div className={estilo.latPe}>
+          <SeletorDeTema atual={tema} />
 
-        {podeVer(p, Papel.FINANCEIRO) ? (
-          <Link href="/painel/financeiro" className={estilo.latItem}>
-            <span aria-hidden="true">$</span> Financeiro
-          </Link>
-        ) : null}
-
-        {podeVer(p, Papel.GESTOR) ? (
-          <Link href="/painel/whatsapp" className={estilo.latItem}>
-            <span aria-hidden="true">✆</span> WhatsApp
-          </Link>
-        ) : null}
-
-        {p === Papel.SUPER_ADMIN ? (
-          <>
-            <p className={estilo.latGrupo}>Plataforma</p>
-            <Link href="/painel/empresas" className={estilo.latItem}>
-              <span aria-hidden="true">⬢</span> Empresas
-            </Link>
-            <Link href="/painel/site" className={estilo.latItem}>
-              <span aria-hidden="true">◧</span> Site
-            </Link>
-          </>
-        ) : null}
-
-        <div className={estilo.latUser}>
-          <span className={estilo.avatar}>{iniciais}</span>
-          <div className={estilo.latUserTxt}>
-            <strong>{sessao.nome}</strong>
-            <span>{rotuloPapel(p)}</span>
+          <div className={estilo.latUser}>
+            <span className={estilo.avatar}>{iniciais}</span>
+            <div className={estilo.latUserTxt}>
+              <strong>{sessao.nome}</strong>
+              <span>{sessao.email}</span>
+            </div>
+            <form action={sair}>
+              <button type="submit" className={estilo.sair} title="Sair do sistema">
+                Sair
+              </button>
+            </form>
           </div>
-          <form action={sair}>
-            <button type="submit" className={estilo.sair} title="Sair do sistema">
-              sair
-            </button>
-          </form>
         </div>
       </aside>
 
       <div className={estilo.principal}>
         <header className={estilo.barra}>
           <span className={estilo.pillEmpresa}>
-            ◉ {sessao.tenantNome ?? 'Plataforma'}
+            <i className={estilo.pulso} aria-hidden="true" />
+            {sessao.tenantNome ?? 'Plataforma'}
           </span>
           <span className={estilo.data}>{hoje()}</span>
         </header>

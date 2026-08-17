@@ -19,32 +19,127 @@
 }
 
 :root {
-  /* --- Base escura: violeta levado ao quase-preto ---------------------- */
-  --bg:        #08040F;
-  --bg-1:      #0E0718;
-  --sup:       #150B24;   /* superfície de card */
-  --sup-2:     #1D1030;   /* superfície elevada */
-  --borda:     #2C1A47;
-  --borda-viva:#432665;
+  /* =======================================================================
+     UMA PALETA, DOIS TEMAS
+     -----------------------------------------------------------------------
+     Cada cor é declarada UMA vez, com os dois valores lado a lado:
+     `light-dark(claro, escuro)`. Qual dos dois vale é decidido pelo
+     `color-scheme` do elemento ou do ancestral mais próximo.
 
-  /* --- Violeta DTECH, calibrado para brilhar no escuro ----------------- */
-  --vio:       #8B5CF6;
-  --vio-claro: #A78BFA;
-  --vio-forte: #6D28D9;
-  --vio-tinta: #4A0D8F;
-  --brilho:    rgba(139, 92, 246, .40);
+     Antes havia duas paletas completas — a escura aqui e a clara repetida
+     dentro de `.claro`. Duas listas de quarenta cores que precisavam ser
+     editadas juntas para sempre, e o próprio comentário da segunda alertava
+     para o risco de divergirem. Aqui não há como divergir: não existe a
+     segunda lista.
 
-  /* --- Instrumentação -------------------------------------------------- */
-  --sinal:     #2DD4A0;   /* ao vivo, aprovado, ok */
-  --alerta:    #FB7185;   /* atrasado, parado, reprovado */
-  --espera:    #FBBF24;   /* aguardando */
-  --acao:      #3B82F6;
+     O que muda entre os temas não é só a luminosidade. No claro os tons de
+     sinal precisam ESCURECER: o violeta #A78BFA brilha sobre preto e some
+     sobre branco (2,4:1). O mesmo vale para o verde, o carmim e o âmbar —
+     cor de instrumento luminoso não sobrevive em papel.
+     ======================================================================= */
 
-  /* --- Texto sobre escuro (todos medidos em WCAG AA) ------------------- */
-  --txt:       #F4F0FB;   /* 17,9:1 sobre --bg */
-  --txt-2:     #B9AAD4;   /* 8,6:1 */
-  --txt-3:     #8375A0;   /* 4,9:1 — piso para texto pequeno */
+  /* O site é escuro por desenho, e não por preferência de quem visita. Só o
+     painel troca de tema, e ele declara o próprio `color-scheme`. */
+  color-scheme: dark;
 
+  /* --- Superfícies, do fundo para a frente ------------------------------ */
+  --bg:         light-dark(#FFFFFF, #08040F);
+  --bg-1:       light-dark(#F6F4FA, #0E0718);
+  --sup:        light-dark(#FFFFFF, #150B24);   /* superfície de card */
+  --sup-2:      light-dark(#F3F0F9, #1D1030);   /* superfície elevada */
+  --borda:      light-dark(#E4E1EC, #2C1A47);
+  --borda-viva: light-dark(#CDC7DC, #432665);
+
+  /* --- Violeta DTECH ---------------------------------------------------- */
+  --vio:        light-dark(#6D28D9, #8B5CF6);
+  --vio-claro:  light-dark(#5B21B6, #A78BFA);   /* no claro é tinta, não luz */
+  --vio-forte:  light-dark(#4A0D8F, #6D28D9);
+  --vio-tinta:  light-dark(#3A0A70, #4A0D8F);
+  --brilho:     light-dark(rgba(109, 40, 217, .18), rgba(139, 92, 246, .40));
+
+  /* --- Estados ---------------------------------------------------------- */
+  --sinal:      light-dark(#0F6B4F, #2DD4A0);   /* ao vivo, aprovado, ok */
+  --alerta:     light-dark(#A8203C, #FB7185);   /* atrasado, parado, reprovado */
+  --espera:     light-dark(#8A5300, #FBBF24);   /* aguardando */
+  --acao:       light-dark(#1D4ED8, #3B82F6);
+
+  /* --- Texto ------------------------------------------------------------ */
+  --txt:        light-dark(#14071F, #F4F0FB);   /* 18,4:1 / 17,9:1 */
+  --txt-2:      light-dark(#4A3D57, #B9AAD4);   /*  8,9:1 /  8,6:1 */
+  --txt-3:      light-dark(#6C6079, #8375A0);   /*  5,4:1 /  4,9:1 — piso */
+
+  /* --- Véus: a mesma cor, diluída ---------------------------------------
+     Estes existiam cravados no CSS do painel como `rgba(139, 92, 246, .12)`
+     repetido em oito lugares. Cravado, ele é violeta-de-tema-escuro sempre:
+     no claro virava uma mancha lavada sobre branco. Como token, cada tema
+     escolhe a opacidade que o fundo dele pede. */
+  --vio-veu:      light-dark(rgba(109, 40, 217, .06), rgba(139, 92, 246, .10));
+  --vio-veu-2:    light-dark(rgba(109, 40, 217, .11), rgba(139, 92, 246, .18));
+  --vio-borda:    light-dark(rgba(109, 40, 217, .22), rgba(139, 92, 246, .30));
+  --sinal-veu:    light-dark(rgba(15, 107, 79, .09),  rgba(45, 212, 160, .12));
+  --sinal-borda:  light-dark(rgba(15, 107, 79, .26),  rgba(45, 212, 160, .30));
+  --alerta-veu:   light-dark(rgba(168, 32, 60, .08),  rgba(251, 113, 133, .12));
+  --alerta-borda: light-dark(rgba(168, 32, 60, .26),  rgba(251, 113, 133, .32));
+  --espera-veu:   light-dark(rgba(138, 83, 0, .09),   rgba(251, 191, 36, .12));
+  --espera-borda: light-dark(rgba(138, 83, 0, .26),   rgba(251, 191, 36, .30));
+
+  /* Texto sobre violeta chapado. Branco nos dois temas — o violeta é escuro
+     o bastante em ambos para carregá-lo. */
+  --sobre-vio: #FFFFFF;
+
+  /* --- Profundidade ------------------------------------------------------
+     Sombra com DESLOCAMENTO e desfoque, não halo de offset zero. No escuro
+     ela quase não aparece e a profundidade vem da superfície mais clara; no
+     claro é a sombra que faz o trabalho todo. Por isso os dois valores são
+     tão diferentes: é o mesmo efeito por meios opostos. */
+  --sombra-1: light-dark(0 1px 2px rgba(20, 7, 31, .07),  0 1px 2px rgba(0, 0, 0, .45));
+  --sombra-2: light-dark(0 2px 6px -1px rgba(20, 7, 31, .10), 0 3px 10px -2px rgba(0, 0, 0, .55));
+  --sombra-3: light-dark(0 10px 26px -12px rgba(20, 7, 31, .22), 0 14px 34px -18px rgba(0, 0, 0, .75));
+
+  /* Véu sobre foto, para o texto por cima continuar legível nos dois temas. */
+  --veu-foto: light-dark(rgba(20, 7, 31, .72), rgba(8, 4, 15, .82));
+
+  /* --- As três camadas do painel ----------------------------------------
+     Uma tela de trabalho precisa que o olho saiba, sem pensar, o que é moldura
+     e o que é conteúdo. Hoje o painel tem uma cor só: lateral, barra e área de
+     trabalho no mesmo tom, e o resultado é a sensação de "tudo preto" que não
+     tem onde descansar.
+
+     São três superfícies, e a ordem é a mesma nos dois temas:
+       casca  — lateral e barra do topo. A moldura. Recua.
+       mesa   — onde o trabalho acontece. O fundo do palco.
+       carta  — cada card, orçamento, linha de ordem. Se levanta da mesa.
+
+     No claro a diferença é de tinta e a sombra faz o resto; no escuro é de
+     luz — a carta é MAIS clara que a mesa, porque no escuro o que se aproxima
+     do olho é o que ilumina. Inverter isso é o erro que faz painel escuro
+     parecer chapado. */
+  /* A CASCA NÃO TROCA COM O TEMA.
+     -----------------------------------------------------------------------
+     Este é o desenho dos dois sistemas que servem de referência, e o dos
+     painéis de gestão em geral: a lateral fica escura SEMPRE, e o tema decide
+     só a área de trabalho.
+
+     Não é gosto, é função. A lateral é navegação — ela precisa recuar e ficar
+     onde está, estável, enquanto a área ao lado troca de conteúdo o dia
+     inteiro. Fazer as duas clarearem juntas apaga essa hierarquia: vira uma
+     folha branca só, e o olho perde a âncora de onde a moldura termina.
+
+     E é o que resolve o "escuro demais": o problema nunca foi a lateral, era
+     a área de trabalho ser escura junto com ela. */
+  --casca:      #0C0719;
+  --casca-2:    #150C28;   /* item em foco dentro da lateral */
+  --casca-linha: #241640;
+  --casca-txt:  #EDE9F7;
+  --casca-txt-2: #9C8FBC;
+
+  --mesa:  light-dark(#F7F5FB, #08040F);
+  --carta: var(--sup);
+
+  /* Selo de ícone dos cartões: um quadrado de cor lavada atrás do ícone. É o
+     padrão das duas referências, e serve para dar ao número um companheiro
+     visual sem competir com ele. */
+  --selo-neutro: light-dark(#F1EDFA, #1B1030);
   /* --- Tipografia ------------------------------------------------------ */
   /* Sora nos títulos: geométrica e técnica, ecoa o desenho do logotipo
      DTECHMED. Manrope no texto: humanista, larga de contraforma, aguenta
@@ -84,86 +179,57 @@
   --ease-firme: cubic-bezier(0.22, 1, 0.36, 1);
   --dur: 560ms;
 
-  /* --- Ponte de nomes -------------------------------------------------- */
-  /* O painel e os apps foram escritos com os nomes da paleta clara. Em vez de
-     reescrever duas telas inteiras (e arriscar divergência entre elas), os
-     nomes antigos passam a apontar para os valores escuros. Uma paleta, dois
-     vocabulários — e um lugar só para mudar quando a marca mudar. */
+
+  /* --- Ponte de nomes ---------------------------------------------------
+     O painel e os apps foram escritos com um vocabulário de nomes de papel
+     (papel, tinta, linha). Mantido: são dois vocabulários apontando para uma
+     paleta só, e um lugar só para mudar quando a marca mudar. */
   --papel:    var(--bg-1);
-  --papel-2:  var(--sup);
+  --papel-2:  var(--sup-2);
   --linha:    var(--borda);
   --branco:   var(--sup);
   --ink:      var(--txt);
   --ink-2:    var(--txt-2);
   --ink-3:    var(--txt-3);
-  --vio-900:  #0B0518;
+  --vio-900:  light-dark(#1B0733, #0B0518);
   --vio-800:  var(--vio-forte);
-  --vio-400:  var(--vio-claro);
-  --vio-100:  rgba(139, 92, 246, .16);
-  --vio-50:   rgba(139, 92, 246, .07);
+  --vio-400:  light-dark(#6D28D9, #A78BFA);
+  --vio-100:  var(--vio-veu-2);
+  --vio-50:   var(--vio-veu);
   --confirma: var(--sinal);
   --selo:     var(--alerta);
   --aguarda:  var(--espera);
 }
 
 /* ===========================================================================
-   SUPERFÍCIE CLARA
+   FORÇAR UM TEMA
    ---------------------------------------------------------------------------
-   Uma classe que reescreve a paleta para o ramo do escopo em que aparece.
-   Serve para a seção clara no meio do site e para o modo claro do painel —
-   sem duplicar uma folha de estilo inteira, e sem risco das duas divergirem.
+   `color-scheme` é o interruptor: ele decide qual metade de cada `light-dark()`
+   vale, dali para baixo na árvore. Não há paleta repetida aqui — só a escolha.
 
-   O que muda além do fundo: no claro, os tons de sinal precisam ESCURECER.
-   O violeta #A78BFA brilha sobre preto e some sobre branco (2,4:1). O mesmo
-   vale para o verde, o carmim e o âmbar — cor de instrumento luminoso não
-   sobrevive em papel.
+   `.claro` continua existindo para as seções claras no meio do site escuro.
+   Ela era uma segunda paleta de quarenta linhas; virou uma linha.
    =========================================================================== */
-.claro {
-  --bg:        #FFFFFF;
-  --bg-1:      #F6F4FA;
-  --sup:       #FFFFFF;
-  --sup-2:     #F3F0F9;
-  --borda:     #E4E1EC;
-  --borda-viva:#CDC7DC;
-
-  --vio:       #6D28D9;
-  --vio-claro: #5B21B6;   /* escurecido: é texto sobre branco, não luz */
-  --vio-forte: #4A0D8F;
-  --brilho:    rgba(109, 40, 217, .18);
-
-  --sinal:     #0F6B4F;
-  --alerta:    #A8203C;
-  --espera:    #8A5300;
-
-  --txt:       #14071F;   /* 18,4:1 sobre branco */
-  --txt-2:     #4A3D57;   /*  8,9:1 */
-  --txt-3:     #6C6079;   /*  5,4:1 — piso para texto pequeno */
-
-  --papel:     var(--bg-1);
-  --papel-2:   var(--sup-2);
-  --linha:     var(--borda);
-  --branco:    #FFFFFF;
-  --ink:       var(--txt);
-  --ink-2:     var(--txt-2);
-  --ink-3:     var(--txt-3);
-  --vio-900:   #1B0733;
-  --vio-800:   var(--vio-forte);
-  --vio-400:   var(--vio);
-  --vio-100:   rgba(109, 40, 217, .12);
-  --vio-50:    rgba(109, 40, 217, .05);
-  --confirma:  var(--sinal);
-  --selo:      var(--alerta);
-  --aguarda:   var(--espera);
-
+.claro,
+[data-tema='claro'] {
+  color-scheme: light;
   background: var(--bg);
   color: var(--txt);
 }
-.claro .grav { color: var(--vio); }
-.claro .selo-etapa.ok      { background: rgba(15,107,79,.09);  color: var(--sinal);  border-color: rgba(15,107,79,.24); }
-.claro .selo-etapa.andando { background: rgba(109,40,217,.08); color: var(--vio);    border-color: rgba(109,40,217,.22); }
-.claro .selo-etapa.espera  { background: rgba(138,83,0,.09);   color: var(--espera); border-color: rgba(138,83,0,.24); }
-.claro .selo-etapa.atraso  { background: rgba(168,32,60,.08);  color: var(--alerta); border-color: rgba(168,32,60,.24); }
-.claro ::selection { background: var(--vio); color: #fff; }
+
+[data-tema='escuro'] {
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--txt);
+}
+
+/* "Sistema" entrega a decisão ao aparelho: o mesmo painel fica claro de dia e
+   escuro de noite se a pessoa configurou assim no celular ou no sistema. */
+[data-tema='sistema'] {
+  color-scheme: light dark;
+  background: var(--bg);
+  color: var(--txt);
+}
 
 /* Faixa de demonstração: sobre escuro, o âmbar precisa ser a TINTA, não o
    fundo — âmbar chapado com texto branco não passa em contraste. */
@@ -202,7 +268,7 @@ body {
   overflow-x: hidden;
 }
 
-::selection { background: var(--vio); color: #fff; }
+::selection { background: var(--vio); color: var(--sobre-vio); }
 :focus-visible { outline: 2px solid var(--vio-claro); outline-offset: 3px; border-radius: 3px; }
 ::-webkit-scrollbar { width: 11px; height: 11px; }
 ::-webkit-scrollbar-track { background: var(--bg-1); }
@@ -262,10 +328,13 @@ button { font: inherit; color: inherit; }
   letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
   border: 1px solid transparent;
 }
-.selo-etapa.ok      { background: rgba(45,212,160,.12);  color: var(--sinal);  border-color: rgba(45,212,160,.3); }
-.selo-etapa.andando { background: rgba(139,92,246,.14);  color: var(--vio-claro); border-color: rgba(139,92,246,.34); }
-.selo-etapa.espera  { background: rgba(251,191,36,.12);  color: var(--espera); border-color: rgba(251,191,36,.3); }
-.selo-etapa.atraso  { background: rgba(251,113,133,.12); color: var(--alerta); border-color: rgba(251,113,133,.32); }
+/* Os quatro selos existiam duas vezes: aqui com os valores do escuro e de novo
+   dentro de `.claro` com os do claro. Agora é uma linha cada, porque o véu já
+   sabe em que tema está. */
+.selo-etapa.ok      { background: var(--sinal-veu);  color: var(--sinal);     border-color: var(--sinal-borda); }
+.selo-etapa.andando { background: var(--vio-veu-2);  color: var(--vio-claro); border-color: var(--vio-borda); }
+.selo-etapa.espera  { background: var(--espera-veu); color: var(--espera);    border-color: var(--espera-borda); }
+.selo-etapa.atraso  { background: var(--alerta-veu); color: var(--alerta);    border-color: var(--alerta-borda); }
 
 /* Entrada: o JS melhora, não condiciona. Sem JS tudo permanece visível. */
 .entra { opacity: 1; }

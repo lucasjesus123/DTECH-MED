@@ -1,94 +1,217 @@
-/* Painel de gestão. Densidade de planilha com respiro de documento. */
+/* ==========================================================================
+   PAINEL DE GESTÃO
+   --------------------------------------------------------------------------
+   Densidade de planilha com respiro de documento.
+
+   TRÊS CAMADAS, e é o que separa uma tela de trabalho de um fundo preto com
+   texto por cima: `casca` é moldura e recua, `mesa` é onde o trabalho
+   acontece, `carta` se levanta da mesa. O olho precisa saber sem pensar o que
+   é chrome e o que é conteúdo — e o painel anterior tinha uma cor só.
+
+   A régua desta tela é FAMILIARIDADE, não novidade: quem já usou um sistema
+   de ordem de serviço tem que confiar nela em três segundos. Por isso nada de
+   affordance inventada. O que muda é profundidade, estado e ritmo.
+   ========================================================================== */
 
 .app {
   display: grid;
-  grid-template-columns: 236px 1fr;
+  grid-template-columns: 244px 1fr;
   min-height: 100dvh;
+  background: var(--mesa);
 }
 
-/* ===== Lateral ========================================================== */
+/* ==========================================================================
+   O TRILHO — a lateral
+   --------------------------------------------------------------------------
+   Escuro SEMPRE, inclusive no tema claro. Não é gosto: a lateral é navegação,
+   e navegação precisa recuar e ficar onde está enquanto o conteúdo ao lado
+   troca o dia inteiro. Clarear as duas juntas apaga essa hierarquia — vira uma
+   folha branca só, e o olho perde a âncora de onde a moldura termina.
+
+   É também o que resolve o "escuro demais" do painel anterior: o problema
+   nunca foi a lateral, era a área de trabalho ser escura junto com ela.
+   ========================================================================== */
 .lateral {
-  background: var(--bg-1);
-  border-right: 1px solid var(--borda);
+  background: var(--casca);
+  color: var(--casca-txt);
   display: flex;
   flex-direction: column;
-  padding: var(--s4) 0;
+  padding: var(--s4) 0 var(--s3);
   position: sticky;
   top: 0;
   height: 100dvh;
   overflow-y: auto;
+  /* A lateral tem cor própria, então também precisa de scrollbar própria: a
+     global é pintada com os tokens do tema, e no claro ela apareceria como um
+     risco cinza sobre o quase-preto. */
+  scrollbar-color: var(--casca-linha) transparent;
+  scrollbar-width: thin;
 }
+.lateral ::selection { background: var(--vio); color: var(--sobre-vio); }
+
 .latMarca {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 0 var(--s4) var(--s5);
-  border-bottom: 1px solid var(--borda);
-  margin-bottom: var(--s3);
-}
-.latD {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  background: var(--vio-forte);
-  color: #fff;
-  border-radius: 3px;
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: 18px;
-}
-.latTxt {
-  font-family: var(--f-display);
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: -0.03em;
-  color: var(--txt);
-}
-.latTxt b {
-  color: var(--vio-claro);
+  padding: 0 var(--s4) var(--s4);
 }
 
-.latGrupo {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  font-weight: 600;
+/* ===== O crachá ========================================================= */
+.cracha {
+  margin: 0 var(--s3) var(--s4);
+  padding: var(--s3) var(--s3) 11px;
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg, var(--vio-forte), var(--vio-tinta));
+  display: grid;
+  gap: 2px;
+}
+.crachaPapel {
+  font-size: 9.5px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--txt-3);
-  padding: var(--s4) var(--s4) var(--s2);
+  color: color-mix(in oklab, var(--sobre-vio) 72%, var(--vio-claro));
 }
-.latItem {
-  display: flex;
-  align-items: center;
-  gap: var(--s3);
-  padding: 9px var(--s4);
-  font-size: var(--t-sm);
-  font-weight: 500;
-  color: var(--txt-2);
-  text-decoration: none;
-  border-left: 2px solid transparent;
-  transition:
-    background 240ms var(--ease),
-    color 240ms var(--ease),
-    border-color 240ms var(--ease);
-}
-.latItem:hover {
-  background: var(--sup);
-  color: var(--txt);
-  border-left-color: var(--borda-viva);
-}
-.latItem span {
-  width: 15px;
-  text-align: center;
-  opacity: 0.75;
-  font-size: 13px;
+.crachaEmpresa {
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--sobre-vio);
+  /* Nome de empresa é texto de terceiro: cabe qualquer coisa. Sem isto, uma
+     razão social longa empurra a lateral e desalinha o painel inteiro. */
+  overflow-wrap: anywhere;
 }
 
-.latUser {
+.latNav { display: grid; gap: var(--s4); }
+
+.latGrupo {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--casca-txt-2);
+  padding: 0 var(--s4) var(--s2);
+  margin: 0;
+}
+
+.latItem,
+.latItemAtivo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 1px var(--s3);
+  padding: 8px var(--s3);
+  border-radius: var(--r);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--casca-txt-2);
+  text-decoration: none;
+  /* 160ms: movimento de painel transmite estado e sai da frente. Acima de
+     ~250ms a navegação começa a parecer que está pensando. */
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.latItem:hover {
+  background: var(--casca-2);
+  color: var(--casca-txt);
+}
+.latItem:active { background: var(--casca-2); }
+.latItem:focus-visible,
+.latItemAtivo:focus-visible {
+  outline: 2px solid var(--vio-claro);
+  outline-offset: -2px;
+}
+
+/**
+ * "Você está aqui." Não existia.
+ *
+ * A lateral listava dez telas e nenhuma dizia qual estava aberta. Em qualquer
+ * painel isso desorienta; aqui era pior, porque várias telas começam parecidas
+ * — uma barra de filtro e uma lista.
+ *
+ * São três sinais somados, e não só a cor: fundo, tinta e a marca à esquerda.
+ * Quem não distingue violeta de cinza continua vendo a marca e o peso da letra.
+ */
+.latItemAtivo {
+  background: var(--casca-2);
+  color: var(--sobre-vio);
+  font-weight: 600;
+}
+.latItemAtivo::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 99px;
+  background: var(--vio-claro);
+}
+.latItemAtivo .latIcone { color: var(--vio-claro); }
+
+.latIcone {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--casca-txt-2);
+  transition: color 160ms var(--ease);
+}
+.latIcone svg { width: 18px; height: 18px; display: block; }
+.latItem:hover .latIcone { color: var(--casca-txt); }
+
+/* ===== O pé da lateral ================================================== */
+.latPe {
   margin-top: auto;
-  padding: var(--s4);
-  border-top: 1px solid var(--borda);
+  padding-top: var(--s4);
+  display: grid;
+  gap: var(--s3);
+}
+
+/* O seletor de tema: três opções à vista, e a marcada em destaque. Um
+   interruptor de dois estados não teria como representar "siga o aparelho". */
+.tema {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 0 var(--s3);
+  padding: 3px;
+  border-radius: 99px;
+  background: var(--casca-2);
+}
+.temaOpcao,
+.temaOpcaoAtiva {
+  min-height: 28px;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--casca-txt-2);
+  font-family: inherit;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+.temaOpcao:hover:not(:disabled) { color: var(--casca-txt); }
+.temaOpcaoAtiva {
+  background: var(--vio-forte);
+  color: var(--sobre-vio);
+}
+.temaOpcao:focus-visible,
+.temaOpcaoAtiva:focus-visible {
+  outline: 2px solid var(--vio-claro);
+  outline-offset: 2px;
+}
+.temaOpcao:disabled,
+.temaOpcaoAtiva:disabled { cursor: default; opacity: .7; }
+
+.latUser {
+  margin: 0 var(--s3);
+  padding: var(--s3) 0 0;
+  border-top: 1px solid var(--casca-linha);
   display: flex;
   align-items: center;
   gap: var(--s3);
@@ -97,8 +220,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--vio-forte);
-  color: #fff;
+  background: linear-gradient(150deg, var(--vio), var(--vio-forte));
+  color: var(--sobre-vio);
   display: grid;
   place-items: center;
   font-size: var(--t-sm);
@@ -108,36 +231,36 @@
 .latUserTxt {
   min-width: 0;
   flex: 1;
+  display: grid;
 }
 .latUserTxt strong {
-  display: block;
   font-size: var(--t-sm);
-  color: var(--txt);
+  font-weight: 600;
+  color: var(--casca-txt);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .latUserTxt span {
-  font-family: var(--f-mono);
-  font-size: 9px;
-  letter-spacing: 0.09em;
-  color: var(--txt-3);
+  font-size: var(--t-xs);
+  color: var(--casca-txt-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sair {
-  background: none;
-  border: 0;
+  border: 1px solid var(--casca-linha);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--casca-txt-2);
+  font-family: inherit;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  padding: 5px 9px;
   cursor: pointer;
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--txt-3);
-  padding: 6px;
-  transition: color 240ms var(--ease);
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
 }
-.sair:hover {
-  color: var(--alerta);
-}
+.sair:hover { border-color: var(--alerta); color: var(--alerta); }
 
 /* ===== Área principal =================================================== */
 .principal {
@@ -152,18 +275,27 @@
   align-items: center;
   gap: var(--s4);
   padding: 0 var(--s5);
-  background: var(--bg);
+  background: color-mix(in oklab, var(--mesa) 86%, transparent);
+  backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 20;
+}
+.pulso {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sinal);
+  box-shadow: 0 0 0 3px var(--sinal-veu);
+  flex-shrink: 0;
 }
 .pillEmpresa {
   display: inline-flex;
   align-items: center;
   gap: var(--s2);
   padding: 5px 11px;
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.22);
+  background: var(--vio-veu);
+  border: 1px solid var(--vio-borda);
   border-radius: var(--r);
   font-size: var(--t-xs);
   font-weight: 600;
@@ -212,7 +344,7 @@
   padding: 11px 20px;
   border-radius: var(--r);
   background: var(--vio-forte);
-  color: #fff;
+  color: var(--sobre-vio);
   font-size: var(--t-sm);
   font-weight: 600;
   text-decoration: none;
@@ -221,26 +353,29 @@
     box-shadow 380ms var(--ease);
 }
 .btnPrimario:hover {
-  background: #5b21b6;
+  background: var(--vio-tinta);
   box-shadow: 0 0 30px -8px var(--brilho);
 }
 
-/* ===== Indicadores ====================================================== */
+/* ===== Indicadores ======================================================
+   Quatro números de contexto. São APOIO, não o assunto: a esteira abaixo é o
+   assunto. Por isso eles ficam menores que antes e sobre a mesa, sem a moldura
+   pesada que os igualava em peso com a esteira.
+   ======================================================================== */
 .resumo {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--borda);
-  border: 1px solid var(--borda);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  margin-bottom: var(--s6);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-bottom: var(--s5);
 }
 .indicador {
-  background: var(--bg-1);
-  padding: var(--s5);
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  padding: var(--s4) var(--s5);
   display: grid;
-  gap: 5px;
+  gap: 3px;
   align-content: start;
 }
 .indValor {
@@ -248,91 +383,166 @@
   font-size: var(--t-xl);
   font-weight: 700;
   line-height: 1.1;
+  /* Números de largura fixa. Sem isto a coluna dança quando o valor muda de
+     1 para 8, e num painel que atualiza sozinho isso é percebido como falha. */
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
-.indAlerta {
-  color: var(--alerta);
-}
+.indAlerta { color: var(--alerta); }
 .indNota {
   font-size: var(--t-xs);
   color: var(--txt-2);
   line-height: 1.45;
 }
 
-/* ===== A esteira ======================================================== */
+/* ==========================================================================
+   A ESTEIRA — o elemento herói desta tela
+   --------------------------------------------------------------------------
+   É o órgão vital do sistema: onde cada equipamento está agora. Antes eram
+   oito caixas de tamanho igual, separadas por um fio, indistinguíveis de uma
+   régua de indicadores. Lia-se como oito coisas; é UMA coisa com oito posições.
+
+   Três decisões fazem virar fluxo:
+
+     1. Um TRILHO atravessa os oito degraus. É o que diz que a peça anda da
+        esquerda para a direita, e não que existem oito departamentos.
+     2. O degrau aberto se ELEVA e aponta para baixo, com um bico que encosta
+        na lista logo abaixo. A relação "cliquei aqui, estou vendo aquilo"
+        deixa de exigir memória.
+     3. Cada degrau é um alvo de verdade: passa o mouse e levanta, recebe foco
+        pelo teclado com anel visível, e afunda ao clicar.
+   ========================================================================== */
 .esteira {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 1px;
-  background: var(--borda);
-  border: 1px solid var(--borda);
-  border-radius: var(--r-lg);
-  overflow: hidden;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--s2);
   margin-bottom: var(--s6);
 }
+
+/* O trilho: uma linha que atravessa os oito, atrás deles. */
+.esteira::before {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 34px;
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--borda-viva) 8%,
+    var(--borda-viva) 92%,
+    transparent
+  );
+  pointer-events: none;
+}
+
 .degrau {
-  background: var(--bg-1);
-  padding: var(--s4) var(--s3);
+  position: relative;
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  padding: var(--s3) var(--s3) var(--s4);
   display: grid;
-  gap: 4px;
+  gap: 5px;
   align-content: start;
   text-decoration: none;
-  position: relative;
-  transition: background 300ms var(--ease);
+  transition:
+    transform 180ms var(--ease),
+    box-shadow 180ms var(--ease),
+    border-color 180ms var(--ease),
+    background 180ms var(--ease);
 }
 .degrau:hover {
-  background: var(--sup);
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-2);
+  border-color: var(--borda-viva);
 }
-.degrauAtivo {
+.degrau:active { transform: translateY(0); box-shadow: var(--sombra-1); }
+.degrau:focus-visible {
+  outline: 2px solid var(--vio);
+  outline-offset: 2px;
+}
+
+.degrauAtivo,
+.degrauAtivo:hover {
   background: var(--vio-forte);
+  border-color: var(--vio-forte);
+  box-shadow: var(--sombra-3);
+  transform: translateY(-2px);
 }
-.degrauAtivo .degrauRot {
-  color: #ddd0f7;
+/* O bico que encosta na lista de baixo. É a única peça decorativa da tela, e
+   ela carrega informação: sem ela, "em manutenção" logo abaixo poderia estar
+   respondendo a qualquer um dos oito. */
+.degrauAtivo::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--vio-forte);
+  border-radius: 2px;
 }
+.degrauAtivo .degrauRot { color: color-mix(in oklab, var(--sobre-vio) 78%, var(--vio-claro)); }
 .degrauAtivo .degrauNum,
-.degrauAtivo .degrauNota {
-  color: #fff;
-}
+.degrauAtivo .degrauNota { color: var(--sobre-vio); }
+
 .degrauRot {
-  font-family: var(--f-mono);
-  font-size: 9.5px;
+  font-size: var(--t-xs);
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--txt-3);
-  line-height: 1.35;
+  line-height: 1.3;
   min-height: 26px;
 }
 .degrauNum {
   font-family: var(--f-display);
-  font-size: var(--t-xl);
+  font-size: var(--t-2xl);
   font-weight: 700;
   line-height: 1;
   color: var(--txt);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
 }
+/* Zero não é notícia. Ele recua para o número que importa saltar. */
+.degrauZero .degrauNum { color: var(--txt-3); font-weight: 600; }
+.degrauAtivo.degrauZero .degrauNum { color: var(--sobre-vio); }
+
 .degrauNota {
-  font-size: 10.5px;
+  font-size: var(--t-xs);
   color: var(--txt-3);
   line-height: 1.35;
 }
-/* Vermelho na barra de baixo, não no card inteiro: o alerta precisa saltar
-   sem transformar a tela num painel de emergência. */
-.degrauGrita .degrauNum {
-  color: var(--alerta);
-}
+
+/* Alerta na base, não no card inteiro: precisa saltar sem transformar a tela
+   num painel de emergência. */
+.degrauGrita .degrauNum { color: var(--alerta); }
 .degrauGrita::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  left: var(--s3);
+  right: var(--s3);
   bottom: 0;
   height: 3px;
+  border-radius: 99px 99px 0 0;
   background: var(--alerta);
 }
-.degrauAtivo.degrauGrita .degrauNum {
-  color: #fff;
+.degrauAtivo.degrauGrita .degrauNum { color: var(--sobre-vio); }
+.degrauAtivo.degrauGrita::after { background: var(--sobre-vio); }
+
+@media (max-width: 1100px) {
+  .esteira { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .esteira::before { display: none; }
+}
+@media (max-width: 640px) {
+  .esteira { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ===== Fila ============================================================= */
@@ -388,8 +598,8 @@
 .selo {
   padding: 3px 8px;
   border-radius: 3px;
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: var(--vio-veu-2);
+  border: 1px solid var(--vio-borda);
   font-family: var(--f-mono);
   font-size: 9.5px;
   font-weight: 600;
@@ -528,7 +738,7 @@
 .area:focus {
   outline: none;
   border-color: var(--vio);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.14);
+  box-shadow: 0 0 0 3px var(--vio-veu-2);
 }
 .campo::placeholder { color: var(--txt-3); }
 .selecao { width: auto; min-width: 150px; cursor: pointer; }
@@ -566,8 +776,8 @@
     border-color 300ms var(--ease),
     color 300ms var(--ease);
 }
-.btn { background: var(--vio-forte); color: #fff; }
-.btn:hover:not(:disabled) { background: #5b21b6; }
+.btn { background: var(--vio-forte); color: var(--sobre-vio); }
+.btn:hover:not(:disabled) { background: var(--vio-tinta); }
 .btnSec {
   background: transparent;
   border-color: var(--borda-viva);
@@ -578,10 +788,10 @@
 .btnSec:disabled { opacity: 0.5; cursor: not-allowed; }
 .btnPerigo {
   background: transparent;
-  border: 1px solid rgba(251, 113, 133, 0.4);
+  border: 1px solid var(--alerta-borda);
   color: var(--alerta);
 }
-.btnPerigo:hover:not(:disabled) { background: rgba(251, 113, 133, 0.1); }
+.btnPerigo:hover:not(:disabled) { background: var(--alerta-veu); }
 
 /* ----- Tabela ------------------------------------------------------------ */
 .quadro {
@@ -616,7 +826,7 @@
   vertical-align: top;
 }
 .tabela tbody tr:last-child td { border-bottom: 0; }
-.tabela tbody tr:hover td { background: rgba(139, 92, 246, 0.05); }
+.tabela tbody tr:hover td { background: var(--vio-veu); }
 .tabela a { color: var(--txt); text-decoration: none; font-weight: 600; }
 .tabela a:hover { color: var(--vio-claro); }
 .num {
@@ -639,23 +849,23 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.28);
+  background: var(--vio-veu-2);
+  border: 1px solid var(--vio-borda);
   color: var(--vio-claro);
 }
 .tagOk {
-  background: rgba(45, 212, 160, 0.12);
-  border-color: rgba(45, 212, 160, 0.3);
+  background: var(--sinal-veu);
+  border-color: var(--sinal-borda);
   color: var(--sinal);
 }
 .tagAlerta {
-  background: rgba(251, 113, 133, 0.12);
-  border-color: rgba(251, 113, 133, 0.3);
+  background: var(--alerta-veu);
+  border-color: var(--alerta-borda);
   color: var(--alerta);
 }
 .tagEspera {
-  background: rgba(251, 191, 36, 0.12);
-  border-color: rgba(251, 191, 36, 0.3);
+  background: var(--espera-veu);
+  border-color: var(--espera-borda);
   color: var(--espera);
 }
 .tagNeutra {
@@ -786,12 +996,12 @@
   right: 0;
   bottom: 0;
   padding: 3px 5px;
-  background: linear-gradient(transparent, rgba(8, 4, 15, 0.9));
+  background: linear-gradient(transparent, var(--veu-foto));
   font-family: var(--f-mono);
   font-size: 8.5px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--sobre-vio);
 }
 
 /* ----- Formulário -------------------------------------------------------- */
@@ -824,8 +1034,8 @@
 .erro {
   padding: 10px 14px;
   border-radius: var(--r);
-  background: rgba(251, 113, 133, 0.1);
-  border: 1px solid rgba(251, 113, 133, 0.3);
+  background: var(--alerta-veu);
+  border: 1px solid var(--alerta-borda);
   color: var(--alerta);
   font-size: var(--t-sm);
   line-height: 1.5;
@@ -833,8 +1043,8 @@
 .sucesso {
   padding: 10px 14px;
   border-radius: var(--r);
-  background: rgba(45, 212, 160, 0.09);
-  border: 1px solid rgba(45, 212, 160, 0.28);
+  background: var(--sinal-veu);
+  border: 1px solid var(--sinal-borda);
   color: var(--sinal);
   font-size: var(--t-sm);
   line-height: 1.5;
