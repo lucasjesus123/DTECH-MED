@@ -924,6 +924,19 @@ Relatório de segurança completo, com o que foi corrigido e o que ficou para o 
 
 ---
 
+## Conferir o dinheiro, todo fechamento de mês
+
+Seis perguntas cuja resposta certa é sempre **zero**. Somente leitura — nenhuma linha é alterada.
+
+```bash
+cd /opt/gavetas/DTECHMED
+docker exec -i dtechmed_db psql -U dtechmed_owner -d dtechmed < scripts/conferir-dinheiro.sql
+```
+
+Ela procura fatura com valor diferente do orçamento aprovado, quitação com valor errado, soma de pagamentos que não bate, fatura órfã, status desalinhado com os números, e fatura duplicada. Nenhuma dessas divergências dá erro na tela: todas aparecem semanas depois como "o relatório não fecha".
+
+---
+
 ## Antes do primeiro cliente de verdade — tirar os dados de demonstração
 
 ⚠️ **Faça isto ANTES de preencher o `UAZAPI_ADMIN_TOKEN`.**
