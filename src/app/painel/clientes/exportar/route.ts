@@ -4,6 +4,7 @@ import { montarCsv, type ColunaCsv } from '@/lib/csv'
 import { comEscopo } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
+import { hoje } from '@/lib/datas'
 
 /**
  * Exporta a carteira de clientes em CSV.
@@ -115,7 +116,7 @@ export async function GET() {
   })
 
   const csv = montarCsv(clientes as LinhaCliente[], COLUNAS)
-  const data = new Date().toISOString().slice(0, 10)
+  const data = hoje()
 
   return new NextResponse(csv, {
     headers: {

@@ -6,6 +6,7 @@ import { novoToken } from '../src/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
 import { avancarOrdem } from '../src/server/ordem/motor'
 import { conferir, darBaixa, emitirFatura, proximoNumero } from '../src/server/financeiro/servico'
+import { consumirNaExecucao, reservarDoOrcamento } from '../src/server/estoque/servico'
 import { guardarAssinatura, guardarFoto } from '../src/server/arquivos/storage'
 
 /**
@@ -221,8 +222,38 @@ async function main() {
     })
     await passo(E.ORCAMENTO_INTERNO, de(P.TECNICO))
 
-    const pecas = await comEscopo(ctx, (tx) => tx.peca.findMany({ take: 2, orderBy: { sku: 'asc' } }))
-    await comEscopo(ctx, async (tx) => {
+    /**
+     * As peças do orçamento são as que o LAUDO menciona, escolhidas pelo SKU.
+     *
+     * Era `findMany({ take: 2, orderBy: { sku: 'asc' } })`, e as duas primeiras
+     * por ordem alfabética são o cabo de força e o capacitor. O laudo, logo
+     * acima, diz "recomendo trocar a fonte inteira" — e a fonte não entrava.
+     *
+     * O defeito só apareceu na tela: o orçamento listava R$ 35,00 de cabo e
+     * R$ 45,00 de capacitor, e somava R$ 725,00 em peças. Os R$ 725,00 estavam
+     * cravados no código, e são exatamente fonte + capacitor: o valor sabia
+     * quais peças deviam estar ali, a seleção é que não.
+     *
+     * Um orçamento cujos itens não fecham com o total é o pior tipo de dado de
+     * demonstração — ele ensina a desconfiar da conta do sistema, que está
+     * certa.
+     */
+    const SKUS_DO_REPARO = ['FT-24V10', 'CP-450220'] // fonte chaveada + capacitor
+    const pecas = await comEscopo(ctx, (tx) =>
+      tx.peca.findMany({ where: { sku: { in: SKUS_DO_REPARO } }, orderBy: { precoVendaCentavos: 'desc' } }),
+    )
+
+    const servicos = [
+      { descricao: 'Mão de obra · reparo de placa e troca de fonte (4h)', centavos: 72000 },
+      { descricao: 'Calibração de potência e teste de disparo', centavos: 35000 },
+    ]
+
+    // Somados dos itens, nunca digitados. É o que impede o total de divergir de
+    // novo quando alguém trocar uma peça ou um serviço aqui.
+    const subtotalPecas = pecas.reduce((s, p) => s + p.precoVendaCentavos, 0)
+    const subtotalServicos = servicos.reduce((s, x) => s + x.centavos, 0)
+
+    const orcamentoId = await comEscopo(ctx, async (tx) => {
       const orc = await tx.orcamento.create({
         data: {
           tenantId: t.id,
@@ -230,9 +261,9 @@ async function main() {
           numero: await proximoNumero(tx, t.id, 'orcamento'),
           status: 'ENVIADO',
           laudoTecnico: 'Fonte de alimentação sem saída nos 24V. Capacitor C14 estufado.',
-          subtotalPecas: 72500,
-          subtotalServicos: 107000,
-          totalCentavos: 179500,
+          subtotalPecas,
+          subtotalServicos,
+          totalCentavos: subtotalPecas + subtotalServicos,
           garantiaDias: 90,
           prazoExecucaoDias: 5,
           enviadoEm: new Date(),
@@ -256,30 +287,21 @@ async function main() {
           },
         })
       }
-      await tx.orcamentoItem.create({
-        data: {
-          tenantId: t.id,
-          orcamentoId: orc.id,
-          tipo: 'SERVICO',
-          descricao: 'Mão de obra · reparo de placa e troca de fonte (4h)',
-          quantidade: new Prisma.Decimal(1),
-          valorUnitCentavos: 72000,
-          valorTotalCentavos: 72000,
-          ordem: ordem++,
-        },
-      })
-      await tx.orcamentoItem.create({
-        data: {
-          tenantId: t.id,
-          orcamentoId: orc.id,
-          tipo: 'SERVICO',
-          descricao: 'Calibração de potência e teste de disparo',
-          quantidade: new Prisma.Decimal(1),
-          valorUnitCentavos: 35000,
-          valorTotalCentavos: 35000,
-          ordem: ordem++,
-        },
-      })
+      for (const s of servicos) {
+        await tx.orcamentoItem.create({
+          data: {
+            tenantId: t.id,
+            orcamentoId: orc.id,
+            tipo: 'SERVICO',
+            descricao: s.descricao,
+            quantidade: new Prisma.Decimal(1),
+            valorUnitCentavos: s.centavos,
+            valorTotalCentavos: s.centavos,
+            ordem: ordem++,
+          },
+        })
+      }
+      return orc.id
     })
     await passo(E.ORCAMENTO_ENVIADO, de(P.GESTOR))
     if (roteiro.ate === E.ORCAMENTO_ENVIADO) continue
@@ -287,6 +309,17 @@ async function main() {
     await comEscopo(ctx, async (tx) => {
       await tx.orcamento.updateMany({ where: { ordemId }, data: { status: 'APROVADO' } })
     })
+
+    /**
+     * Aprovou o orçamento, RESERVA a peça na prateleira.
+     *
+     * Sem este par de chamadas o estoque da demonstração ficava parado: sete
+     * peças com saldo e nenhum movimento, enquanto treze ordens trocavam uma
+     * fonte cada. A tela de estoque era a única sem história para contar, e o
+     * relatório dela nascia vazio.
+     */
+    const res = await reservarDoOrcamento(ctx, de(P.GESTOR), orcamentoId)
+    if (!res.ok) throw new Error(`reserva de peças: ${res.motivo}`)
     await avancarOrdem(ctx, { id: null, nome: cliente.contatoNome ?? cliente.nome, papel: P.ATENDENTE }, {
       ordemId,
       para: E.ORCAMENTO_APROVADO,
@@ -294,6 +327,12 @@ async function main() {
       autorExterno: cliente.contatoNome ?? cliente.nome,
     })
     await passo(E.EM_MANUTENCAO, de(P.TECNICO))
+
+    // Começou o serviço, a peça SAI da prateleira. É aqui que ela deixa de
+    // estar reservada e vira consumo — o que o livro-razão registra.
+    const con = await consumirNaExecucao(ctx, de(P.TECNICO), ordemId)
+    if (!con.ok) throw new Error(`consumo de peças: ${con.motivo}`)
+
     if (roteiro.ate === E.EM_MANUTENCAO) continue
 
     // ---- execução concluída e conferida pela gestão ----------------------
@@ -316,13 +355,22 @@ async function main() {
     const fat = await emitirFatura(ctx, ordemId, new Date(Date.now() + 5 * 86_400_000))
     if (!fat.ok) throw new Error(`fatura: ${fat.motivo}`)
 
-    // Pagamento fracionado, que é como acontece no balcão: parte no pix,
-    // o resto em dinheiro.
+    /**
+     * Pagamento fracionado, como acontece no balcão: parte no pix, o resto em
+     * dinheiro. Os valores saem do TOTAL do orçamento, e não digitados.
+     *
+     * Digitados, eles quitavam por coincidência: R$ 1.000,00 + R$ 795,00 dava
+     * exatamente o total de então. Trocar o preço de uma peça no seed quebraria
+     * a quitação de todas as 13 ordens faturadas, e o erro apareceria como
+     * "baixa recusada" no meio do cenário — longe da linha que o causou.
+     */
+    const total = subtotalPecas + subtotalServicos
+    const noPix = Math.round(total * 0.56)
     const baixa = await darBaixa(ctx, { id: de(P.FINANCEIRO).id, nome: de(P.FINANCEIRO).nome }, {
       faturaId: fat.faturaId,
       pagamentos: [
-        { forma: 'PIX', valorCentavos: 100000, autorizacao: 'E2E' + ordemId.slice(-10) },
-        { forma: 'DINHEIRO', valorCentavos: 79500 },
+        { forma: 'PIX', valorCentavos: noPix, autorizacao: 'E2E' + ordemId.slice(-10) },
+        { forma: 'DINHEIRO', valorCentavos: total - noPix },
       ],
       taxaCentavos: 1200,
     })

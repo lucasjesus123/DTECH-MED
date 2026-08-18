@@ -499,7 +499,18 @@
   text-transform: uppercase;
   color: var(--txt-3);
   line-height: 1.3;
-  min-height: 26px;
+  /**
+   * Duas linhas SEMPRE reservadas, mesmo quando o rótulo usa uma.
+   *
+   * Era `min-height: 26px`, que não cabe duas linhas: 0,75rem a 1,3 de entrelinha
+   * dá 31,2px. Medido na tela com dados de verdade, "Orçamento parado" quebrava
+   * em duas e empurrava o número 5px para baixo — numa régua de oito números
+   * feita para ser lida de uma varrida, um deles fora da linha.
+   *
+   * Em `em`, e não em pixel, para acompanhar o tamanho da fonte: o próximo
+   * rótulo comprido não reabre este defeito.
+   */
+  min-height: 2.6em;
 }
 .degrauNum {
   font-family: var(--f-display);
@@ -1021,6 +1032,21 @@
   text-transform: uppercase;
   color: var(--txt-3);
   min-width: 0;
+  /**
+   * A sobra de altura fica no PÉ da célula, e não dentro do campo.
+   *
+   * Sem isto, os campos de uma mesma linha saem com alturas diferentes. O
+   * motivo é encadeado, e por isso não se vê lendo o código: `.grade` é grid,
+   * item de grid estica até a altura da linha, e `.rotulo` também é grid —
+   * então a altura extra é repartida entre as faixas dele. Um campo com dica
+   * embaixo tem três faixas para dividir a sobra; um sem dica tem duas, e o
+   * campo engorda mais.
+   *
+   * Medido na tela, na primeira linha do formulário de abertura: 37px, 43px,
+   * 66px e 66px lado a lado, com os topos em quatro alturas diferentes. Lê-se
+   * como formulário desalinhado, e a causa não está em nenhuma regra de campo.
+   */
+  align-content: start;
 }
 .dica {
   font-family: var(--f-texto);

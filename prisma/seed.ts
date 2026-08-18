@@ -1,10 +1,11 @@
 import 'dotenv/config'
 import { randomBytes } from 'node:crypto'
 import { Prisma } from '../src/generated/prisma/client'
-import { Papel } from '../src/generated/prisma/enums'
+import { Papel, TipoMovimentoEstoque } from '../src/generated/prisma/enums'
 import { hashDocumento, hashSenha } from '../src/lib/cripto'
 import { EMPRESA } from '../src/lib/empresa'
 import { comEscopo, prisma, type ContextoAcesso } from '../src/lib/db'
+import { movimentar } from '../src/server/estoque/servico'
 
 /**
  * Semeadura inicial.
@@ -125,10 +126,30 @@ async function semearDemo() {
     return criados
   })
 
-  // --- catálogo de peças ---------------------------------------------------
+  /**
+   * --- catálogo de peças ----------------------------------------------------
+   *
+   * A peça nasce com saldo ZERO e o estoque entra por uma COMPRA registrada.
+   *
+   * A versão anterior gravava o saldo direto na peça, e isso contradizia o que
+   * a própria tela de estoque afirma, em letra impressa no rodapé dela:
+   *
+   *     "Este é o livro-razão do estoque: o saldo de cada peça é a soma destes
+   *      movimentos, nunca um número digitado."
+   *
+   * Com o saldo digitado, a tela abria com sete peças em prateleira e a lista
+   * de movimentos vazia — ou seja, a demonstração provava o contrário da regra
+   * que o sistema anuncia. E como o relatório de estoque lê o livro-razão, ele
+   * também nascia vazio.
+   *
+   * As quantidades são lotes de compra, e não unidades soltas: elas precisam
+   * cobrir o consumo das ordens do cenário, que agora reservam e consomem de
+   * verdade.
+   */
   const pecas: Array<[string, string, string, number, number, number, number]> = [
-    ['FT-24V10', 'Fonte chaveada 24V 10A', 'Fonte', 4, 2, 50000, 68000],
-    ['CP-450220', 'Capacitor eletrolítico 450V 220µF', 'Componente', 12, 6, 2800, 4500],
+    // sku, nome, categoria, COMPRADO, mínimo, custo, venda
+    ['FT-24V10', 'Fonte chaveada 24V 10A', 'Fonte', 24, 2, 50000, 68000],
+    ['CP-450220', 'Capacitor eletrolítico 450V 220µF', 'Componente', 60, 6, 2800, 4500],
     ['PT-LV-01', 'Ponteira Lavieen padrão', 'Ponteira', 2, 1, 210000, 289000],
     ['VD-AUT-21', 'Vedação de porta autoclave 21L', 'Vedação', 7, 3, 8900, 14500],
     ['RS-1800', 'Resistência 1800W autoclave', 'Resistência', 1, 3, 12400, 19800],
@@ -136,22 +157,39 @@ async function semearDemo() {
     ['CB-FR-3P', 'Cabo de força tripolar 2m', 'Cabo', 23, 10, 1900, 3500],
   ]
 
+  const almoxarife = { id: usuarios[Papel.GESTOR] ?? null, nome: 'Camila Rocha' }
+
   await comEscopo(ctx, async (tx) => {
-    for (const [sku, nome, cat, saldo, min, custo, venda] of pecas) {
-      await tx.peca.upsert({
+    for (const [sku, nome, cat, comprado, min, custo, venda] of pecas) {
+      const p = await tx.peca.upsert({
         where: { tenantId_sku: { tenantId: t.id, sku } },
         create: {
           tenantId: t.id,
           sku,
           nome,
           categoria: cat,
-          saldo: new Prisma.Decimal(saldo),
+          saldo: new Prisma.Decimal(0),
           estoqueMinimo: new Prisma.Decimal(min),
           custoMedioCentavos: custo,
           precoVendaCentavos: venda,
         },
         update: {},
+        select: { id: true, saldo: true },
       })
+
+      // Idempotente como o resto da semeadura: só lança a compra se a peça
+      // acabou de nascer. Rodar de novo não duplica o estoque.
+      if (Number(p.saldo) === 0) {
+        const r = await movimentar(tx, t.id, almoxarife, {
+          pecaId: p.id,
+          tipo: TipoMovimentoEstoque.ENTRADA,
+          quantidade: comprado,
+          custoUnitCentavos: custo,
+          motivo: 'Compra inicial de estoque',
+          documentoFiscal: `NF-DEMO-${sku}`,
+        })
+        if (!r.ok) throw new Error(`estoque inicial de ${sku}: ${r.motivo}`)
+      }
     }
   })
 

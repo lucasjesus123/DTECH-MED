@@ -14,6 +14,7 @@ import Diagnostico from './diagnostico'
 import Responsavel from './responsavel'
 import Orcamento from './orcamento'
 import estilo from '../../painel.module.css'
+import { diaLocal } from '@/lib/datas'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -304,7 +305,7 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           <Responsavel
             ordemId={o.id}
             tecnicoAtualId={o.tecnicoId}
-            prazoPrometido={o.prazoPrometido ? o.prazoPrometido.toISOString().slice(0, 10) : ''}
+            prazoPrometido={o.prazoPrometido ? diaLocal(o.prazoPrometido) : ''}
             prioridade={o.prioridade === 'ALTA' ? 'ALTA' : 'NORMAL'}
             tecnicos={tecnicos}
           />

@@ -5,6 +5,7 @@ import { exigirPapel } from '@/server/auth/guarda'
 import { agendaDoPeriodo, motoristasDaEmpresa, semAgendamento } from '@/server/consultas/listas'
 import Agendador from './agendador'
 import estilo from '../painel.module.css'
+import { amanha, diaLocal, hoje } from '@/lib/datas'
 
 export const metadata: Metadata = { title: 'Agenda de rota', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -27,7 +28,7 @@ export default async function Agenda() {
   ])
 
   const porDia = paradas.reduce<Record<string, typeof paradas>>((acc, p) => {
-    const chave = p.previstoPara.toISOString().slice(0, 10)
+    const chave = diaLocal(p.previstoPara)
     ;(acc[chave] ??= []).push(p)
     return acc
   }, {})
@@ -137,19 +138,27 @@ export default async function Agenda() {
   )
 }
 
+/**
+ * "Hoje", "Amanhã" ou a data por extenso.
+ *
+ * A comparação é entre TEXTOS de dia (`AAAA-MM-DD`) vindos de `@/lib/datas`, e
+ * não entre objetos `Date`. Era `toDateString()`, que segue o fuso do processo:
+ * na VPS, com `TZ=America/Sao_Paulo`, dava certo; em qualquer máquina em UTC,
+ * a entrega das 22h aparecia sob "Amanhã". O porquê inteiro está em
+ * `src/lib/datas.ts`.
+ */
 function diaPorExtenso(iso: string): string {
   const d = new Date(`${iso}T12:00:00-03:00`)
-  const hoje = new Date()
-  const mesmoDia = d.toDateString() === hoje.toDateString()
-  const amanha = new Date(hoje.getTime() + 86_400_000).toDateString() === d.toDateString()
+  const diaDeHoje = hoje()
+  const diaDeAmanha = amanha()
   const texto = d.toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: '2-digit',
     month: 'long',
     timeZone: 'America/Sao_Paulo',
   })
-  if (mesmoDia) return `Hoje · ${texto}`
-  if (amanha) return `Amanhã · ${texto}`
+  if (iso === diaDeHoje) return `Hoje · ${texto}`
+  if (iso === diaDeAmanha) return `Amanhã · ${texto}`
   return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
 
