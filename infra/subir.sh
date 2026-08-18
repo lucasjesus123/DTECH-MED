@@ -146,36 +146,19 @@ fi
 # ---------------------------------------------------------------------------
 titulo "5. Migrações"
 # ---------------------------------------------------------------------------
-# O `up -d --build` acima NÃO constrói o migrador.
+# Delegado ao `infra/migrador.sh`, e não escrito aqui, porque o defeito que
+# esta etapa já teve não era deste arquivo: era do comando manual.
 #
-# Ele tem `profiles: ["manutencao"]`, e serviço com perfil fica de fora do `up`.
-# O Compose constrói a imagem dele na PRIMEIRA vez que alguém a executa, e
-# nunca mais. Ou seja: sem esta linha, todo deploy roda as migrações a partir do
-# código que existia no dia em que a imagem nasceu.
+# O `up -d --build` acima não constrói o migrador — ele tem
+# `profiles: ["manutencao"]`, e serviço com perfil fica de fora do `up`. O
+# Compose constrói a imagem dele na primeira execução e nunca mais. Aqui isso
+# foi corrigido no dia; o que continuou solto foi o `docker compose run --rm
+# migrador` digitado à mão no terminal, que carrega o mesmo defeito e apareceu
+# de novo uma semana depois, no cenário de demonstração.
 #
-# O sintoma é do pior tipo, porque parece sucesso. O Prisma lê as migrações de
-# DENTRO da imagem: se a mais nova não está lá, ele não a conhece, informa "No
-# pending migrations to apply" e sai com zero. O deploy dá tudo verde, e a
-# tabela nova simplesmente não existe no banco.
-#
-# Foi o que aconteceu aqui: a imagem tinha 10 migrações e o repositório, 11.
-compose --profile manutencao build migrador
-compose --profile manutencao run --rm migrador
-
-# A conferência que teria pegado aquilo no dia.
-#
-# Conta as pastas de migração do repositório e compara com as que o banco
-# registra como aplicadas. É a pergunta certa — "o banco está no ponto que este
-# código espera?" — e não admite resposta parecida com sim.
-NO_REPO=$(find prisma/migrations -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-NO_BANCO=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
-  "SELECT count(*) FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL" \
-  2>/dev/null | tr -d ' ')
-if [ "${NO_BANCO:-0}" = "$NO_REPO" ]; then
-  verde "$NO_BANCO migrações aplicadas — o banco está no ponto que este código espera"
-else
-  morre "o repositório tem $NO_REPO migrações e o banco registra ${NO_BANCO:-0}. O banco NÃO está no ponto deste código — não coloque em uso."
-fi
+# Ter dois lugares que precisam lembrar da mesma coisa é ter um que vai
+# esquecer. Agora existe um só, e ele também confere a paridade das migrações.
+bash infra/migrador.sh
 
 TABELAS=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
   "SELECT count(*) FROM pg_tables WHERE schemaname='public'" | tr -d ' ')
@@ -216,7 +199,7 @@ QUANTOS_SA=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
 if [ "$QUANTOS_SA" -ge 1 ]; then
   verde "$QUANTOS_SA Super Admin já existe — semeadura desnecessária"
 elif grep -qE '^SEED_SUPERADMIN_EMAIL=.+' .env; then
-  compose --profile manutencao run --rm migrador npx prisma db seed
+  bash infra/migrador.sh npx prisma db seed
   QUANTOS_SA=$(docker exec dtechmed_db psql -U "$USUARIO" -d "$BANCO" -tAc \
     "SELECT count(*) FROM usuarios WHERE papel='SUPER_ADMIN'" | tr -d ' ')
   [ "$QUANTOS_SA" -ge 1 ] || morre "a semeadura rodou mas não há Super Admin no banco."

@@ -158,8 +158,10 @@ cd /opt/gavetas/DTECHMED && bash infra/gerar-env.sh conexevolution.online
 ```bash
 cd /opt/gavetas/DTECHMED
 ls -l .env                      # tem que aparecer -rw------- (600)
-# O .env NÃO pode estar dentro da imagem. Tem que dizer "No such file":
-docker compose -p dtechmed --profile manutencao run --rm migrador ls -l /app/.env 2>&1 | tail -1
+# O .env NÃO pode estar dentro da imagem. Procure "No such file" na saída:
+bash infra/migrador.sh ls -l /app/.env 2>&1 | grep -i 'no such file' \
+  && echo 'OK: o .env ficou fora da imagem' \
+  || echo 'PERIGO: o .env entrou na imagem — confira o .dockerignore'
 grep -c '^[A-Z_]*=$' .env       # tem que dar 3: os que faltam preencher
 grep -o 'postgresql://[^:]*' .env   # dtechmed_app e dtechmed_owner
 ```
@@ -245,13 +247,32 @@ Se ele parar no meio, a mensagem diz onde parou e qual comando usar para ver o l
 cd /opt/gavetas/DTECHMED
 
 # Só as migrações
-docker compose -p dtechmed --profile manutencao run --rm migrador
+bash infra/migrador.sh
 
 # Só a semeadura
-docker compose -p dtechmed --profile manutencao run --rm migrador npx prisma db seed
+bash infra/migrador.sh npx prisma db seed
 ```
 
 O `migrador` usa o **estágio de build** da imagem, e não o de execução, porque precisa do CLI do Prisma e do `prisma.config.ts` — coisas que a imagem final não carrega, de propósito. Ele conecta com `DIRECT_DATABASE_URL`, como `dtechmed_owner`: o único papel com poder de criar tabela. A aplicação nunca usa essa URL.
+
+> **Por que existe o `infra/migrador.sh` em vez do comando do Compose direto.**
+>
+> O comando cru é `docker compose -p dtechmed --profile manutencao run --rm migrador`, e ele carrega uma armadilha: `run` usa a imagem que **já existe**. O Compose a constrói na primeiríssima execução e nunca mais, e serviço com `profiles:` também fica de fora do `up --build`. Sem construir antes, tudo o que roda aqui é o código do dia em que a imagem nasceu.
+>
+> Isso já produziu dois defeitos neste sistema, e os dois **pareciam sucesso**:
+>
+> | O que aconteceu | O que a tela mostrou |
+> | --- | --- |
+> | A imagem tinha 10 migrações, o repositório tinha 11 | `No pending migrations to apply`, saída zero, deploy verde — e a tabela nova não existia |
+> | O cenário de demonstração criou 6 ordens em vez de 22 | O script rodou até o fim sem erro |
+>
+> O `infra/migrador.sh` **sempre constrói antes de rodar**, e não tem opção para pular isso. Depois de aplicar migrações, ele ainda compara quantas existem no repositório com quantas o banco registra, e recusa seguir se divergirem. Use sempre ele; qualquer coisa que você queira rodar lá dentro entra como argumento:
+>
+> ```bash
+> bash infra/migrador.sh                              # aplica as migrações
+> bash infra/migrador.sh npx prisma migrate status    # só consulta
+> bash infra/migrador.sh npx tsx scripts/cenario-demo.mts   # dados de teste
+> ```
 
 ---
 
@@ -828,7 +849,7 @@ docker compose -p dtechmed ps                 # saúde dos serviços
 cd /opt/gavetas/DTECHMED
 git pull
 docker compose -p dtechmed up -d --build
-docker compose -p dtechmed --profile manutencao run --rm migrador
+bash infra/migrador.sh
 ```
 
 O `restart: unless-stopped` do compose já religa tudo sozinho se a VPS reiniciar.
@@ -867,7 +888,7 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 | **O PDF do cliente dá 404** | O worker não gerou. `docker compose -p dtechmed logs worker`. |
 | **O cliente não consegue aprovar** | O `DOCUMENT_HASH_SALT` mudou depois do cadastro dos clientes. Ele não pode mudar. |
 | **WhatsApp não envia** | `UAZAPI_ADMIN_TOKEN` vazio, ou o número desconectou. |
-| **Login recusa todo mundo** | Confira se as migrações rodaram: `docker compose -p dtechmed --profile manutencao run --rm migrador npx prisma migrate status`. |
+| **Login recusa todo mundo** | Confira se as migrações rodaram: `bash infra/migrador.sh npx prisma migrate status`. |
 
 ---
 
@@ -894,7 +915,7 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 | Aplicação (loopback) | `127.0.0.1:5400` |
 | Banco (loopback) | `127.0.0.1:5433` |
 | Volumes | `dtechmed_pgdata`, `dtechmed_storage`, `dtechmed_backups` |
-| Migração e semeadura | `docker compose -p dtechmed --profile manutencao run --rm migrador` |
+| Migração e semeadura | `bash infra/migrador.sh` |
 | Rede | `dtechmed_net` |
 | Bloco da portaria | `/data/sites-extra/dtechmed.caddy` no `portal-da-estetica-web-1` |
 | Retenção de backup | 14 dias (ajustável no `.env`) |
