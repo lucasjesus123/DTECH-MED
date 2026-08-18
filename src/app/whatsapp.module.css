@@ -32,6 +32,33 @@
   align-items: flex-end;
   gap: var(--s3);
   font-family: var(--f-texto);
+
+  /**
+   * O CONTÊINER NÃO RECEBE TOQUE. Só os filhos recebem.
+   *
+   * ---------------------------------------------------------------------
+   * O DEFEITO QUE ISTO CORRIGE
+   * ---------------------------------------------------------------------
+   * `.raiz` é fixa, empilha o painel e o botão em coluna, e o painel fechado
+   * continua ocupando espaço — ele some por opacidade e `visibility`, não por
+   * `display`. O resultado é um retângulo INVISÍVEL de várias centenas de
+   * pixels, com z-index 60, parado sobre a página.
+   *
+   * Medido no celular com `document.elementFromPoint`: no centro exato do
+   * botão "Solicitar retirada" do formulário do site quem estava era este
+   * contêiner, e não o botão. Ou seja — no telefone, ninguém conseguia pedir
+   * uma retirada pelo site. O toque ia para um vazio.
+   *
+   * Na tela grande o formulário fica longe do canto e o defeito não aparecia,
+   * que é o pior tipo: invisível para quem testa no computador, e fatal
+   * justamente onde está a maior parte das visitas.
+   */
+  pointer-events: none;
+}
+
+/* Tudo que é clicável dentro do widget volta a receber o toque. */
+.raiz > * {
+  pointer-events: auto;
 }
 
 /* --------------------------------------------------------------------------
