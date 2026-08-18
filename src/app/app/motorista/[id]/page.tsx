@@ -4,6 +4,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao } from '@/server/auth/guarda'
 import { paradaDoMotorista } from '@/server/consultas/campo'
 import { FormularioAssinatura } from './formulario'
+import { FotosDeCampo } from './fotos-campo'
 import estilo from '../../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -47,12 +48,22 @@ export default async function Assinar({ params }: { params: Promise<{ id: string
             Esta parada já foi assinada. Volte para a rota e siga para a próxima.
           </p>
         ) : (
-          <FormularioAssinatura
-            ordemId={o.id}
-            tipo={tipo}
-            contatoSugerido={o.cliente.contatoNome ?? ''}
-            endereco={parada.enderecoSnapshot}
-          />
+          <>
+            {/* As fotos vêm ANTES da assinatura de propósito: assinou, a tela
+                sai do ar e a parada está fechada. Quem chega aqui fotografa
+                enquanto ainda está diante do aparelho. */}
+            <FotosDeCampo
+              ordemId={o.id}
+              tipo={tipo}
+              jaEnviadas={o.fotos.filter((f) => f.categoria === tipo).length}
+            />
+            <FormularioAssinatura
+              ordemId={o.id}
+              tipo={tipo}
+              contatoSugerido={o.cliente.contatoNome ?? ''}
+              endereco={parada.enderecoSnapshot}
+            />
+          </>
         )}
       </main>
     </>

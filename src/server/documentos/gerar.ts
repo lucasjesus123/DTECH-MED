@@ -220,7 +220,31 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   if (assin) {
     doc.moveDown(1.4)
     rotulo(doc, 'ASSINATURA')
-    doc.moveDown(1.6)
+    doc.moveDown(0.4)
+
+    /**
+     * O TRAÇO que o cliente desenhou, e não só o nome dele.
+     *
+     * O documento trazia uma linha decorativa, o nome, o CPF mascarado, a hora
+     * e o IP — tudo menos a assinatura. Quem abrisse o contrato via um risco
+     * vazio sobre um nome digitado. O PNG já estava gravado e com hash desde a
+     * primeira versão; faltava colocá-lo na folha.
+     *
+     * Dentro de `try`: um arquivo que sumiu do disco não pode impedir a emissão
+     * do contrato. Sem a imagem ele continua válido — nome, documento
+     * conferido, horário e IP seguem lá.
+     */
+    if (assin.caminhoImagem) {
+      try {
+        doc.image(path.join(RAIZ(), assin.caminhoImagem), 48, doc.y, { fit: [190, 62] })
+        doc.y += 64
+      } catch {
+        doc.moveDown(1.2)
+      }
+    } else {
+      doc.moveDown(1.2)
+    }
+
     doc.moveTo(48, doc.y).lineTo(300, doc.y).strokeColor('#CFCBD9').lineWidth(1).stroke()
     doc.moveDown(0.3)
     doc.fillColor(TINTA).fontSize(9).font('Helvetica-Bold').text(assin.assinanteNome)
@@ -240,17 +264,31 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   }
 
   // ---- rodapé de verificação ---------------------------------------------
+  /**
+   * O rodapé, sem inventar uma página em branco no fim.
+   *
+   * Escrever em y=792 com margem inferior de 48 numa folha A4 (842pt de altura)
+   * ultrapassa a área útil, e o PDFKit responde criando uma página nova para
+   * caber o que não coube. O contrato saía com duas páginas e a segunda tinha
+   * só o rodapé — que é exatamente o texto que causou a página.
+   *
+   * Zerar a margem inferior enquanto se escreve o rodapé desliga a quebra
+   * automática. Ela é restaurada em seguida, porque a margem vale para o resto.
+   */
   const faixa = doc.bufferedPageRange()
   for (let i = 0; i < faixa.count; i++) {
     doc.switchToPage(faixa.start + i)
+    const margemDeBaixo = doc.page.margins.bottom
+    doc.page.margins.bottom = 0
     doc.fillColor(CINZA).fontSize(6.5).font('Courier')
     doc.text(
       `Documento gerado por ${dados.tenant.nome}  ·  Ordem ${dados.numero}  ·  ` +
         `Acompanhe em ${env.APP_URL}/os/${dados.tokenPublico}  ·  página ${i + 1} de ${faixa.count}`,
       48,
-      792,
-      { width: 499, align: 'center' },
+      doc.page.height - 32,
+      { width: 499, align: 'center', lineBreak: false },
     )
+    doc.page.margins.bottom = margemDeBaixo
   }
 
   doc.end()

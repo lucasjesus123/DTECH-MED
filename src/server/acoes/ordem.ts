@@ -260,6 +260,17 @@ const schemaAssinatura = z.object({
   ordemId: z.string().min(1),
   tipo: z.enum(['RETIRADA', 'ENTREGA']),
   assinanteNome: z.string().trim().min(3, 'Informe o nome de quem assinou.'),
+  /**
+   * O documento de quem assinou. Opcional na retirada, ESPERADO na entrega:
+   * é ele que identifica sem ambiguidade quem ficou com o equipamento — nome
+   * repete, documento não. Guardado como veio, só com os dígitos.
+   */
+  assinanteDocumento: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/\D/g, ''))
+    .refine((v) => v === '' || v.length === 11 || v.length === 14, 'CPF ou CNPJ incompleto.')
+    .optional(),
   dataUrl: z.string().min(100, 'A assinatura ficou em branco.'),
   latitude: z.coerce.number().optional(),
   longitude: z.coerce.number().optional(),
@@ -340,6 +351,7 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
         ordemId: v.ordemId,
         tipo: v.tipo,
         assinanteNome: v.assinanteNome,
+        assinanteDocumento: v.assinanteDocumento || null,
         caminhoImagem: img.caminho,
         hashImagem: img.hash,
         latitude: v.latitude ?? null,

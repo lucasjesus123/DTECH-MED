@@ -88,7 +88,7 @@
 .btnConfirmar:disabled, .btnGrande:disabled, .btnFoto:disabled {
   background: var(--borda); color: var(--txt-3); cursor: not-allowed;
 }
-.btnFoto { margin-top: 0; min-height: 46px; background: var(--sup-2); border: 1px solid var(--borda-viva); }
+.btnFoto { margin-top: 0; min-height: 56px; background: var(--vio-veu-2); border: 1px solid var(--vio); }
 /* "Saí para esta parada" é secundário na hierarquia: o botão que importa na
    tela é o de chegar e assinar. Mas continua com alvo de dedo, 54px, porque
    quem aperta está andando com o celular numa mão só. */
@@ -210,4 +210,34 @@
   color: var(--ink-2);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   FOTOS DE CAMPO — retirada e entrega
+   --------------------------------------------------------------------------
+   O bloco fica ACIMA da assinatura, porque assinar fecha a parada e tira a
+   tela do ar. Quem chega aqui precisa ver as fotos primeiro, enquanto ainda
+   está diante do aparelho.
+
+   O alvo do botão é grande de propósito: quem usa está de pé, na calçada,
+   segurando um equipamento com a outra mão. 56px é o mínimo que se acerta sem
+   olhar.
+   ========================================================================== */
+.blocoCampo {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  border: 1px solid var(--casca-linha);
+  border-radius: var(--r-lg);
+  background: var(--casca-2);
+}
+.notaCampo {
+  font-size: var(--t-xs);
+  color: var(--casca-txt-2);
+  line-height: 1.45;
+}
+.erroCampo {
+  font-size: var(--t-sm);
+  color: var(--alerta);
+  line-height: 1.45;
 }

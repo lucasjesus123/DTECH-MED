@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { amanha, diaLocal, hoje } from './datas'
+import { amanha, diaLocal, hoje, janelaDoDia } from './datas'
 
 /**
  * Estes testes existem por causa de defeitos que apareceram na tela, e cada um
@@ -53,5 +53,39 @@ describe('hoje e amanhã', () => {
   it('os dois saem no mesmo formato', () => {
     expect(hoje()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     expect(amanha()).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+  })
+})
+
+describe('janelaDoDia', () => {
+  it('a janela do dia começa e termina à meia-noite de Lajeado, não de UTC', () => {
+    const { inicio, fim } = janelaDoDia('2026-08-17')
+    // Meia-noite em Lajeado (-03:00) é 03:00 UTC.
+    expect(inicio.toISOString()).toBe('2026-08-17T03:00:00.000Z')
+    expect(fim.toISOString()).toBe('2026-08-18T03:00:00.000Z')
+  })
+
+  it('a parada das 22h de Lajeado cai DENTRO da janela daquele dia', () => {
+    // Este é o caso que a rota do motorista perdia: 22h de 17/08 em Lajeado
+    // é 01h de 18/08 em UTC.
+    const parada = new Date('2026-08-18T01:00:00Z')
+    const { inicio, fim } = janelaDoDia('2026-08-17')
+    expect(parada >= inicio && parada < fim).toBe(true)
+  })
+
+  it('a parada das 22h NÃO cai na janela do dia seguinte', () => {
+    const parada = new Date('2026-08-18T01:00:00Z')
+    const { inicio } = janelaDoDia('2026-08-18')
+    expect(parada < inicio).toBe(true)
+  })
+
+  it('a janela dura exatamente 24 horas', () => {
+    const { inicio, fim } = janelaDoDia('2026-08-17')
+    expect(fim.getTime() - inicio.getTime()).toBe(86_400_000)
+  })
+
+  it('sem argumento, é a janela de hoje em Lajeado', () => {
+    const { inicio, fim } = janelaDoDia()
+    const agora = new Date()
+    expect(agora >= inicio && agora < fim).toBe(true)
   })
 })

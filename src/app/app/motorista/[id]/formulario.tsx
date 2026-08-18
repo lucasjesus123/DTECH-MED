@@ -34,6 +34,7 @@ export function FormularioAssinatura({
   const router = useRouter()
   const quadro = useRef<QuadroRef>(null)
   const [nome, setNome] = useState(contatoSugerido)
+  const [documento, setDocumento] = useState('')
   const [temTraco, setTemTraco] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -75,6 +76,11 @@ export function FormularioAssinatura({
     const dataUrl = quadro.current?.capturar()
     if (!dataUrl) return setErro('Assine no quadro antes de confirmar.')
     if (nome.trim().length < 3) return setErro('Escreva o nome de quem está assinando.')
+    // Na ENTREGA o documento é exigido: é o que amarra quem ficou com o
+    // equipamento. Na retirada é opcional — quem entrega já está no cadastro.
+    if (tipo === 'ENTREGA' && documento.length !== 11 && documento.length !== 14) {
+      return setErro('Informe o CPF (11 dígitos) ou CNPJ (14) de quem está recebendo.')
+    }
     if (!online) return setErro('Sem internet. Espere o sinal voltar para finalizar.')
 
     setEnviando(true)
@@ -82,6 +88,7 @@ export function FormularioAssinatura({
     fd.set('ordemId', ordemId)
     fd.set('tipo', tipo)
     fd.set('assinanteNome', nome.trim())
+    if (documento) fd.set('assinanteDocumento', documento)
     fd.set('dataUrl', dataUrl)
     if (geo) {
       fd.set('latitude', String(geo.lat))
@@ -114,6 +121,24 @@ export function FormularioAssinatura({
           value={nome}
           onChange={(e) => setNome(e.target.value)}
           placeholder="Nome completo"
+          autoComplete="off"
+        />
+      </div>
+
+      {/* O documento identifica quem ficou com o aparelho. Nome repete;
+          documento não. Obrigatório na entrega, opcional na retirada — quem
+          entrega o aparelho é quem já está no cadastro. */}
+      <div className={estilo.campo}>
+        <label htmlFor="documento">
+          CPF ou CNPJ de quem {tipo === 'RETIRADA' ? 'entregou' : 'recebeu'}
+          {tipo === 'ENTREGA' ? '' : ' (opcional)'}
+        </label>
+        <input
+          id="documento"
+          value={documento}
+          onChange={(e) => setDocumento(e.target.value.replace(/\D/g, '').slice(0, 14))}
+          placeholder="Só os números"
+          inputMode="numeric"
           autoComplete="off"
         />
       </div>

@@ -187,6 +187,52 @@ export async function reservarDoOrcamento(
 }
 
 /**
+ * Baixa as peças reservadas, DENTRO de uma transação já aberta.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ESTA VERSÃO EXISTE
+ * ---------------------------------------------------------------------------
+ * A baixa precisa acontecer no mesmo instante em que a ordem entra em
+ * manutenção, e a etapa muda dentro da transação do motor. Chamar a versão de
+ * fora abriria uma segunda transação: se ela falhasse, a ordem teria avançado
+ * e o estoque não — que é exatamente o tipo de divergência que o razão de
+ * estoque existe para impedir.
+ *
+ * É idempotente por construção: consome apenas as RESERVAS que ainda não têm
+ * SAÍDA correspondente. Reprocessar a mesma etapa não baixa duas vezes.
+ */
+export async function consumirNaExecucaoTx(
+  tx: Transacao,
+  tenantId: string,
+  autor: Autor,
+  ordemId: string,
+): Promise<number> {
+  const reservas = await tx.movimentoEstoque.findMany({ where: { ordemId, tipo: TM.RESERVA } })
+  if (reservas.length === 0) return 0
+
+  const jaSairam = await tx.movimentoEstoque.findMany({ where: { ordemId, tipo: TM.SAIDA } })
+  const baixado = new Map<string, number>()
+  for (const s of jaSairam) baixado.set(s.pecaId, (baixado.get(s.pecaId) ?? 0) + Number(s.quantidade))
+
+  let n = 0
+  for (const r of reservas) {
+    const falta = Number(r.quantidade) - (baixado.get(r.pecaId) ?? 0)
+    if (falta <= 0) continue
+    const m = await movimentar(tx, tenantId, autor, {
+      pecaId: r.pecaId,
+      tipo: TM.SAIDA,
+      quantidade: falta,
+      ordemId,
+      motivo: 'Consumo na execução do serviço',
+    })
+    if (!m.ok) throw new Error(m.motivo)
+    baixado.set(r.pecaId, (baixado.get(r.pecaId) ?? 0) + falta)
+    n++
+  }
+  return n
+}
+
+/**
  * Consome as peças reservadas quando o técnico inicia a execução.
  * A partir daqui elas saíram fisicamente da prateleira.
  */
@@ -195,24 +241,10 @@ export async function consumirNaExecucao(
   autor: Autor,
   ordemId: string,
 ): Promise<{ ok: true; consumidas: number } | { ok: false; motivo: string }> {
-  return comEscopo(ctx, async (tx) => {
-    const reservas = await tx.movimentoEstoque.findMany({
-      where: { ordemId, tipo: TM.RESERVA },
-    })
-    let n = 0
-    for (const r of reservas) {
-      const m = await movimentar(tx, exigirEmpresa(ctx), autor, {
-        pecaId: r.pecaId,
-        tipo: TM.SAIDA,
-        quantidade: Number(r.quantidade),
-        ordemId,
-        motivo: 'Consumo na execução do serviço',
-      })
-      if (!m.ok) throw new Error(m.motivo)
-      n++
-    }
-    return { ok: true as const, consumidas: n }
-  }).catch((e: Error) => ({ ok: false as const, motivo: e.message }))
+  return comEscopo(ctx, async (tx) => ({
+    ok: true as const,
+    consumidas: await consumirNaExecucaoTx(tx, exigirEmpresa(ctx), autor, ordemId),
+  })).catch((e: Error) => ({ ok: false as const, motivo: e.message }))
 }
 
 /** Devolve a reserva quando o orçamento é recusado ou a ordem cancelada. */

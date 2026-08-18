@@ -3,6 +3,7 @@ import type { Papel } from '@/generated/prisma/enums'
 import { hashEvento } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
 import { validarTransicao, type Transicao } from './maquina-estados'
+import { consumirNaExecucaoTx } from '@/server/estoque/servico'
 
 /**
  * O motor da linha do tempo.
@@ -135,6 +136,26 @@ export async function avancarOrdem(
     // --- a parada do motorista acompanha a etapa ---------------------------
     await fecharAgendamento(tx, ordem.id, pedido.para, criadoEm)
 
+    // --- o orçamento acompanha a etapa -------------------------------------
+    await sincronizarOrcamento(tx, ordem.id, pedido.para, criadoEm)
+
+    /**
+     * --- o estoque acompanha a etapa ---------------------------------------
+     *
+     * A aprovação do cliente RESERVAVA a peça, e nada nunca a BAIXAVA. O
+     * `consumirNaExecucao` existia, tinha teste, e não era chamado por
+     * nenhuma tela — só pelos testes. O efeito, medido no fluxo completo: a
+     * fonte saía fisicamente da prateleira para o aparelho do cliente e o
+     * sistema seguia dizendo 24 unidades em estoque, com uma reserva presa
+     * para sempre.
+     *
+     * Numa assistência isso vira compra a mais, ou pior: a peça que o sistema
+     * promete e a prateleira não tem.
+     */
+    if (pedido.para === EtapaOrdem.EM_MANUTENCAO) {
+      await consumirNaExecucaoTx(tx, ordem.tenantId, { id: ator.id, nome: ator.nome }, ordem.id)
+    }
+
     // --- automações, na mesma transação -----------------------------------
     if (val.transicao.gera) {
       await enfileirar(tx, ordem.tenantId, {
@@ -193,6 +214,28 @@ async function conferirPreCondicoes(
             ? 'Falta 1 foto para dar entrada no equipamento.'
             : `Faltam ${faltam} fotos para dar entrada no equipamento.`
         }
+        break
+      }
+      case 'PARADA_DE_RETIRADA':
+      case 'PARADA_DE_ENTREGA': {
+        const tipo = regra === 'PARADA_DE_RETIRADA' ? 'RETIRADA' : 'ENTREGA'
+        const n = await tx.agendamento.count({
+          where: { ordemId, tipo, status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] } },
+        })
+        if (n === 0) {
+          return tipo === 'RETIRADA'
+            ? 'Marque a parada na Agenda de rota antes: escolha o dia, a hora e o motorista. Sem isso ninguém vai buscar o equipamento.'
+            : 'Marque a parada de entrega na Agenda de rota antes: escolha o dia, a hora e o motorista.'
+        }
+        break
+      }
+      case 'ORCAMENTO_MONTADO': {
+        const o = await tx.orcamento.findFirst({
+          where: { ordemId, status: { in: ['RASCUNHO', 'EM_REVISAO', 'ENVIADO', 'APROVADO'] } },
+          select: { totalCentavos: true },
+        })
+        if (!o) return 'Monte o orçamento antes de enviá-lo ao cliente.'
+        if (o.totalCentavos <= 0) return 'O orçamento está zerado. Lance os itens antes de enviá-lo.'
         break
       }
       case 'ASSINATURA_RETIRADA': {
@@ -261,6 +304,47 @@ async function conferirPreCondicoes(
  * pode ser fechada pela central. Amarrando à ETAPA, todos os caminhos fecham a
  * parada — inclusive os que ainda não existem.
  */
+/**
+ * O orçamento acompanha a etapa da ordem.
+ *
+ * ---------------------------------------------------------------------------
+ * O DEFEITO QUE ISTO CORRIGE
+ * ---------------------------------------------------------------------------
+ * A ordem ia para ORCAMENTO_ENVIADO, o cliente recebia "seu orçamento foi
+ * enviado" no WhatsApp — e o orçamento continuava com status EM_REVISAO. O
+ * portal do cliente só exibe orçamento em ENVIADO, APROVADO ou REPROVADO, e
+ * por isso abria mostrando a linha do tempo, o aparelho, "situação agora:
+ * orçamento enviado"… e NENHUM valor, NENHUM item e NENHUM botão de aprovar.
+ *
+ * O cliente ficava sem ter como aprovar exatamente o passo que transforma
+ * orçamento em contrato, e a assistência ficava esperando uma resposta que não
+ * tinha como chegar. Visto na tela do portal, no fluxo completo.
+ *
+ * Aqui, e não na tela que clicou: a etapa pode ser avançada pela ficha, pelo
+ * aplicativo ou por um script de importação amanhã. O que amarra os dois
+ * registros tem que morar onde a etapa muda.
+ */
+async function sincronizarOrcamento(
+  tx: Transacao,
+  ordemId: string,
+  etapa: EtapaOrdem,
+  agora: Date,
+): Promise<void> {
+  if (etapa === EtapaOrdem.ORCAMENTO_ENVIADO) {
+    await tx.orcamento.updateMany({
+      where: { ordemId, status: { in: ['RASCUNHO', 'EM_REVISAO'] } },
+      data: { status: 'ENVIADO', enviadoEm: agora },
+    })
+    return
+  }
+  if (etapa === EtapaOrdem.ORCAMENTO_INTERNO) {
+    await tx.orcamento.updateMany({
+      where: { ordemId, status: 'RASCUNHO' },
+      data: { status: 'EM_REVISAO' },
+    })
+  }
+}
+
 async function fecharAgendamento(
   tx: Transacao,
   ordemId: string,

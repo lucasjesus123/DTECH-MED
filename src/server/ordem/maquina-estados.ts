@@ -30,7 +30,7 @@ export type Transicao = {
   /** Gera documento em PDF ao entrar nesta etapa. */
   gera?: 'ORDEM_RETIRADA' | 'COMPROVANTE_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
   /** Pré-condições verificadas pelo motor antes de aceitar a transição. */
-  exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO'>
+  exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO' | 'PARADA_DE_RETIRADA' | 'PARADA_DE_ENTREGA' | 'ORCAMENTO_MONTADO'>
 }
 
 const T = EtapaOrdem
@@ -59,6 +59,20 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Retirada agendada',
     papeis: CENTRAL,
     avisaCliente: true,
+    /**
+     * "Agendada" precisa ter DIA, HORA E MOTORISTA — senão é só um rótulo.
+     *
+     * Sem esta exigência a etapa podia ser marcada pelo botão da ficha sem que
+     * nenhuma parada existisse. O estrago era silencioso e completo: a fila
+     * "esperando agendamento" da Agenda só lista ordens em
+     * ORDEM_RETIRADA_GERADA, então a ordem SUMIA de lá ao mesmo tempo em que
+     * não aparecia na rota de ninguém. O cliente recebia "sua retirada está
+     * agendada" no WhatsApp e nenhum motorista jamais ia.
+     *
+     * A trava fica aqui, no motor, e não escondendo o botão: tela pode ser
+     * contornada, e amanhã existe outra tela.
+     */
+    exige: ['PARADA_DE_RETIRADA'],
   },
 
   // ---- 4 e 5: o motorista em campo ---------------------------------------
@@ -133,6 +147,9 @@ export const TRANSICOES: Transicao[] = [
     papeis: GESTAO,
     avisaCliente: true,
     gera: 'ORCAMENTO',
+    // Anunciar ao cliente um orçamento que não existe é pior que não anunciar:
+    // ele abre o portal, não acha valor nenhum, e liga perguntando.
+    exige: ['ORCAMENTO_MONTADO'],
   },
   {
     // Voltou para o técnico: faltou informação ou o valor não fechou.

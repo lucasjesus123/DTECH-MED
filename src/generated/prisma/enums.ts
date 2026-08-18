@@ -145,6 +145,7 @@ export type TipoAssinatura = (typeof TipoAssinatura)[keyof typeof TipoAssinatura
 
 
 export const CategoriaFoto = {
+  RETIRADA: 'RETIRADA',
   RECEBIMENTO: 'RECEBIMENTO',
   ANALISE: 'ANALISE',
   EXECUCAO: 'EXECUCAO',

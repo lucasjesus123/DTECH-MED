@@ -138,6 +138,7 @@ enum TipoAssinatura {
 }
 
 enum CategoriaFoto {
+  RETIRADA // Estado em que SAIU da casa do cliente (até 6)
   RECEBIMENTO // Estado em que chegou (mínimo 6)
   ANALISE // Diagnóstico
   EXECUCAO // Durante o conserto

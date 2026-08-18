@@ -1,5 +1,6 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { janelaDoDia } from '@/lib/datas'
 
 /**
  * Consultas dos apps de campo.
@@ -31,10 +32,10 @@ export type Parada = {
 
 /** As paradas do dia do motorista logado, na ordem da rota. */
 export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promise<Parada[]> {
-  const inicio = new Date()
-  inicio.setHours(0, 0, 0, 0)
-  const fim = new Date(inicio)
-  fim.setDate(fim.getDate() + 1)
+  // A janela do dia DE LAJEADO, e não a do fuso do processo. Ver `@/lib/datas`:
+  // com `setHours` numa máquina em UTC, o "dia" corria das 21h às 21h e a rota
+  // perdia toda parada marcada para depois das 21h.
+  const { inicio, fim } = janelaDoDia()
 
   const ags = await comEscopo(ctx, (tx) =>
     tx.agendamento.findMany({
@@ -89,6 +90,9 @@ export async function paradaDoMotorista(ctx: ContextoAcesso, motoristaId: string
             cliente: true,
             equipamento: true,
             assinaturas: { select: { tipo: true } },
+            // Quantas fotos de campo já subiram, para a tela não pedir de novo
+            // as que a pessoa já tirou.
+            fotos: { select: { categoria: true } },
           },
         },
       },

@@ -1,5 +1,6 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, prisma, type ContextoAcesso, exigirEmpresa } from '@/lib/db'
+import { janelaDoDia } from '@/lib/datas'
 
 /**
  * Consultas de listagem do painel.
@@ -430,8 +431,8 @@ export async function aguardandoFatura(ctx: ContextoAcesso) {
 // ---------------------------------------------------------------------------
 
 export async function agendaDoPeriodo(ctx: ContextoAcesso, dias = 7) {
-  const inicio = new Date()
-  inicio.setHours(0, 0, 0, 0)
+  // Começa à meia-noite DE LAJEADO. Ver `@/lib/datas`.
+  const { inicio } = janelaDoDia()
   const fim = new Date(inicio.getTime() + dias * 86_400_000)
 
   return comEscopo(ctx, (tx) =>

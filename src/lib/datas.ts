@@ -57,3 +57,31 @@ export function hoje(): string {
 export function amanha(): string {
   return diaLocal(new Date(Date.now() + 86_400_000))
 }
+
+/**
+ * O intervalo `[início, fim)` de um dia de Lajeado, em instantes absolutos.
+ *
+ * Para perguntar ao banco "o que está agendado para hoje" é preciso um par de
+ * timestamps, e é aí que mora o outro jeito de errar:
+ *
+ *     const inicio = new Date(); inicio.setHours(0, 0, 0, 0)
+ *
+ * `setHours` zera a hora no fuso do PROCESSO. Numa máquina em UTC, isso é 21h
+ * do dia anterior em Lajeado — a janela do "dia" corre das 21h às 21h. A rota
+ * do motorista, que é exatamente esta consulta, perderia toda parada marcada
+ * depois das 21h.
+ *
+ * Na VPS o contêiner roda com `TZ=America/Sao_Paulo` e a conta dá certo por
+ * acidente de configuração. Isso é pior do que estar errado: funciona até
+ * alguém subir num host novo, e aí a rota do motorista aparece vazia sem
+ * nenhum erro na tela.
+ *
+ * Aqui a virada do dia é a de Lajeado, dita em letras. O `-03:00` é fixo
+ * porque o Brasil não tem mais horário de verão desde 2019; se voltar, é esta
+ * linha — e só ela — que muda.
+ */
+export function janelaDoDia(dia: string = hoje()): { inicio: Date; fim: Date } {
+  const inicio = new Date(`${dia}T00:00:00-03:00`)
+  const fim = new Date(inicio.getTime() + 86_400_000)
+  return { inicio, fim }
+}

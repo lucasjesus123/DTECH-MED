@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { lerSessao } from '@/server/auth/sessao'
 import estilo from './app.module.css'
 import { Credito } from '../credito'
+import { RegistrarSW } from './registrar-sw'
 
 export const metadata: Metadata = {
   title: 'DTECH MED · Campo',
@@ -33,6 +34,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
   if (!sessao) redirect('/entrar?destino=/app')
   return (
     <div className={estilo.aparelho}>
+      <RegistrarSW />
       {children}
       {/* Discreto e no fim da rolagem: quem está na rua com uma mão só não
           pode ter o polegar disputando espaço com um crédito. */}
