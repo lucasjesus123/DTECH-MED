@@ -921,3 +921,34 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 | Retenção de backup | 14 dias (ajustável no `.env`) |
 
 Relatório de segurança completo, com o que foi corrigido e o que ficou para o servidor: **[AUDITORIA_SEGURANCA.md](./AUDITORIA_SEGURANCA.md)**.
+
+---
+
+## Antes do primeiro cliente de verdade — tirar os dados de demonstração
+
+⚠️ **Faça isto ANTES de preencher o `UAZAPI_ADMIN_TOKEN`.**
+
+O cenário de demonstração atravessou o motor de verdade, e cada mudança de etapa **enfileirou um aviso de WhatsApp**. São **196 mensagens PENDENTE** paradas na fila, e elas só não saíram porque não há token configurado. No instante em que houver, o worker dispara todas — para os telefones do cenário, que têm cara de número real de Lajeado.
+
+Comece pelo relatório, que **não apaga nada**:
+
+```bash
+cd /opt/gavetas/DTECHMED
+bash infra/migrador.sh npx tsx scripts/limpar-demo.mts
+```
+
+Ele lista, lado a lado, **o que sai** e **o que fica**. Leia a coluna do que fica: é ali que você confere que nenhuma ordem sua de verdade está na lista de exclusão. Quando estiver de acordo:
+
+```bash
+bash infra/migrador.sh npx tsx scripts/limpar-demo.mts --apagar
+```
+
+| Detalhe | Como se comporta |
+|---|---|
+| **O que ele considera falso** | Os quatro clientes pelos CNPJ do `prisma/seed.ts`, as peças pelos SKU, e as ordens por pertencerem àqueles clientes. O que não casa não é tocado. |
+| **A equipe fictícia** | Fica, por padrão. Só sai com `--apagar-equipe` — não dá para o script saber se Camila, Rafael e os outros são pessoas de verdade já usando o sistema. |
+| **A numeração** | Volta para o maior número que sobrou, não para zero. Numa instalação nova isso dá zero, e a primeira O.S. de verdade nasce como a nº 1. |
+| **Arquivos no disco** | As pastas de fotos e assinaturas das ordens falsas são removidas junto — senão o banco fica limpo e o disco não. |
+| **Rodar duas vezes** | Inofensivo. |
+
+> **Sobre as senhas.** A semeadura grava a mesma senha (`Dtech@2026`, escrita no repositório) em todas as contas da equipe, e nenhuma delas nasce obrigada a trocar. O script confere isso de verdade — com a mesma função do login, não pelo cadastro — e avisa quais contas ainda entram com ela. Apagar dado falso e deixar esses logins abertos é limpar a vitrine e deixar a porta destrancada.
