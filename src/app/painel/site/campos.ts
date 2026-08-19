@@ -367,6 +367,17 @@ export const ABAS: Aba[] = [
           'aspas do content — não a linha inteira. Salve, e volte lá para clicar em ' +
           'Verificar. Pode deixar vazio: enquanto estiver, nada é escrito na página.',
       },
+      {
+        caminho: 'seo.gtmId',
+        rotulo: 'Google Tag Manager (tráfego pago)',
+        tipo: 'texto',
+        ajuda:
+          'O contêiner que mede as visitas e as conversões dos anúncios. No Tag Manager, ' +
+          'o código fica no alto da tela, no formato GTM-XXXXXXX — cole só ele. ' +
+          'A tag roda SÓ no site público: o painel, os aplicativos e o link que o cliente ' +
+          'recebe ficam de fora de propósito, porque aquele link é a senha da ordem dele. ' +
+          'Vazio desliga tudo.',
+      },
     ],
   },
 ]

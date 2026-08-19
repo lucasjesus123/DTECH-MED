@@ -17,6 +17,7 @@ import { FOTOS, Foto, acharFoto, type NomeFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
+import { GoogleTagManager, GoogleTagManagerNoScript } from './gtm'
 import { InstagramFeed } from './instagram-feed'
 import {
   ICONES,
@@ -244,6 +245,13 @@ export default async function Home({
 
   return (
     <>
+      {/* O Google Tag Manager, no começo do corpo da página e SÓ aqui.
+          O painel, os aplicativos de campo e o link do cliente ficam de fora
+          de propósito — o motivo está escrito em `./gtm`, e o principal é que
+          a URL do portal É a credencial do cliente. */}
+      <GoogleTagManagerNoScript id={c.seo.gtmId} />
+      <GoogleTagManager id={c.seo.gtmId} />
+
       <header className={estilo.topo}>
         <div className={`${estilo.container} ${estilo.topoIn}`}>
           <Link href="/" className={estilo.marca} aria-label="DTECH MED, página inicial">

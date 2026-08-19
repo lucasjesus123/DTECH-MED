@@ -27,20 +27,90 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PRIVADAS = ['/painel', '/app']
 const METODOS_ACEITOS = new Set(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
 
+/**
+ * OS DESTINOS DO GOOGLE TAG MANAGER.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ESTA LISTA EXISTE, E POR QUE ELA INCOMODA
+ * ---------------------------------------------------------------------------
+ * Gerenciador de tag e CSP querem coisas opostas, por desenho. O GTM existe
+ * para que o marketing acrescente um fornecedor novo sem tocar no código; a CSP
+ * existe para que nenhum script ou pixel que ninguém declarou saia falando com
+ * o mundo. As duas coisas são boas, e elas brigam.
+ *
+ * A escolha aqui é a segunda: a lista é NOMINAL. O GTM funciona, o Analytics
+ * mede, a conversão do Ads volta — e um pixel de um fornecedor que ninguém
+ * declarou não sai. Quando um for acrescentado no GTM, o sintoma é conhecido e
+ * fácil de reconhecer: o console do navegador escreve "Refused to connect to …
+ * because it violates the following Content Security Policy directive". A
+ * correção é uma linha aqui.
+ *
+ * Isso é de propósito. O contrário — abrir tudo — significa que qualquer pessoa
+ * com acesso ao GTM pode fazer o site falar com qualquer servidor do mundo, sem
+ * passar por ninguém. O GTM é onde entra código de terceiro na velocidade do
+ * marketing; é exatamente onde uma trava faz falta.
+ */
+const GOOGLE = {
+  /** Só o carregador. Em navegador moderno o `'strict-dynamic'` já resolve —
+   *  isto é a rede de baixo, para quem só entende CSP nível 2. */
+  script: ['https://www.googletagmanager.com'],
+  /** Pixels de contagem e de conversão, que chegam como imagem. */
+  img: [
+    'https://www.googletagmanager.com',
+    'https://*.google-analytics.com',
+    'https://*.googletagmanager.com',
+    'https://www.google.com',
+    'https://www.google.com.br',
+    'https://googleads.g.doubleclick.net',
+  ],
+  /** As medições do GA4 e do Ads, que vão por `fetch` e `sendBeacon`. */
+  conexao: [
+    'https://www.googletagmanager.com',
+    'https://*.googletagmanager.com',
+    'https://*.google-analytics.com',
+    'https://*.analytics.google.com',
+    'https://*.g.doubleclick.net',
+    'https://www.google.com',
+    'https://www.google.com.br',
+  ],
+  /** A moldura do `<noscript>` e a de remarketing do Ads. */
+  moldura: ['https://www.googletagmanager.com', 'https://td.doubleclick.net'],
+} as const
+
 function montarCSP(nonce: string, producao: boolean, ehHome: boolean): string {
+  /**
+   * As permissões do Google valem SÓ na home, que é a única página onde a tag
+   * é escrita.
+   *
+   * É a segunda tranca da mesma porta: se um dia alguém importar o componente
+   * do GTM dentro do painel por engano, o script não carrega e o erro aparece
+   * na hora, no console — em vez de o painel começar a mandar para o Google as
+   * URLs que carregam id de ordem e de cliente.
+   *
+   * Uma ressalva honesta: CSP vale por DOCUMENTO. Quem sai da home para outra
+   * tela por navegação de cliente continua com a política da home, porque não
+   * houve documento novo. A tranca vale para o carregamento direto — que é como
+   * se chega ao painel na prática, já que entrar pelo login recarrega a página.
+   * Quem impede de verdade é a primeira tranca: o componente só existe na
+   * página do site.
+   */
+  const g = ehHome ? GOOGLE : { script: [], img: [], conexao: [], moldura: [] }
+  const mais = (lista: readonly string[]) => (lista.length ? ` ${lista.join(' ')}` : '')
+
+
   return [
     "default-src 'self'",
     // 'strict-dynamic' deixa um script já autorizado carregar seus próprios
     // pedaços, que é como o Next divide o código. Em desenvolvimento o
     // recarregamento a quente exige eval; em produção, não.
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${producao ? '' : "'unsafe-eval'"}`.trim(),
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${mais(g.script)} ${producao ? '' : "'unsafe-eval'"}`.trim(),
     // O 'unsafe-inline' em estilo é exigência do CSS crítico embutido. É bem
     // menos perigoso que em script: folha de estilo não executa código.
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
     // blob: é a assinatura desenhada no visor; data: são os ícones embutidos.
-    "img-src 'self' data: blob:",
-    "connect-src 'self'",
+    `img-src 'self' data: blob:${mais(g.img)}`,
+    `connect-src 'self'${mais(g.conexao)}`,
     "media-src 'self'",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
@@ -78,7 +148,7 @@ function montarCSP(nonce: string, producao: boolean, ehHome: boolean): string {
     // Isto quase passou: `frame-src` sem `'self'` bloqueia até a própria página,
     // e o editor abriria com uma moldura em branco sem nenhum erro na tela — só
     // uma linha no console que ninguém olha.
-    "frame-src 'self' https://www.google.com https://maps.google.com",
+    `frame-src 'self' https://www.google.com https://maps.google.com${mais(g.moldura)}`,
     "form-action 'self'",
     "base-uri 'self'",
     "object-src 'none'",

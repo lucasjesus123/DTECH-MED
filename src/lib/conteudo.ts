@@ -208,6 +208,30 @@ export const esquemaConteudo = z.object({
      * página.
      */
     verificacaoGoogle: opc(120),
+
+    /**
+     * O contêiner do Google Tag Manager.
+     *
+     * Mesma lógica do código de verificação acima, e por um motivo mais forte:
+     * o GTM é ferramenta de quem cuida do tráfego pago, e essa pessoa troca de
+     * contêiner, cria um para uma campanha, testa outro. Se o id morasse no
+     * `.env`, cada troca custaria acesso ao terminal da VPS e um deploy.
+     *
+     * Guardado aqui, ele é POR SITE — e este sistema vai virar franquia. Cada
+     * unidade anuncia a sua região, com o próprio contêiner, o próprio pixel e
+     * a própria conversão. Uma variável de ambiente é uma só para o servidor
+     * inteiro; este campo é um por empresa.
+     *
+     * Vazio desliga tudo: nenhum script de terceiro é escrito na página.
+     */
+    gtmId: z
+      .string()
+      .trim()
+      .max(20)
+      .refine((v) => v === '' || /^GTM-[A-Z0-9]{4,10}$/.test(v), {
+        message: 'O id do GTM tem o formato GTM-XXXXXXX. Copie do painel do Tag Manager.',
+      })
+      .default(''),
   }),
 })
 
@@ -375,6 +399,8 @@ export const CONTEUDO_PADRAO: Conteudo = {
       'Consertamos aparelho de estética, médico, odontológico e hospitalar, de qualquer marca. ' +
       'A gente busca na sua sala, registra cada passo e devolve funcionando, com laudo, garantia e assinatura.',
     verificacaoGoogle: '',
+    // O contêiner da DTECH MED. Trocável na tela do painel, sem publicar de novo.
+    gtmId: 'GTM-THVZJV46',
   },
 }
 

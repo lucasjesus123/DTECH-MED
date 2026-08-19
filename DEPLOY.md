@@ -924,6 +924,50 @@ Relatório de segurança completo, com o que foi corrigido e o que ficou para o 
 
 ---
 
+## Google Tag Manager e o tráfego pago
+
+O contêiner **não fica no código nem no `.env`**. Ele é um campo do editor do
+site: **Painel → Site → aba "Busca do Google" → Google Tag Manager**. Trocar o
+contêiner é digitar e salvar; não precisa publicar nada nem entrar na VPS. Campo
+vazio desliga: nenhum script do Google é escrito na página.
+
+Fica ali de propósito — quando isto virar franquia, cada unidade anuncia a sua
+região com o próprio contêiner, e uma variável de ambiente seria uma só para o
+servidor inteiro.
+
+**A tag roda SÓ na home pública.** O painel, os aplicativos de campo e o link
+`/os/<token>` ficam de fora, e o motivo do terceiro é o mais forte: aquela URL
+**é a credencial do cliente**. Quem tem o link abre a ordem inteira. Um pageview
+mandaria essa URL para o Google, e não há como recolher depois.
+
+### Quando você adicionar um fornecedor novo dentro do GTM
+
+Este site roda com Content-Security-Policy fechada. Gerenciador de tag e CSP
+querem coisas opostas por desenho: o GTM existe para o marketing acrescentar um
+fornecedor sem tocar no código, e a CSP existe para nenhum pixel que ninguém
+declarou sair falando com o mundo.
+
+Já estão liberados o **próprio GTM**, o **Google Analytics 4** e as **conversões
+do Google Ads**. Um fornecedor de fora dessa lista — Meta Pixel, TikTok, Hotjar,
+RD Station — é **bloqueado**, e o sintoma é este, no console do navegador (F12):
+
+```
+Refused to connect to 'https://connect.facebook.net/…' because it violates
+the following Content Security Policy directive: "connect-src 'self' …"
+```
+
+A correção é uma linha em `src/middleware.ts`, na constante `GOOGLE`: acrescente
+o domínio na lista certa (`script`, `img`, `conexao` ou `moldura`, conforme o que
+a mensagem disser) e publique. Se preferir, me mande a mensagem do console que eu
+digo em qual lista ele entra.
+
+Isso é chato de propósito. O contrário — abrir tudo — significa que qualquer
+pessoa com acesso ao GTM pode fazer o site falar com qualquer servidor do mundo
+sem passar por ninguém, e o GTM é exatamente onde código de terceiro entra na
+velocidade do marketing.
+
+---
+
 ## Conferir o dinheiro, todo fechamento de mês
 
 Seis perguntas cuja resposta certa é sempre **zero**. Somente leitura — nenhuma linha é alterada.
