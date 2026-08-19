@@ -1,7 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { pedirRetirada, type RespostaLead } from '@/server/acoes/lead'
+import { EVENTOS, evento } from './analitico'
 import estilo from './site.module.css'
 
 const inicial: RespostaLead = { ok: false, motivo: '' }
@@ -27,6 +28,31 @@ export function FormularioRetirada({
   nota: string
 }) {
   const [estado, acao, pendente] = useActionState(pedirRetirada, inicial)
+
+  /**
+   * A conversão mais forte do site, e a única que o GTM não consegue ver
+   * sozinho.
+   *
+   * Este formulário é uma Server Action: não existe o envio clássico que o
+   * gatilho nativo "Form Submission" escuta, e a página nem recarrega. Sem esta
+   * linha, o pedido de retirada — que é um cliente pedindo para buscarem o
+   * aparelho dele — não aparece em relatório nenhum.
+   *
+   * Dispara no SUCESSO, não no clique: formulário recusado por telefone
+   * inválido não é lead, e contar como se fosse ensina a campanha a comprar o
+   * clique errado.
+   *
+   * A trava do `useRef` existe porque efeito roda de novo a cada renderização
+   * do estado — sem ela, um redesenho contaria o mesmo lead duas vezes.
+   */
+  const contado = useRef(false)
+  useEffect(() => {
+    if (estado.ok && !contado.current) {
+      contado.current = true
+      // Nenhum dado do formulário entra aqui. Só o fato de ter acontecido.
+      evento(EVENTOS.lead, { canal: 'formulario', origem: 'solicitar' })
+    }
+  }, [estado.ok])
 
   if (estado.ok) {
     return (

@@ -18,6 +18,7 @@ import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
 import { GoogleTagManager, GoogleTagManagerNoScript } from './gtm'
+import { MedirCliques } from './medir-cliques'
 import { InstagramFeed } from './instagram-feed'
 import {
   ICONES,
@@ -251,6 +252,9 @@ export default async function Home({
           a URL do portal É a credencial do cliente. */}
       <GoogleTagManagerNoScript id={c.seo.gtmId} />
       <GoogleTagManager id={c.seo.gtmId} />
+      {/* Um ouvinte só, que mede todo clique de WhatsApp e telefone da página —
+          inclusive os que ainda não existem. Ver `./medir-cliques`. */}
+      <MedirCliques />
 
       <header className={estilo.topo}>
         <div className={`${estilo.container} ${estilo.topoIn}`}>
@@ -297,9 +301,14 @@ export default async function Home({
             <p className={estilo.sub} data-c="dobra.subChamada">{c.dobra.subChamada}</p>
 
             <div className={estilo.acoes}>
+              {/* A origem vai marcada à mão porque este botão vive na primeira
+                  dobra, que não tem `id` de seção — sem a marca o evento diria
+                  só "conteudo", que não responde nada. Este é o CTA mais caro
+                  do site: é onde cai quem clicou no anúncio. */}
               <a
                 href={linkWhatsappDe(c, 'Olá! Preciso de manutenção em um equipamento.')}
                 className={estilo.btn}
+                data-medir-origem="primeira-dobra"
               >
                 <IconeWhatsapp className={estilo.btnIcone} />
                 {c.dobra.botaoWhatsapp}
@@ -818,7 +827,9 @@ export default async function Home({
             <h3>Contato</h3>
             <ul>
               <li>
-                <a href={linkWhatsappDe(c)}>{c.contato.telefoneExibicao}</a>
+                <a href={linkWhatsappDe(c)} data-medir-origem="rodape">
+                  {c.contato.telefoneExibicao}
+                </a>
               </li>
               {/* Campo vazio some da tela. Melhor faltar um horário do que
                   publicar um que não é o verdadeiro. */}

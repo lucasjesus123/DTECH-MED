@@ -940,6 +940,50 @@ servidor inteiro.
 **é a credencial do cliente**. Quem tem o link abre a ordem inteira. Um pageview
 mandaria essa URL para o Google, e não há como recolher depois.
 
+### Os eventos de conversão — o que o site já manda pronto
+
+GTM sozinho mede **visita**. Visita não otimiza campanha: o Google Ads precisa
+saber quais cliques viraram contato para aprender a quem mostrar o anúncio.
+
+O site empurra três eventos no `dataLayer`. Falta só criar o gatilho de cada um
+dentro do GTM (**Acionadores → Novo → Evento personalizado**, com o nome exato):
+
+| Nome do evento | Quando dispara | O que vem junto |
+|---|---|---|
+| `lead_formulario` | O formulário de retirada foi **aceito** | `canal`, `origem` |
+| `contato_whatsapp` | Clique em qualquer botão/link de WhatsApp | `canal`, `origem`, `assunto` |
+| `clique_telefone` | Clique num número de telefone | `canal`, `origem` |
+
+**`lead_formulario` é a conversão principal** — e é a única que o GTM **não
+conseguiria medir sozinho de jeito nenhum**. O formulário é uma Server Action do
+React: não existe o envio clássico que o gatilho nativo "Form Submission"
+escuta, e a página nem recarrega. Se um dia esse evento sumir do código, a
+melhor conversão do site fica invisível sem nenhum aviso.
+
+Ele dispara **no sucesso**, não no clique: formulário recusado por telefone
+inválido não é lead, e contar como se fosse ensina a campanha a comprar o clique
+errado.
+
+**`origem`** diz de onde partiu o clique — `primeira-dobra`, `servicos`,
+`a-empresa`, `solicitar`, `onde-estamos`, `rodape`, `flutuante`. É o que
+responde "qual botão traz cliente" e permite cortar o que não converte.
+**`assunto`** só vem do botão flutuante, e é o rótulo escolhido na antessala
+("Quero um orçamento", "Meu equipamento parou"…).
+
+Para usar no Ads: crie a variável de camada de dados (`origem`, `assunto`) em
+**Variáveis → Nova → Variável da camada de dados** e mande como parâmetro do
+evento de conversão.
+
+> **Nada de dado pessoal sai daqui.** Nome, telefone, e-mail e documento **não**
+> entram no `dataLayer` — nem parcialmente. O que vai para o Google é o fato de
+> ter havido um contato e de qual botão. É a diferença entre medir campanha e
+> mandar a sua base de clientes para um terceiro, e a LGPD trata as duas de
+> forma bem diferente. Se um dia alguém pedir "manda o telefone junto para casar
+> a conversão", a resposta é não.
+
+Um botão de WhatsApp novo, criado depois, **já nasce medido**: a escuta é única
+e delegada (`src/app/medir-cliques.tsx`), não é um `onClick` por botão.
+
 ### Quando você adicionar um fornecedor novo dentro do GTM
 
 Este site roda com Content-Security-Policy fechada. Gerenciador de tag e CSP

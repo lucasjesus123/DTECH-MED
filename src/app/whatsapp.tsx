@@ -206,11 +206,18 @@ export function BotaoWhatsapp() {
             dobra do painel: a pessoa escolhia o assunto e não via para onde ir.
             Aqui ele fica sempre à vista, e só a lista de assuntos rola. */}
         <div className={estilo.acao}>
+          {/* As duas marcas `data-medir-*` são lidas pelo ouvinte único de
+              cliques (`./medir-cliques`). O assunto é o ROTULO da opção — texto
+              de uma lista fixa deste arquivo, nunca nada que a pessoa digitou.
+              É o que responde "qual assunto traz cliente", sem mandar para fora
+              nada que identifique alguém. */}
           <a
             className={estilo.enviar}
             href={linkWhatsapp(mensagem)}
             target="_blank"
             rel="noopener noreferrer"
+            data-medir-origem="flutuante"
+            data-medir-assunto={escolhido === null ? 'sem assunto' : ASSUNTOS[escolhido]?.rotulo}
             onClick={() => setAberto(false)}
           >
             <IconeWhatsapp className={estilo.enviarIcone} />
