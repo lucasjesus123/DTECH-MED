@@ -140,6 +140,32 @@ export async function avancarOrdem(
     await sincronizarOrcamento(tx, ordem.id, pedido.para, criadoEm)
 
     /**
+     * --- a garantia começa a correr na ENTREGA -----------------------------
+     *
+     * O prazo de garantia vinha do orçamento (`garantiaDias`, 90 por padrão) e
+     * morria ali: um número num PDF. Não havia data de fim em lugar nenhum, e
+     * por isso nada impedia o sistema de FATURAR um aparelho que voltou dentro
+     * do prazo. Quem decidia se cobrava era a memória de quem estava no balcão.
+     *
+     * Conta a partir da ENTREGA, e não da aprovação: o cliente só passa a ter
+     * o aparelho de volta quando ele chega — cobrar garantia do tempo em que a
+     * peça esteve na bancada seria roubar dias dele.
+     */
+    if (pedido.para === EtapaOrdem.ENTREGUE) {
+      const orc = await tx.orcamento.findFirst({
+        where: { ordemId: ordem.id, status: 'APROVADO' },
+        orderBy: { versao: 'desc' },
+        select: { garantiaDias: true },
+      })
+      if (orc && orc.garantiaDias > 0) {
+        await tx.ordem.update({
+          where: { id: ordem.id },
+          data: { garantiaAte: new Date(criadoEm.getTime() + orc.garantiaDias * 86_400_000) },
+        })
+      }
+    }
+
+    /**
      * --- o estoque acompanha a etapa ---------------------------------------
      *
      * A aprovação do cliente RESERVAVA a peça, e nada nunca a BAIXAVA. O

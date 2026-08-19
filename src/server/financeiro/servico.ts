@@ -227,9 +227,36 @@ export async function emitirFatura(
 
     const ordem = await tx.ordem.findUnique({
       where: { id: ordemId },
-      select: { clienteId: true },
+      select: { clienteId: true, emGarantia: true, numero: true, ordemOrigem: { select: { numero: true } } },
     })
     if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+
+    /**
+     * A trava da garantia.
+     *
+     * Uma ordem aberta como retorno de garantia não pode virar fatura por
+     * distração. Antes disto nada impedia — a garantia era um número no PDF do
+     * orçamento e o financeiro não tinha como saber que aquele aparelho já
+     * tinha sido consertado aqui dentro há 60 dias.
+     *
+     * A recusa NÃO é definitiva: existe retorno em garantia que gera cobrança
+     * legítima — o cliente derrubou o aparelho, ou pediu um serviço a mais na
+     * mesma visita. Para esses, a gestão desmarca o "em garantia" na ficha e
+     * fatura normalmente. O que o sistema exige é que alguém DECIDA, em vez de
+     * a cobrança sair sozinha.
+     */
+    if (ordem.emGarantia) {
+      const daOrigem = ordem.ordemOrigem
+        ? ` do serviço da O.S. #${String(ordem.ordemOrigem.numero).padStart(4, '0')}`
+        : ''
+      return {
+        ok: false,
+        motivo:
+          `A O.S. #${String(ordem.numero).padStart(4, '0')} foi aberta como RETORNO EM GARANTIA${daOrigem}. ` +
+          'Se a cobrança é devida mesmo assim — outro defeito, dano do cliente, serviço a mais — ' +
+          'tire a marca de garantia na ficha da ordem e emita de novo.',
+      }
+    }
 
     const orc = await tx.orcamento.findFirst({
       where: { ordemId, status: 'APROVADO' },

@@ -53,6 +53,9 @@ export type OrdemMinAggregateOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  garantiaAte: Date | null
+  emGarantia: boolean | null
+  ordemOrigemId: string | null
   abertaEm: Date | null
   coletadaEm: Date | null
   recebidaEm: Date | null
@@ -85,6 +88,9 @@ export type OrdemMaxAggregateOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  garantiaAte: Date | null
+  emGarantia: boolean | null
+  ordemOrigemId: string | null
   abertaEm: Date | null
   coletadaEm: Date | null
   recebidaEm: Date | null
@@ -117,6 +123,9 @@ export type OrdemCountAggregateOutputType = {
   codigoRastreio: number
   atendenteId: number
   tecnicoId: number
+  garantiaAte: number
+  emGarantia: number
+  ordemOrigemId: number
   abertaEm: number
   coletadaEm: number
   recebidaEm: number
@@ -159,6 +168,9 @@ export type OrdemMinAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  garantiaAte?: true
+  emGarantia?: true
+  ordemOrigemId?: true
   abertaEm?: true
   coletadaEm?: true
   recebidaEm?: true
@@ -191,6 +203,9 @@ export type OrdemMaxAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  garantiaAte?: true
+  emGarantia?: true
+  ordemOrigemId?: true
   abertaEm?: true
   coletadaEm?: true
   recebidaEm?: true
@@ -223,6 +238,9 @@ export type OrdemCountAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  garantiaAte?: true
+  emGarantia?: true
+  ordemOrigemId?: true
   abertaEm?: true
   coletadaEm?: true
   recebidaEm?: true
@@ -342,6 +360,9 @@ export type OrdemGroupByOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  garantiaAte: Date | null
+  emGarantia: boolean
+  ordemOrigemId: string | null
   abertaEm: Date
   coletadaEm: Date | null
   recebidaEm: Date | null
@@ -397,6 +418,9 @@ export type OrdemWhereInput = {
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
+  ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   abertaEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
   coletadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   recebidaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
@@ -413,6 +437,8 @@ export type OrdemWhereInput = {
   equipamento?: Prisma.XOR<Prisma.EquipamentoScalarRelationFilter, Prisma.EquipamentoWhereInput>
   atendente?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   tecnico?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  ordemOrigem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
+  retornos?: Prisma.OrdemListRelationFilter
   eventos?: Prisma.EventoOrdemListRelationFilter
   fotos?: Prisma.FotoListRelationFilter
   assinaturas?: Prisma.AssinaturaListRelationFilter
@@ -443,6 +469,9 @@ export type OrdemOrderByWithRelationInput = {
   codigoRastreio?: Prisma.SortOrderInput | Prisma.SortOrder
   atendenteId?: Prisma.SortOrderInput | Prisma.SortOrder
   tecnicoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  garantiaAte?: Prisma.SortOrderInput | Prisma.SortOrder
+  emGarantia?: Prisma.SortOrder
+  ordemOrigemId?: Prisma.SortOrderInput | Prisma.SortOrder
   abertaEm?: Prisma.SortOrder
   coletadaEm?: Prisma.SortOrderInput | Prisma.SortOrder
   recebidaEm?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -459,6 +488,8 @@ export type OrdemOrderByWithRelationInput = {
   equipamento?: Prisma.EquipamentoOrderByWithRelationInput
   atendente?: Prisma.UserOrderByWithRelationInput
   tecnico?: Prisma.UserOrderByWithRelationInput
+  ordemOrigem?: Prisma.OrdemOrderByWithRelationInput
+  retornos?: Prisma.OrdemOrderByRelationAggregateInput
   eventos?: Prisma.EventoOrdemOrderByRelationAggregateInput
   fotos?: Prisma.FotoOrderByRelationAggregateInput
   assinaturas?: Prisma.AssinaturaOrderByRelationAggregateInput
@@ -493,6 +524,9 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
+  ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   abertaEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
   coletadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   recebidaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
@@ -509,6 +543,8 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   equipamento?: Prisma.XOR<Prisma.EquipamentoScalarRelationFilter, Prisma.EquipamentoWhereInput>
   atendente?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   tecnico?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  ordemOrigem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
+  retornos?: Prisma.OrdemListRelationFilter
   eventos?: Prisma.EventoOrdemListRelationFilter
   fotos?: Prisma.FotoListRelationFilter
   assinaturas?: Prisma.AssinaturaListRelationFilter
@@ -539,6 +575,9 @@ export type OrdemOrderByWithAggregationInput = {
   codigoRastreio?: Prisma.SortOrderInput | Prisma.SortOrder
   atendenteId?: Prisma.SortOrderInput | Prisma.SortOrder
   tecnicoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  garantiaAte?: Prisma.SortOrderInput | Prisma.SortOrder
+  emGarantia?: Prisma.SortOrder
+  ordemOrigemId?: Prisma.SortOrderInput | Prisma.SortOrder
   abertaEm?: Prisma.SortOrder
   coletadaEm?: Prisma.SortOrderInput | Prisma.SortOrder
   recebidaEm?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -579,6 +618,9 @@ export type OrdemScalarWhereWithAggregatesInput = {
   codigoRastreio?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
+  garantiaAte?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
+  emGarantia?: Prisma.BoolWithAggregatesFilter<"Ordem"> | boolean
+  ordemOrigemId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   abertaEm?: Prisma.DateTimeWithAggregatesFilter<"Ordem"> | Date | string
   coletadaEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
   recebidaEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
@@ -606,6 +648,8 @@ export type OrdemCreateInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -622,6 +666,8 @@ export type OrdemCreateInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -652,6 +698,9 @@ export type OrdemUncheckedCreateInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -663,6 +712,7 @@ export type OrdemUncheckedCreateInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -688,6 +738,8 @@ export type OrdemUpdateInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -704,6 +756,8 @@ export type OrdemUpdateInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -734,6 +788,9 @@ export type OrdemUncheckedUpdateInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -745,6 +802,7 @@ export type OrdemUncheckedUpdateInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -775,6 +833,9 @@ export type OrdemCreateManyInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -802,6 +863,8 @@ export type OrdemUpdateManyMutationInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -834,6 +897,9 @@ export type OrdemUncheckedUpdateManyInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -855,6 +921,11 @@ export type OrdemListRelationFilter = {
 
 export type OrdemOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type OrdemNullableScalarRelationFilter = {
+  is?: Prisma.OrdemWhereInput | null
+  isNot?: Prisma.OrdemWhereInput | null
 }
 
 export type OrdemTenantIdNumeroCompoundUniqueInput = {
@@ -881,6 +952,9 @@ export type OrdemCountOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  garantiaAte?: Prisma.SortOrder
+  emGarantia?: Prisma.SortOrder
+  ordemOrigemId?: Prisma.SortOrder
   abertaEm?: Prisma.SortOrder
   coletadaEm?: Prisma.SortOrder
   recebidaEm?: Prisma.SortOrder
@@ -917,6 +991,9 @@ export type OrdemMaxOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  garantiaAte?: Prisma.SortOrder
+  emGarantia?: Prisma.SortOrder
+  ordemOrigemId?: Prisma.SortOrder
   abertaEm?: Prisma.SortOrder
   coletadaEm?: Prisma.SortOrder
   recebidaEm?: Prisma.SortOrder
@@ -949,6 +1026,9 @@ export type OrdemMinOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  garantiaAte?: Prisma.SortOrder
+  emGarantia?: Prisma.SortOrder
+  ordemOrigemId?: Prisma.SortOrder
   abertaEm?: Prisma.SortOrder
   coletadaEm?: Prisma.SortOrder
   recebidaEm?: Prisma.SortOrder
@@ -969,11 +1049,6 @@ export type OrdemSumOrderByAggregateInput = {
 export type OrdemScalarRelationFilter = {
   is?: Prisma.OrdemWhereInput
   isNot?: Prisma.OrdemWhereInput
-}
-
-export type OrdemNullableScalarRelationFilter = {
-  is?: Prisma.OrdemWhereInput | null
-  isNot?: Prisma.OrdemWhereInput | null
 }
 
 export type OrdemCreateNestedManyWithoutTenantInput = {
@@ -1186,12 +1261,70 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoNestedInput = {
   deleteMany?: Prisma.OrdemScalarWhereInput | Prisma.OrdemScalarWhereInput[]
 }
 
+export type OrdemCreateNestedOneWithoutRetornosInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutRetornosInput, Prisma.OrdemUncheckedCreateWithoutRetornosInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutRetornosInput
+  connect?: Prisma.OrdemWhereUniqueInput
+}
+
+export type OrdemCreateNestedManyWithoutOrdemOrigemInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput> | Prisma.OrdemCreateWithoutOrdemOrigemInput[] | Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput[]
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput | Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput[]
+  createMany?: Prisma.OrdemCreateManyOrdemOrigemInputEnvelope
+  connect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+}
+
+export type OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput> | Prisma.OrdemCreateWithoutOrdemOrigemInput[] | Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput[]
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput | Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput[]
+  createMany?: Prisma.OrdemCreateManyOrdemOrigemInputEnvelope
+  connect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+}
+
 export type EnumEtapaOrdemFieldUpdateOperationsInput = {
   set?: $Enums.EtapaOrdem
 }
 
 export type EnumOrigemLeadFieldUpdateOperationsInput = {
   set?: $Enums.OrigemLead
+}
+
+export type OrdemUpdateOneWithoutRetornosNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutRetornosInput, Prisma.OrdemUncheckedCreateWithoutRetornosInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutRetornosInput
+  upsert?: Prisma.OrdemUpsertWithoutRetornosInput
+  disconnect?: Prisma.OrdemWhereInput | boolean
+  delete?: Prisma.OrdemWhereInput | boolean
+  connect?: Prisma.OrdemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrdemUpdateToOneWithWhereWithoutRetornosInput, Prisma.OrdemUpdateWithoutRetornosInput>, Prisma.OrdemUncheckedUpdateWithoutRetornosInput>
+}
+
+export type OrdemUpdateManyWithoutOrdemOrigemNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput> | Prisma.OrdemCreateWithoutOrdemOrigemInput[] | Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput[]
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput | Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput[]
+  upsert?: Prisma.OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput | Prisma.OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput[]
+  createMany?: Prisma.OrdemCreateManyOrdemOrigemInputEnvelope
+  set?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  disconnect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  delete?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  connect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  update?: Prisma.OrdemUpdateWithWhereUniqueWithoutOrdemOrigemInput | Prisma.OrdemUpdateWithWhereUniqueWithoutOrdemOrigemInput[]
+  updateMany?: Prisma.OrdemUpdateManyWithWhereWithoutOrdemOrigemInput | Prisma.OrdemUpdateManyWithWhereWithoutOrdemOrigemInput[]
+  deleteMany?: Prisma.OrdemScalarWhereInput | Prisma.OrdemScalarWhereInput[]
+}
+
+export type OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput> | Prisma.OrdemCreateWithoutOrdemOrigemInput[] | Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput[]
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput | Prisma.OrdemCreateOrConnectWithoutOrdemOrigemInput[]
+  upsert?: Prisma.OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput | Prisma.OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput[]
+  createMany?: Prisma.OrdemCreateManyOrdemOrigemInputEnvelope
+  set?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  disconnect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  delete?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  connect?: Prisma.OrdemWhereUniqueInput | Prisma.OrdemWhereUniqueInput[]
+  update?: Prisma.OrdemUpdateWithWhereUniqueWithoutOrdemOrigemInput | Prisma.OrdemUpdateWithWhereUniqueWithoutOrdemOrigemInput[]
+  updateMany?: Prisma.OrdemUpdateManyWithWhereWithoutOrdemOrigemInput | Prisma.OrdemUpdateManyWithWhereWithoutOrdemOrigemInput[]
+  deleteMany?: Prisma.OrdemScalarWhereInput | Prisma.OrdemScalarWhereInput[]
 }
 
 export type OrdemCreateNestedOneWithoutEventosInput = {
@@ -1338,6 +1471,8 @@ export type OrdemCreateWithoutTenantInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1353,6 +1488,8 @@ export type OrdemCreateWithoutTenantInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -1382,6 +1519,9 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1393,6 +1533,7 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1452,6 +1593,9 @@ export type OrdemScalarWhereInput = {
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
+  ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   abertaEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
   coletadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   recebidaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
@@ -1479,6 +1623,8 @@ export type OrdemCreateWithoutTecnicoInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1494,6 +1640,8 @@ export type OrdemCreateWithoutTecnicoInput = {
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -1523,6 +1671,9 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   atendenteId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1534,6 +1685,7 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1569,6 +1721,8 @@ export type OrdemCreateWithoutAtendenteInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1584,6 +1738,8 @@ export type OrdemCreateWithoutAtendenteInput = {
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -1613,6 +1769,9 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1624,6 +1783,7 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1691,6 +1851,8 @@ export type OrdemCreateWithoutClienteInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1706,6 +1868,8 @@ export type OrdemCreateWithoutClienteInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -1735,6 +1899,9 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1746,6 +1913,7 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1797,6 +1965,8 @@ export type OrdemCreateWithoutEquipamentoInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1812,6 +1982,8 @@ export type OrdemCreateWithoutEquipamentoInput = {
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -1841,6 +2013,9 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1852,6 +2027,7 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1889,7 +2065,7 @@ export type OrdemUpdateManyWithWhereWithoutEquipamentoInput = {
   data: Prisma.XOR<Prisma.OrdemUpdateManyMutationInput, Prisma.OrdemUncheckedUpdateManyWithoutEquipamentoInput>
 }
 
-export type OrdemCreateWithoutEventosInput = {
+export type OrdemCreateWithoutRetornosInput = {
   id?: string
   numero: number
   etapa?: $Enums.EtapaOrdem
@@ -1903,6 +2079,8 @@ export type OrdemCreateWithoutEventosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1919,6 +2097,314 @@ export type OrdemCreateWithoutEventosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemUncheckedCreateWithoutRetornosInput = {
+  id?: string
+  tenantId: string
+  numero: number
+  clienteId: string
+  equipamentoId: string
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  atendenteId?: string | null
+  tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemCreateOrConnectWithoutRetornosInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutRetornosInput, Prisma.OrdemUncheckedCreateWithoutRetornosInput>
+}
+
+export type OrdemCreateWithoutOrdemOrigemInput = {
+  id?: string
+  numero: number
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
+  cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
+  equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
+  atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
+  tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
+  id?: string
+  tenantId: string
+  numero: number
+  clienteId: string
+  equipamentoId: string
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  atendenteId?: string | null
+  tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemCreateOrConnectWithoutOrdemOrigemInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput>
+}
+
+export type OrdemCreateManyOrdemOrigemInputEnvelope = {
+  data: Prisma.OrdemCreateManyOrdemOrigemInput | Prisma.OrdemCreateManyOrdemOrigemInput[]
+  skipDuplicates?: boolean
+}
+
+export type OrdemUpsertWithoutRetornosInput = {
+  update: Prisma.XOR<Prisma.OrdemUpdateWithoutRetornosInput, Prisma.OrdemUncheckedUpdateWithoutRetornosInput>
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutRetornosInput, Prisma.OrdemUncheckedCreateWithoutRetornosInput>
+  where?: Prisma.OrdemWhereInput
+}
+
+export type OrdemUpdateToOneWithWhereWithoutRetornosInput = {
+  where?: Prisma.OrdemWhereInput
+  data: Prisma.XOR<Prisma.OrdemUpdateWithoutRetornosInput, Prisma.OrdemUncheckedUpdateWithoutRetornosInput>
+}
+
+export type OrdemUpdateWithoutRetornosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
+  cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
+  equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
+  atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
+  tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUncheckedUpdateWithoutRetornosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentoId?: Prisma.StringFieldUpdateOperationsInput | string
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  update: Prisma.XOR<Prisma.OrdemUpdateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedUpdateWithoutOrdemOrigemInput>
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedCreateWithoutOrdemOrigemInput>
+}
+
+export type OrdemUpdateWithWhereUniqueWithoutOrdemOrigemInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  data: Prisma.XOR<Prisma.OrdemUpdateWithoutOrdemOrigemInput, Prisma.OrdemUncheckedUpdateWithoutOrdemOrigemInput>
+}
+
+export type OrdemUpdateManyWithWhereWithoutOrdemOrigemInput = {
+  where: Prisma.OrdemScalarWhereInput
+  data: Prisma.XOR<Prisma.OrdemUpdateManyMutationInput, Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemInput>
+}
+
+export type OrdemCreateWithoutEventosInput = {
+  id?: string
+  numero: number
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
+  cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
+  equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
+  atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
+  tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
@@ -1948,6 +2434,9 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -1959,6 +2448,7 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
@@ -1999,6 +2489,8 @@ export type OrdemUpdateWithoutEventosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2015,6 +2507,8 @@ export type OrdemUpdateWithoutEventosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
@@ -2044,6 +2538,9 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2055,6 +2552,7 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2079,6 +2577,8 @@ export type OrdemCreateWithoutFotosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2095,6 +2595,8 @@ export type OrdemCreateWithoutFotosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
@@ -2124,6 +2626,9 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2135,6 +2640,7 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2175,6 +2681,8 @@ export type OrdemUpdateWithoutFotosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2191,6 +2699,8 @@ export type OrdemUpdateWithoutFotosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
@@ -2220,6 +2730,9 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2231,6 +2744,7 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2255,6 +2769,8 @@ export type OrdemCreateWithoutAssinaturasInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2271,6 +2787,8 @@ export type OrdemCreateWithoutAssinaturasInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
@@ -2300,6 +2818,9 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2311,6 +2832,7 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2351,6 +2873,8 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2367,6 +2891,8 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
@@ -2396,6 +2922,9 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2407,6 +2936,7 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2431,6 +2961,8 @@ export type OrdemCreateWithoutOrcamentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2447,6 +2979,8 @@ export type OrdemCreateWithoutOrcamentosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -2476,6 +3010,9 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2487,6 +3024,7 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2527,6 +3065,8 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2543,6 +3083,8 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -2572,6 +3114,9 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2583,6 +3128,7 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2607,6 +3153,8 @@ export type OrdemCreateWithoutMovimentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2623,6 +3171,8 @@ export type OrdemCreateWithoutMovimentosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -2652,6 +3202,9 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2663,6 +3216,7 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2703,6 +3257,8 @@ export type OrdemUpdateWithoutMovimentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2719,6 +3275,8 @@ export type OrdemUpdateWithoutMovimentosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -2748,6 +3306,9 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2759,6 +3320,7 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2783,6 +3345,8 @@ export type OrdemCreateWithoutFaturaInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2799,6 +3363,8 @@ export type OrdemCreateWithoutFaturaInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -2828,6 +3394,9 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2839,6 +3408,7 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2879,6 +3449,8 @@ export type OrdemUpdateWithoutFaturaInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2895,6 +3467,8 @@ export type OrdemUpdateWithoutFaturaInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -2924,6 +3498,9 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2935,6 +3512,7 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2959,6 +3537,8 @@ export type OrdemCreateWithoutAgendamentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -2975,6 +3555,8 @@ export type OrdemCreateWithoutAgendamentosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -3004,6 +3586,9 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3015,6 +3600,7 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3055,6 +3641,8 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3071,6 +3659,8 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3100,6 +3690,9 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3111,6 +3704,7 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3135,6 +3729,8 @@ export type OrdemCreateWithoutDocumentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3151,6 +3747,8 @@ export type OrdemCreateWithoutDocumentosInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -3180,6 +3778,9 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3191,6 +3792,7 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3231,6 +3833,8 @@ export type OrdemUpdateWithoutDocumentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3247,6 +3851,8 @@ export type OrdemUpdateWithoutDocumentosInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3276,6 +3882,9 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3287,6 +3896,7 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3311,6 +3921,8 @@ export type OrdemCreateWithoutMensagensInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3327,6 +3939,8 @@ export type OrdemCreateWithoutMensagensInput = {
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
   atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -3356,6 +3970,9 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3367,6 +3984,7 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3407,6 +4025,8 @@ export type OrdemUpdateWithoutMensagensInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3423,6 +4043,8 @@ export type OrdemUpdateWithoutMensagensInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3452,6 +4074,9 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3463,6 +4088,7 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3491,6 +4117,9 @@ export type OrdemCreateManyTenantInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3518,6 +4147,8 @@ export type OrdemUpdateWithoutTenantInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3533,6 +4164,8 @@ export type OrdemUpdateWithoutTenantInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3562,6 +4195,9 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3573,6 +4209,7 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3602,6 +4239,9 @@ export type OrdemUncheckedUpdateManyWithoutTenantInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3633,6 +4273,9 @@ export type OrdemCreateManyTecnicoInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   atendenteId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3664,6 +4307,9 @@ export type OrdemCreateManyAtendenteInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3691,6 +4337,8 @@ export type OrdemUpdateWithoutTecnicoInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3706,6 +4354,8 @@ export type OrdemUpdateWithoutTecnicoInput = {
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3735,6 +4385,9 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3746,6 +4399,7 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3775,6 +4429,9 @@ export type OrdemUncheckedUpdateManyWithoutTecnicoInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3802,6 +4459,8 @@ export type OrdemUpdateWithoutAtendenteInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3817,6 +4476,8 @@ export type OrdemUpdateWithoutAtendenteInput = {
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3846,6 +4507,9 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3857,6 +4521,7 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3886,6 +4551,9 @@ export type OrdemUncheckedUpdateManyWithoutAtendenteInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3917,6 +4585,9 @@ export type OrdemCreateManyClienteInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -3944,6 +4615,8 @@ export type OrdemUpdateWithoutClienteInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3959,6 +4632,8 @@ export type OrdemUpdateWithoutClienteInput = {
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3988,6 +4663,9 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3999,6 +4677,7 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4028,6 +4707,9 @@ export type OrdemUncheckedUpdateManyWithoutClienteInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4059,6 +4741,9 @@ export type OrdemCreateManyEquipamentoInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
   abertaEm?: Date | string
   coletadaEm?: Date | string | null
   recebidaEm?: Date | string | null
@@ -4086,6 +4771,8 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4101,6 +4788,8 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
   atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -4130,6 +4819,9 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4141,6 +4833,7 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4170,6 +4863,165 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OrdemCreateManyOrdemOrigemInput = {
+  id?: string
+  tenantId: string
+  numero: number
+  clienteId: string
+  equipamentoId: string
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  atendenteId?: string | null
+  tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+}
+
+export type OrdemUpdateWithoutOrdemOrigemInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
+  cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
+  equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
+  atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
+  tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentoId?: Prisma.StringFieldUpdateOperationsInput | string
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentoId?: Prisma.StringFieldUpdateOperationsInput | string
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4189,6 +5041,7 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
  */
 
 export type OrdemCountOutputType = {
+  retornos: number
   eventos: number
   fotos: number
   assinaturas: number
@@ -4200,6 +5053,7 @@ export type OrdemCountOutputType = {
 }
 
 export type OrdemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  retornos?: boolean | OrdemCountOutputTypeCountRetornosArgs
   eventos?: boolean | OrdemCountOutputTypeCountEventosArgs
   fotos?: boolean | OrdemCountOutputTypeCountFotosArgs
   assinaturas?: boolean | OrdemCountOutputTypeCountAssinaturasArgs
@@ -4218,6 +5072,13 @@ export type OrdemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Select specific fields to fetch from the OrdemCountOutputType
    */
   select?: Prisma.OrdemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * OrdemCountOutputType without action
+ */
+export type OrdemCountOutputTypeCountRetornosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrdemWhereInput
 }
 
 /**
@@ -4296,6 +5157,9 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  garantiaAte?: boolean
+  emGarantia?: boolean
+  ordemOrigemId?: boolean
   abertaEm?: boolean
   coletadaEm?: boolean
   recebidaEm?: boolean
@@ -4312,6 +5176,8 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
+  retornos?: boolean | Prisma.Ordem$retornosArgs<ExtArgs>
   eventos?: boolean | Prisma.Ordem$eventosArgs<ExtArgs>
   fotos?: boolean | Prisma.Ordem$fotosArgs<ExtArgs>
   assinaturas?: boolean | Prisma.Ordem$assinaturasArgs<ExtArgs>
@@ -4343,6 +5209,9 @@ export type OrdemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  garantiaAte?: boolean
+  emGarantia?: boolean
+  ordemOrigemId?: boolean
   abertaEm?: boolean
   coletadaEm?: boolean
   recebidaEm?: boolean
@@ -4359,6 +5228,7 @@ export type OrdemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
 }, ExtArgs["result"]["ordem"]>
 
 export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -4380,6 +5250,9 @@ export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  garantiaAte?: boolean
+  emGarantia?: boolean
+  ordemOrigemId?: boolean
   abertaEm?: boolean
   coletadaEm?: boolean
   recebidaEm?: boolean
@@ -4396,6 +5269,7 @@ export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
 }, ExtArgs["result"]["ordem"]>
 
 export type OrdemSelectScalar = {
@@ -4417,6 +5291,9 @@ export type OrdemSelectScalar = {
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  garantiaAte?: boolean
+  emGarantia?: boolean
+  ordemOrigemId?: boolean
   abertaEm?: boolean
   coletadaEm?: boolean
   recebidaEm?: boolean
@@ -4430,13 +5307,15 @@ export type OrdemSelectScalar = {
   atualizadoEm?: boolean
 }
 
-export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
+export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
 export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
+  retornos?: boolean | Prisma.Ordem$retornosArgs<ExtArgs>
   eventos?: boolean | Prisma.Ordem$eventosArgs<ExtArgs>
   fotos?: boolean | Prisma.Ordem$fotosArgs<ExtArgs>
   assinaturas?: boolean | Prisma.Ordem$assinaturasArgs<ExtArgs>
@@ -4454,6 +5333,7 @@ export type OrdemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
 }
 export type OrdemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -4461,6 +5341,7 @@ export type OrdemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   equipamento?: boolean | Prisma.EquipamentoDefaultArgs<ExtArgs>
   atendente?: boolean | Prisma.Ordem$atendenteArgs<ExtArgs>
   tecnico?: boolean | Prisma.Ordem$tecnicoArgs<ExtArgs>
+  ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
 }
 
 export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4471,6 +5352,8 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     equipamento: Prisma.$EquipamentoPayload<ExtArgs>
     atendente: Prisma.$UserPayload<ExtArgs> | null
     tecnico: Prisma.$UserPayload<ExtArgs> | null
+    ordemOrigem: Prisma.$OrdemPayload<ExtArgs> | null
+    retornos: Prisma.$OrdemPayload<ExtArgs>[]
     eventos: Prisma.$EventoOrdemPayload<ExtArgs>[]
     fotos: Prisma.$FotoPayload<ExtArgs>[]
     assinaturas: Prisma.$AssinaturaPayload<ExtArgs>[]
@@ -4539,7 +5422,18 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     tecnicoId: string | null
     /**
      * Marcos temporais — alimentam os indicadores sem precisar varrer eventos.
+     * Quando a garantia deste serviço vence. Preenchida na ENTREGA — é dali que
+     * o prazo corre, e não da aprovação do orçamento.
      */
+    garantiaAte: Date | null
+    /**
+     * Esta ordem é retorno de garantia de um serviço anterior.
+     */
+    emGarantia: boolean
+    /**
+     * O serviço que esta ordem está honrando, quando ele está no sistema.
+     */
+    ordemOrigemId: string | null
     abertaEm: Date
     coletadaEm: Date | null
     recebidaEm: Date | null
@@ -4953,6 +5847,8 @@ export interface Prisma__OrdemClient<T, Null = never, ExtArgs extends runtime.Ty
   equipamento<T extends Prisma.EquipamentoDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EquipamentoDefaultArgs<ExtArgs>>): Prisma.Prisma__EquipamentoClient<runtime.Types.Result.GetResult<Prisma.$EquipamentoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   atendente<T extends Prisma.Ordem$atendenteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$atendenteArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   tecnico<T extends Prisma.Ordem$tecnicoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$tecnicoArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ordemOrigem<T extends Prisma.Ordem$ordemOrigemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$ordemOrigemArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  retornos<T extends Prisma.Ordem$retornosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$retornosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   eventos<T extends Prisma.Ordem$eventosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$eventosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventoOrdemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   fotos<T extends Prisma.Ordem$fotosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$fotosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assinaturas<T extends Prisma.Ordem$assinaturasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$assinaturasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssinaturaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5009,6 +5905,9 @@ export interface OrdemFieldRefs {
   readonly codigoRastreio: Prisma.FieldRef<"Ordem", 'String'>
   readonly atendenteId: Prisma.FieldRef<"Ordem", 'String'>
   readonly tecnicoId: Prisma.FieldRef<"Ordem", 'String'>
+  readonly garantiaAte: Prisma.FieldRef<"Ordem", 'DateTime'>
+  readonly emGarantia: Prisma.FieldRef<"Ordem", 'Boolean'>
+  readonly ordemOrigemId: Prisma.FieldRef<"Ordem", 'String'>
   readonly abertaEm: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly coletadaEm: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly recebidaEm: Prisma.FieldRef<"Ordem", 'DateTime'>
@@ -5456,6 +6355,49 @@ export type Ordem$tecnicoArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Ordem.ordemOrigem
+ */
+export type Ordem$ordemOrigemArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ordem
+   */
+  select?: Prisma.OrdemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ordem
+   */
+  omit?: Prisma.OrdemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrdemInclude<ExtArgs> | null
+  where?: Prisma.OrdemWhereInput
+}
+
+/**
+ * Ordem.retornos
+ */
+export type Ordem$retornosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Ordem
+   */
+  select?: Prisma.OrdemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Ordem
+   */
+  omit?: Prisma.OrdemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrdemInclude<ExtArgs> | null
+  where?: Prisma.OrdemWhereInput
+  orderBy?: Prisma.OrdemOrderByWithRelationInput | Prisma.OrdemOrderByWithRelationInput[]
+  cursor?: Prisma.OrdemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrdemScalarFieldEnum | Prisma.OrdemScalarFieldEnum[]
 }
 
 /**

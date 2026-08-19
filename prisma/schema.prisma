@@ -474,6 +474,16 @@ model Ordem {
   tecnico   User?   @relation("TecnicoResponsavel", fields: [tecnicoId], references: [id], onDelete: SetNull)
 
   /// Marcos temporais — alimentam os indicadores sem precisar varrer eventos.
+  /// Quando a garantia deste serviço vence. Preenchida na ENTREGA — é dali que
+  /// o prazo corre, e não da aprovação do orçamento.
+  garantiaAte   DateTime?
+  /// Esta ordem é retorno de garantia de um serviço anterior.
+  emGarantia    Boolean   @default(false)
+  /// O serviço que esta ordem está honrando, quando ele está no sistema.
+  ordemOrigemId String?
+  ordemOrigem   Ordem?    @relation("RetornoDeGarantia", fields: [ordemOrigemId], references: [id], onDelete: SetNull)
+  retornos      Ordem[]   @relation("RetornoDeGarantia")
+
   abertaEm      DateTime  @default(now())
   coletadaEm    DateTime?
   recebidaEm    DateTime?
@@ -503,6 +513,9 @@ model Ordem {
   @@index([tenantId, clienteId, abertaEm])
   @@index([tenantId, tecnicoId, etapa])
   @@index([tenantId, equipamentoId])
+  /// "Este aparelho está na garantia?" — a pergunta que a ficha faz sempre.
+  @@index([equipamentoId, garantiaAte])
+  @@index([ordemOrigemId])
   @@index([tenantId, prazoPrometido])
   @@map("ordens")
 }

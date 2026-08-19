@@ -12,6 +12,7 @@ import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { proximoNumero } from '@/server/financeiro/servico'
 import { avancarOrdem } from '@/server/ordem/motor'
 import { guardarAssinatura, guardarFoto } from '@/server/arquivos/storage'
+import { coberturaDoEquipamento } from '@/server/ordem/garantia'
 
 /**
  * Ações do painel e dos apps de campo.
@@ -119,12 +120,25 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
         },
       }))
 
+    /**
+     * O aparelho voltou dentro do prazo do serviço anterior?
+     *
+     * A conferência acontece na ABERTURA e é automática, porque depender de
+     * alguém lembrar é o mesmo que não ter: quem atende no balcão não sabe de
+     * cor que a O.S. #0014 foi entregue há 62 dias com 90 de garantia. Marcada
+     * aqui, a ordem já nasce sabendo — e o financeiro é avisado antes de
+     * emitir a fatura.
+     */
+    const cobertura = await coberturaDoEquipamento(tx, equipamento.id)
+
     const ordem = await tx.ordem.create({
       data: {
         tenantId: exigirEmpresa(a.ctx),
         numero: await proximoNumero(tx, exigirEmpresa(a.ctx), 'ordem'),
         clienteId: cliente.id,
         equipamentoId: equipamento.id,
+        emGarantia: cobertura.cobre,
+        ordemOrigemId: cobertura.ordem?.id ?? null,
         defeitoRelatado: v.defeito,
         prioridade: v.prioridade,
         // O link do portal é a credencial do cliente: 256 bits de randomBytes,

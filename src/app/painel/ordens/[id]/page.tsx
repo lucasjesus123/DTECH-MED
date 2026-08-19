@@ -17,6 +17,7 @@ import estilo from '../../painel.module.css'
 import { diaLocal } from '@/lib/datas'
 import { montarTrilha } from '@/server/ordem/trilha'
 import { TrilhaDoEquipamento } from './trilha'
+import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -63,6 +64,12 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
   /* A trilha lê a etapa atual e os eventos: onde a peça está, e quando ela
      passou por cada ponto. O cálculo mora em `@/server/ordem/trilha` porque a
      mesma régua aparece no portal do cliente. */
+  /* A garantia do aparelho, ignorando a própria ordem: o que interessa é se
+     ALGUM serviço anterior ainda cobre. */
+  const cobertura = frasedaCobertura(
+    await coberturaDe(ctx, o.equipamentoId, o.id),
+  )
+
   const trilha = montarTrilha(
     o.etapa,
     o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
@@ -87,6 +94,19 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           <span className={estilo.tag} style={{ fontSize: 11, padding: '6px 12px' }}>
             {ROTULO_ETAPA[o.etapa]}
           </span>
+          {/* A garantia aparece ANTES de qualquer preço. Quem abre a ficha para
+              montar orçamento precisa ver que o aparelho voltou coberto — e não
+              descobrir isso no fim, com o valor já digitado. */}
+          {o.emGarantia ? (
+            <span className={`${estilo.tag} ${estilo.tagEspera}`} style={{ fontSize: 11, padding: '6px 12px' }}>
+              retorno em garantia
+              {o.ordemOrigem ? ` · O.S. #${String(o.ordemOrigem.numero).padStart(4, '0')}` : ''}
+            </span>
+          ) : cobertura ? (
+            <span className={`${estilo.tag} ${estilo.tagOk}`} style={{ fontSize: 11, padding: '6px 12px' }}>
+              {cobertura}
+            </span>
+          ) : null}
           {o.prazoPrometido ? (
             <span
               className={estilo.fraco}

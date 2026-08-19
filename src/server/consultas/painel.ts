@@ -197,6 +197,8 @@ export async function prontuario(ctx: ContextoAcesso, ordemId: string) {
         tecnico: { select: { nome: true } },
         atendente: { select: { nome: true } },
         eventos: { orderBy: { sequencia: 'desc' } },
+        /// O serviço que esta ordem está honrando, quando ele existe no sistema.
+        ordemOrigem: { select: { id: true, numero: true, garantiaAte: true } },
         fotos: { orderBy: { criadoEm: 'asc' } },
         assinaturas: true,
         documentos: { orderBy: { geradoEm: 'desc' } },
