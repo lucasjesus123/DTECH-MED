@@ -1014,6 +1014,29 @@
   text-transform: uppercase;
   color: var(--txt-3);
 }
+/* ----- Assinatura -------------------------------------------------------
+   O traço é PNG com fundo transparente, o que resolve os dois temas de uma
+   vez — mas transparente sobre escuro some, porque a caneta é preta. A faixa
+   branca por baixo é o que faz a assinatura ser legível nos dois, e é também
+   o que ela parece no papel. */
+.assinatura {
+  margin-bottom: var(--s4);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--linha);
+}
+.assinatura:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.assinaturaTraco {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin-bottom: var(--s3);
+  padding: var(--s2) var(--s3);
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-sm, 6px);
+}
+
 .parVal {
   font-size: var(--t-sm);
   color: var(--txt);
@@ -1761,6 +1784,14 @@
   gap: var(--s2);
   align-content: start;
   padding: var(--s4);
+  /* Virou <button>: sem isto ele herda a fonte e o alinhamento do agente do
+     usuário, e o cartão inteiro sai centralizado em Arial. */
+  position: relative;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
@@ -1780,6 +1811,210 @@
 .cartaoAcomp:focus-visible {
   outline: 2px solid var(--vio-claro);
   outline-offset: 2px;
+}
+
+/* O selo de quem está esperando a rua. Fica no canto do cartão porque é o que
+   faz a pessoa abrir ESTE, e não percorrer os sessenta. */
+.acompDespachar {
+  position: absolute;
+  top: var(--s4);
+  right: var(--s4);
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--vio-veu-2);
+  border: 1px solid var(--vio-borda);
+  color: var(--vio-claro);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   A TELINHA — a janela que abre por cima da lista
+   --------------------------------------------------------------------------
+   Ela é grande de propósito: o que se olha aqui é linha do tempo, valores,
+   fotos e assinaturas ao mesmo tempo, e espremer isso num cartão de 400px
+   obrigaria a rolar para comparar duas coisas que precisam ser vistas juntas.
+   ========================================================================== */
+.telaFundo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--s5);
+  /* O escuro por trás não é enfeite: é o que diz que a lista continua ali e
+     que isto é temporário. */
+  background: color-mix(in oklab, var(--preto, #08040F) 72%, transparent);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+.telaCaixa {
+  width: min(980px, 100%);
+  max-height: 90vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bg-1);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  box-shadow: 0 24px 70px -20px rgb(0 0 0 / 0.55);
+  overflow: hidden;
+}
+.telaCaixa:focus { outline: none; }
+
+.telaTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s5);
+  border-bottom: 1px solid var(--linha);
+}
+.telaTitulo {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 2px 0;
+}
+.telaFechar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--borda);
+  background: transparent;
+  color: var(--txt-2);
+  font-size: 15px;
+  cursor: pointer;
+}
+.telaFechar:hover { border-color: var(--vio); color: var(--txt); }
+
+.telaCorpo {
+  padding: var(--s5);
+  overflow-y: auto;
+  display: grid;
+  gap: var(--s4);
+}
+.telaSelos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+.telaBloco {
+  padding: var(--s4);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--carta);
+}
+.telaDuas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+}
+.telaFio {
+  height: 5px;
+  border-radius: 99px;
+  background: var(--borda-viva);
+  overflow: hidden;
+  margin: var(--s3) 0;
+}
+.telaFases {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.telaFase,
+.telaFaseAgora {
+  display: grid;
+  gap: 1px;
+  padding: var(--s3);
+  border-radius: var(--r-sm, 6px);
+  border: 1px solid var(--borda);
+  font-size: var(--t-xs);
+}
+.telaFaseAgora {
+  border-color: var(--vio);
+  background: var(--vio-veu-2);
+  box-shadow: 0 0 var(--neon-raio) -8px var(--neon-veu);
+}
+.telaValor {
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.telaAberto { color: var(--alerta); font-size: var(--t-xs); font-weight: 600; }
+.telaItens {
+  list-style: none;
+  padding: 0;
+  margin: var(--s3) 0 0;
+  display: grid;
+  gap: 4px;
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+}
+.telaItens li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding-top: 4px;
+  border-top: 1px solid var(--linha);
+}
+.telaAssinaturas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--s4);
+}
+.telaFotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--s2);
+}
+.telaFotos img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--r-sm, 6px);
+  border: 1px solid var(--borda);
+  display: block;
+}
+.telaPe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  padding: var(--s5);
+  border-top: 1px solid var(--linha);
+  background: var(--carta);
+}
+
+.despachoForm {
+  display: grid;
+  gap: var(--s3);
+  width: 100%;
+  padding: var(--s4);
+  border: 1px solid var(--vio-borda);
+  border-radius: var(--r-lg);
+  background: var(--vio-veu-2);
+}
+.despachoLinha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s3);
+}
+
+@media (max-width: 780px) {
+  .telaDuas { grid-template-columns: 1fr; }
+  .telaFases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .telaFundo { padding: 0; }
+  .telaCaixa { max-height: 100vh; height: 100vh; border-radius: 0; border: 0; }
 }
 
 .acompTopo {

@@ -447,11 +447,27 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           {o.assinaturas.length > 0 ? (
             <div className={estilo.bloco}>
               <p className={estilo.blocoTitulo}>Assinaturas</p>
+              {/* O TRAÇO, e não só o nome de quem assinou.
+                  A assinatura era coletada, guardada com hash e coordenada, e
+                  nunca aparecia: o painel mostrava o nome e a data, e o rabisco
+                  só existia dentro do PDF. Isso esvazia a prova exatamente onde
+                  ela é usada — "o cliente diz que não recebeu" se resolve
+                  mostrando o traço, o nome e o documento na tela, com a pessoa
+                  ao telefone. */}
               {o.assinaturas.map((s) => (
-                <div key={s.id} style={{ marginBottom: 'var(--s3)' }}>
+                <div key={s.id} className={estilo.assinatura}>
+                  <img
+                    className={estilo.assinaturaTraco}
+                    src={`/api/assinatura/${s.id}`}
+                    alt={`Assinatura de ${s.assinanteNome}`}
+                    loading="lazy"
+                  />
                   <p className={estilo.parVal}>
                     <strong>{rotuloAssinatura(s.tipo)}</strong> — {s.assinanteNome}
                   </p>
+                  {s.assinanteDocumento ? (
+                    <p className={estilo.fraco}>CPF {s.assinanteDocumento}</p>
+                  ) : null}
                   <p className={estilo.fraco}>
                     {dataHora(s.criadoEm)}
                     {s.latitude != null ? ` · ${s.latitude.toFixed(5)}, ${s.longitude?.toFixed(5)}` : ' · sem coordenada'}

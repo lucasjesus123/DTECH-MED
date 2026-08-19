@@ -1,10 +1,9 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel } from '@/server/auth/guarda'
-import { ordensNaCasa } from '@/server/consultas/listas'
+import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
 import { montarTrilha } from '@/server/ordem/trilha'
-import { formatarBRL } from '@/lib/dinheiro'
+import { Cartoes, type CartaoOrdem } from './cartoes'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Acompanhar', robots: { index: false } }
@@ -50,7 +49,7 @@ export default async function Acompanhar({
     Papel.FINANCEIRO,
   )
   const { q } = await searchParams
-  const ordens = await ordensNaCasa(ctx, q)
+  const [ordens, motoristas] = await Promise.all([ordensNaCasa(ctx, q), motoristasDaEmpresa(ctx)])
 
   const agora = new Date()
   const atrasadas = ordens.filter((o) => o.prazoPrometido && o.prazoPrometido < agora).length
@@ -114,67 +113,43 @@ export default async function Acompanhar({
             : 'Nenhum equipamento na casa agora. Quando uma ordem for aberta, ela aparece aqui.'}
         </p>
       ) : (
-        <div className={estilo.gradeAcompanhar}>
-          {ordens.map((o) => {
-            const trilha = montarTrilha(
-              o.etapa,
-              o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
-            )
-            const atrasada = !!o.prazoPrometido && o.prazoPrometido < agora
-            const orc = o.orcamentos[0]
-            const valor = o.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? null
-            const emAberto = o.fatura
-              ? o.fatura.valorTotalCentavos - o.fatura.valorPagoCentavos
-              : null
-
-            return (
-              <Link key={o.id} href={`/painel/ordens/${o.id}`} className={estilo.cartaoAcomp}>
-                <div className={estilo.acompTopo}>
-                  <span className={estilo.cardOs}>#{String(o.numero).padStart(4, '0')}</span>
-                  <span className={atrasada ? `${estilo.tag} ${estilo.tagAlerta}` : `${estilo.tag} ${estilo.tagNeutra}`}>
-                    {atrasada ? 'passou do prazo' : trilha.agora}
-                  </span>
-                </div>
-
-                <p className={estilo.acompCliente}>{o.cliente.nome}</p>
-                <p className={estilo.acompEq}>
-                  {o.equipamento.marca} {o.equipamento.modelo}
-                  {o.equipamento.numeroSerie ? ` · ${o.equipamento.numeroSerie}` : ''}
-                </p>
-
-                {/* A régua curta. É o motivo desta tela existir. */}
-                <div className={estilo.trilhaMini}>
-                  <div className={estilo.trilhaMiniFio}>
-                    <span
-                      className={trilha.desvio ? estilo.trilhaMiniParado : estilo.trilhaMiniCheio}
-                      style={{ width: `${trilha.porcento}%` }}
-                    />
-                  </div>
-                  <div className={estilo.trilhaMiniTxt}>
-                    <span>{trilha.agora}</span>
-                    <span>
-                      {trilha.cumpridos}/{trilha.total}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={estilo.acompPe}>
-                  <span>
-                    {valor != null ? formatarBRL(valor) : 'sem orçamento ainda'}
-                    {emAberto != null && emAberto > 0 ? (
-                      <span className={estilo.acompAberto}> · {formatarBRL(emAberto)} em aberto</span>
-                    ) : null}
-                  </span>
-                  <span className={estilo.acompProva}>
-                    {o._count.fotos} foto{o._count.fotos === 1 ? '' : 's'} ·{' '}
-                    {o._count.assinaturas} assinatura{o._count.assinaturas === 1 ? '' : 's'}
-                  </span>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
+        <Cartoes ordens={ordens.map(paraCartao)} motoristas={motoristas.map((m) => ({ id: m.id, nome: m.nome }))} />
       )}
     </>
   )
+
+  /**
+   * O cartão, reduzido ao que ele mostra.
+   *
+   * A lista roda no SERVIDOR e entrega ao componente de cliente só o que
+   * aparece no cartão — nem o token do portal, nem o WhatsApp do cliente, nem
+   * os itens do orçamento. O dossiê completo vem depois, no clique, e passa
+   * pelo guarda de papel de novo.
+   */
+  function paraCartao(o: (typeof ordens)[number]): CartaoOrdem {
+    const trilha = montarTrilha(
+      o.etapa,
+      o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
+    )
+    const orc = o.orcamentos[0]
+    return {
+      id: o.id,
+      numero: o.numero,
+      cliente: o.cliente.nome,
+      equipamento:
+        `${o.equipamento.marca} ${o.equipamento.modelo}` +
+        (o.equipamento.numeroSerie ? ` · ${o.equipamento.numeroSerie}` : ''),
+      atrasada: !!o.prazoPrometido && o.prazoPrometido < agora,
+      agora: trilha.agora,
+      porcento: trilha.porcento,
+      desvio: !!trilha.desvio,
+      cumpridos: trilha.cumpridos,
+      total: trilha.total,
+      valorCentavos: o.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? null,
+      emAbertoCentavos: o.fatura ? o.fatura.valorTotalCentavos - o.fatura.valorPagoCentavos : null,
+      fotos: o._count.fotos,
+      assinaturas: o._count.assinaturas,
+      podeDespachar: o.etapa === 'ORDEM_RETIRADA_GERADA' || o.etapa === 'FATURADO',
+    }
+  }
 }
