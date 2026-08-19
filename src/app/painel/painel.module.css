@@ -1433,3 +1433,299 @@
   .pulso::before,
   .pulso::after { animation: none; opacity: 0; }
 }
+
+/* ==========================================================================
+   A TRILHA — onde o equipamento está, numa linha
+   --------------------------------------------------------------------------
+   A ficha já tinha a linha do tempo, que responde "o que aconteceu". Esta peça
+   responde outra pergunta, a que se faz cem vezes por dia com o cliente no
+   telefone: ONDE ESTÁ O APARELHO DELE.
+
+   Uma lista obriga a ler. Uma linha se olha. Por isso o ponto de agora é a
+   única coisa grande aqui — o resto é contexto, e contexto que compete com a
+   resposta atrapalha.
+   ========================================================================== */
+.trilha {
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  padding: var(--s5);
+  margin-bottom: var(--s5);
+  display: grid;
+  gap: var(--s4);
+}
+
+.trilhaTopo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+.trilhaAgora { display: grid; gap: 3px; min-width: 0; }
+.trilhaAgora strong {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: var(--txt);
+}
+/* Fora do caminho normal a etapa vira alerta: cancelada, recusada, devolvida. */
+.trilhaDesvio { color: var(--alerta); }
+.trilhaConta {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   A pista.
+
+   `overflow-x: auto` no celular: dezoito nós não cabem em 390px, e espremer
+   até caber transformaria os alvos em pontos de agulha. Melhor arrastar — e a
+   fase atual é trazida para a vista sozinha, porque o nó de agora tem
+   `scroll-margin`.
+   -------------------------------------------------------------------------- */
+.trilhaPista {
+  position: relative;
+  overflow-x: auto;
+  padding: var(--s4) 2px var(--s2);
+  scrollbar-width: thin;
+}
+
+.trilhaFio {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--s4) + 11px);
+  height: 3px;
+  border-radius: 99px;
+  background: var(--borda-viva);
+  min-width: 620px;
+}
+.trilhaFioCheio,
+.trilhaFioParado {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  transition: width 420ms var(--ease);
+}
+.trilhaFioCheio {
+  background: linear-gradient(to right, var(--vio-forte), var(--vio));
+  box-shadow: 0 0 12px -2px var(--neon-veu);
+}
+.trilhaFioParado { background: var(--alerta); }
+
+.trilhaFases {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5fr 4fr 4fr 5fr; /* proporcional ao nº de etapas */
+  gap: var(--s4);
+  min-width: 620px;
+}
+.trilhaFase { display: grid; gap: 2px; min-width: 0; }
+.trilhaNos {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: var(--s3);
+}
+.trilhaNoCaixa { position: relative; display: block; line-height: 0; }
+
+.trilhaNoFeito,
+.trilhaNoAdiante,
+.trilhaNoAgora {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  transition: transform 200ms var(--ease);
+}
+.trilhaNoFeito,
+.trilhaNoAdiante { width: 22px; height: 22px; }
+
+.trilhaNoFeito {
+  background: var(--vio);
+  border: 1px solid var(--vio-forte);
+  color: var(--sobre-vio);
+}
+.trilhaNoAdiante {
+  background: var(--sup);
+  border: 1px solid var(--borda-viva);
+  color: var(--txt-3);
+}
+/* O único elemento grande da peça. É ele a resposta. */
+.trilhaNoAgora {
+  width: 30px;
+  height: 30px;
+  margin: -4px 0;
+  background: var(--vio-forte);
+  border: 2px solid var(--vio-claro);
+  color: var(--sobre-vio);
+  box-shadow: 0 0 0 4px var(--vio-veu-2), 0 0 20px -2px var(--neon-veu);
+  scroll-margin-inline: 120px;
+}
+.trilhaNoFeito:hover,
+.trilhaNoAdiante:hover,
+.trilhaNoAgora:hover { transform: scale(1.12); }
+
+.trilhaNum { font-size: 9.5px; font-weight: 600; line-height: 1; }
+.trilhaNoAgora .trilhaNum { font-size: 12px; font-weight: 700; }
+
+.trilhaFaseNome {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-2);
+  letter-spacing: 0.02em;
+}
+.trilhaFaseQuem {
+  font-size: 10.5px;
+  color: var(--txt-3);
+  line-height: 1.3;
+}
+
+.trilhaRodape {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  line-height: 1.45;
+}
+.trilhaRodape strong { color: var(--txt); font-weight: 600; }
+
+/* Para leitor de tela: a régua é visual, e sem isto ela não existe para quem
+   não a enxerga. Cada nó carrega o próprio nome, data e autor. */
+.soLeitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   A VERSÃO CURTA — para a lista de ordens
+   --------------------------------------------------------------------------
+   Numa lista de trinta ordens não cabe régua nenhuma, mas cabe uma barra. Ela
+   responde "quanto falta" de relance, e o número ao lado responde "onde".
+   -------------------------------------------------------------------------- */
+.trilhaMini {
+  display: grid;
+  gap: 4px;
+  margin-top: var(--s3);
+}
+.trilhaMiniFio {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--borda-viva);
+  overflow: hidden;
+}
+.trilhaMiniCheio {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--vio-forte), var(--vio));
+}
+.trilhaMiniParado { display: block; height: 100%; background: var(--alerta); }
+.trilhaMiniTxt {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--txt-3);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trilhaFioCheio,
+  .trilhaFioParado { transition: none; }
+  .trilhaNoFeito:hover,
+  .trilhaNoAdiante:hover,
+  .trilhaNoAgora:hover { transform: none; }
+}
+
+/* ==========================================================================
+   ACOMPANHAR — a grade de cartões
+   --------------------------------------------------------------------------
+   Cartão e não tabela: aqui não se compara linha por coluna, procura-se UM
+   cliente e lê-se o estado dele. O cartão junta nome, aparelho, régua e valor
+   num bloco que o olho pega inteiro.
+   ========================================================================== */
+.gradeAcompanhar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr));
+  gap: var(--s4);
+}
+
+.cartaoAcomp {
+  display: grid;
+  gap: var(--s2);
+  align-content: start;
+  padding: var(--s4);
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 200ms var(--ease),
+    transform 200ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+.cartaoAcomp:hover {
+  border-color: var(--neon);
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-2), 0 0 var(--neon-raio) -6px var(--neon-veu);
+}
+.cartaoAcomp:focus-visible {
+  outline: 2px solid var(--vio-claro);
+  outline-offset: 2px;
+}
+
+.acompTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.acompCliente {
+  font-size: var(--t-base);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--txt);
+  margin-top: 2px;
+  /* Nome de cliente é texto de terceiro: cabe qualquer coisa. */
+  overflow-wrap: anywhere;
+}
+.acompEq {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  line-height: 1.35;
+}
+.acompPe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-top: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--txt-2);
+  font-variant-numeric: tabular-nums;
+}
+.acompAberto { color: var(--alerta); }
+.acompProva { color: var(--txt-3); }

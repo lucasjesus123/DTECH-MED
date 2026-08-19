@@ -69,6 +69,7 @@ export default async function LayoutPainel({ children }: { children: React.React
       titulo: 'A esteira',
       itens: [
         { href: '/painel', rotulo: 'Painel do dia', icone: 'mostrador' },
+        { href: '/painel/acompanhar', rotulo: 'Acompanhar', icone: 'trilha' },
         { href: '/painel/ordens', rotulo: 'Ordens', icone: 'ordens' },
         { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
       ],

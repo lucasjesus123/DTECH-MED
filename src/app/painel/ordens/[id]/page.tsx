@@ -15,6 +15,8 @@ import Responsavel from './responsavel'
 import Orcamento from './orcamento'
 import estilo from '../../painel.module.css'
 import { diaLocal } from '@/lib/datas'
+import { montarTrilha } from '@/server/ordem/trilha'
+import { TrilhaDoEquipamento } from './trilha'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -58,6 +60,14 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
     return acc
   }, {})
 
+  /* A trilha lê a etapa atual e os eventos: onde a peça está, e quando ela
+     passou por cada ponto. O cálculo mora em `@/server/ordem/trilha` porque a
+     mesma régua aparece no portal do cliente. */
+  const trilha = montarTrilha(
+    o.etapa,
+    o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
+  )
+
   return (
     <>
       <div className={estilo.cab}>
@@ -87,6 +97,12 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           ) : null}
         </div>
       </div>
+
+      {/* --- A TRILHA, largura inteira, antes de tudo -------------------
+          A primeira pergunta de quem abre uma ficha é sempre a mesma: onde
+          está o aparelho. Ela vem antes das ações porque responder é mais
+          rápido que decidir. */}
+      <TrilhaDoEquipamento trilha={trilha} />
 
       <div className={estilo.duasColunas}>
         {/* ===== Coluna principal ========================================== */}

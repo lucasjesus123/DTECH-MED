@@ -113,8 +113,19 @@ const Site = () => (
   </svg>
 )
 
+/** Acompanhar: a régua com o ponto de onde está. */
+const Trilha = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
+    <path d="M3 12h18" />
+    <circle cx="7" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="12" r="3" />
+    <circle cx="17.5" cy="12" r="1.6" />
+  </svg>
+)
+
 const ICONES = {
   mostrador: Mostrador,
+  trilha: Trilha,
   ordens: Ordens,
   rota: Rota,
   clientes: Clientes,

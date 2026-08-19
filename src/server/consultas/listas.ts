@@ -678,3 +678,69 @@ export async function listarUsuarios(ctx: ContextoAcesso, tenantId?: string) {
     }),
   )
 }
+
+// ---------------------------------------------------------------------------
+// Acompanhamento ao vivo
+// ---------------------------------------------------------------------------
+
+/**
+ * Toda ordem que está DENTRO da empresa agora, com o que a trilha precisa.
+ *
+ * "Dentro da empresa" é tudo que já entrou e ainda não fechou: da solicitação
+ * recebida até a entrega, sem as encerradas e sem os ramos que saíram do
+ * caminho. É a lista que responde "quantos aparelhos eu tenho aqui hoje" —
+ * pergunta que ninguém conseguia responder sem abrir ordem por ordem.
+ *
+ * Traz os EVENTOS junto porque a trilha se monta a partir deles: sem isso a
+ * tela teria de fazer uma consulta por cartão, e uma lista de trinta ordens
+ * viraria trinta e uma idas ao banco.
+ */
+export async function ordensNaCasa(ctx: ContextoAcesso, busca?: string) {
+  const termo = busca?.trim()
+  return comEscopo(ctx, (tx) =>
+    tx.ordem.findMany({
+      where: {
+        etapa: {
+          notIn: [
+            EtapaOrdem.FINALIZADO,
+            EtapaOrdem.CANCELADO,
+            EtapaOrdem.DEVOLVIDO_SEM_REPARO,
+            EtapaOrdem.ORCAMENTO_REPROVADO,
+          ],
+        },
+        ...(termo
+          ? {
+              OR: [
+                { cliente: { nome: { contains: termo, mode: 'insensitive' as const } } },
+                { equipamento: { marca: { contains: termo, mode: 'insensitive' as const } } },
+                { equipamento: { modelo: { contains: termo, mode: 'insensitive' as const } } },
+                ...(Number.isFinite(Number(termo)) && termo !== '' ? [{ numero: Number(termo) }] : []),
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ prazoPrometido: 'asc' }, { atualizadoEm: 'desc' }],
+      take: 60,
+      select: {
+        id: true,
+        numero: true,
+        etapa: true,
+        prazoPrometido: true,
+        atualizadoEm: true,
+        tokenPublico: true,
+        cliente: { select: { nome: true, whatsapp: true, cidade: true, uf: true } },
+        equipamento: { select: { marca: true, modelo: true, numeroSerie: true } },
+        tecnico: { select: { nome: true } },
+        eventos: { select: { etapaNova: true, criadoEm: true, autorNome: true } },
+        fatura: { select: { valorTotalCentavos: true, valorPagoCentavos: true, status: true } },
+        orcamentos: {
+          where: { status: { in: ['ENVIADO', 'APROVADO'] } },
+          orderBy: { versao: 'desc' },
+          take: 1,
+          select: { totalCentavos: true, status: true },
+        },
+        _count: { select: { fotos: true, assinaturas: true } },
+      },
+    }),
+  )
+}

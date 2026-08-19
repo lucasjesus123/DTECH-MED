@@ -8,6 +8,7 @@ import { Aprovacao } from './aprovacao'
 import estilo from './portal.module.css'
 import { Credito } from '@/app/credito'
 import { Simbolo } from '@/app/marca'
+import { montarTrilha } from '@/server/ordem/trilha'
 
 export const metadata: Metadata = {
   title: 'Acompanhe seu equipamento',
@@ -24,6 +25,15 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
   const orcamento = ordem.orcamentos[0]
   const aguardandoResposta = ordem.etapa === EtapaOrdem.ORCAMENTO_ENVIADO && !!orcamento
   const equipamento = `${ordem.equipamento.marca} ${ordem.equipamento.modelo}`.trim()
+
+  /* A MESMA função que o painel usa. Se cada lado calculasse por conta, um dia
+     eles discordariam — e a que estaria errada seria a do cliente, que é a
+     única que ele vê. Os eventos aqui já vêm filtrados por `visivelCliente`;
+     a régua marca o ponto pelo que ele tem direito de saber. */
+  const trilha = montarTrilha(
+    ordem.etapa,
+    ordem.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
+  )
 
   return (
     <main className={estilo.palco}>
@@ -49,6 +59,43 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
             <span className={estilo.gravClara}>Situação agora</span>
             <strong>{ROTULO_ETAPA[ordem.etapa]}</strong>
           </div>
+        </div>
+
+        {/* A régua: quanto falta para o aparelho voltar. É a primeira coisa
+            que o cliente procura, e antes ela não existia — ele tinha de
+            deduzir isso lendo a lista de eventos. */}
+        <div className={estilo.trilhaCliente} aria-label={`Andamento: ${trilha.agora}`}>
+          <div className={estilo.trilhaFio}>
+            <span
+              className={trilha.desvio ? estilo.trilhaParado : estilo.trilhaCheio}
+              style={{ width: `${trilha.porcento}%` }}
+            />
+          </div>
+          <div className={estilo.trilhaFases}>
+            {trilha.fases.map((f) => {
+              const temAgora = f.nos.some((n) => n.estado === 'agora')
+              const toda = f.nos.every((n) => n.estado === 'cumprido')
+              return (
+                <span
+                  key={f.nome}
+                  className={[
+                    estilo.trilhaFaseNome,
+                    toda ? estilo.trilhaFaseFeita : '',
+                    temAgora && !trilha.desvio ? estilo.trilhaFaseAgora : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {f.nome}
+                </span>
+              )
+            })}
+          </div>
+          <p className={estilo.trilhaConta}>
+            {trilha.desvio
+              ? 'esta ordem saiu do caminho normal'
+              : `etapa ${trilha.cumpridos} de ${trilha.total}`}
+          </p>
         </div>
 
         {/* ---- Aprovação do orçamento ---- */}

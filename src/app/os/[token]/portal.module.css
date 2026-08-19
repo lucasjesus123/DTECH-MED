@@ -173,3 +173,60 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* ==========================================================================
+   A TRILHA DO CLIENTE
+   --------------------------------------------------------------------------
+   O cliente não quer ler a linha do tempo: ele quer ver quanto falta. É a
+   mesma pergunta do rastreio de encomenda, e merece a mesma resposta — uma
+   barra, um número e o nome do ponto.
+
+   Aqui ela é MAIS SIMPLES que a do painel de propósito. Dezoito nós numerados
+   fazem sentido para quem trabalha na esteira; para quem só quer o aparelho de
+   volta, viram ruído. Quatro fases e uma barra bastam.
+   ========================================================================== */
+.trilhaCliente {
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 26px;
+}
+.trilhaFio {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(139, 92, 246, .18);
+  overflow: hidden;
+}
+.trilhaCheio {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(to right, #6D28D9, #8B5CF6);
+  transition: width 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.trilhaParado { display: block; height: 100%; background: #FB7185; }
+.trilhaFases {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.trilhaFaseNome {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  line-height: 1.25;
+  color: rgba(244, 240, 251, .42);
+  text-align: center;
+}
+.trilhaFaseFeita { color: #A78BFA; }
+.trilhaFaseAgora { color: #F4F0FB; }
+.trilhaConta {
+  font-family: var(--f-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: rgba(244, 240, 251, .5);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trilhaCheio { transition: none; }
+}
