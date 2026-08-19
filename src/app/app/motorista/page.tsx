@@ -4,6 +4,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao } from '@/server/auth/guarda'
 import { rotaDoDia } from '@/server/consultas/campo'
 import { Saida } from './saida'
+import { Rastro } from './rastro'
 import estilo from '../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -82,6 +83,11 @@ export default async function Motorista() {
                           esquecer não fica travado: a coleta registra o trecho
                           sozinha, na hora de assinar. */}
                       {!p.emRota ? <Saida ordemId={p.ordemId} tipo={p.tipo} /> : null}
+                      {/* O rastro só existe DEPOIS da saída, e some quando a
+                          parada é concluída. Fora da rota o servidor recusa de
+                          qualquer jeito — aqui a tela só não oferece o que ia
+                          falhar. */}
+                      {p.emRota ? <Rastro agendamentoId={p.id} /> : null}
                       <Link href={`/app/motorista/${p.ordemId}`} className={estilo.btnGrande}>
                         Cheguei · coletar assinatura
                       </Link>

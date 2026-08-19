@@ -54,7 +54,23 @@ type OrcamentoView = {
   }>
 }
 
-const PODE_MONTAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO]
+/**
+ * Montar e ENVIAR são coisas diferentes, e é essa diferença que segura o preço.
+ *
+ * A atendente monta — é ela quem fala com o cliente e o processo da casa diz
+ * que a secretaria gera o orçamento. Mas quem libera o número para o cliente
+ * continua sendo a gestão, aqui e na máquina de estados do servidor.
+ *
+ * Esta lista é só para a tela não oferecer o que ia falhar. Quem decide de
+ * verdade é o guarda no servidor, em `@/server/acoes/orcamento`.
+ */
+const PODE_MONTAR: Papel[] = [
+  Papel.SUPER_ADMIN,
+  Papel.ADMIN_EMPRESA,
+  Papel.GESTOR,
+  Papel.TECNICO,
+  Papel.ATENDENTE,
+]
 const PODE_ENVIAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
 
 export default function Orcamento({

@@ -291,6 +291,7 @@ model Tenant {
 
   @@index([ativo])
   @@map("tenants")
+  posicoesRota PosicaoRota[]
 }
 
 /// Usuário do sistema. `tenantId` nulo apenas para SUPER_ADMIN.
@@ -1093,6 +1094,8 @@ model Agendamento {
   @@index([tenantId, motoristaId, previstoPara])
   @@index([tenantId, status, previstoPara])
   @@index([tenantId, ordemId, tipo])
+  posicoes PosicaoRota[]
+
   @@map("agendamentos")
 }
 
@@ -1365,4 +1368,54 @@ model ConteudoSiteVersao {
 
   @@index([siteId, versao])
   @@map("conteudo_site_versoes")
+}
+
+
+/// A posição do motorista DURANTE a rota.
+///
+/// -----------------------------------------------------------------------------
+/// POR QUE SÓ DURANTE A ROTA
+/// -----------------------------------------------------------------------------
+/// A pergunta que a central precisa responder é "onde está o aparelho do cliente
+/// agora" — e ela só existe entre o motorista sair e chegar. Fora disso, guardar
+/// a localização de alguém deixa de ser logística e vira monitoramento de
+/// funcionário: outra finalidade, outra base legal, outra conversa.
+///
+/// Por isso a linha se pendura no AGENDAMENTO, e não no usuário. Sem parada em
+/// rota, não há onde gravar — a trava é a forma da tabela, não uma regra que
+/// alguém precisa lembrar de aplicar.
+///
+/// -----------------------------------------------------------------------------
+/// POR QUE NÃO É PROVA, E POR ISSO PODE SUMIR
+/// -----------------------------------------------------------------------------
+/// A prova da entrega é a assinatura, com a coordenada dela — essa fica para
+/// sempre. Isto aqui é o rastro do caminho, que serve enquanto o caminho está
+/// acontecendo. Guardar meses de deslocamento minuto a minuto seria acumular
+/// risco sem ganhar nada: `scripts/limpar-rastros.mts` apaga o que passou.
+model PosicaoRota {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  agendamentoId String
+  agendamento   Agendamento @relation(fields: [agendamentoId], references: [id], onDelete: Cascade)
+
+  /// Quem estava dirigindo. Fica desnormalizado para a tela não precisar de
+  /// mais um salto, e porque o motorista da parada pode ser trocado depois.
+  motoristaId   String
+  motoristaNome String
+
+  latitude  Float
+  longitude Float
+  /// Raio de erro em metros, como o aparelho informou. Uma posição de 2 km de
+  /// precisão não é uma posição — a tela precisa saber para não mentir.
+  precisaoM Float?
+  /// Velocidade em m/s, quando o aparelho informa. Distingue parado de andando.
+  velocidade Float?
+
+  criadoEm DateTime @default(now())
+
+  @@index([tenantId, agendamentoId, criadoEm])
+  @@index([tenantId, criadoEm])
+  @@map("posicoes_rota")
 }

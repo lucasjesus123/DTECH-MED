@@ -211,3 +211,28 @@ export type ConteudoSite = Prisma.ConteudoSiteModel
  * escolher uma linha e apertar um botão.
  */
 export type ConteudoSiteVersao = Prisma.ConteudoSiteVersaoModel
+/**
+ * Model PosicaoRota
+ * A posição do motorista DURANTE a rota.
+ * 
+ * -----------------------------------------------------------------------------
+ * POR QUE SÓ DURANTE A ROTA
+ * -----------------------------------------------------------------------------
+ * A pergunta que a central precisa responder é "onde está o aparelho do cliente
+ * agora" — e ela só existe entre o motorista sair e chegar. Fora disso, guardar
+ * a localização de alguém deixa de ser logística e vira monitoramento de
+ * funcionário: outra finalidade, outra base legal, outra conversa.
+ * 
+ * Por isso a linha se pendura no AGENDAMENTO, e não no usuário. Sem parada em
+ * rota, não há onde gravar — a trava é a forma da tabela, não uma regra que
+ * alguém precisa lembrar de aplicar.
+ * 
+ * -----------------------------------------------------------------------------
+ * POR QUE NÃO É PROVA, E POR ISSO PODE SUMIR
+ * -----------------------------------------------------------------------------
+ * A prova da entrega é a assinatura, com a coordenada dela — essa fica para
+ * sempre. Isto aqui é o rastro do caminho, que serve enquanto o caminho está
+ * acontecendo. Guardar meses de deslocamento minuto a minuto seria acumular
+ * risco sem ganhar nada: `scripts/limpar-rastros.mts` apaga o que passou.
+ */
+export type PosicaoRota = Prisma.PosicaoRotaModel

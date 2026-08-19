@@ -425,7 +425,8 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
-  ConteudoSiteVersao: 'ConteudoSiteVersao'
+  ConteudoSiteVersao: 'ConteudoSiteVersao',
+  PosicaoRota: 'PosicaoRota'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -441,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2591,6 +2592,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PosicaoRota: {
+      payload: Prisma.$PosicaoRotaPayload<ExtArgs>
+      fields: Prisma.PosicaoRotaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PosicaoRotaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PosicaoRotaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        findFirst: {
+          args: Prisma.PosicaoRotaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PosicaoRotaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        findMany: {
+          args: Prisma.PosicaoRotaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>[]
+        }
+        create: {
+          args: Prisma.PosicaoRotaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        createMany: {
+          args: Prisma.PosicaoRotaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PosicaoRotaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>[]
+        }
+        delete: {
+          args: Prisma.PosicaoRotaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        update: {
+          args: Prisma.PosicaoRotaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        deleteMany: {
+          args: Prisma.PosicaoRotaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PosicaoRotaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PosicaoRotaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>[]
+        }
+        upsert: {
+          args: Prisma.PosicaoRotaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PosicaoRotaPayload>
+        }
+        aggregate: {
+          args: Prisma.PosicaoRotaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePosicaoRota>
+        }
+        groupBy: {
+          args: Prisma.PosicaoRotaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PosicaoRotaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PosicaoRotaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PosicaoRotaCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3231,6 +3306,22 @@ export const ConteudoSiteVersaoScalarFieldEnum = {
 export type ConteudoSiteVersaoScalarFieldEnum = (typeof ConteudoSiteVersaoScalarFieldEnum)[keyof typeof ConteudoSiteVersaoScalarFieldEnum]
 
 
+export const PosicaoRotaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  agendamentoId: 'agendamentoId',
+  motoristaId: 'motoristaId',
+  motoristaNome: 'motoristaNome',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  precisaoM: 'precisaoM',
+  velocidade: 'velocidade',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PosicaoRotaScalarFieldEnum = (typeof PosicaoRotaScalarFieldEnum)[keyof typeof PosicaoRotaScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3835,6 +3926,7 @@ export type GlobalOmitConfig = {
   contador?: Prisma.ContadorOmit
   conteudoSite?: Prisma.ConteudoSiteOmit
   conteudoSiteVersao?: Prisma.ConteudoSiteVersaoOmit
+  posicaoRota?: Prisma.PosicaoRotaOmit
 }
 
 /* Types for Logging */

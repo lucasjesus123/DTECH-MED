@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { anexarFotos } from '@/server/acoes/ordem'
+import { comprimirFoto, emMB } from '../../comprimir'
 import estilo from '../../app.module.css'
 
 /**
@@ -32,6 +33,11 @@ import estilo from '../../app.module.css'
  *    registrou.
  *  • **Sem excluir depois de enviada.** Foto de campo é prova; apagar prova em
  *    campo é o oposto do motivo de ela existir. Se saiu errada, tira outra.
+ *  • **Reduzida no aparelho antes de subir.** Seis fotos de 5 MB são 30 MB, e
+ *    o lugar onde elas são tiradas é o pior sinal da cidade: subsolo de
+ *    clínica, sala blindada, parede de concreto. Reduzidas, os mesmos 30 MB
+ *    viram uns 2 MB. Quando falha a compressão, sobe a original — perder
+ *    velocidade aborrece, perder a foto perde a prova.
  */
 export function FotosDeCampo({
   ordemId,
@@ -45,8 +51,9 @@ export function FotosDeCampo({
   const router = useRouter()
   const entrada = useRef<HTMLInputElement>(null)
   const [enviadas, setEnviadas] = useState(jaEnviadas)
-  const [subindo, setSubindo] = useState<{ feitas: number; total: number } | null>(null)
+  const [subindo, setSubindo] = useState<{ feitas: number; total: number; passo: string } | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const [economia, setEconomia] = useState<{ antes: number; depois: number } | null>(null)
 
   const TETO = 6
   const restam = TETO - enviadas
@@ -61,13 +68,25 @@ export function FotosDeCampo({
     }
 
     const arquivos = Array.from(lista).slice(0, restam)
-    setSubindo({ feitas: 0, total: arquivos.length })
+    setSubindo({ feitas: 0, total: arquivos.length, passo: 'preparando' })
+    let antes = 0
+    let depois = 0
 
     for (const [i, arquivo] of arquivos.entries()) {
+      /* Reduz ANTES de abrir a conexão. Uma de cada vez, e não todas de uma
+         vez: comprimir seis fotos de 12 megapixels em paralelo estoura a
+         memória de celular simples, e o navegador mata a aba — que aqui
+         significa o motorista perder tudo e recomeçar. */
+      setSubindo({ feitas: i, total: arquivos.length, passo: 'preparando' })
+      const r0 = await comprimirFoto(arquivo)
+      antes += r0.antes
+      depois += r0.depois
+
+      setSubindo({ feitas: i, total: arquivos.length, passo: 'enviando' })
       const fd = new FormData()
       fd.append('ordemId', ordemId)
       fd.append('categoria', tipo)
-      fd.append('fotos', arquivo)
+      fd.append('fotos', r0.arquivo)
 
       const r = await anexarFotos(fd)
       if (!r.ok) {
@@ -77,11 +96,12 @@ export function FotosDeCampo({
         router.refresh()
         return
       }
-      setSubindo({ feitas: i + 1, total: arquivos.length })
+      setSubindo({ feitas: i + 1, total: arquivos.length, passo: 'enviando' })
     }
 
     setEnviadas((n) => n + arquivos.length)
     setSubindo(null)
+    if (depois < antes) setEconomia({ antes, depois })
     if (entrada.current) entrada.current.value = ''
     router.refresh()
   }
@@ -102,7 +122,18 @@ export function FotosDeCampo({
 
       {subindo ? (
         <p className={estilo.notaCampo} aria-live="polite">
-          Enviando {subindo.feitas} de {subindo.total}…
+          {subindo.passo === 'preparando'
+            ? `Preparando a foto ${subindo.feitas + 1} de ${subindo.total}…`
+            : `Enviando ${subindo.feitas + 1} de ${subindo.total}…`}
+        </p>
+      ) : null}
+
+      {/* O que a redução economizou. Não é vaidade: é o que explica para quem
+          está na rua por que subiu rápido, e o que se olha quando alguém diz
+          que "o app está lento hoje". */}
+      {economia ? (
+        <p className={estilo.notaCampo}>
+          Enviado {emMB(economia.depois)} no lugar de {emMB(economia.antes)}.
         </p>
       ) : null}
 

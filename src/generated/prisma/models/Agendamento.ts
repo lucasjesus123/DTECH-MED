@@ -339,6 +339,7 @@ export type AgendamentoWhereInput = {
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemScalarRelationFilter, Prisma.OrdemWhereInput>
   motorista?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  posicoes?: Prisma.PosicaoRotaListRelationFilter
 }
 
 export type AgendamentoOrderByWithRelationInput = {
@@ -365,6 +366,7 @@ export type AgendamentoOrderByWithRelationInput = {
   tenant?: Prisma.TenantOrderByWithRelationInput
   ordem?: Prisma.OrdemOrderByWithRelationInput
   motorista?: Prisma.UserOrderByWithRelationInput
+  posicoes?: Prisma.PosicaoRotaOrderByRelationAggregateInput
 }
 
 export type AgendamentoWhereUniqueInput = Prisma.AtLeast<{
@@ -394,6 +396,7 @@ export type AgendamentoWhereUniqueInput = Prisma.AtLeast<{
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemScalarRelationFilter, Prisma.OrdemWhereInput>
   motorista?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  posicoes?: Prisma.PosicaoRotaListRelationFilter
 }, "id">
 
 export type AgendamentoOrderByWithAggregationInput = {
@@ -471,6 +474,7 @@ export type AgendamentoCreateInput = {
   tenant: Prisma.TenantCreateNestedOneWithoutAgendamentosInput
   ordem: Prisma.OrdemCreateNestedOneWithoutAgendamentosInput
   motorista?: Prisma.UserCreateNestedOneWithoutAgendamentosMotoristaInput
+  posicoes?: Prisma.PosicaoRotaCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoUncheckedCreateInput = {
@@ -494,6 +498,7 @@ export type AgendamentoUncheckedCreateInput = {
   motivoFalha?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoUpdateInput = {
@@ -517,6 +522,7 @@ export type AgendamentoUpdateInput = {
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAgendamentosNestedInput
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutAgendamentosNestedInput
   motorista?: Prisma.UserUpdateOneWithoutAgendamentosMotoristaNestedInput
+  posicoes?: Prisma.PosicaoRotaUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateInput = {
@@ -540,6 +546,7 @@ export type AgendamentoUncheckedUpdateInput = {
   motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoCreateManyInput = {
@@ -695,6 +702,11 @@ export type AgendamentoSumOrderByAggregateInput = {
   posicaoRota?: Prisma.SortOrder
 }
 
+export type AgendamentoScalarRelationFilter = {
+  is?: Prisma.AgendamentoWhereInput
+  isNot?: Prisma.AgendamentoWhereInput
+}
+
 export type AgendamentoCreateNestedManyWithoutTenantInput = {
   create?: Prisma.XOR<Prisma.AgendamentoCreateWithoutTenantInput, Prisma.AgendamentoUncheckedCreateWithoutTenantInput> | Prisma.AgendamentoCreateWithoutTenantInput[] | Prisma.AgendamentoUncheckedCreateWithoutTenantInput[]
   connectOrCreate?: Prisma.AgendamentoCreateOrConnectWithoutTenantInput | Prisma.AgendamentoCreateOrConnectWithoutTenantInput[]
@@ -829,6 +841,20 @@ export type EnumStatusAgendamentoFieldUpdateOperationsInput = {
   set?: $Enums.StatusAgendamento
 }
 
+export type AgendamentoCreateNestedOneWithoutPosicoesInput = {
+  create?: Prisma.XOR<Prisma.AgendamentoCreateWithoutPosicoesInput, Prisma.AgendamentoUncheckedCreateWithoutPosicoesInput>
+  connectOrCreate?: Prisma.AgendamentoCreateOrConnectWithoutPosicoesInput
+  connect?: Prisma.AgendamentoWhereUniqueInput
+}
+
+export type AgendamentoUpdateOneRequiredWithoutPosicoesNestedInput = {
+  create?: Prisma.XOR<Prisma.AgendamentoCreateWithoutPosicoesInput, Prisma.AgendamentoUncheckedCreateWithoutPosicoesInput>
+  connectOrCreate?: Prisma.AgendamentoCreateOrConnectWithoutPosicoesInput
+  upsert?: Prisma.AgendamentoUpsertWithoutPosicoesInput
+  connect?: Prisma.AgendamentoWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AgendamentoUpdateToOneWithWhereWithoutPosicoesInput, Prisma.AgendamentoUpdateWithoutPosicoesInput>, Prisma.AgendamentoUncheckedUpdateWithoutPosicoesInput>
+}
+
 export type AgendamentoCreateWithoutTenantInput = {
   id?: string
   tipo: $Enums.TipoAgendamento
@@ -849,6 +875,7 @@ export type AgendamentoCreateWithoutTenantInput = {
   atualizadoEm?: Date | string
   ordem: Prisma.OrdemCreateNestedOneWithoutAgendamentosInput
   motorista?: Prisma.UserCreateNestedOneWithoutAgendamentosMotoristaInput
+  posicoes?: Prisma.PosicaoRotaCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoUncheckedCreateWithoutTenantInput = {
@@ -871,6 +898,7 @@ export type AgendamentoUncheckedCreateWithoutTenantInput = {
   motivoFalha?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoCreateOrConnectWithoutTenantInput = {
@@ -945,6 +973,7 @@ export type AgendamentoCreateWithoutMotoristaInput = {
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAgendamentosInput
   ordem: Prisma.OrdemCreateNestedOneWithoutAgendamentosInput
+  posicoes?: Prisma.PosicaoRotaCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoUncheckedCreateWithoutMotoristaInput = {
@@ -967,6 +996,7 @@ export type AgendamentoUncheckedCreateWithoutMotoristaInput = {
   motivoFalha?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoCreateOrConnectWithoutMotoristaInput = {
@@ -1015,6 +1045,7 @@ export type AgendamentoCreateWithoutOrdemInput = {
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAgendamentosInput
   motorista?: Prisma.UserCreateNestedOneWithoutAgendamentosMotoristaInput
+  posicoes?: Prisma.PosicaoRotaCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoUncheckedCreateWithoutOrdemInput = {
@@ -1037,6 +1068,7 @@ export type AgendamentoUncheckedCreateWithoutOrdemInput = {
   motivoFalha?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutAgendamentoInput
 }
 
 export type AgendamentoCreateOrConnectWithoutOrdemInput = {
@@ -1063,6 +1095,114 @@ export type AgendamentoUpdateWithWhereUniqueWithoutOrdemInput = {
 export type AgendamentoUpdateManyWithWhereWithoutOrdemInput = {
   where: Prisma.AgendamentoScalarWhereInput
   data: Prisma.XOR<Prisma.AgendamentoUpdateManyMutationInput, Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemInput>
+}
+
+export type AgendamentoCreateWithoutPosicoesInput = {
+  id?: string
+  tipo: $Enums.TipoAgendamento
+  status?: $Enums.StatusAgendamento
+  previstoPara: Date | string
+  janelaInicio?: Date | string | null
+  janelaFim?: Date | string | null
+  iniciadoEm?: Date | string | null
+  concluidoEm?: Date | string | null
+  enderecoSnapshot: string
+  contatoNome?: string | null
+  contatoTelefone?: string | null
+  pontoReferencia?: string | null
+  posicaoRota?: number | null
+  observacoes?: string | null
+  motivoFalha?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutAgendamentosInput
+  ordem: Prisma.OrdemCreateNestedOneWithoutAgendamentosInput
+  motorista?: Prisma.UserCreateNestedOneWithoutAgendamentosMotoristaInput
+}
+
+export type AgendamentoUncheckedCreateWithoutPosicoesInput = {
+  id?: string
+  tenantId: string
+  ordemId: string
+  tipo: $Enums.TipoAgendamento
+  status?: $Enums.StatusAgendamento
+  motoristaId?: string | null
+  previstoPara: Date | string
+  janelaInicio?: Date | string | null
+  janelaFim?: Date | string | null
+  iniciadoEm?: Date | string | null
+  concluidoEm?: Date | string | null
+  enderecoSnapshot: string
+  contatoNome?: string | null
+  contatoTelefone?: string | null
+  pontoReferencia?: string | null
+  posicaoRota?: number | null
+  observacoes?: string | null
+  motivoFalha?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+}
+
+export type AgendamentoCreateOrConnectWithoutPosicoesInput = {
+  where: Prisma.AgendamentoWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgendamentoCreateWithoutPosicoesInput, Prisma.AgendamentoUncheckedCreateWithoutPosicoesInput>
+}
+
+export type AgendamentoUpsertWithoutPosicoesInput = {
+  update: Prisma.XOR<Prisma.AgendamentoUpdateWithoutPosicoesInput, Prisma.AgendamentoUncheckedUpdateWithoutPosicoesInput>
+  create: Prisma.XOR<Prisma.AgendamentoCreateWithoutPosicoesInput, Prisma.AgendamentoUncheckedCreateWithoutPosicoesInput>
+  where?: Prisma.AgendamentoWhereInput
+}
+
+export type AgendamentoUpdateToOneWithWhereWithoutPosicoesInput = {
+  where?: Prisma.AgendamentoWhereInput
+  data: Prisma.XOR<Prisma.AgendamentoUpdateWithoutPosicoesInput, Prisma.AgendamentoUncheckedUpdateWithoutPosicoesInput>
+}
+
+export type AgendamentoUpdateWithoutPosicoesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoAgendamentoFieldUpdateOperationsInput | $Enums.TipoAgendamento
+  status?: Prisma.EnumStatusAgendamentoFieldUpdateOperationsInput | $Enums.StatusAgendamento
+  previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posicaoRota?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutAgendamentosNestedInput
+  ordem?: Prisma.OrdemUpdateOneRequiredWithoutAgendamentosNestedInput
+  motorista?: Prisma.UserUpdateOneWithoutAgendamentosMotoristaNestedInput
+}
+
+export type AgendamentoUncheckedUpdateWithoutPosicoesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoAgendamentoFieldUpdateOperationsInput | $Enums.TipoAgendamento
+  status?: Prisma.EnumStatusAgendamentoFieldUpdateOperationsInput | $Enums.StatusAgendamento
+  motoristaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posicaoRota?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AgendamentoCreateManyTenantInput = {
@@ -1107,6 +1247,7 @@ export type AgendamentoUpdateWithoutTenantInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutAgendamentosNestedInput
   motorista?: Prisma.UserUpdateOneWithoutAgendamentosMotoristaNestedInput
+  posicoes?: Prisma.PosicaoRotaUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateWithoutTenantInput = {
@@ -1129,6 +1270,7 @@ export type AgendamentoUncheckedUpdateWithoutTenantInput = {
   motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateManyWithoutTenantInput = {
@@ -1195,6 +1337,7 @@ export type AgendamentoUpdateWithoutMotoristaInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAgendamentosNestedInput
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutAgendamentosNestedInput
+  posicoes?: Prisma.PosicaoRotaUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateWithoutMotoristaInput = {
@@ -1217,6 +1360,7 @@ export type AgendamentoUncheckedUpdateWithoutMotoristaInput = {
   motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateManyWithoutMotoristaInput = {
@@ -1283,6 +1427,7 @@ export type AgendamentoUpdateWithoutOrdemInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAgendamentosNestedInput
   motorista?: Prisma.UserUpdateOneWithoutAgendamentosMotoristaNestedInput
+  posicoes?: Prisma.PosicaoRotaUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateWithoutOrdemInput = {
@@ -1305,6 +1450,7 @@ export type AgendamentoUncheckedUpdateWithoutOrdemInput = {
   motivoFalha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posicoes?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutAgendamentoNestedInput
 }
 
 export type AgendamentoUncheckedUpdateManyWithoutOrdemInput = {
@@ -1329,6 +1475,35 @@ export type AgendamentoUncheckedUpdateManyWithoutOrdemInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type AgendamentoCountOutputType
+ */
+
+export type AgendamentoCountOutputType = {
+  posicoes: number
+}
+
+export type AgendamentoCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  posicoes?: boolean | AgendamentoCountOutputTypeCountPosicoesArgs
+}
+
+/**
+ * AgendamentoCountOutputType without action
+ */
+export type AgendamentoCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgendamentoCountOutputType
+   */
+  select?: Prisma.AgendamentoCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AgendamentoCountOutputType without action
+ */
+export type AgendamentoCountOutputTypeCountPosicoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PosicaoRotaWhereInput
+}
 
 
 export type AgendamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1355,6 +1530,8 @@ export type AgendamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
   motorista?: boolean | Prisma.Agendamento$motoristaArgs<ExtArgs>
+  posicoes?: boolean | Prisma.Agendamento$posicoesArgs<ExtArgs>
+  _count?: boolean | Prisma.AgendamentoCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["agendamento"]>
 
 export type AgendamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1437,6 +1614,8 @@ export type AgendamentoInclude<ExtArgs extends runtime.Types.Extensions.Internal
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
   motorista?: boolean | Prisma.Agendamento$motoristaArgs<ExtArgs>
+  posicoes?: boolean | Prisma.Agendamento$posicoesArgs<ExtArgs>
+  _count?: boolean | Prisma.AgendamentoCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AgendamentoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1455,6 +1634,7 @@ export type $AgendamentoPayload<ExtArgs extends runtime.Types.Extensions.Interna
     tenant: Prisma.$TenantPayload<ExtArgs>
     ordem: Prisma.$OrdemPayload<ExtArgs>
     motorista: Prisma.$UserPayload<ExtArgs> | null
+    posicoes: Prisma.$PosicaoRotaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1884,6 +2064,7 @@ export interface Prisma__AgendamentoClient<T, Null = never, ExtArgs extends runt
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ordem<T extends Prisma.OrdemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdemDefaultArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   motorista<T extends Prisma.Agendamento$motoristaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Agendamento$motoristaArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  posicoes<T extends Prisma.Agendamento$posicoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Agendamento$posicoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PosicaoRotaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2350,6 +2531,30 @@ export type Agendamento$motoristaArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Agendamento.posicoes
+ */
+export type Agendamento$posicoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PosicaoRota
+   */
+  select?: Prisma.PosicaoRotaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PosicaoRota
+   */
+  omit?: Prisma.PosicaoRotaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PosicaoRotaInclude<ExtArgs> | null
+  where?: Prisma.PosicaoRotaWhereInput
+  orderBy?: Prisma.PosicaoRotaOrderByWithRelationInput | Prisma.PosicaoRotaOrderByWithRelationInput[]
+  cursor?: Prisma.PosicaoRotaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PosicaoRotaScalarFieldEnum | Prisma.PosicaoRotaScalarFieldEnum[]
 }
 
 /**

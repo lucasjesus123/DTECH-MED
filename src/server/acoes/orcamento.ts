@@ -33,7 +33,37 @@ async function atorDaSessao() {
   return { sessao, ctx: contextoDe(sessao), ator: { id: sessao.userId, nome: sessao.nome, papel: sessao.papel } }
 }
 
-const PODE_ORCAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO]
+/**
+ * Quem MONTA o orçamento.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE A ATENDENTE ENTROU NESTA LISTA
+ * ---------------------------------------------------------------------------
+ * O processo da casa diz, com todas as letras, que "a secretaria gera o
+ * orçamento no sistema". O código dizia outra coisa: só bancada e gestão. Quem
+ * ficava no meio era a pessoa que atende o cliente — ela digitava o orçamento
+ * na cabeça do técnico, por WhatsApp, e alguém copiava para cá.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISSO NÃO É AFROUXAR O CONTROLE DO PREÇO
+ * ---------------------------------------------------------------------------
+ * Montar não é ENVIAR. O orçamento montado fica em `ORCAMENTO_INTERNO`, e a
+ * passagem para `ORCAMENTO_ENVIADO` — a única que faz o número chegar ao
+ * cliente — continua exigindo GESTÃO na máquina de estados. Ou seja: a
+ * secretaria escreve, o gestor confere e libera.
+ *
+ * A trava que importa nunca foi quem digita; é quem autoriza sair. Essa não
+ * mudou, e é ela que impede um serviço de R$ 3.000 virar R$ 300 sem ninguém
+ * olhar. Os totais, aliás, continuam recalculados no servidor a partir dos
+ * itens — o número que vem da tela é ignorado, para qualquer papel.
+ */
+const PODE_ORCAR: Papel[] = [
+  Papel.SUPER_ADMIN,
+  Papel.ADMIN_EMPRESA,
+  Papel.GESTOR,
+  Papel.TECNICO,
+  Papel.ATENDENTE,
+]
 
 const item = z.object({
   tipo: z.enum(['PECA', 'SERVICO', 'DESLOCAMENTO', 'TAXA']),

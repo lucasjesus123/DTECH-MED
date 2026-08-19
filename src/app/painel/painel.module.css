@@ -2053,3 +2053,74 @@
 }
 .acompAberto { color: var(--alerta); }
 .acompProva { color: var(--txt-3); }
+
+/* ==========================================================================
+   AO VIVO — quem está na rua agora
+   ========================================================================== */
+.gradeAoVivo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--s4);
+}
+.cartaoAoVivo {
+  display: grid;
+  gap: var(--s2);
+  align-content: start;
+  padding: var(--s4);
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  min-width: 0;
+}
+.aoVivoQuem {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+  margin-top: var(--s2);
+}
+/* O pulso é o único movimento da tela, e ele significa uma coisa só: isto
+   está acontecendo agora. Se piscasse em mais lugares, deixaria de dizer. */
+.aoVivoPulso {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--sinal, #22C55E);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--sinal, #22C55E) 70%, transparent);
+  animation: pulsoAoVivo 2s ease-out infinite;
+  flex: none;
+}
+@keyframes pulsoAoVivo {
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.aoVivoMapa {
+  width: 100%;
+  height: 190px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  display: block;
+}
+.aoVivoVelha {
+  font-size: var(--t-xs);
+  color: var(--alerta);
+  font-weight: 600;
+}
+.aoVivoFicha {
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  justify-self: start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.aoVivoFicha:hover { color: var(--vio-claro); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aoVivoPulso { animation: none; }
+}

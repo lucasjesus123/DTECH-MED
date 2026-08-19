@@ -70,6 +70,7 @@ export default async function LayoutPainel({ children }: { children: React.React
       itens: [
         { href: '/painel', rotulo: 'Painel do dia', icone: 'mostrador' },
         { href: '/painel/acompanhar', rotulo: 'Acompanhar', icone: 'trilha' },
+        { href: '/painel/ao-vivo', rotulo: 'Ao vivo', icone: 'aoVivo' },
         { href: '/painel/ordens', rotulo: 'Ordens', icone: 'ordens' },
         { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
       ],

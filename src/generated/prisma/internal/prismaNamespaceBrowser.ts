@@ -79,7 +79,8 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
-  ConteudoSiteVersao: 'ConteudoSiteVersao'
+  ConteudoSiteVersao: 'ConteudoSiteVersao',
+  PosicaoRota: 'PosicaoRota'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -697,6 +698,22 @@ export const ConteudoSiteVersaoScalarFieldEnum = {
 } as const
 
 export type ConteudoSiteVersaoScalarFieldEnum = (typeof ConteudoSiteVersaoScalarFieldEnum)[keyof typeof ConteudoSiteVersaoScalarFieldEnum]
+
+
+export const PosicaoRotaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  agendamentoId: 'agendamentoId',
+  motoristaId: 'motoristaId',
+  motoristaNome: 'motoristaNome',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  precisaoM: 'precisaoM',
+  velocidade: 'velocidade',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PosicaoRotaScalarFieldEnum = (typeof PosicaoRotaScalarFieldEnum)[keyof typeof PosicaoRotaScalarFieldEnum]
 
 
 export const SortOrder = {

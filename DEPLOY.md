@@ -1012,6 +1012,42 @@ velocidade do marketing.
 
 ---
 
+## O rastro das rotas — limpar todo mês
+
+Tudo neste sistema é feito para **não** sumir: evento, assinatura, movimento de
+estoque e trilha de auditoria são prova, e o banco nem concede `DELETE` neles.
+
+A posição do motorista é a **única exceção**, e é deliberada. Ela não prova
+nada — a prova da entrega é a assinatura, com a coordenada do momento em que foi
+colhida, e essa fica para sempre. O rastro serve enquanto o caminho está
+acontecendo, para a central responder ao cliente sem ligar para quem dirige.
+
+Depois disso ele vira o histórico minuto a minuto de por onde uma **pessoa**
+andou. Guardar isso não ajuda em nada e acumula risco que só cresce.
+
+```bash
+cd /opt/gavetas/DTECHMED
+bash infra/migrador.sh npx tsx scripts/limpar-rastros.mts            # só conta
+bash infra/migrador.sh npx tsx scripts/limpar-rastros.mts --apagar   # apaga > 30 dias
+```
+
+Rode junto com a conferência do dinheiro, no fechamento do mês.
+
+**Como funciona o rastreamento, para você saber responder se perguntarem:**
+
+- O motorista **liga** tocando em *Compartilhar minha rota* no aplicativo, e o
+  botão fica visível enquanto está ligado. Ninguém é rastreado sem saber.
+- Ele **só existe durante a parada**. Fora da rota o servidor recusa a gravação
+  — a trava não está no aplicativo, está no servidor, e foi exercitada com a
+  tela ligada mandando posição.
+- É uma posição a cada 25 segundos, no máximo.
+- A tela **Ao vivo** (menu → A esteira) mostra quem está na rua, com o mapa e
+  **há quanto tempo** aquela posição chegou. Passando de 10 minutos ela avisa
+  que o rastro parou — um ponto no mapa parece o agora, e responder ao cliente
+  com uma posição de 20 minutos atrás é errar com confiança.
+
+---
+
 ## Conferir o dinheiro, todo fechamento de mês
 
 Seis perguntas cuja resposta certa é sempre **zero**. Somente leitura — nenhuma linha é alterada.

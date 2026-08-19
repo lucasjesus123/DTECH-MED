@@ -241,3 +241,57 @@
   color: var(--alerta);
   line-height: 1.45;
 }
+/* ==========================================================================
+   O RASTRO — compartilhar a rota, na mão de quem dirige
+   --------------------------------------------------------------------------
+   Botão grande e estado à vista: ninguém pode ser rastreado sem saber, e
+   desligar tem que ser tão fácil quanto ligar.
+   ========================================================================== */
+.rastro {
+  display: grid;
+  gap: var(--s2, 8px);
+  margin-top: var(--s3, 12px);
+}
+.rastroBtn,
+.rastroLigado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 var(--s4, 16px);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--borda, #2A2340);
+  background: transparent;
+  color: var(--txt, #EDE9F7);
+}
+.rastroLigado {
+  border-color: var(--sinal-borda, #16A34A);
+  background: color-mix(in oklab, var(--sinal, #22C55E) 14%, transparent);
+  color: var(--sinal, #22C55E);
+}
+.rastroPonto,
+.rastroPulso {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: none;
+  background: var(--txt-3, #8B84A3);
+}
+.rastroPulso {
+  background: var(--sinal, #22C55E);
+  animation: pulsoRastro 2s ease-out infinite;
+}
+@keyframes pulsoRastro {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--sinal, #22C55E) 70%, transparent); }
+  70%  { box-shadow: 0 0 0 9px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rastroPulso { animation: none; }
+}

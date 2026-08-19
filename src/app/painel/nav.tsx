@@ -133,9 +133,19 @@ const Preventiva = () => (
   </svg>
 )
 
+/** Ao vivo: o sinal saindo do ponto. */
+const AoVivo = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
+    <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
+    <path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6" />
+    <path d="M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2" />
+  </svg>
+)
+
 const ICONES = {
   mostrador: Mostrador,
   trilha: Trilha,
+  aoVivo: AoVivo,
   preventiva: Preventiva,
   ordens: Ordens,
   rota: Rota,
