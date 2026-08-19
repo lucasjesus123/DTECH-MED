@@ -123,9 +123,20 @@ const Trilha = () => (
   </svg>
 )
 
+/** Preventiva: o calendário que volta sozinho. */
+const Preventiva = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
+    <rect x="3.5" y="5.5" width="17" height="14" rx="1.8" />
+    <path d="M3.5 9.5h17M8 3.8v3.4M16 3.8v3.4" />
+    <path d="M9 15.2a3 3 0 1 0 .9-2.1" />
+    <path d="M9.4 10.9v2.4h2.4" />
+  </svg>
+)
+
 const ICONES = {
   mostrador: Mostrador,
   trilha: Trilha,
+  preventiva: Preventiva,
   ordens: Ordens,
   rota: Rota,
   clientes: Clientes,

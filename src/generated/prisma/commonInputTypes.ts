@@ -460,6 +460,57 @@ export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
 }
 
+export type EnumDestinoPecaFilter<$PrismaModel = never> = {
+  equals?: $Enums.DestinoPeca | Prisma.EnumDestinoPecaFieldRefInput<$PrismaModel>
+  in?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel> | $Enums.DestinoPeca
+}
+
+export type EnumDestinoPecaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DestinoPeca | Prisma.EnumDestinoPecaFieldRefInput<$PrismaModel>
+  in?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDestinoPecaWithAggregatesFilter<$PrismaModel> | $Enums.DestinoPeca
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel>
+}
+
+export type EnumPeriodicidadeFilter<$PrismaModel = never> = {
+  equals?: $Enums.Periodicidade | Prisma.EnumPeriodicidadeFieldRefInput<$PrismaModel>
+  in?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel> | $Enums.Periodicidade
+}
+
+export type EnumPeriodicidadeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Periodicidade | Prisma.EnumPeriodicidadeFieldRefInput<$PrismaModel>
+  in?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPeriodicidadeWithAggregatesFilter<$PrismaModel> | $Enums.Periodicidade
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel>
+}
+
+export type EnumStatusVisitaFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusVisita | Prisma.EnumStatusVisitaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel> | $Enums.StatusVisita
+}
+
+export type EnumStatusVisitaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusVisita | Prisma.EnumStatusVisitaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusVisitaWithAggregatesFilter<$PrismaModel> | $Enums.StatusVisita
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
+}
+
 export type EnumTipoMovimentoEstoqueFilter<$PrismaModel = never> = {
   equals?: $Enums.TipoMovimentoEstoque | Prisma.EnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel>
   in?: $Enums.TipoMovimentoEstoque[] | Prisma.ListEnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel>
@@ -1100,6 +1151,57 @@ export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
+}
+
+export type NestedEnumDestinoPecaFilter<$PrismaModel = never> = {
+  equals?: $Enums.DestinoPeca | Prisma.EnumDestinoPecaFieldRefInput<$PrismaModel>
+  in?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel> | $Enums.DestinoPeca
+}
+
+export type NestedEnumDestinoPecaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DestinoPeca | Prisma.EnumDestinoPecaFieldRefInput<$PrismaModel>
+  in?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DestinoPeca[] | Prisma.ListEnumDestinoPecaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDestinoPecaWithAggregatesFilter<$PrismaModel> | $Enums.DestinoPeca
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDestinoPecaFilter<$PrismaModel>
+}
+
+export type NestedEnumPeriodicidadeFilter<$PrismaModel = never> = {
+  equals?: $Enums.Periodicidade | Prisma.EnumPeriodicidadeFieldRefInput<$PrismaModel>
+  in?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel> | $Enums.Periodicidade
+}
+
+export type NestedEnumPeriodicidadeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Periodicidade | Prisma.EnumPeriodicidadeFieldRefInput<$PrismaModel>
+  in?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Periodicidade[] | Prisma.ListEnumPeriodicidadeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPeriodicidadeWithAggregatesFilter<$PrismaModel> | $Enums.Periodicidade
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPeriodicidadeFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusVisitaFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusVisita | Prisma.EnumStatusVisitaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel> | $Enums.StatusVisita
+}
+
+export type NestedEnumStatusVisitaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusVisita | Prisma.EnumStatusVisitaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusVisita[] | Prisma.ListEnumStatusVisitaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusVisitaWithAggregatesFilter<$PrismaModel> | $Enums.StatusVisita
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
 }
 
 export type NestedEnumTipoMovimentoEstoqueFilter<$PrismaModel = never> = {

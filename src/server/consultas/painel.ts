@@ -207,6 +207,8 @@ export async function prontuario(ctx: ContextoAcesso, ordemId: string) {
           include: { itens: { orderBy: { ordem: 'asc' } } },
         },
         movimentos: { include: { peca: { select: { sku: true, nome: true } } } },
+        /// O que saiu de dentro do aparelho, e para onde foi.
+        pecasRetiradas: { orderBy: { criadoEm: 'asc' } },
         fatura: { include: { pagamentos: { orderBy: { recebidoEm: 'asc' } } } },
         agendamentos: { include: { motorista: { select: { nome: true } } } },
         mensagens: { orderBy: { criadoEm: 'desc' }, take: 20 },

@@ -161,6 +161,36 @@ enum TipoDocumento {
   COMPROVANTE_ENTREGA
 }
 
+/// Para onde foi a peça que saiu do aparelho.
+///
+/// Existe porque o cliente às vezes PEDE a peça velha de volta — é a prova de
+/// que o serviço foi feito — e porque componente de equipamento médico tem
+/// descarte com regra. Sem registrar o destino, a discussão de dois meses
+/// depois não tem resposta.
+enum DestinoPeca {
+  DEVOLVIDA_AO_CLIENTE /// Entregue junto com o aparelho
+  GUARDADA /// Fica na assistência, à disposição
+  DESCARTADA /// Descarte comum
+  DESCARTE_CONTROLADO /// Bateria, placa, componente com regra própria
+  RECICLADA /// Aproveitada em outro conserto
+}
+
+/// De quanto em quanto tempo a visita preventiva se repete.
+enum Periodicidade {
+  MENSAL
+  BIMESTRAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+
+enum StatusVisita {
+  PREVISTA /// Gerada pelo contrato, ainda sem data marcada
+  AGENDADA /// Marcada na agenda, com técnico
+  REALIZADA /// Feita — virou ordem de serviço
+  CANCELADA
+}
+
 enum StatusJob {
   PENDENTE
   PROCESSANDO
@@ -242,6 +272,9 @@ model Tenant {
   assinaturas    Assinatura[]
   orcamentos     Orcamento[]
   itensOrcamento OrcamentoItem[]
+  pecasRetiradas      PecaRetirada[]
+  contratosManutencao ContratoManutencao[]
+  visitasPreventivas  VisitaPreventiva[]
   pecas          Peca[]
   movimentos     MovimentoEstoque[]
   faturas        Fatura[]
@@ -377,6 +410,7 @@ model Cliente {
   faturas      Fatura[]
 
   /// Mesmo CNPJ pode ser cliente de duas franquias diferentes.
+  contratos ContratoManutencao[]
   @@unique([tenantId, documento])
   @@index([tenantId, nome])
   @@index([tenantId, documentoHash])
@@ -412,6 +446,7 @@ model Equipamento {
 
   ordens Ordem[]
 
+  contratos ContratoManutencao[]
   @@index([tenantId, clienteId])
   @@index([tenantId, numeroSerie])
   @@index([tenantId, marca, modelo])
@@ -483,6 +518,11 @@ model Ordem {
   ordemOrigemId String?
   ordemOrigem   Ordem?    @relation("RetornoDeGarantia", fields: [ordemOrigemId], references: [id], onDelete: SetNull)
   retornos      Ordem[]   @relation("RetornoDeGarantia")
+
+  /// Peças que saíram deste aparelho neste serviço.
+  pecasRetiradas PecaRetirada[]
+  /// A visita preventiva que gerou esta ordem, quando veio de um contrato.
+  visitaPreventiva VisitaPreventiva?
 
   abertaEm      DateTime  @default(now())
   coletadaEm    DateTime?
@@ -727,6 +767,118 @@ model OrcamentoItem {
 // =============================================================================
 // ESTOQUE — integrado, nunca paralelo
 // =============================================================================
+
+/// A peça que SAIU do aparelho, e para onde ela foi.
+///
+/// Não é movimento de estoque: a peça retirada não volta para a prateleira, ela
+/// sai do sistema. O que se guarda é o destino — porque o cliente às vezes pede
+/// a peça velha de volta como prova do serviço, e porque componente de
+/// equipamento médico tem regra de descarte.
+model PecaRetirada {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  ordemId String
+  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
+
+  /// O que era, escrito pelo técnico. Nem toda peça que sai está no catálogo:
+  /// a fonte queimada de um aparelho de 2011 não tem SKU aqui dentro.
+  descricao String
+  destino   DestinoPeca
+  /// Número de série ou lote da peça retirada, quando ela tem.
+  identificacao String?
+  observacao    String?
+
+  registradoPorId   String?
+  registradoPorNome String
+  criadoEm          DateTime @default(now())
+
+  @@index([tenantId, ordemId])
+  @@map("pecas_retiradas")
+}
+
+/// Contrato de manutenção preventiva.
+///
+/// ---------------------------------------------------------------------------
+/// POR QUE ISTO É O ITEM MAIS VALIOSO DO SISTEMA
+/// ---------------------------------------------------------------------------
+/// Uma assistência que só conserta o que quebra vive de sobressalto: o mês bom
+/// depende de o cliente ter um problema. A revisão periódica inverte isso —
+/// autoclave, laser e compressor precisam de revisão com hora marcada, e o
+/// contrato transforma isso em receita que se sabe de antemão.
+///
+/// O desenho vem do Maintenance Schedule do ERPNext, traduzido: lá o contrato
+/// gera "visitas"; aqui cada visita vira uma ORDEM DE SERVIÇO comum quando
+/// chega a hora, porque é a esteira de 18 etapas que já sabe cobrar assinatura,
+/// foto e laudo. Um caminho paralelo seria um segundo sistema dentro do
+/// primeiro.
+model ContratoManutencao {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  numero Int
+
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+
+  /// O contrato cobre UM equipamento. Clínica com autoclave e laser assina
+  /// dois: períodos, valores e técnicos são diferentes, e juntá-los num
+  /// contrato só esconde qual dos dois está atrasado.
+  equipamentoId String
+  equipamento   Equipamento @relation(fields: [equipamentoId], references: [id], onDelete: Restrict)
+
+  periodicidade Periodicidade
+  inicio        DateTime
+  /// Quando o contrato acaba. Nulo = corre até alguém encerrar.
+  fim           DateTime?
+
+  /// Valor de CADA visita. O total do contrato é isto vezes as visitas — e
+  /// guardar o total em vez do unitário quebraria na primeira renovação.
+  valorVisitaCentavos Int @default(0)
+
+  ativo       Boolean @default(true)
+  encerradoEm DateTime?
+  observacoes String?
+
+  visitas VisitaPreventiva[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, ativo])
+  @@index([tenantId, equipamentoId])
+  @@map("contratos_manutencao")
+}
+
+/// Cada revisão prevista pelo contrato.
+model VisitaPreventiva {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  contratoId String
+  contrato   ContratoManutencao @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  /// A data que o contrato calculou. Fica mesmo depois de agendada, para dar
+  /// para ver que a visita de março aconteceu em abril.
+  previstaPara DateTime
+  status       StatusVisita @default(PREVISTA)
+
+  /// A ordem que a visita virou. É por ela que a preventiva entra na esteira
+  /// normal, com assinatura, foto e laudo.
+  ordemId String? @unique
+  ordem   Ordem?  @relation(fields: [ordemId], references: [id], onDelete: SetNull)
+
+  observacao String?
+  criadoEm   DateTime @default(now())
+
+  @@index([tenantId, status, previstaPara])
+  @@index([contratoId, previstaPara])
+  @@map("visitas_preventivas")
+}
 
 model Peca {
   id       String @id @default(cuid())

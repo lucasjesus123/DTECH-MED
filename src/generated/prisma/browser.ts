@@ -78,6 +78,40 @@ export type Orcamento = Prisma.OrcamentoModel
  */
 export type OrcamentoItem = Prisma.OrcamentoItemModel
 /**
+ * Model PecaRetirada
+ * A peça que SAIU do aparelho, e para onde ela foi.
+ * 
+ * Não é movimento de estoque: a peça retirada não volta para a prateleira, ela
+ * sai do sistema. O que se guarda é o destino — porque o cliente às vezes pede
+ * a peça velha de volta como prova do serviço, e porque componente de
+ * equipamento médico tem regra de descarte.
+ */
+export type PecaRetirada = Prisma.PecaRetiradaModel
+/**
+ * Model ContratoManutencao
+ * Contrato de manutenção preventiva.
+ * 
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO É O ITEM MAIS VALIOSO DO SISTEMA
+ * ---------------------------------------------------------------------------
+ * Uma assistência que só conserta o que quebra vive de sobressalto: o mês bom
+ * depende de o cliente ter um problema. A revisão periódica inverte isso —
+ * autoclave, laser e compressor precisam de revisão com hora marcada, e o
+ * contrato transforma isso em receita que se sabe de antemão.
+ * 
+ * O desenho vem do Maintenance Schedule do ERPNext, traduzido: lá o contrato
+ * gera "visitas"; aqui cada visita vira uma ORDEM DE SERVIÇO comum quando
+ * chega a hora, porque é a esteira de 18 etapas que já sabe cobrar assinatura,
+ * foto e laudo. Um caminho paralelo seria um segundo sistema dentro do
+ * primeiro.
+ */
+export type ContratoManutencao = Prisma.ContratoManutencaoModel
+/**
+ * Model VisitaPreventiva
+ * Cada revisão prevista pelo contrato.
+ */
+export type VisitaPreventiva = Prisma.VisitaPreventivaModel
+/**
  * Model Peca
  * 
  */

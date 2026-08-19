@@ -22,6 +22,31 @@
 -- versão antiga, uma importação ou uma correção feita direto no banco.
 -- ============================================================================
 
+-- ----------------------------------------------------------------------------
+-- ANTES DE TUDO: ENXERGAR AS LINHAS
+-- ----------------------------------------------------------------------------
+-- Todas as tabelas do sistema têm `FORCE ROW LEVEL SECURITY`, e o FORCE vale
+-- INCLUSIVE PARA O DONO DA TABELA. Sem isto, `dtechmed_owner` abre o banco e
+-- não vê linha nenhuma — e as seis perguntas abaixo respondem zero, zero, zero,
+-- zero, zero, zero, com aparência de sistema impecável, sobre um banco que a
+-- consulta nunca leu.
+--
+-- Foi exatamente o que este arquivo fazia antes desta linha existir.
+--
+-- `app.is_super_admin` é a porta que a própria política já prevê
+-- (`... OR app.is_super_admin()`), usada aqui em sessão de leitura. Ela vale só
+-- para esta conexão do psql e some quando ela fecha.
+SET app.is_super_admin = 'on';
+
+\echo ''
+\echo '  0. A consulta está enxergando o banco?'
+\echo '     Se der 0 em tudo abaixo, PARE: os seis zeros seguintes não valem'
+\echo '     nada — a sessão não está vendo linha nenhuma.'
+SELECT
+  (SELECT count(*) FROM tenants)  AS empresas,
+  (SELECT count(*) FROM ordens)   AS ordens,
+  (SELECT count(*) FROM faturas)  AS faturas;
+
 \echo ''
 \echo '  1. Fatura com valor diferente do orçamento aprovado'
 \echo '     Se der > 0: alguém alterou o orçamento depois de faturar, ou a'

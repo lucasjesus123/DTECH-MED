@@ -84,9 +84,13 @@ export default async function Equipamentos({
                 return (
                   <tr key={e.id}>
                     <td>
-                      <span className={estilo.forte}>
+                      {/* O nome do aparelho abre o PRONTUÁRIO dele — toda a
+                          vida da máquina, e não a última ordem. É a máquina que
+                          carrega o histórico: o cliente troca de dono, a
+                          autoclave continua a mesma. */}
+                      <Link href={`/painel/equipamentos/${e.id}`} className={estilo.forte}>
                         {e.marca} {e.modelo}
-                      </span>
+                      </Link>
                       {e.categoria ? <div className={estilo.fraco}>{e.categoria}</div> : null}
                     </td>
                     <td className={estilo.num}>{e.numeroSerie ?? <span className={estilo.fraco}>sem série</span>}</td>

@@ -408,6 +408,9 @@ export const ModelName = {
   Assinatura: 'Assinatura',
   Orcamento: 'Orcamento',
   OrcamentoItem: 'OrcamentoItem',
+  PecaRetirada: 'PecaRetirada',
+  ContratoManutencao: 'ContratoManutencao',
+  VisitaPreventiva: 'VisitaPreventiva',
   Peca: 'Peca',
   MovimentoEstoque: 'MovimentoEstoque',
   Fatura: 'Fatura',
@@ -438,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1253,6 +1256,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.OrcamentoItemCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.OrcamentoItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    PecaRetirada: {
+      payload: Prisma.$PecaRetiradaPayload<ExtArgs>
+      fields: Prisma.PecaRetiradaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PecaRetiradaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PecaRetiradaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        findFirst: {
+          args: Prisma.PecaRetiradaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PecaRetiradaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        findMany: {
+          args: Prisma.PecaRetiradaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>[]
+        }
+        create: {
+          args: Prisma.PecaRetiradaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        createMany: {
+          args: Prisma.PecaRetiradaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PecaRetiradaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>[]
+        }
+        delete: {
+          args: Prisma.PecaRetiradaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        update: {
+          args: Prisma.PecaRetiradaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        deleteMany: {
+          args: Prisma.PecaRetiradaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PecaRetiradaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PecaRetiradaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>[]
+        }
+        upsert: {
+          args: Prisma.PecaRetiradaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PecaRetiradaPayload>
+        }
+        aggregate: {
+          args: Prisma.PecaRetiradaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePecaRetirada>
+        }
+        groupBy: {
+          args: Prisma.PecaRetiradaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PecaRetiradaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PecaRetiradaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PecaRetiradaCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContratoManutencao: {
+      payload: Prisma.$ContratoManutencaoPayload<ExtArgs>
+      fields: Prisma.ContratoManutencaoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContratoManutencaoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContratoManutencaoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        findFirst: {
+          args: Prisma.ContratoManutencaoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContratoManutencaoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        findMany: {
+          args: Prisma.ContratoManutencaoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>[]
+        }
+        create: {
+          args: Prisma.ContratoManutencaoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        createMany: {
+          args: Prisma.ContratoManutencaoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContratoManutencaoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>[]
+        }
+        delete: {
+          args: Prisma.ContratoManutencaoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        update: {
+          args: Prisma.ContratoManutencaoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContratoManutencaoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContratoManutencaoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContratoManutencaoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContratoManutencaoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContratoManutencaoPayload>
+        }
+        aggregate: {
+          args: Prisma.ContratoManutencaoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContratoManutencao>
+        }
+        groupBy: {
+          args: Prisma.ContratoManutencaoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContratoManutencaoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContratoManutencaoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContratoManutencaoCountAggregateOutputType> | number
+        }
+      }
+    }
+    VisitaPreventiva: {
+      payload: Prisma.$VisitaPreventivaPayload<ExtArgs>
+      fields: Prisma.VisitaPreventivaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VisitaPreventivaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VisitaPreventivaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        findFirst: {
+          args: Prisma.VisitaPreventivaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VisitaPreventivaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        findMany: {
+          args: Prisma.VisitaPreventivaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>[]
+        }
+        create: {
+          args: Prisma.VisitaPreventivaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        createMany: {
+          args: Prisma.VisitaPreventivaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VisitaPreventivaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>[]
+        }
+        delete: {
+          args: Prisma.VisitaPreventivaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        update: {
+          args: Prisma.VisitaPreventivaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        deleteMany: {
+          args: Prisma.VisitaPreventivaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VisitaPreventivaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VisitaPreventivaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>[]
+        }
+        upsert: {
+          args: Prisma.VisitaPreventivaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitaPreventivaPayload>
+        }
+        aggregate: {
+          args: Prisma.VisitaPreventivaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVisitaPreventiva>
+        }
+        groupBy: {
+          args: Prisma.VisitaPreventivaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VisitaPreventivaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VisitaPreventivaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VisitaPreventivaCountAggregateOutputType> | number
         }
       }
     }
@@ -2676,6 +2901,56 @@ export const OrcamentoItemScalarFieldEnum = {
 export type OrcamentoItemScalarFieldEnum = (typeof OrcamentoItemScalarFieldEnum)[keyof typeof OrcamentoItemScalarFieldEnum]
 
 
+export const PecaRetiradaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  ordemId: 'ordemId',
+  descricao: 'descricao',
+  destino: 'destino',
+  identificacao: 'identificacao',
+  observacao: 'observacao',
+  registradoPorId: 'registradoPorId',
+  registradoPorNome: 'registradoPorNome',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PecaRetiradaScalarFieldEnum = (typeof PecaRetiradaScalarFieldEnum)[keyof typeof PecaRetiradaScalarFieldEnum]
+
+
+export const ContratoManutencaoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  numero: 'numero',
+  clienteId: 'clienteId',
+  equipamentoId: 'equipamentoId',
+  periodicidade: 'periodicidade',
+  inicio: 'inicio',
+  fim: 'fim',
+  valorVisitaCentavos: 'valorVisitaCentavos',
+  ativo: 'ativo',
+  encerradoEm: 'encerradoEm',
+  observacoes: 'observacoes',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ContratoManutencaoScalarFieldEnum = (typeof ContratoManutencaoScalarFieldEnum)[keyof typeof ContratoManutencaoScalarFieldEnum]
+
+
+export const VisitaPreventivaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  contratoId: 'contratoId',
+  previstaPara: 'previstaPara',
+  status: 'status',
+  ordemId: 'ordemId',
+  observacao: 'observacao',
+  criadoEm: 'criadoEm'
+} as const
+
+export type VisitaPreventivaScalarFieldEnum = (typeof VisitaPreventivaScalarFieldEnum)[keyof typeof VisitaPreventivaScalarFieldEnum]
+
+
 export const PecaScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -3214,6 +3489,48 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
+ * Reference to a field of type 'DestinoPeca'
+ */
+export type EnumDestinoPecaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DestinoPeca'>
+    
+
+
+/**
+ * Reference to a field of type 'DestinoPeca[]'
+ */
+export type ListEnumDestinoPecaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DestinoPeca[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Periodicidade'
+ */
+export type EnumPeriodicidadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Periodicidade'>
+    
+
+
+/**
+ * Reference to a field of type 'Periodicidade[]'
+ */
+export type ListEnumPeriodicidadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Periodicidade[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusVisita'
+ */
+export type EnumStatusVisitaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusVisita'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusVisita[]'
+ */
+export type ListEnumStatusVisitaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusVisita[]'>
+    
+
+
+/**
  * Reference to a field of type 'TipoMovimentoEstoque'
  */
 export type EnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoMovimentoEstoque'>
@@ -3500,6 +3817,9 @@ export type GlobalOmitConfig = {
   assinatura?: Prisma.AssinaturaOmit
   orcamento?: Prisma.OrcamentoOmit
   orcamentoItem?: Prisma.OrcamentoItemOmit
+  pecaRetirada?: Prisma.PecaRetiradaOmit
+  contratoManutencao?: Prisma.ContratoManutencaoOmit
+  visitaPreventiva?: Prisma.VisitaPreventivaOmit
   peca?: Prisma.PecaOmit
   movimentoEstoque?: Prisma.MovimentoEstoqueOmit
   fatura?: Prisma.FaturaOmit

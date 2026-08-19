@@ -62,6 +62,9 @@ export const ModelName = {
   Assinatura: 'Assinatura',
   Orcamento: 'Orcamento',
   OrcamentoItem: 'OrcamentoItem',
+  PecaRetirada: 'PecaRetirada',
+  ContratoManutencao: 'ContratoManutencao',
+  VisitaPreventiva: 'VisitaPreventiva',
   Peca: 'Peca',
   MovimentoEstoque: 'MovimentoEstoque',
   Fatura: 'Fatura',
@@ -364,6 +367,56 @@ export const OrcamentoItemScalarFieldEnum = {
 } as const
 
 export type OrcamentoItemScalarFieldEnum = (typeof OrcamentoItemScalarFieldEnum)[keyof typeof OrcamentoItemScalarFieldEnum]
+
+
+export const PecaRetiradaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  ordemId: 'ordemId',
+  descricao: 'descricao',
+  destino: 'destino',
+  identificacao: 'identificacao',
+  observacao: 'observacao',
+  registradoPorId: 'registradoPorId',
+  registradoPorNome: 'registradoPorNome',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PecaRetiradaScalarFieldEnum = (typeof PecaRetiradaScalarFieldEnum)[keyof typeof PecaRetiradaScalarFieldEnum]
+
+
+export const ContratoManutencaoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  numero: 'numero',
+  clienteId: 'clienteId',
+  equipamentoId: 'equipamentoId',
+  periodicidade: 'periodicidade',
+  inicio: 'inicio',
+  fim: 'fim',
+  valorVisitaCentavos: 'valorVisitaCentavos',
+  ativo: 'ativo',
+  encerradoEm: 'encerradoEm',
+  observacoes: 'observacoes',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ContratoManutencaoScalarFieldEnum = (typeof ContratoManutencaoScalarFieldEnum)[keyof typeof ContratoManutencaoScalarFieldEnum]
+
+
+export const VisitaPreventivaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  contratoId: 'contratoId',
+  previstaPara: 'previstaPara',
+  status: 'status',
+  ordemId: 'ordemId',
+  observacao: 'observacao',
+  criadoEm: 'criadoEm'
+} as const
+
+export type VisitaPreventivaScalarFieldEnum = (typeof VisitaPreventivaScalarFieldEnum)[keyof typeof VisitaPreventivaScalarFieldEnum]
 
 
 export const PecaScalarFieldEnum = {

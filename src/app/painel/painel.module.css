@@ -323,6 +323,33 @@
   flex-wrap: wrap;
   margin-bottom: var(--s6);
 }
+/* Item de flex também nasce sem poder encolher abaixo do conteúdo. */
+.cab > * { min-width: 0; }
+
+/**
+ * A coluna de selos do cabeçalho.
+ *
+ * O `.tag` comum é `nowrap`, e está certo: "FATURADO" e "EM MANUTENÇÃO" quebrar
+ * em duas linhas fica pior do que ocupar a linha inteira. Mas aqui entram selos
+ * que são FRASE — "na garantia da O.S. #0010 até 17/11/2026 — faltam 90 dias" —
+ * e uma frase em nowrap num celular de 390px estica a página inteira: o
+ * cabeçalho passa a rolar de lado junto com o conteúdo.
+ *
+ * Aqui eles quebram, alinhados à direita, e param de empurrar a página.
+ */
+.selosCab {
+  display: grid;
+  gap: var(--s2);
+  justify-items: end;
+  max-width: 100%;
+}
+.selosCab > .tag {
+  font-size: 11px;
+  padding: 6px 12px;
+  white-space: normal;
+  text-align: right;
+  max-width: 100%;
+}
 .grav {
   font-family: var(--f-mono);
   font-size: var(--t-xs);
@@ -553,7 +580,10 @@
 }
 @media (max-width: 640px) {
   .esteira { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* `.resumo` não entra aqui: ele é redimensionado mais abaixo, no bloco de
+     1200px, que vem depois neste arquivo e venceria esta regra em silêncio.
+     Duas quebras concorrentes para o mesmo seletor foi o que fez a coluna
+     única do celular não valer nada. */
 }
 
 /* ===== Fila ============================================================= */
@@ -664,8 +694,22 @@
     grid-template-columns: repeat(4, 1fr);
   }
   .resumo {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+/**
+ * No celular de verdade, um indicador por linha.
+ *
+ * Dois indicadores lado a lado num aparelho de 390px dão 190px de coluna, e
+ * "R$ 24.735,00" no corpo grande do indicador não cabe em 190. O número não
+ * quebra — quem quebra é a página, que passa a rolar de lado inteira, cabeçalho
+ * junto. A tela fica torta sem que nada nela esteja errado.
+ *
+ * Quatro indicadores empilhados custam uma rolada a mais. Uma página que anda
+ * de lado custa a confiança de quem está usando o sistema em pé, na clínica.
+ */
+@media (max-width: 460px) {
+  .resumo { grid-template-columns: 1fr; }
 }
 @media (max-width: 880px) {
   .app {
@@ -849,6 +893,36 @@
 .forte { color: var(--txt); font-weight: 600; }
 .fraco { color: var(--txt-3); font-size: var(--t-xs); }
 
+/* Ação rara dentro de um item de lista.
+ *
+ * "Encerrar contrato" acontece uma vez por ano. Com um botão cheio ao lado de
+ * cada linha, a coluna de contratos ativos vira uma coluna de botões vermelhos,
+ * e a tela passa a parecer uma tela de encerrar contratos — quando ela existe
+ * para mostrar o que vence. A ação precisa estar ali; não precisa gritar.
+ *
+ * O vermelho aparece só no hover e na confirmação, que é onde ele significa
+ * alguma coisa. */
+.acaoRara {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0 2px;
+  margin: 0;
+  font: inherit;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-3);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  /* Alvo de toque de 44px sem ocupar 44px de altura visual. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.acaoRara:hover:not(:disabled) { color: var(--alerta); }
+.acaoRara:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ----- Selos de estado --------------------------------------------------- */
 .tag {
   display: inline-block;
@@ -892,6 +966,21 @@
   gap: var(--s5);
   align-items: start;
 }
+/**
+ * A linha que impede a página inteira de rolar de lado.
+ *
+ * Item de grade nasce com `min-width: auto`, que significa "não encolha abaixo
+ * do seu conteúdo". Uma tabela com coluna de data e valor em `nowrap` tem
+ * min-content de uns 640px; no celular de 390 a coluna estica, a página inteira
+ * ganha rolagem horizontal e o cabeçalho sai andando junto quando se arrasta a
+ * tabela.
+ *
+ * Com `min-width: 0` a coluna encolhe até os 390 reais, e quem rola de lado
+ * passa a ser só o `.rolaX` da tabela — que é exatamente para isso que ele
+ * existe. Apareceu na tela de preventiva e valia para toda tela de duas
+ * colunas: a de lá só foi a primeira com tabela larga dentro.
+ */
+.duasColunas > * { min-width: 0; }
 .bloco {
   background: var(--bg-1);
   border: 1px solid var(--borda);

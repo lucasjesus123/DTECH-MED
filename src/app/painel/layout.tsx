@@ -85,6 +85,7 @@ export default async function LayoutPainel({ children }: { children: React.React
 
   const retaguarda: ItemNav[] = []
   if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
+  if (podeVer(p, Papel.ATENDENTE)) retaguarda.push({ href: '/painel/preventiva', rotulo: 'Preventiva', icone: 'preventiva' })
   if (podeVer(p, Papel.FINANCEIRO)) retaguarda.push({ href: '/painel/financeiro', rotulo: 'Financeiro', icone: 'financeiro' })
   if (podeVer(p, Papel.GESTOR)) retaguarda.push({ href: '/painel/whatsapp', rotulo: 'WhatsApp', icone: 'balao' })
   if (retaguarda.length > 0) grupos.push({ titulo: 'Retaguarda', itens: retaguarda })

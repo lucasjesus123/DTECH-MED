@@ -13,11 +13,13 @@ import BotoesEtapa from './botoes-etapa'
 import Diagnostico from './diagnostico'
 import Responsavel from './responsavel'
 import Orcamento from './orcamento'
+import PecasRetiradas from './pecas-retiradas'
 import estilo from '../../painel.module.css'
 import { diaLocal } from '@/lib/datas'
 import { montarTrilha } from '@/server/ordem/trilha'
 import { TrilhaDoEquipamento } from './trilha'
 import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
+import { pendenciaDe } from '@/server/estoque/pendencia'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -70,6 +72,8 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
     await coberturaDe(ctx, o.equipamentoId, o.id),
   )
 
+  const pendencia = await pendenciaDe(ctx, o.id)
+
   const trilha = montarTrilha(
     o.etapa,
     o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
@@ -90,20 +94,20 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
             {o.cliente.cidade ? ` · ${o.cliente.cidade}${o.cliente.uf ? `/${o.cliente.uf}` : ''}` : ''}
           </p>
         </div>
-        <div style={{ display: 'grid', gap: 'var(--s2)', justifyItems: 'end' }}>
-          <span className={estilo.tag} style={{ fontSize: 11, padding: '6px 12px' }}>
+        <div className={estilo.selosCab}>
+          <span className={estilo.tag}>
             {ROTULO_ETAPA[o.etapa]}
           </span>
           {/* A garantia aparece ANTES de qualquer preço. Quem abre a ficha para
               montar orçamento precisa ver que o aparelho voltou coberto — e não
               descobrir isso no fim, com o valor já digitado. */}
           {o.emGarantia ? (
-            <span className={`${estilo.tag} ${estilo.tagEspera}`} style={{ fontSize: 11, padding: '6px 12px' }}>
+            <span className={`${estilo.tag} ${estilo.tagEspera}`}>
               retorno em garantia
               {o.ordemOrigem ? ` · O.S. #${String(o.ordemOrigem.numero).padStart(4, '0')}` : ''}
             </span>
           ) : cobertura ? (
-            <span className={`${estilo.tag} ${estilo.tagOk}`} style={{ fontSize: 11, padding: '6px 12px' }}>
+            <span className={`${estilo.tag} ${estilo.tagOk}`}>
               {cobertura}
             </span>
           ) : null}
@@ -123,6 +127,17 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           está o aparelho. Ela vem antes das ações porque responder é mais
           rápido que decidir. */}
       <TrilhaDoEquipamento trilha={trilha} />
+
+      {/* A pendência de peça vem logo abaixo da trilha, porque ela é a
+          explicação do "por que essa ordem está parada". O código antigo
+          prometia que isso "aparece no painel como pendência" — e não aparecia
+          em canto nenhum: ficava num aviso de log que ninguém lê. */}
+      {pendencia.falta ? (
+        <p className={estilo.erro} role="status" style={{ marginBottom: 'var(--s5)' }}>
+          {pendencia.aviso}{' '}
+          <Link href="/painel/estoque">Ver no estoque</Link>
+        </p>
+      ) : null}
 
       <div className={estilo.duasColunas}>
         {/* ===== Coluna principal ========================================== */}
@@ -220,6 +235,25 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
               </div>
             ) : null}
           </div>
+
+          {/* --- Peças retiradas ------------------------------------------ */}
+          <PecasRetiradas
+            ordemId={o.id}
+            podeRegistrar={podeVer(sessao.papel, Papel.TECNICO)}
+            pecas={o.pecasRetiradas.map((p) => ({
+              id: p.id,
+              descricao: p.descricao,
+              destino: p.destino,
+              identificacao: p.identificacao,
+              observacao: p.observacao,
+              registradoPorNome: p.registradoPorNome,
+              criadoEm: p.criadoEm.toLocaleString('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                dateStyle: 'short',
+                timeStyle: 'short',
+              }),
+            }))}
+          />
 
           {/* --- Orçamento ------------------------------------------------ */}
           <Orcamento

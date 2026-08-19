@@ -171,6 +171,38 @@ export const TipoDocumento = {
 export type TipoDocumento = (typeof TipoDocumento)[keyof typeof TipoDocumento]
 
 
+export const DestinoPeca = {
+  DEVOLVIDA_AO_CLIENTE: 'DEVOLVIDA_AO_CLIENTE',
+  GUARDADA: 'GUARDADA',
+  DESCARTADA: 'DESCARTADA',
+  DESCARTE_CONTROLADO: 'DESCARTE_CONTROLADO',
+  RECICLADA: 'RECICLADA'
+} as const
+
+export type DestinoPeca = (typeof DestinoPeca)[keyof typeof DestinoPeca]
+
+
+export const Periodicidade = {
+  MENSAL: 'MENSAL',
+  BIMESTRAL: 'BIMESTRAL',
+  TRIMESTRAL: 'TRIMESTRAL',
+  SEMESTRAL: 'SEMESTRAL',
+  ANUAL: 'ANUAL'
+} as const
+
+export type Periodicidade = (typeof Periodicidade)[keyof typeof Periodicidade]
+
+
+export const StatusVisita = {
+  PREVISTA: 'PREVISTA',
+  AGENDADA: 'AGENDADA',
+  REALIZADA: 'REALIZADA',
+  CANCELADA: 'CANCELADA'
+} as const
+
+export type StatusVisita = (typeof StatusVisita)[keyof typeof StatusVisita]
+
+
 export const StatusJob = {
   PENDENTE: 'PENDENTE',
   PROCESSANDO: 'PROCESSANDO',
