@@ -36,7 +36,14 @@ cd "$(dirname "$0")/.."
 PORTARIA="${PORTARIA:-portal-da-estetica-web-1}"
 NOSSO="/data/sites-extra/dtechmed.caddy"
 GUARDADO="/data/sites-extra/.dtechmed.caddy.anterior"
-VIZINHOS=("minhamecanica.online" "portaldaestetica.com.br")
+# Lista de RESERVA, usada só quando não dá para ler a configuração da portaria.
+# O caminho normal descobre os nomes lá embaixo, direto do Caddyfile — é por
+# isso que o `stabilize.online`, que apareceu na máquina depois deste guia ser
+# escrito, já vinha sendo vigiado sem ninguém acrescentá-lo aqui. Ainda assim a
+# reserva é mantida em dia: ela é o que resta no dia em que o `docker exec`
+# falhar, e uma reserva desatualizada deixa de vigiar exatamente quem ela
+# deveria proteger.
+VIZINHOS=("minhamecanica.online" "portaldaestetica.com.br" "stabilize.online")
 
 verde()  { printf '  \033[32m✓\033[0m %s\n' "$1"; }
 alerta() { printf '  \033[33m!\033[0m %s\n' "$1"; }

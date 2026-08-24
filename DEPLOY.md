@@ -1,6 +1,6 @@
 # Deploy do DTECH MED na VPS
 
-Guia para colocar o sistema no ar na sua VPS compartilhada, na "gaveta" DTECH-MED, sem encostar nos outros dois sistemas que já rodam lá.
+Guia para colocar o sistema no ar na sua VPS compartilhada, na "gaveta" DTECH-MED, sem encostar nos outros três sistemas que já rodam lá.
 
 Feito para ser seguido de cima para baixo, uma vez. Cada passo diz **o que fazer** e **como conferir que deu certo** — se a conferência falhar, pare ali; seguir em frente só empurra o problema para um lugar mais difícil de achar.
 
@@ -34,7 +34,7 @@ No GitHub: **Settings → General → Danger Zone → Change repository visibili
 
 ## Passo 1 — Reconhecimento da VPS (só leitura)
 
-A VPS já hospeda outros dois sistemas. Antes de criar qualquer coisa, vamos **olhar** o que existe. Nenhum comando deste passo escreve nada — todos apenas listam.
+A VPS já hospeda outros três sistemas. Antes de criar qualquer coisa, vamos **olhar** o que existe. Nenhum comando deste passo escreve nada — todos apenas listam.
 
 O objetivo é provar, com a saída na tela, que os nomes que o DTECH MED vai usar estão livres. São seis nomes, e cada um tem que estar ausente da lista correspondente:
 
@@ -336,7 +336,7 @@ grep -n '^dtechmed.com.br,\|^www.dtechmed' infra/caddy/dtechmed.caddy
 grep -v '^[[:space:]]*#' infra/caddy/dtechmed.caddy | grep -c '\[' 
 ```
 
-> **Por que a segunda verificação existe.** Alguns clientes de terminal e de chat convertem automaticamente qualquer texto começando com `www.` num link markdown, com colchetes e parênteses em volta. Isso é sintaxe inválida do Caddy — e este Caddy atende as portas 80 e 443 da máquina inteira, então uma configuração que ele não consiga carregar derruba os três sites juntos. Aconteceu neste deploy, com um `sed` que parecia inofensivo. Por isso o domínio vive no repositório e chega por `git pull`, sem passar pelo teclado.
+> **Por que a segunda verificação existe.** Alguns clientes de terminal e de chat convertem automaticamente qualquer texto começando com `www.` num link markdown, com colchetes e parênteses em volta. Isso é sintaxe inválida do Caddy — e este Caddy atende as portas 80 e 443 da máquina inteira, então uma configuração que ele não consiga carregar derruba os quatro sites juntos. Aconteceu neste deploy, com um `sed` que parecia inofensivo. Por isso o domínio vive no repositório e chega por `git pull`, sem passar pelo teclado.
 >
 > A verificação ignora as linhas de comentário — senão o próprio texto que você está lendo a faria falhar.
 >
@@ -358,7 +358,7 @@ Ainda **não** valeu nada: o Caddy só relê a configuração quando alguém man
 docker exec portal-da-estetica-web-1 caddy validate --config /etc/caddy/Caddyfile
 ```
 
-Tem que terminar com `Valid configuration`. O `validate` lê o Caddyfile do vizinho **e** os arquivos importados, incluindo o nosso — então um erro de sintaxe aparece aqui, com os três sites ainda no ar, e não no momento em que a portaria tentar subir com ele.
+Tem que terminar com `Valid configuration`. O `validate` lê o Caddyfile do vizinho **e** os arquivos importados, incluindo o nosso — então um erro de sintaxe aparece aqui, com os quatro sites ainda no ar, e não no momento em que a portaria tentar subir com ele.
 
 🚨 **Se o `validate` falhar, PARE.** Desfaça com `docker exec portal-da-estetica-web-1 rm /data/sites-extra/dtechmed.caddy` e me chame. Enquanto a portaria não reler, nada mudou para ninguém.
 
@@ -382,18 +382,31 @@ sleep 5
 curl -sI https://SEU_DOMINIO | head -1
 ```
 
-> **Por que o reinício é o segundo caminho.** O Caddyfile do vizinho tem `admin off`, o que desliga a API por onde o `caddy reload` normalmente fala. O `USR1` não depende dela, mas se por algum motivo não pegar, reiniciar é a única saída — e aí são **2 a 4 segundos** em que os três sites ficam fora do ar. É o único momento do deploy inteiro que afeta os vizinhos, é medido em segundos, e por isso vale escolher a hora: fim de noite, não meio-dia.
+> **Por que o reinício é o segundo caminho.** O Caddyfile do vizinho tem `admin off`, o que desliga a API por onde o `caddy reload` normalmente fala. O `USR1` não depende dela, mas se por algum motivo não pegar, reiniciar é a única saída — e aí são **2 a 4 segundos** em que os quatro sites ficam fora do ar. É o único momento do deploy inteiro que afeta os vizinhos, é medido em segundos, e por isso vale escolher a hora: fim de noite, não meio-dia.
 
-**Confira os três sites, nesta ordem:**
+**Confira os quatro sites, nesta ordem:**
 
 ```bash
 curl -sI https://minhamecanica.online | head -1        # vizinho 1
 curl -sI https://portaldaestetica.com.br | head -1     # vizinho 2
+curl -sI https://stabilize.online | head -1            # vizinho 3
 curl -sI https://SEU_DOMINIO | head -1                 # nosso
-docker ps --format '{{.Names}}\t{{.Status}}' | grep -v dtechmed | wc -l   # tem que dar 15
 ```
 
 Os vizinhos primeiro, de propósito: se algo tiver dado errado, é neles que precisamos saber antes.
+
+**E os contêineres deles, comparados com a fotografia de antes:**
+
+```bash
+docker ps --format '{{.Names}}' | grep -v '^dtechmed' | sort > /tmp/vizinhos-depois.txt
+diff /tmp/vizinhos-antes.txt /tmp/vizinhos-depois.txt && echo 'IGUAL — ninguém caiu'
+```
+
+> **Por que comparação e não um número.** Este guia trazia `# tem que dar 15`, e no dia em que o quarto site subiu passaram a ser 18. Número escrito à mão envelhece calado: ou você lê 18 no meio do deploy e leva um susto por nada, ou se acostuma a ignorar a linha — e aí ela para de servir justamente no dia em que um vizinho cair de verdade. A fotografia de antes sai do `infra/subir.sh`, que já a tira sozinha; se você estiver conferindo à mão, grave-a antes de começar:
+>
+> ```bash
+> docker ps --format '{{.Names}}' | grep -v '^dtechmed' | sort > /tmp/vizinhos-antes.txt
+> ```
 
 Se o nosso responder 502, quase sempre é a aplicação não estar respondendo em `172.17.0.1:5400` — confira com `curl -s -o /dev/null -w '%{http_code}' http://172.17.0.1:5400/api/health`, que o `infra/subir.sh` também verifica.
 
@@ -634,7 +647,7 @@ dig +short www.dtechmed.com.br  # 169.58.76.233
 
 ### 14.3 — Ensine a portaria os nomes novos
 
-Os nomes já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos, e chegaram pelo `git reset` do passo 14.1. **Não os edite pelo terminal** — o motivo está no passo 8.2, e o preço de errar aqui são os três sites da máquina juntos.
+Os nomes já estão escritos dentro de `infra/caddy/dtechmed.caddy`, prontos, e chegaram pelo `git reset` do passo 14.1. **Não os edite pelo terminal** — o motivo está no passo 8.2, e o preço de errar aqui são os quatro sites da máquina juntos.
 
 Um comando só:
 
@@ -642,7 +655,7 @@ Um comando só:
 cd /opt/gavetas/DTECHMED && bash infra/publicar-dominio.sh
 ```
 
-> **Por que este passo é script, e todo o resto do guia é comando.** Tudo o mais mexe só na nossa gaveta. Este mexe na **portaria**, da qual dependem outros dois sistemas — uma configuração que o Caddy não consiga carregar derruba os três sites juntos.
+> **Por que este passo é script, e todo o resto do guia é comando.** Tudo o mais mexe só na nossa gaveta. Este mexe na **portaria**, da qual dependem outros três sistemas — uma configuração que o Caddy não consiga carregar derruba os quatro sites juntos.
 >
 > Feito à mão, a proteção é a pessoa: ela lê a saída do `validate`, decide se está bom, e se algo der errado depois da recarga ela precisa lembrar dos comandos de desfazer, na ordem certa, com o site fora do ar e o telefone tocando. Isso não é proteção, é esperança.
 >
@@ -660,7 +673,7 @@ Ele para sozinho, sem tocar na portaria, se qualquer uma destas não passar:
 **O que fazer com cada final:**
 
 - **Terminou com "Pronto"** — acabou. Siga para o 14.6.
-- **Parou antes de instalar** — nada foi tocado, os três sites seguem como estavam. A mensagem diz o que corrigir.
+- **Parou antes de instalar** — nada foi tocado, os quatro sites seguem como estavam. A mensagem diz o que corrigir.
 - **Desfez sozinho** — a portaria voltou ao estado anterior e recarregou. Me chame com a saída inteira.
 - **Saiu com "ainda não respondeu 200"** — quase sempre é o certificado saindo. Espere dois minutos e rode `curl -sI https://dtechmed.com.br | head -1`.
 
@@ -705,7 +718,11 @@ Os vizinhos primeiro, de propósito: se algo deu errado, é neles que precisamos
 ```bash
 curl -sI https://minhamecanica.online | head -1        # vizinho 1 — HTTP/2 200
 curl -sI https://portaldaestetica.com.br | head -1     # vizinho 2 — HTTP/2 200
-docker ps --format '{{.Names}}' | grep -vc dtechmed    # tem que dar 15
+curl -sI https://stabilize.online | head -1            # vizinho 3 — HTTP/2 200
+
+# a lista de vizinhos, comparada com a de antes (ver a nota do passo 8.5)
+docker ps --format '{{.Names}}' | grep -v '^dtechmed' | sort > /tmp/vizinhos-depois.txt
+diff /tmp/vizinhos-antes.txt /tmp/vizinhos-depois.txt && echo 'IGUAL — ninguém caiu'
 ```
 
 Agora o nosso. O endereço que atende:
@@ -897,7 +914,7 @@ As fotos são o que mais cresce. Cada ordem guarda no mínimo seis, redimensiona
 - **Não** rode `prisma migrate reset` na VPS. Ele apaga o banco inteiro.
 - **Não** troque `ENCRYPTION_KEY` nem `DOCUMENT_HASH_SALT` depois que o sistema estiver em uso.
 - **Não** exponha a porta 5433 (o banco) para fora do `127.0.0.1`. A 5400 fica também em `172.17.0.1` de propósito — é por ali que a portaria chega até nós, e é um endereço interno da máquina, não da internet.
-- **Não** instale nginx nesta VPS. As portas 80 e 443 já são do Caddy do PORTAL_ESTETICA; disputar por elas derruba os três sites.
+- **Não** instale nginx nesta VPS. As portas 80 e 443 já são do Caddy do PORTAL_ESTETICA; disputar por elas derruba os quatro sites.
 - **Não** edite o `Caddyfile` do vizinho. Nosso bloco vive em `/data/sites-extra/dtechmed.caddy`, que é o ponto de extensão que ele mesmo declara.
 - **Não** rode `docker compose down` fora de `/opt/gavetas/DTECHMED`, e nunca `docker stop $(docker ps -q)` nem `docker system prune -a` — os três derrubam ou apagam as gavetas vizinhas junto.
 - **Não** use `DIRECT_DATABASE_URL` na aplicação — ela é só das migrações.

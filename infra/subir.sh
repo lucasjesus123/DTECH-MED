@@ -12,7 +12,7 @@
 #      contra um banco que nasceu torto é o tipo de erro que só aparece três
 #      dias depois, num lugar que não tem nada a ver.
 #   3. Fotografa os vizinhos no começo e no fim, e compara. Esta VPS hospeda
-#      outros dois sistemas; a promessa de não encostar neles vira uma linha
+#      outros três sistemas; a promessa de não encostar neles vira uma linha
 #      de saída que você lê, não uma afirmação minha.
 #
 # É seguro rodar de novo. Nenhuma etapa apaga dado: as migrações só aplicam o
