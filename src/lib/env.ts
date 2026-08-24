@@ -50,6 +50,16 @@ const schema = z.object({
   ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
   LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().default(15 * 60_000),
   LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().default(8),
+  /**
+   * Chutes de CPF no portal do cliente, por IP e por link.
+   *
+   * Mais folgado que o do login de propósito: ali do outro lado está um
+   * cliente digitando o próprio documento no celular, não um funcionário que
+   * sabe a senha de cor. Dez erros em quinze minutos é gente com dificuldade;
+   * o décimo primeiro já não é.
+   */
+  PORTAL_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().default(15 * 60_000),
+  PORTAL_RATE_LIMIT_MAX: z.coerce.number().int().default(10),
   SESSION_TTL_HOURS: z.coerce.number().int().min(1).max(720).default(12),
   /** Só ative atrás de proxy reverso confiável: senão o IP vira campo forjável. */
   TRUST_PROXY: z.coerce.boolean().default(false),

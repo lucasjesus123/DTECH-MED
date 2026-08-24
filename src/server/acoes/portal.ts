@@ -7,7 +7,7 @@ import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comparaSegura, hashDocumento } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
 import { env } from '@/lib/env'
-import { ipDaRequisicao } from '@/server/auth/guarda'
+import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { avancarOrdem } from '@/server/ordem/motor'
 import { guardarAssinatura } from '@/server/arquivos/storage'
 import { reservarDoOrcamento } from '@/server/estoque/servico'
@@ -80,6 +80,54 @@ export async function carregarOrdemPublica(token: string) {
   return ordemDoToken(token)
 }
 
+/**
+ * Freio de chutes no CPF, por IP e por link.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ESTA É A AÇÃO QUE MAIS PRECISA DELE
+ * ---------------------------------------------------------------------------
+ * O login tem freio. O formulário do site tem freio. Esta aqui não tinha — e é
+ * a única do sistema em que um estranho, sem conta nenhuma, produz um efeito
+ * que vale dinheiro: aprovar o orçamento é o que vira contrato assinado.
+ *
+ * O token do link já prova o direito de LER aquela ordem. O documento é o
+ * segundo fator, o que separa ler de decidir. Sem freio, quem tivesse o link —
+ * repassado num grupo de WhatsApp, esquecido num celular emprestado, no
+ * histórico de um computador compartilhado — podia tentar CPF atrás de CPF até
+ * acertar. E o nome do cliente está impresso na própria tela do portal, o que
+ * torna o chute dirigido, não cego.
+ *
+ * Conta só o ERRO, não a tentativa. Quem digita o documento certo de primeira
+ * e depois recarrega a página não gasta cota nenhuma.
+ */
+const chutes = new Map<string, { n: number; desde: number }>()
+
+function excedeuChutes(chave: string): boolean {
+  const t = chutes.get(chave)
+  if (!t) return false
+  if (Date.now() - t.desde > env.PORTAL_RATE_LIMIT_WINDOW_MS) {
+    chutes.delete(chave)
+    return false
+  }
+  return t.n >= env.PORTAL_RATE_LIMIT_MAX
+}
+
+function contarChute(chave: string): void {
+  const agora = Date.now()
+  const t = chutes.get(chave)
+  if (!t || agora - t.desde > env.PORTAL_RATE_LIMIT_WINDOW_MS) {
+    chutes.set(chave, { n: 1, desde: agora })
+    return
+  }
+  t.n++
+}
+
+// A tabela não pode crescer para sempre num processo de vida longa.
+setInterval(() => {
+  const limite = Date.now() - env.PORTAL_RATE_LIMIT_WINDOW_MS
+  for (const [k, v] of chutes) if (v.desde < limite) chutes.delete(k)
+}, 60_000).unref?.()
+
 const schema = z.object({
   token: z.string().min(20),
   documento: z.string().transform((v) => v.replace(/\D/g, '')),
@@ -103,10 +151,39 @@ export async function responderOrcamento(_anterior: Resposta, form: FormData): P
   const ordem = await ordemDoToken(v.token)
   if (!ordem) return { ok: false, motivo: 'Link inválido ou expirado.' }
 
+  const cabecalhos = await headers()
+  const ipPedido = ipDaRequisicao(cabecalhos, env.TRUST_PROXY)
+  const chave = `${ipPedido ?? 'sem-ip'}:${v.token}`
+  const ctxOrdem: ContextoAcesso = { tenantId: ordem.tenant.id, userId: null, ehSuperAdmin: false }
+
+  if (excedeuChutes(chave)) {
+    await auditar(ctxOrdem, null, {
+      acao: 'portal.documento.bloqueado',
+      entidade: 'ordem',
+      entidadeId: ordem.id,
+      ip: ipPedido,
+      negado: true,
+    })
+    return {
+      ok: false,
+      motivo:
+        'Muitas tentativas seguidas. Espere alguns minutos e tente de novo — ' +
+        'ou fale com a assistência pelo telefone que está nesta página.',
+    }
+  }
+
   // Comparação em tempo constante: com `===`, o tempo de resposta revelaria
   // quantos caracteres do hash bateram, e adivinhação cega viraria busca
   // guiada.
   if (!comparaSegura(hashDocumento(v.documento), ordem.cliente.documentoHash)) {
+    contarChute(chave)
+    await auditar(ctxOrdem, null, {
+      acao: 'portal.documento.errado',
+      entidade: 'ordem',
+      entidadeId: ordem.id,
+      ip: ipPedido,
+      negado: true,
+    })
     return {
       ok: false,
       motivo: 'O CPF ou CNPJ não confere com o cadastro desta ordem. Confira e tente de novo.',
@@ -126,9 +203,8 @@ export async function responderOrcamento(_anterior: Resposta, form: FormData): P
   const orcamento = ordem.orcamentos[0]
   if (!orcamento) return { ok: false, motivo: 'Não encontramos o orçamento desta ordem.' }
 
-  const ctx: ContextoAcesso = { tenantId: ordem.tenant.id, userId: null, ehSuperAdmin: false }
-  const h = await headers()
-  const ip = ipDaRequisicao(h, env.TRUST_PROXY)
+  const ctx = ctxOrdem
+  const ip = ipPedido
 
   // --- Recusa -------------------------------------------------------------
   if (v.decisao === 'reprovar') {
@@ -180,7 +256,7 @@ export async function responderOrcamento(_anterior: Resposta, form: FormData): P
         // a divergência fica demonstrável.
         hashDocumento: `${orcamento.id}:${orcamento.versao}:${orcamento.totalCentavos}`,
         ip,
-        userAgent: h.get('user-agent')?.slice(0, 400) ?? null,
+        userAgent: cabecalhos.get('user-agent')?.slice(0, 400) ?? null,
       },
     })
 
