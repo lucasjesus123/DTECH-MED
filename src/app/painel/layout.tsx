@@ -64,8 +64,43 @@ export default async function LayoutPainel({ children }: { children: React.React
    * nunca recebe um item que ela não poderia ver e depois o esconde com CSS.
    * A diferença importa: esconder no navegador é enfeite, não permissão.
    */
-  const grupos: GrupoNav[] = [
-    {
+  const grupos: GrupoNav[] = []
+
+  /**
+   * O SUPER ADMIN não opera a esteira — ele cuida da plataforma.
+   *
+   * -------------------------------------------------------------------------
+   * POR QUE ELE DEIXOU DE VER AS TREZE ENTRADAS
+   * -------------------------------------------------------------------------
+   * Ele via o menu inteiro: painel do dia, ordens, agenda, estoque, financeiro,
+   * WhatsApp — treze itens, e nenhum deles é trabalho dele. Quem dá baixa numa
+   * ordem é a franquia; quem confere o caixa é a franquia. O dono da plataforma
+   * cadastra a franquia, cadastra quem vai trabalhar nela, e olha se ela está
+   * de pé.
+   *
+   * Menu que oferece o que a pessoa não faz não é generosidade: é ruído que ela
+   * precisa aprender a ignorar, todo dia, para achar as duas entradas que
+   * importam. Trocar treze por duas é o conserto.
+   *
+   * Isto é ARRUMAÇÃO, não trava. As telas continuam existindo e o guarda de
+   * cada uma continua sendo quem decide — o super admin que digitar o endereço
+   * de uma ordem chega nela, como sempre chegou. O que muda é o que o menu
+   * oferece de saída.
+   */
+  if (p === Papel.SUPER_ADMIN) {
+    // "Administração", e não "Plataforma": o crachá logo acima já diz
+    // Plataforma, porque é o lugar do nome da empresa e o super admin não tem
+    // uma. A mesma palavra duas vezes, uma embaixo da outra, é metade da
+    // sensação de bagunça — parece hierarquia onde não há.
+    grupos.push({
+      titulo: 'Administração',
+      itens: [
+        { href: '/painel/empresas', rotulo: 'Empresas e usuários', icone: 'empresas' },
+        { href: '/painel/site', rotulo: 'Site', icone: 'site' },
+      ],
+    })
+  } else {
+    grupos.push({
       titulo: 'A esteira',
       itens: [
         { href: '/painel', rotulo: 'Painel do dia', icone: 'mostrador' },
@@ -74,34 +109,24 @@ export default async function LayoutPainel({ children }: { children: React.React
         { href: '/painel/ordens', rotulo: 'Ordens', icone: 'ordens' },
         { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
       ],
-    },
-  ]
-
-  // Cadastros: o equipamento é do trabalho de todos, a carteira de clientes
-  // não. Um `if` em volta do grupo inteiro para o menu não mostrar uma seção
-  // vazia a quem só enxerga metade dela.
-  const cadastros: ItemNav[] = []
-  if (podeVer(p, Papel.ATENDENTE)) {
-    cadastros.push({ href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' })
-  }
-  cadastros.push({ href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' })
-  grupos.push({ titulo: 'Cadastros', itens: cadastros })
-
-  const retaguarda: ItemNav[] = []
-  if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
-  if (podeVer(p, Papel.ATENDENTE)) retaguarda.push({ href: '/painel/preventiva', rotulo: 'Preventiva', icone: 'preventiva' })
-  if (podeVer(p, Papel.FINANCEIRO)) retaguarda.push({ href: '/painel/financeiro', rotulo: 'Financeiro', icone: 'financeiro' })
-  if (podeVer(p, Papel.GESTOR)) retaguarda.push({ href: '/painel/whatsapp', rotulo: 'WhatsApp', icone: 'balao' })
-  if (retaguarda.length > 0) grupos.push({ titulo: 'Retaguarda', itens: retaguarda })
-
-  if (p === Papel.SUPER_ADMIN) {
-    grupos.push({
-      titulo: 'Plataforma',
-      itens: [
-        { href: '/painel/empresas', rotulo: 'Empresas', icone: 'empresas' },
-        { href: '/painel/site', rotulo: 'Site', icone: 'site' },
-      ],
     })
+
+    // Cadastros: o equipamento é do trabalho de todos, a carteira de clientes
+    // não. Um `if` em volta do grupo inteiro para o menu não mostrar uma seção
+    // vazia a quem só enxerga metade dela.
+    const cadastros: ItemNav[] = []
+    if (podeVer(p, Papel.ATENDENTE)) {
+      cadastros.push({ href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' })
+    }
+    cadastros.push({ href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' })
+    grupos.push({ titulo: 'Cadastros', itens: cadastros })
+
+    const retaguarda: ItemNav[] = []
+    if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
+    if (podeVer(p, Papel.ATENDENTE)) retaguarda.push({ href: '/painel/preventiva', rotulo: 'Preventiva', icone: 'preventiva' })
+    if (podeVer(p, Papel.FINANCEIRO)) retaguarda.push({ href: '/painel/financeiro', rotulo: 'Financeiro', icone: 'financeiro' })
+    if (podeVer(p, Papel.GESTOR)) retaguarda.push({ href: '/painel/whatsapp', rotulo: 'WhatsApp', icone: 'balao' })
+    if (retaguarda.length > 0) grupos.push({ titulo: 'Retaguarda', itens: retaguarda })
   }
 
   return (

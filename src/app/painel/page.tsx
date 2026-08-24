@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { exigirSessao } from '@/server/auth/guarda'
 import { esteira, filaDoDegrau, resumoDoDia } from '@/server/consultas/painel'
@@ -18,6 +20,13 @@ export default async function PainelDoDia({
   searchParams: Promise<{ degrau?: string }>
 }) {
   const { ctx, sessao } = await exigirSessao()
+
+  // O super admin cai aqui ao entrar, mas "onde a esteira está agora" é a
+  // pergunta de quem opera uma franquia — ele não tem esteira. Sem este desvio
+  // ele aterrissava numa tela de números vazios que o menu dele nem oferece
+  // mais, e precisava de dois cliques para chegar onde de fato trabalha.
+  if (sessao.papel === Papel.SUPER_ADMIN) redirect('/painel/empresas')
+
   const { degrau = 'manut' } = await searchParams
 
   const [degraus, resumo, fila, leads] = await Promise.all([
