@@ -1756,7 +1756,27 @@
   min-height: 40px;
 }
 
+/* --------------------------------------------------------------------------
+   A ÚLTIMA BARRA DO RODAPÉ E O BOTÃO DO WHATSAPP
+   --------------------------------------------------------------------------
+   O widget do WhatsApp é `position: fixed` no canto inferior direito, e a
+   última barra do rodapé termina com "Acesso ao sistema" exatamente ali. Quem
+   rolava até o fim encontrava o botão verde por cima do link — e o link some
+   atrás dele, porque o widget tem `z-index: 60`.
+
+   Não é o widget que cede: ele precisa mesmo ficar por cima da página, é essa a
+   função dele. Quem cede é o rodapé, reservando a área que o botão ocupa.
+
+   A conta: 58px do botão, mais o afastamento da borda (o mesmo `clamp` que o
+   widget usa), mais um respiro. Escrita uma vez aqui — se um dia o botão mudar
+   de tamanho, muda nos dois lugares junto.
+
+   Em tela larga a reserva é à DIREITA, e o link anda para dentro. Em tela
+   estreita a barra quebra em linhas e o último item cai embaixo, onde o botão
+   também está — então lá a reserva vira embaixo. -------------------------- */
 .rodFim {
+  --zona-zap: calc(58px + clamp(14px, 3vw, 26px) + var(--s3));
+
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1764,9 +1784,17 @@
   gap: var(--s3);
   margin-top: var(--s7);
   padding-top: var(--s5);
+  padding-right: var(--zona-zap);
   border-top: 1px solid var(--borda);
   font-size: var(--t-sm);
   color: var(--txt-3);
+}
+
+@media (max-width: 780px) {
+  .rodFim {
+    padding-right: 0;
+    padding-bottom: var(--zona-zap);
+  }
 }
 
 /* ==========================================================================
