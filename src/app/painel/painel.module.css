@@ -1090,9 +1090,13 @@
 .eventoQuem { font-size: var(--t-xs); color: var(--txt-2); margin-top: 3px; }
 .eventoHash {
   font-family: var(--f-mono);
-  font-size: 9px;
+  /* 10px, e SEM `opacity`. O token `--txt-3` é o piso de contraste do sistema
+     (5,4:1), mas uma opacidade por cima o derruba para 2,67:1 — abaixo do
+     mínimo de 4,5:1, e a varredura pegou os 17 nós de uma vez. Ironia à
+     parte, era justamente a impressão digital do evento, a prova de que a
+     linha do tempo não foi adulterada, que ninguém conseguia ler. */
+  font-size: 10px;
   color: var(--txt-3);
-  opacity: 0.65;
   margin-top: 4px;
   overflow-wrap: anywhere;
 }
