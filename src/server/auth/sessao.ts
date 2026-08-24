@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import type { Papel } from '@/generated/prisma/enums'
 import { comparaSegura, conferirSenha, hashToken, novoToken } from '@/lib/cripto'
-import { comContextoAuth, prisma, type ContextoAcesso } from '@/lib/db'
+import { comContextoAuth, type ContextoAcesso } from '@/lib/db'
 import { ehProducao, env } from '@/lib/env'
 
 /**

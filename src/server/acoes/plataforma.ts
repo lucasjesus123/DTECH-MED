@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Papel } from '@/generated/prisma/enums'
 import { conferirSenha, hashSenha } from '@/lib/cripto'
-import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
+import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao, revogarTodasAsSessoes } from '@/server/auth/sessao'
 
@@ -150,9 +150,15 @@ export async function alternarBloqueio(tenantId: string, bloquear: boolean, moti
   // Suspender sem derrubar as sessões abertas seria suspender só no papel:
   // quem já estava dentro continuaria trabalhando até o cookie vencer.
   if (bloquear) {
-    await prisma.sessao.updateMany({
-      where: { user: { tenantId }, revogadaEm: null },
-      data: { revogadaEm: new Date() },
+    // Pelo escopo de Super Admin, e não pelo cliente cru: `sessoes` também
+    // está sob FORCE RLS. Sem contexto, o updateMany não enxerga sessão
+    // nenhuma, responde "0" e a suspensão fica só no papel — quem já estava
+    // dentro seguiria trabalhando até o cookie vencer.
+    await comEscopo(ctxPlataforma, async (tx) => {
+      await tx.sessao.updateMany({
+        where: { user: { tenantId }, revogadaEm: null },
+        data: { revogadaEm: new Date() },
+      })
     })
   }
 
@@ -337,10 +343,14 @@ export async function trocarSenha(_anterior: Resposta, form: FormData): Promise<
   const d = schemaSenha.safeParse(Object.fromEntries(form))
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
 
-  const atual = await prisma.user.findUnique({
-    where: { id: a.sessao.userId },
-    select: { senhaHash: true },
-  })
+  // `comEscopo` e não o cliente cru: `usuarios` está sob FORCE ROW LEVEL
+  // SECURITY, que prende o DONO da tabela junto com todo mundo. Sem declarar a
+  // empresa, o `findUnique` volta nulo — o usuário lia "Usuário não
+  // encontrado." estando logado — e o `update` alteraria zero linhas
+  // respondendo "salvo". Ninguém conseguia trocar a própria senha.
+  const atual = await comEscopo(a.ctx, async (tx) =>
+    tx.user.findUnique({ where: { id: a.sessao.userId! }, select: { senhaHash: true } }),
+  )
   if (!atual) return { ok: false, motivo: 'Usuário não encontrado.' }
 
   if (!(await conferirSenha(atual.senhaHash, d.data.atual))) {
@@ -349,10 +359,20 @@ export async function trocarSenha(_anterior: Resposta, form: FormData): Promise<
   }
 
   const novoHash = await hashSenha(d.data.nova)
-  await prisma.user.update({
-    where: { id: a.sessao.userId },
-    data: { senhaHash: novoHash, trocarSenha: false },
+  const trocadas = await comEscopo(a.ctx, async (tx) => {
+    const r = await tx.user.updateMany({
+      where: { id: a.sessao.userId! },
+      data: { senhaHash: novoHash, trocarSenha: false },
+    })
+    return r.count
   })
+
+  // Uma escrita barrada pela policy responde "0 linhas", não erro. Conferir o
+  // número é o que separa "senha trocada" de uma mentira educada na tela.
+  if (trocadas !== 1) {
+    await auditar(a.ctx, a.sessao, { acao: 'senha.troca_falhou', negado: true })
+    return { ok: false, motivo: 'Não foi possível salvar a nova senha. Tente de novo.' }
+  }
 
   await auditar(a.ctx, a.sessao, { acao: 'senha.trocada', entidade: 'usuario', entidadeId: a.sessao.userId })
   return {
