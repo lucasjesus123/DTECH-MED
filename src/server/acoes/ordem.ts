@@ -233,7 +233,6 @@ export async function anexarFotos(form: FormData): Promise<Resposta<{ total: num
   const existe = await comEscopo(a.ctx, (tx) => tx.ordem.findUnique({ where: { id: ordemId }, select: { id: true } }))
   if (!existe) return { ok: false, motivo: 'Ordem não encontrada.' }
 
-  let gravadas = 0
   for (const arquivo of arquivos.slice(0, 12)) {
     const r = await guardarFoto({ tenantId: exigirEmpresa(a.ctx), ordemId, arquivo })
     if (!r.ok) return { ok: false, motivo: r.motivo }
@@ -255,7 +254,7 @@ export async function anexarFotos(form: FormData): Promise<Resposta<{ total: num
         },
       })
     })
-    gravadas++
+
   }
 
   const total = await comEscopo(a.ctx, (tx) =>

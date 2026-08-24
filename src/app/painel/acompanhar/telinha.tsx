@@ -280,6 +280,12 @@ export function Telinha({
                 <div className={estilo.telaAssinaturas}>
                   {d.assinaturas.map((s) => (
                     <div key={s.id} className={estilo.assinatura}>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- estas
+                          imagens vêm de rota NOSSA que confere a sessão antes de
+                          devolver o byte. Passá-las pelo otimizador do next/image
+                          colocaria conteúdo autenticado num cache compartilhado e
+                          sem dono. O peso já é pequeno e o `loading="lazy"` resolve
+                          o resto. */}
                       <img
                         className={estilo.assinaturaTraco}
                         src={`/api/assinatura/${s.id}`}
@@ -312,6 +318,12 @@ export function Telinha({
                 <div className={estilo.telaFotos}>
                   {d.fotos.map((f) => (
                     <a key={f.id} href={`/api/foto/${f.id}`} target="_blank" rel="noreferrer">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- estas
+                          imagens vêm de rota NOSSA que confere a sessão antes de
+                          devolver o byte. Passá-las pelo otimizador do next/image
+                          colocaria conteúdo autenticado num cache compartilhado e
+                          sem dono. O peso já é pequeno e o `loading="lazy"` resolve
+                          o resto. */}
                       <img src={`/api/foto/${f.id}?t=1`} alt={f.legenda ?? f.categoria} loading="lazy" />
                     </a>
                   ))}

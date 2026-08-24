@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { QuadroAssinatura, type QuadroRef } from '@/components/quadro-assinatura'
+import { useEstaOnline } from '../../esta-online'
 import { assinarNoVisor } from '@/server/acoes/ordem'
 import estilo from '../../app.module.css'
 
@@ -38,27 +39,16 @@ export function FormularioAssinatura({
   const [temTraco, setTemTraco] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
-  const [online, setOnline] = useState(true)
+  const online = useEstaOnline()
   const [geo, setGeo] = useState<{ lat: number; lng: number; precisao: number } | null>(null)
   const [geoEstado, setGeoEstado] = useState<'buscando' | 'ok' | 'indisponivel'>('buscando')
 
   useEffect(() => {
-    setOnline(navigator.onLine)
-    const on = () => setOnline(true)
-    const off = () => setOnline(false)
-    addEventListener('online', on)
-    addEventListener('offline', off)
-    return () => {
-      removeEventListener('online', on)
-      removeEventListener('offline', off)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!navigator.geolocation) {
-      setGeoEstado('indisponivel')
-      return
-    }
+    // Sem o `if (!navigator.geolocation)` de antes: em qualquer navegador de
+    // hoje a API existe sempre, e o que falha de verdade — permissão negada,
+    // http sem cadeado, sinal que não vem — já cai no callback de erro logo
+    // abaixo, que leva ao mesmo 'indisponivel'. A checagem só servia para
+    // marcar estado durante a renderização, o que provoca um segundo ciclo.
     navigator.geolocation.getCurrentPosition(
       (p) => {
         setGeo({ lat: p.coords.latitude, lng: p.coords.longitude, precisao: p.coords.accuracy })

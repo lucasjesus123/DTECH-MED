@@ -1,5 +1,5 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { comEscopo, prisma, type ContextoAcesso, exigirEmpresa } from '@/lib/db'
+import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { janelaDoDia } from '@/lib/datas'
 
 /**

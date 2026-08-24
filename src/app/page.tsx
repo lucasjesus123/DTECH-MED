@@ -3,13 +3,11 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import Link from 'next/link'
 import {
-  enderecoEmUmaLinhaDe,
   instagramUsuarioDe,
   linkMapsDe,
   linkWhatsappDe,
   mapaUrlDe,
 } from '@/lib/conteudo'
-import { DESENVOLVEDOR } from '@/lib/empresa'
 import { lerConteudo } from '@/server/conteudo'
 import { Credito } from './credito'
 import { DadosEstruturados } from './dados-estruturados'

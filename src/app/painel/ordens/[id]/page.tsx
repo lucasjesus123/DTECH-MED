@@ -55,7 +55,6 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
   ])
 
   const passos = proximosPassos(o.etapa, sessao.papel)
-  const orcamentoAtual = o.orcamentos[0] ?? null
   const linkPortal = `${env.APP_URL}/os/${o.tokenPublico}`
 
   const fotosPorCategoria = o.fotos.reduce<Record<string, typeof o.fotos>>((acc, f) => {
@@ -456,6 +455,12 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
                   ao telefone. */}
               {o.assinaturas.map((s) => (
                 <div key={s.id} className={estilo.assinatura}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- estas
+                      imagens vêm de rota NOSSA que confere a sessão antes de
+                      devolver o byte. Passá-las pelo otimizador do next/image
+                      colocaria conteúdo autenticado num cache compartilhado e
+                      sem dono. O peso já é pequeno e o `loading="lazy"` resolve
+                      o resto. */}
                   <img
                     className={estilo.assinaturaTraco}
                     src={`/api/assinatura/${s.id}`}

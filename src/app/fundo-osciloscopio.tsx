@@ -217,7 +217,8 @@ export function FundoOsciloscopio() {
     const olho = new IntersectionObserver(
       ([e]) => {
         visivel = e?.isIntersecting ?? false
-        visivel ? comecar() : parar()
+        if (visivel) comecar()
+        else parar()
       },
       { threshold: 0.01 },
     )
