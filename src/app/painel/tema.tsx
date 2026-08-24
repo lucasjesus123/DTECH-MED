@@ -8,30 +8,29 @@ import estilo from './painel.module.css'
  * O seletor de tema, no pé da lateral.
  *
  * ---------------------------------------------------------------------------
- * POR QUE TRÊS BOTÕES E NÃO UM INTERRUPTOR
+ * DUAS OPÇÕES, E AS DUAS À VISTA
  * ---------------------------------------------------------------------------
- * Um interruptor de dois estados não tem como representar "siga o aparelho" —
- * ele sempre mostra um dos dois ligado, e a pessoa que escolheu automático fica
- * olhando para um botão que parece dizer o contrário do que ela pediu.
+ * Havia um terceiro botão, "Auto", que seguia o aparelho. Saiu por decisão do
+ * dono: no painel a pessoa quer a tela que ela escolheu.
  *
- * Três opções lado a lado mostram as três verdades ao mesmo tempo, e a
- * escolhida é a que está marcada. Não há estado escondido.
+ * Sobraram dois — e continuam sendo dois botões lado a lado, não um
+ * interruptor. Interruptor obriga a decorar qual lado é qual; dois rótulos
+ * escritos mostram as duas verdades ao mesmo tempo, com a escolhida marcada.
  *
  * ---------------------------------------------------------------------------
- * POR QUE `radiogroup` E NÃO TRÊS BOTÕES SOLTOS
+ * POR QUE `radiogroup` E NÃO DOIS BOTÕES SOLTOS
  * ---------------------------------------------------------------------------
  * São opções mutuamente exclusivas de uma mesma pergunta, e é isso que um
  * grupo de rádio significa. Para quem usa leitor de tela, a diferença é ouvir
- * "Tema, Escuro, 2 de 3" em vez de três botões sem relação entre si; para quem
- * usa teclado, é atravessar o grupo com as setas em vez de com três Tabs.
+ * "Tema, Escuro, 2 de 2" em vez de dois botões sem relação entre si; para quem
+ * usa teclado, é atravessar o grupo com as setas em vez de com dois Tabs.
  */
 export default function SeletorDeTema({ atual }: { atual: Tema }) {
   const [trocando, iniciar] = useTransition()
 
   const opcoes: ReadonlyArray<{ valor: Tema; rotulo: string; titulo: string }> = [
-    { valor: 'claro', rotulo: 'Claro', titulo: 'Sempre claro' },
-    { valor: 'escuro', rotulo: 'Escuro', titulo: 'Sempre escuro' },
-    { valor: 'sistema', rotulo: 'Auto', titulo: 'Acompanha o aparelho' },
+    { valor: 'claro', rotulo: 'Claro', titulo: 'Tela clara' },
+    { valor: 'escuro', rotulo: 'Escuro', titulo: 'Tela escura' },
   ]
 
   return (

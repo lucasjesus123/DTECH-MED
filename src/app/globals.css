@@ -21,8 +21,7 @@
 :root,
 .claro,
 [data-tema='claro'],
-[data-tema='escuro'],
-[data-tema='sistema'] {
+[data-tema='escuro'] {
   /* =======================================================================
      UMA PALETA, DOIS TEMAS
      -----------------------------------------------------------------------
@@ -255,14 +254,6 @@
 
 [data-tema='escuro'] {
   color-scheme: dark;
-  background: var(--bg);
-  color: var(--txt);
-}
-
-/* "Sistema" entrega a decisão ao aparelho: o mesmo painel fica claro de dia e
-   escuro de noite se a pessoa configurou assim no celular ou no sistema. */
-[data-tema='sistema'] {
-  color-scheme: light dark;
   background: var(--bg);
   color: var(--txt);
 }

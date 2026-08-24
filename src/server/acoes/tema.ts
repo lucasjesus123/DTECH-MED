@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 /**
- * Claro, escuro, ou o que o aparelho mandar.
+ * Claro ou escuro. Só isso.
  *
  * ---------------------------------------------------------------------------
  * POR QUE COOKIE, E NÃO `localStorage`
@@ -20,18 +20,21 @@ import { revalidatePath } from 'next/cache'
  * porque não há troca: a primeira pintura já é a definitiva.
  *
  * ---------------------------------------------------------------------------
- * POR QUE TRÊS OPÇÕES E NÃO DUAS
+ * POR QUE DUAS OPÇÕES, E NÃO TRÊS
  * ---------------------------------------------------------------------------
- * "Sistema" não é enfeite: é o que faz o painel acompanhar o aparelho de quem
- * usa — claro durante o dia, escuro à noite, sem ninguém tocar em nada. Quem
- * quer um dos dois fixos escolhe fixo. Oferecer só o interruptor de dois
- * estados obriga a pessoa a decidir por um deles para sempre.
+ * Havia um terceiro modo, "Auto", que entregava a decisão ao aparelho. Saiu por
+ * decisão do dono: o painel é ferramenta de trabalho, e quem senta nele quer a
+ * tela que escolheu, não a tela que o celular resolveu às seis da tarde.
+ *
+ * A retirada não deixa ninguém preso. Quem já tinha "Auto" gravado no cookie
+ * cai no padrão pela conferência de `VALIDOS` logo abaixo — não há migração a
+ * rodar, nem sessão a derrubar, e a próxima página já vem clara.
  */
 
-export type Tema = 'claro' | 'escuro' | 'sistema'
+export type Tema = 'claro' | 'escuro'
 
 const NOME = 'dtechmed_tema'
-const VALIDOS: readonly Tema[] = ['claro', 'escuro', 'sistema']
+const VALIDOS: readonly Tema[] = ['claro', 'escuro']
 
 /** O tema gravado, ou o padrão. Lido no servidor, antes de pintar. */
 export async function lerTema(): Promise<Tema> {
