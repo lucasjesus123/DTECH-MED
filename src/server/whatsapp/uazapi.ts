@@ -1,6 +1,6 @@
 import { cifrar, decifrar } from '@/lib/cripto'
+import { configWhatsappEmUso } from '@/server/plataforma/config'
 import { comEscopo, type ContextoAcesso, type Transacao, exigirEmpresa } from '@/lib/db'
-import { env } from '@/lib/env'
 
 /**
  * Cliente da uazapi.
@@ -18,7 +18,7 @@ import { env } from '@/lib/env'
  * dispara pelo WhatsApp do cliente B trocando um id na URL.
  */
 
-const BASE = env.UAZAPI_BASE_URL.replace(/\/+$/, '')
+
 
 class ErroUazapi extends Error {
   constructor(
@@ -43,11 +43,18 @@ async function chamar<T>(
 ): Promise<T> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
 
+  // O endereço e o token vêm da configuração da PLATAFORMA, que o dono edita
+  // pela tela. A variável de ambiente continua valendo como piso, para uma
+  // instalação nova falar com a uazapi antes de alguém abrir a tela.
+  const conf = await configWhatsappEmUso()
+
   if (opcoes.admin) {
-    if (!env.UAZAPI_ADMIN_TOKEN) {
-      throw new Error('UAZAPI_ADMIN_TOKEN não configurado — operação administrativa indisponível.')
+    if (!conf.adminToken) {
+      throw new Error(
+        'Token de administração da uazapi não configurado. O dono da plataforma preenche em Administração → WhatsApp da plataforma.',
+      )
     }
-    headers.admintoken = env.UAZAPI_ADMIN_TOKEN
+    headers.admintoken = conf.adminToken
   } else {
     if (!opcoes.token) throw new Error('Token da instância ausente.')
     headers.token = opcoes.token
@@ -59,7 +66,7 @@ async function chamar<T>(
   const t = setTimeout(() => ac.abort(), opcoes.timeoutMs ?? 20_000)
 
   try {
-    const r = await fetch(`${BASE}${caminho}`, {
+    const r = await fetch(`${conf.baseUrl}${caminho}`, {
       method: opcoes.metodo ?? 'POST',
       headers,
       body: opcoes.corpo ? JSON.stringify(opcoes.corpo) : undefined,

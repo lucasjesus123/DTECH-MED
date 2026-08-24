@@ -260,3 +260,35 @@ export type ConteudoSiteVersao = Prisma.ConteudoSiteVersaoModel
  * risco sem ganhar nada: `scripts/limpar-rastros.mts` apaga o que passou.
  */
 export type PosicaoRota = Prisma.PosicaoRotaModel
+/**
+ * Model ConfigPlataforma
+ * Configuração da PLATAFORMA — o que é do dono do SaaS, não de uma franquia.
+ * 
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO SAIU DA VARIÁVEL DE AMBIENTE
+ * ---------------------------------------------------------------------------
+ * O endereço e o token de administração da uazapi viviam em `UAZAPI_BASE_URL`
+ * e `UAZAPI_ADMIN_TOKEN`. Funciona para um sistema de uma empresa, e trava
+ * para um SaaS: trocar o token — porque venceu, porque vazou, porque mudou de
+ * provedor — obrigava a entrar na VPS, editar arquivo e subir o contêiner de
+ * novo. Configuração que só o servidor sabe mudar é configuração que na
+ * prática ninguém muda.
+ * 
+ * Aqui é chave e valor porque o conjunto vai crescer — hoje são dois campos do
+ * WhatsApp, amanhã entra o gateway de cobrança. Uma coluna por item viraria
+ * uma migração de banco por item.
+ * 
+ * ---------------------------------------------------------------------------
+ * QUEM PODE LER
+ * ---------------------------------------------------------------------------
+ * A tabela não tem `tenantId` de propósito: ela não pertence a franquia
+ * nenhuma. O RLS a fecha para todo mundo e a abre em dois casos, escritos na
+ * migração: o dono da plataforma, e a janela estreita que o próprio servidor
+ * abre para falar com a uazapi. Nenhum usuário de franquia lê uma linha daqui,
+ * nem por engano de consulta.
+ * 
+ * Valor sensível entra CIFRADO (o mesmo `cifrar` do token de instância), e
+ * `sigiloso` marca quais são — é o que a tela usa para nunca devolver o
+ * conteúdo ao navegador, mostrando só "configurado" ou "vazio".
+ */
+export type ConfigPlataforma = Prisma.ConfigPlataformaModel

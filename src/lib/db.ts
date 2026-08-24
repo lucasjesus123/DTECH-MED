@@ -133,3 +133,22 @@ export async function comContextoWorker<T>(fn: (tx: Transacao) => Promise<T>): P
     return fn(tx)
   })
 }
+
+/**
+ * Contexto da plataforma: janela estreita que libera SOMENTE
+ * `config_plataforma`, e apenas para leitura.
+ *
+ * Existe por um motivo concreto: o token de administração da uazapi é da
+ * PLATAFORMA, mas quem aperta o botão "conectar WhatsApp" é o gestor de uma
+ * franquia. Sem esta janela, ele não conseguiria conectar o número da própria
+ * casa — a chave está num cofre que o papel dele não abre.
+ *
+ * A política no banco recusa escrita mesmo que alguém tente por aqui. Gravar
+ * continua sendo só do dono da plataforma, pela tela dele.
+ */
+export async function comContextoPlataforma<T>(fn: (tx: Transacao) => Promise<T>): Promise<T> {
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT set_config('app.plataforma_context', 'on', true)`
+    return fn(tx)
+  })
+}

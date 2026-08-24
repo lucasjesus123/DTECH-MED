@@ -6,6 +6,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { conferirSenha, hashSenha } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
+import { gravarConfigWhatsapp } from '@/server/plataforma/config'
 import {
   contextoDe,
   lerSessao,
@@ -477,4 +478,52 @@ export async function sairDaEmpresa(): Promise<Resposta> {
   await limparEmpresaVisitada()
   revalidatePath('/painel', 'layout')
   return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// A CONTA DE WHATSAPP DA PLATAFORMA
+// ---------------------------------------------------------------------------
+
+const schemaWhats = z.object({
+  baseUrl: z.string().trim().url('O endereço precisa começar com https:// e ser um endereço válido.'),
+  adminToken: z.string().nullish(),
+})
+
+/**
+ * Guarda o endereço e o token de administração da uazapi.
+ *
+ * Uma conta para a rede inteira, e uma instância de WhatsApp por franquia
+ * pendurada nela — é assim que a uazapi funciona e é assim que um SaaS cobra:
+ * o contrato com o provedor é do dono da plataforma, não de cada franqueado.
+ *
+ * O token entra cifrado e NUNCA volta para a tela. Quem abre a tela vê
+ * "configurado" ou "vazio", e o campo em branco significa "não mexi nele" — não
+ * "apague". Apagar por omissão é como se perde a chave da rede inteira num
+ * salvamento distraído.
+ */
+export async function salvarWhatsappDaPlataforma(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (a.sessao.papel !== Papel.SUPER_ADMIN) {
+    return { ok: false, motivo: 'Só o dono da plataforma configura a conta de WhatsApp da rede.' }
+  }
+
+  const d = schemaWhats.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+
+  const ctxPlataforma: ContextoAcesso = { tenantId: null, userId: a.sessao.userId, ehSuperAdmin: true }
+  await gravarConfigWhatsapp(ctxPlataforma, a.sessao.userId, {
+    baseUrl: d.data.baseUrl,
+    adminToken: d.data.adminToken ?? null,
+  })
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'plataforma.whatsapp_configurado',
+    // O token não vai para a trilha nem em pedaço: trilha de auditoria é lida
+    // por mais gente e guardada por mais tempo que qualquer outra tabela.
+    detalhes: { baseUrl: d.data.baseUrl, tokenTrocado: Boolean(d.data.adminToken?.trim()) },
+  })
+
+  revalidatePath('/painel/plataforma-whatsapp')
+  return { ok: true, mensagem: 'Conta de WhatsApp da plataforma salva.' }
 }

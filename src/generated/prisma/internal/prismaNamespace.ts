@@ -426,7 +426,8 @@ export const ModelName = {
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
-  PosicaoRota: 'PosicaoRota'
+  PosicaoRota: 'PosicaoRota',
+  ConfigPlataforma: 'ConfigPlataforma'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -442,7 +443,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2666,6 +2667,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ConfigPlataforma: {
+      payload: Prisma.$ConfigPlataformaPayload<ExtArgs>
+      fields: Prisma.ConfigPlataformaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConfigPlataformaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConfigPlataformaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        findFirst: {
+          args: Prisma.ConfigPlataformaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConfigPlataformaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        findMany: {
+          args: Prisma.ConfigPlataformaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>[]
+        }
+        create: {
+          args: Prisma.ConfigPlataformaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        createMany: {
+          args: Prisma.ConfigPlataformaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConfigPlataformaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>[]
+        }
+        delete: {
+          args: Prisma.ConfigPlataformaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        update: {
+          args: Prisma.ConfigPlataformaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConfigPlataformaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConfigPlataformaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConfigPlataformaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConfigPlataformaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConfigPlataformaPayload>
+        }
+        aggregate: {
+          args: Prisma.ConfigPlataformaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConfigPlataforma>
+        }
+        groupBy: {
+          args: Prisma.ConfigPlataformaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConfigPlataformaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConfigPlataformaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConfigPlataformaCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3322,6 +3397,17 @@ export const PosicaoRotaScalarFieldEnum = {
 export type PosicaoRotaScalarFieldEnum = (typeof PosicaoRotaScalarFieldEnum)[keyof typeof PosicaoRotaScalarFieldEnum]
 
 
+export const ConfigPlataformaScalarFieldEnum = {
+  chave: 'chave',
+  valor: 'valor',
+  sigiloso: 'sigiloso',
+  atualizadoEm: 'atualizadoEm',
+  atualizadoPorId: 'atualizadoPorId'
+} as const
+
+export type ConfigPlataformaScalarFieldEnum = (typeof ConfigPlataformaScalarFieldEnum)[keyof typeof ConfigPlataformaScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3927,6 +4013,7 @@ export type GlobalOmitConfig = {
   conteudoSite?: Prisma.ConteudoSiteOmit
   conteudoSiteVersao?: Prisma.ConteudoSiteVersaoOmit
   posicaoRota?: Prisma.PosicaoRotaOmit
+  configPlataforma?: Prisma.ConfigPlataformaOmit
 }
 
 /* Types for Logging */

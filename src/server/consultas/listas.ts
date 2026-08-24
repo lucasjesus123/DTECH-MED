@@ -654,6 +654,7 @@ export async function listarEmpresas() {
       ordens: bigint
       abertas: bigint
       whats: string | null
+      whatsNumero: string | null
     }>
   >`
     SELECT t.id, t.slug, t.nome, t.cnpj, t.cidade, t.uf, t.ativo, t.bloqueado,
@@ -662,7 +663,8 @@ export async function listarEmpresas() {
            (SELECT count(*) FROM ordens o WHERE o."tenantId" = t.id)               AS ordens,
            (SELECT count(*) FROM ordens o WHERE o."tenantId" = t.id
               AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')) AS abertas,
-           (SELECT w.status::text FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS whats
+           (SELECT w.status::text FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS whats,
+           (SELECT w.numero      FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS "whatsNumero"
       FROM tenants t
      ORDER BY t.nome ASC
   `,

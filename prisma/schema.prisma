@@ -229,16 +229,16 @@ enum OrigemLead {
 
 /// Uma empresa = uma franquia = um tenant. A fronteira do isolamento.
 model Tenant {
-  id        String  @id @default(cuid())
+  id          String  @id @default(cuid())
   /// Subdomínio / identificador na URL. Ex.: "dtechmed-lajeado".
-  slug      String  @unique
-  nome      String
+  slug        String  @unique
+  nome        String
   razaoSocial String?
-  cnpj      String? @unique
+  cnpj        String? @unique
   /// Contato público exibido em documentos e mensagens.
-  email     String?
-  telefone  String?
-  whatsapp  String?
+  email       String?
+  telefone    String?
+  whatsapp    String?
 
   // Endereço da matriz — entra no cabeçalho dos PDFs.
   cep         String?
@@ -254,44 +254,44 @@ model Tenant {
   corPrimaria   String  @default("#4A0D8F")
   corSecundaria String  @default("#1B5CFF")
 
-  ativo     Boolean  @default(true)
-  plano     String   @default("padrao")
+  ativo          Boolean @default(true)
+  plano          String  @default("padrao")
   /// Bloqueio administrativo pelo Super Admin (inadimplência, suspensão).
-  bloqueado Boolean  @default(false)
+  bloqueado      Boolean @default(false)
   motivoBloqueio String?
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  usuarios       User[]
-  clientes       Cliente[]
-  equipamentos   Equipamento[]
-  ordens         Ordem[]
-  eventos        EventoOrdem[]
-  fotos          Foto[]
-  assinaturas    Assinatura[]
-  orcamentos     Orcamento[]
-  itensOrcamento OrcamentoItem[]
+  usuarios            User[]
+  clientes            Cliente[]
+  equipamentos        Equipamento[]
+  ordens              Ordem[]
+  eventos             EventoOrdem[]
+  fotos               Foto[]
+  assinaturas         Assinatura[]
+  orcamentos          Orcamento[]
+  itensOrcamento      OrcamentoItem[]
   pecasRetiradas      PecaRetirada[]
   contratosManutencao ContratoManutencao[]
   visitasPreventivas  VisitaPreventiva[]
-  pecas          Peca[]
-  movimentos     MovimentoEstoque[]
-  faturas        Fatura[]
-  pagamentos     Pagamento[]
-  agendamentos   Agendamento[]
-  documentos     Documento[]
-  leads          Lead[]
-  jobs           OutboxJob[]
-  mensagens      MensagemWhatsapp[]
-  templates      TemplateMensagem[]
-  instanciaWhats WhatsappInstance?
-  auditoria      AuditLog[]
-  contadores     Contador[]
+  pecas               Peca[]
+  movimentos          MovimentoEstoque[]
+  faturas             Fatura[]
+  pagamentos          Pagamento[]
+  agendamentos        Agendamento[]
+  documentos          Documento[]
+  leads               Lead[]
+  jobs                OutboxJob[]
+  mensagens           MensagemWhatsapp[]
+  templates           TemplateMensagem[]
+  instanciaWhats      WhatsappInstance?
+  auditoria           AuditLog[]
+  contadores          Contador[]
+  posicoesRota        PosicaoRota[]
 
   @@index([ativo])
   @@map("tenants")
-  posicoesRota PosicaoRota[]
 }
 
 /// Usuário do sistema. `tenantId` nulo apenas para SUPER_ADMIN.
@@ -300,39 +300,39 @@ model User {
   tenantId String?
   tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  nome     String
-  email    String
-  telefone String?
+  nome      String
+  email     String
+  telefone  String?
   /// Argon2id. Nunca sai do servidor.
   senhaHash String
-  papel    Papel
+  papel     Papel
 
-  ativo         Boolean   @default(true)
+  ativo            Boolean   @default(true)
   /// Força troca de senha no primeiro acesso (usuário criado pelo admin).
-  trocarSenha   Boolean   @default(true)
-  ultimoLogin   DateTime?
+  trocarSenha      Boolean   @default(true)
+  ultimoLogin      DateTime?
   /// Contadores anti-força-bruta.
-  tentativasFalhas Int      @default(0)
+  tentativasFalhas Int       @default(0)
   bloqueadoAte     DateTime?
 
   /// Avatar e assinatura digitalizada do técnico/motorista (usada nos laudos).
-  avatarUrl     String?
+  avatarUrl String?
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
   criadoPorId  String?
 
-  sessoes             Sessao[]
-  eventos             EventoOrdem[]
-  fotos               Foto[]
-  agendamentosMotorista Agendamento[]    @relation("MotoristaAgendamento")
-  ordensTecnico       Ordem[]            @relation("TecnicoResponsavel")
-  ordensAtendente     Ordem[]            @relation("AtendenteAbertura")
-  orcamentosTecnico   Orcamento[]        @relation("TecnicoOrcamento")
-  orcamentosRevisor   Orcamento[]        @relation("RevisorOrcamento")
-  movimentos          MovimentoEstoque[]
-  pagamentos          Pagamento[]
-  auditoria           AuditLog[]
+  sessoes               Sessao[]
+  eventos               EventoOrdem[]
+  fotos                 Foto[]
+  agendamentosMotorista Agendamento[]      @relation("MotoristaAgendamento")
+  ordensTecnico         Ordem[]            @relation("TecnicoResponsavel")
+  ordensAtendente       Ordem[]            @relation("AtendenteAbertura")
+  orcamentosTecnico     Orcamento[]        @relation("TecnicoOrcamento")
+  orcamentosRevisor     Orcamento[]        @relation("RevisorOrcamento")
+  movimentos            MovimentoEstoque[]
+  pagamentos            Pagamento[]
+  auditoria             AuditLog[]
 
   /// E-mail é único DENTRO da empresa: o mesmo e-mail pode existir em duas
   /// franquias diferentes sem colidir.
@@ -345,17 +345,17 @@ model User {
 /// Sessão ativa. Guardamos só o hash do token — vazamento do banco não
 /// entrega sessão utilizável.
 model Sessao {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// SHA-256 do token que vai no cookie.
-  tokenHash String   @unique
-  expiraEm  DateTime
-  ip        String?
-  userAgent String?
+  tokenHash  String    @unique
+  expiraEm   DateTime
+  ip         String?
+  userAgent  String?
   revogadaEm DateTime?
-  criadoEm  DateTime @default(now())
-  ultimoUso DateTime @default(now())
+  criadoEm   DateTime  @default(now())
+  ultimoUso  DateTime  @default(now())
 
   @@index([userId, expiraEm])
   @@index([expiraEm])
@@ -371,14 +371,14 @@ model Cliente {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  tipo        TipoPessoa @default(PJ)
-  nome        String
-  razaoSocial String?
+  tipo              TipoPessoa @default(PJ)
+  nome              String
+  razaoSocial       String?
   /// Só dígitos. É a chave que o cliente digita para abrir o orçamento.
-  documento   String
+  documento         String
   /// SHA-256(documento + sal) — permite conferir o CPF/CNPJ na aprovação
   /// sem comparar em texto claro e sem varrer a tabela.
-  documentoHash String
+  documentoHash     String
   inscricaoEstadual String?
 
   email    String?
@@ -386,13 +386,13 @@ model Cliente {
   /// Só dígitos com DDI. É para cá que a automação dispara.
   whatsapp String?
 
-  cep         String?
-  logradouro  String?
-  numero      String?
-  complemento String?
-  bairro      String?
-  cidade      String?
-  uf          String?
+  cep             String?
+  logradouro      String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  uf              String?
   /// Referência para o motorista achar o lugar.
   pontoReferencia String?
 
@@ -412,6 +412,7 @@ model Cliente {
 
   /// Mesmo CNPJ pode ser cliente de duas franquias diferentes.
   contratos ContratoManutencao[]
+
   @@unique([tenantId, documento])
   @@index([tenantId, nome])
   @@index([tenantId, documentoHash])
@@ -429,18 +430,18 @@ model Equipamento {
   clienteId String
   cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Restrict)
 
-  marca       String
-  modelo      String
+  marca         String
+  modelo        String
   /// Identidade física do aparelho. É o que amarra o histórico.
-  numeroSerie String?
-  patrimonio  String?
+  numeroSerie   String?
+  patrimonio    String?
   /// Ex.: laser, ultrassom, autoclave, cadeira odontológica, criolipólise.
-  categoria   String?
-  voltagem    String?
+  categoria     String?
+  voltagem      String?
   anoFabricacao Int?
   /// Acessórios que vieram junto — evita briga na devolução.
-  acessorios  String?
-  observacoes String?
+  acessorios    String?
+  observacoes   String?
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -448,6 +449,7 @@ model Equipamento {
   ordens Ordem[]
 
   contratos ContratoManutencao[]
+
   @@index([tenantId, clienteId])
   @@index([tenantId, numeroSerie])
   @@index([tenantId, marca, modelo])
@@ -486,21 +488,21 @@ model Ordem {
   tokenPublico String @unique
 
   /// Relato do cliente, em português dele.
-  defeitoRelatado String
+  defeitoRelatado  String
   /// Diagnóstico do técnico.
-  diagnostico     String?
+  diagnostico      String?
   /// Parecer que a gestora lê antes de fechar o orçamento.
-  parecerTecnico  String?
+  parecerTecnico   String?
   /// O que foi efetivamente executado.
   servicoExecutado String?
   /// Resultado dos testes finais.
-  testesFinais    String?
+  testesFinais     String?
 
   /// ALTA para equipamento parado em clínica faturando.
-  prioridade String @default("NORMAL")
-  origem     OrigemLead @default(SITE)
+  prioridade     String     @default("NORMAL")
+  origem         OrigemLead @default(SITE)
   /// Quando 90% é retirada nossa, os 10% de correio precisam ser rastreáveis.
-  viaCorreio     Boolean @default(false)
+  viaCorreio     Boolean    @default(false)
   codigoRastreio String?
 
   atendenteId String?
@@ -521,19 +523,19 @@ model Ordem {
   retornos      Ordem[]   @relation("RetornoDeGarantia")
 
   /// Peças que saíram deste aparelho neste serviço.
-  pecasRetiradas PecaRetirada[]
+  pecasRetiradas   PecaRetirada[]
   /// A visita preventiva que gerou esta ordem, quando veio de um contrato.
   visitaPreventiva VisitaPreventiva?
 
-  abertaEm      DateTime  @default(now())
-  coletadaEm    DateTime?
-  recebidaEm    DateTime?
-  orcadaEm      DateTime?
-  aprovadaEm    DateTime?
-  concluidaEm   DateTime?
-  faturadaEm    DateTime?
-  entregueEm    DateTime?
-  finalizadaEm  DateTime?
+  abertaEm       DateTime  @default(now())
+  coletadaEm     DateTime?
+  recebidaEm     DateTime?
+  orcadaEm       DateTime?
+  aprovadaEm     DateTime?
+  concluidaEm    DateTime?
+  faturadaEm     DateTime?
+  entregueEm     DateTime?
+  finalizadaEm   DateTime?
   /// Prazo prometido ao cliente. Alimenta o alerta de atraso.
   prazoPrometido DateTime?
 
@@ -619,17 +621,17 @@ model Foto {
   ordemId String
   ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
 
-  categoria CategoriaFoto
+  categoria    CategoriaFoto
   /// Caminho interno no storage. Nunca é URL pública — o download passa por
   /// rota autenticada que confere o tenant.
-  caminho     String
+  caminho      String
   caminhoThumb String?
-  legenda     String?
-  larguraPx   Int?
-  alturaPx    Int?
+  legenda      String?
+  larguraPx    Int?
+  alturaPx     Int?
   tamanhoBytes Int?
   /// SHA-256 do arquivo: prova que a imagem não foi trocada depois.
-  hashArquivo String
+  hashArquivo  String
 
   autorId   String?
   autor     User?   @relation(fields: [autorId], references: [id], onDelete: SetNull)
@@ -666,12 +668,12 @@ model Assinatura {
   hashImagem         String
 
   /// Prova de contexto: onde, quando, de qual aparelho.
-  latitude    Float?
-  longitude   Float?
-  precisaoM   Float?
+  latitude           Float?
+  longitude          Float?
+  precisaoM          Float?
   enderecoAproximado String?
-  ip          String?
-  userAgent   String?
+  ip                 String?
+  userAgent          String?
 
   /// Hash do conteúdo do documento no instante da assinatura. Se o texto do
   /// contrato mudar depois, a divergência fica provável.
@@ -695,23 +697,23 @@ model Orcamento {
   ordemId String
   ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
 
-  numero  Int
+  numero Int
   /// Reprovou e a gestora refez? Nova versão, histórico preservado.
-  versao  Int    @default(1)
-  status  StatusOrcamento @default(RASCUNHO)
+  versao Int             @default(1)
+  status StatusOrcamento @default(RASCUNHO)
 
-  laudoTecnico String?
-  observacoes  String?
+  laudoTecnico      String?
+  observacoes       String?
   /// Condições que viram cláusula do contrato de manutenção.
-  garantiaDias    Int @default(90)
-  prazoExecucaoDias Int @default(7)
+  garantiaDias      Int     @default(90)
+  prazoExecucaoDias Int     @default(7)
 
   /// Valores em centavos. Dinheiro nunca em ponto flutuante.
-  subtotalPecas    Int @default(0)
-  subtotalServicos Int @default(0)
-  descontoCentavos Int @default(0)
+  subtotalPecas     Int @default(0)
+  subtotalServicos  Int @default(0)
+  descontoCentavos  Int @default(0)
   acrescimoCentavos Int @default(0)
-  totalCentavos    Int @default(0)
+  totalCentavos     Int @default(0)
 
   validoAte DateTime?
 
@@ -720,8 +722,8 @@ model Orcamento {
   revisorId String?
   revisor   User?   @relation("RevisorOrcamento", fields: [revisorId], references: [id], onDelete: SetNull)
 
-  enviadoEm   DateTime?
-  respondidoEm DateTime?
+  enviadoEm            DateTime?
+  respondidoEm         DateTime?
   /// Quem clicou em aprovar, do lado do cliente.
   aprovadoPorNome      String?
   aprovadoPorDocumento String?
@@ -785,8 +787,8 @@ model PecaRetirada {
 
   /// O que era, escrito pelo técnico. Nem toda peça que sai está no catálogo:
   /// a fonte queimada de um aparelho de 2011 não tem SKU aqui dentro.
-  descricao String
-  destino   DestinoPeca
+  descricao     String
+  destino       DestinoPeca
   /// Número de série ou lote da peça retirada, quando ela tem.
   identificacao String?
   observacao    String?
@@ -839,7 +841,7 @@ model ContratoManutencao {
   /// guardar o total em vez do unitário quebraria na primeira renovação.
   valorVisitaCentavos Int @default(0)
 
-  ativo       Boolean @default(true)
+  ativo       Boolean   @default(true)
   encerradoEm DateTime?
   observacoes String?
 
@@ -896,14 +898,14 @@ model Peca {
   unidade   String  @default("UN")
 
   /// Centavos. `custoMedio` é recalculado a cada entrada (média ponderada).
-  custoMedioCentavos  Int @default(0)
-  precoVendaCentavos  Int @default(0)
+  custoMedioCentavos Int @default(0)
+  precoVendaCentavos Int @default(0)
 
   /// Saldo físico total.
-  saldo         Decimal @db.Decimal(12, 3) @default(0)
+  saldo          Decimal @default(0) @db.Decimal(12, 3)
   /// Parte do saldo já comprometida com O.S. aprovadas.
-  saldoReservado Decimal @db.Decimal(12, 3) @default(0)
-  estoqueMinimo Decimal @db.Decimal(12, 3) @default(0)
+  saldoReservado Decimal @default(0) @db.Decimal(12, 3)
+  estoqueMinimo  Decimal @default(0) @db.Decimal(12, 3)
 
   localizacao String?
   fornecedor  String?
@@ -935,13 +937,13 @@ model MovimentoEstoque {
   ordemId String?
   ordem   Ordem?  @relation(fields: [ordemId], references: [id], onDelete: SetNull)
 
-  tipo       TipoMovimentoEstoque
-  quantidade Decimal @db.Decimal(12, 3)
-  saldoAnterior  Decimal @db.Decimal(12, 3)
-  saldoPosterior Decimal @db.Decimal(12, 3)
-  custoUnitCentavos Int @default(0)
+  tipo              TipoMovimentoEstoque
+  quantidade        Decimal              @db.Decimal(12, 3)
+  saldoAnterior     Decimal              @db.Decimal(12, 3)
+  saldoPosterior    Decimal              @db.Decimal(12, 3)
+  custoUnitCentavos Int                  @default(0)
 
-  motivo        String?
+  motivo          String?
   documentoFiscal String?
 
   autorId   String?
@@ -976,9 +978,9 @@ model Fatura {
   status StatusFatura @default(ABERTA)
 
   /// Centavos. `valorPago` é a soma dos pagamentos; o aberto é derivado.
-  valorTotalCentavos  Int
-  valorPagoCentavos   Int @default(0)
-  descontoCentavos    Int @default(0)
+  valorTotalCentavos Int
+  valorPagoCentavos  Int @default(0)
+  descontoCentavos   Int @default(0)
 
   /// Encargos em colunas próprias, nunca embutidos no valor pago — sem isso
   /// não há como responder "quanto entrou de juros no mês" nem conciliar com
@@ -989,18 +991,18 @@ model Fatura {
   jurosCentavos Int @default(0)
   taxaCentavos  Int @default(0)
 
-  vencimento  DateTime?
-  emitidaEm   DateTime  @default(now())
-  quitadaEm   DateTime?
+  vencimento DateTime?
+  emitidaEm  DateTime  @default(now())
+  quitadaEm  DateTime?
 
   /// "Pago" é operacional: alguém registrou a entrada.
   /// "Conferido" é gerencial: o gestor olhou e validou. São camadas distintas —
   /// misturá-las tira do dono a única checagem que ele de fato controla.
   /// Esta é a etapa 16: a baixa final do gestor.
-  conferido      Boolean   @default(false)
-  conferidoPorId String?
+  conferido        Boolean   @default(false)
+  conferidoPorId   String?
   conferidoPorNome String?
-  conferidoEm    DateTime?
+  conferidoEm      DateTime?
 
   observacoes String?
 
@@ -1023,20 +1025,20 @@ model Pagamento {
   faturaId String
   fatura   Fatura @relation(fields: [faturaId], references: [id], onDelete: Cascade)
 
-  forma         FormaPagamento
-  valorCentavos Int
+  forma              FormaPagamento
+  valorCentavos      Int
   /// Cartão parcelado: quantas vezes.
-  parcelas      Int     @default(1)
-  bandeira      String?
+  parcelas           Int            @default(1)
+  bandeira           String?
   /// NSU / código de autorização da maquininha, ou e2e do Pix.
-  autorizacao   String?
-  observacao    String?
+  autorizacao        String?
+  observacao         String?
   comprovanteCaminho String?
 
-  recebidoEm DateTime @default(now())
+  recebidoEm    DateTime  @default(now())
   /// Estorno mantém a linha e marca o cancelamento — nada some do caixa.
-  estornadoEm    DateTime?
-  motivoEstorno  String?
+  estornadoEm   DateTime?
+  motivoEstorno String?
 
   autorId   String?
   autor     User?   @relation(fields: [autorId], references: [id], onDelete: SetNull)
@@ -1088,14 +1090,13 @@ model Agendamento {
   observacoes String?
   motivoFalha String?
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+  posicoes     PosicaoRota[]
 
   @@index([tenantId, motoristaId, previstoPara])
   @@index([tenantId, status, previstoPara])
   @@index([tenantId, ordemId, tipo])
-  posicoes PosicaoRota[]
-
   @@map("agendamentos")
 }
 
@@ -1113,10 +1114,10 @@ model Documento {
   ordemId String
   ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
 
-  tipo    TipoDocumento
-  numero  String
-  caminho String
-  hash    String
+  tipo         TipoDocumento
+  numero       String
+  caminho      String
+  hash         String
   tamanhoBytes Int?
 
   /// Token para o link do WhatsApp funcionar sem login. Pelo mesmo motivo do
@@ -1142,19 +1143,19 @@ model OutboxJob {
   payload Json
   status  StatusJob @default(PENDENTE)
 
-  prioridade Int @default(5)
-  tentativas Int @default(0)
-  maxTentativas Int @default(6)
+  prioridade    Int      @default(5)
+  tentativas    Int      @default(0)
+  maxTentativas Int      @default(6)
   /// Backoff exponencial: o worker só pega o job quando chega a hora.
-  agendadoPara DateTime @default(now())
-  ultimoErro   String?
+  agendadoPara  DateTime @default(now())
+  ultimoErro    String?
 
   /// Chave de idempotência: impede disparo duplicado do mesmo aviso.
   dedupeKey String? @unique
 
   /// Trava otimista para dois workers não pegarem o mesmo job.
-  travadoPor  String?
-  travadoEm   DateTime?
+  travadoPor String?
+  travadoEm  DateTime?
 
   criadoEm     DateTime  @default(now())
   processadoEm DateTime?
@@ -1173,10 +1174,10 @@ model MensagemWhatsapp {
   ordemId String?
   ordem   Ordem?  @relation(fields: [ordemId], references: [id], onDelete: SetNull)
 
-  numero   String
+  numero       String
   /// Chave do template usado. Ex.: "ordem.coletada".
-  template String?
-  corpo    String
+  template     String?
+  corpo        String
   midiaCaminho String?
 
   status     StatusMensagem @default(PENDENTE)
@@ -1186,7 +1187,7 @@ model MensagemWhatsapp {
 
   enviadaEm  DateTime?
   entregueEm DateTime?
-  criadoEm   DateTime @default(now())
+  criadoEm   DateTime  @default(now())
 
   @@index([tenantId, ordemId])
   @@index([tenantId, status, criadoEm])
@@ -1202,13 +1203,13 @@ model TemplateMensagem {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   /// Casa com `EventoOrdem.tipo`. Ex.: "ordem.coletada".
-  chave  String
-  titulo String
+  chave           String
+  titulo          String
   /// Suporta {{cliente}}, {{equipamento}}, {{numero}}, {{motorista}}, ...
-  corpo  String
+  corpo           String
   /// Anexa o PDF daquela etapa junto da mensagem.
   anexarDocumento Boolean @default(false)
-  ativo  Boolean @default(true)
+  ativo           Boolean @default(true)
 
   atualizadoEm DateTime @updatedAt
 
@@ -1222,7 +1223,7 @@ model WhatsappInstance {
   tenantId String @unique
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  uazInstanceId String?
+  uazInstanceId   String?
   /// Cifrado em repouso com ENCRYPTION_KEY (AES-256-GCM). Nunca vai ao browser.
   uazTokenCifrado String?
 
@@ -1231,8 +1232,8 @@ model WhatsappInstance {
   profileName String?
 
   ultimoStatusEm DateTime?
-  criadoEm       DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  criadoEm       DateTime  @default(now())
+  atualizadoEm   DateTime  @updatedAt
 
   @@map("whatsapp_instances")
 }
@@ -1243,17 +1244,17 @@ model Lead {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  nome      String
-  telefone  String
-  email     String?
-  empresa   String?
-  cidade    String?
+  nome        String
+  telefone    String
+  email       String?
+  empresa     String?
+  cidade      String?
   equipamento String?
-  mensagem  String?
-  origem    OrigemLead @default(SITE)
+  mensagem    String?
+  origem      OrigemLead @default(SITE)
 
   /// novo | em_contato | convertido | descartado
-  status    String @default("novo")
+  status        String  @default("novo")
   /// Preenchido quando o lead vira Ordem — fecha o ciclo site → sistema.
   ordemGeradaId String?
 
@@ -1278,17 +1279,17 @@ model AuditLog {
   tenantId String?
   tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
 
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
   /// Congelado: continua legível se o usuário for removido.
   userNome  String?
   userPapel Papel?
 
-  acao      String
-  entidade  String?
+  acao       String
+  entidade   String?
   entidadeId String?
   /// Nunca guardamos senha, token ou documento em claro aqui.
-  detalhes  Json?
+  detalhes   Json?
 
   ip        String?
   userAgent String?
@@ -1353,9 +1354,9 @@ model ConteudoSite {
 /// voltar: o conteúdo anterior não existe em lugar nenhum. Com isto, voltar é
 /// escolher uma linha e apertar um botão.
 model ConteudoSiteVersao {
-  id        String       @id @default(cuid())
-  siteId    String
-  site      ConteudoSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  id     String       @id @default(cuid())
+  siteId String
+  site   ConteudoSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   versao    Int
   dados     Json
@@ -1369,7 +1370,6 @@ model ConteudoSiteVersao {
   @@index([siteId, versao])
   @@map("conteudo_site_versoes")
 }
-
 
 /// A posição do motorista DURANTE a rota.
 ///
@@ -1405,11 +1405,11 @@ model PosicaoRota {
   motoristaId   String
   motoristaNome String
 
-  latitude  Float
-  longitude Float
+  latitude   Float
+  longitude  Float
   /// Raio de erro em metros, como o aparelho informou. Uma posição de 2 km de
   /// precisão não é uma posição — a tela precisa saber para não mentir.
-  precisaoM Float?
+  precisaoM  Float?
   /// Velocidade em m/s, quando o aparelho informa. Distingue parado de andando.
   velocidade Float?
 
@@ -1418,4 +1418,44 @@ model PosicaoRota {
   @@index([tenantId, agendamentoId, criadoEm])
   @@index([tenantId, criadoEm])
   @@map("posicoes_rota")
+}
+
+/// Configuração da PLATAFORMA — o que é do dono do SaaS, não de uma franquia.
+///
+/// ---------------------------------------------------------------------------
+/// POR QUE ISTO SAIU DA VARIÁVEL DE AMBIENTE
+/// ---------------------------------------------------------------------------
+/// O endereço e o token de administração da uazapi viviam em `UAZAPI_BASE_URL`
+/// e `UAZAPI_ADMIN_TOKEN`. Funciona para um sistema de uma empresa, e trava
+/// para um SaaS: trocar o token — porque venceu, porque vazou, porque mudou de
+/// provedor — obrigava a entrar na VPS, editar arquivo e subir o contêiner de
+/// novo. Configuração que só o servidor sabe mudar é configuração que na
+/// prática ninguém muda.
+///
+/// Aqui é chave e valor porque o conjunto vai crescer — hoje são dois campos do
+/// WhatsApp, amanhã entra o gateway de cobrança. Uma coluna por item viraria
+/// uma migração de banco por item.
+///
+/// ---------------------------------------------------------------------------
+/// QUEM PODE LER
+/// ---------------------------------------------------------------------------
+/// A tabela não tem `tenantId` de propósito: ela não pertence a franquia
+/// nenhuma. O RLS a fecha para todo mundo e a abre em dois casos, escritos na
+/// migração: o dono da plataforma, e a janela estreita que o próprio servidor
+/// abre para falar com a uazapi. Nenhum usuário de franquia lê uma linha daqui,
+/// nem por engano de consulta.
+///
+/// Valor sensível entra CIFRADO (o mesmo `cifrar` do token de instância), e
+/// `sigiloso` marca quais são — é o que a tela usa para nunca devolver o
+/// conteúdo ao navegador, mostrando só "configurado" ou "vazio".
+model ConfigPlataforma {
+  chave String @id
+
+  valor    String
+  sigiloso Boolean @default(false)
+
+  atualizadoEm    DateTime @updatedAt
+  atualizadoPorId String?
+
+  @@map("config_plataforma")
 }

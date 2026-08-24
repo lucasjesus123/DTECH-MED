@@ -80,7 +80,8 @@ export const ModelName = {
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
-  PosicaoRota: 'PosicaoRota'
+  PosicaoRota: 'PosicaoRota',
+  ConfigPlataforma: 'ConfigPlataforma'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -714,6 +715,17 @@ export const PosicaoRotaScalarFieldEnum = {
 } as const
 
 export type PosicaoRotaScalarFieldEnum = (typeof PosicaoRotaScalarFieldEnum)[keyof typeof PosicaoRotaScalarFieldEnum]
+
+
+export const ConfigPlataformaScalarFieldEnum = {
+  chave: 'chave',
+  valor: 'valor',
+  sigiloso: 'sigiloso',
+  atualizadoEm: 'atualizadoEm',
+  atualizadoPorId: 'atualizadoPorId'
+} as const
+
+export type ConfigPlataformaScalarFieldEnum = (typeof ConfigPlataformaScalarFieldEnum)[keyof typeof ConfigPlataformaScalarFieldEnum]
 
 
 export const SortOrder = {
