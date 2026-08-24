@@ -469,12 +469,27 @@ export async function agendaDoPeriodo(ctx: ContextoAcesso, dias = 7) {
   )
 }
 
-/** Ordens que precisam de agendamento e ainda não têm um em aberto. */
+/**
+ * Ordens que precisam de agendamento e ainda não têm um em aberto.
+ *
+ * São três momentos em que um aparelho espera alguém dirigir até ele: a ida
+ * (`ORDEM_RETIRADA_GERADA`), a volta depois do conserto (`FATURADO`) e a volta
+ * de quem decidiu NÃO consertar (`DEVOLVIDO_SEM_REPARO`). Esta última faltava
+ * aqui, e o efeito era o aparelho recusado ficar sem fila nenhuma: não
+ * aparecia para ninguém agendar, e a central acabava marcando "saiu para
+ * devolução" na ficha, sem motorista, sem endereço na rota de ninguém.
+ */
 export async function semAgendamento(ctx: ContextoAcesso) {
   return comEscopo(ctx, (tx) =>
     tx.ordem.findMany({
       where: {
-        etapa: { in: [EtapaOrdem.ORDEM_RETIRADA_GERADA, EtapaOrdem.FATURADO] },
+        etapa: {
+          in: [
+            EtapaOrdem.ORDEM_RETIRADA_GERADA,
+            EtapaOrdem.FATURADO,
+            EtapaOrdem.DEVOLVIDO_SEM_REPARO,
+          ],
+        },
         agendamentos: { none: { status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA'] } } },
       },
       orderBy: { atualizadoEm: 'asc' },

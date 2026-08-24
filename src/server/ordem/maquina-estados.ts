@@ -264,6 +264,23 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Saiu para entrega',
     papeis: [P.MOTORISTA, ...CENTRAL],
     avisaCliente: true,
+    /**
+     * A mesma trava da retirada, do lado da volta.
+     *
+     * A verificação `PARADA_DE_ENTREGA` já existia no motor e não estava
+     * amarrada a transição nenhuma — ou seja, a metade da ida estava protegida
+     * e a metade da volta, não. Pelo aplicativo do motorista o buraco não
+     * aparecia (ele só vê parada que é dele), mas o botão da ficha da ordem
+     * está liberado para a central, e por ali dava para marcar "saiu para
+     * entrega" sem que existisse parada nenhuma.
+     *
+     * O estrago é ponto por ponto o mesmo descrito na retirada: a ordem sai da
+     * fila "esperando agendamento" da Agenda — que lista justamente FATURADO —
+     * o cliente recebe "seu equipamento saiu para entrega" no WhatsApp, e
+     * nenhum motorista tem esse endereço na rota. Só que aqui é pior: o
+     * aparelho já está consertado e pago, e é o cliente esperando na porta.
+     */
+    exige: ['PARADA_DE_ENTREGA'],
   },
   {
     de: T.EM_ROTA_ENTREGA,
@@ -282,6 +299,10 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Saiu para devolução',
     papeis: [P.MOTORISTA, ...CENTRAL],
     avisaCliente: true,
+    // O aparelho que o cliente decidiu não consertar precisa voltar do mesmo
+    // jeito que veio: alguém dirige até lá. A Agenda passou a listar esta
+    // etapa junto com as outras duas que esperam motorista.
+    exige: ['PARADA_DE_ENTREGA'],
   },
   {
     de: T.ENTREGUE,

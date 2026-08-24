@@ -46,7 +46,10 @@ export default async function Agenda() {
         pendentes={pendentes.map((o) => ({
           ordemId: o.id,
           numero: o.numero,
-          tipo: o.etapa === 'FATURADO' ? ('ENTREGA' as const) : ('RETIRADA' as const),
+          // Só a primeira etapa da lista é ida. As outras duas — o consertado
+          // e o recusado — são o aparelho voltando para a casa do cliente.
+          tipo:
+            o.etapa === 'ORDEM_RETIRADA_GERADA' ? ('RETIRADA' as const) : ('ENTREGA' as const),
           cliente: o.cliente.nome,
           equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`,
           endereco:

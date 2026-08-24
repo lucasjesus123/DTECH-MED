@@ -144,6 +144,32 @@ async function limpar() {
   }
 }
 
+/**
+ * Marca a parada na Agenda — o passo que o motor passou a exigir.
+ *
+ * A regra `PARADA_DE_RETIRADA` entrou na máquina de estados para impedir que
+ * "agendada" fosse só um rótulo: sem dia, hora e motorista, a ordem sumia da
+ * fila da Agenda e não aparecia na rota de ninguém. Este teste não sabia
+ * disso e vinha falhando desde então — as 11 falhas em cascata começavam
+ * exatamente aqui, na transição que ficava barrada em silêncio porque o
+ * resultado não era conferido.
+ */
+async function marcarParada(amb: Ambiente, tipo: 'RETIRADA' | 'ENTREGA') {
+  await comEscopo(amb.ctx, (tx) =>
+    tx.agendamento.create({
+      data: {
+        tenantId: amb.tenantId,
+        ordemId: amb.ordemId,
+        tipo,
+        status: 'ATRIBUIDO',
+        motoristaId: amb.usuarios.motorista!.id,
+        previstoPara: new Date('2026-03-10T12:00:00Z'),
+        enderecoSnapshot: 'R. Sabiá, 702 · Lajeado/RS',
+      },
+    }),
+  )
+}
+
 // ===========================================================================
 
 describe('isolamento entre franquias, pelo motor', () => {
@@ -180,10 +206,15 @@ describe('pré-condições barram no servidor, não no formulário', () => {
       ordemId: A.ordemId,
       para: E.ORDEM_RETIRADA_GERADA,
     })
-    await avancarOrdem(A.ctx, ator(A, 'atendente'), {
+    await marcarParada(A, 'RETIRADA')
+    const agendou = await avancarOrdem(A.ctx, ator(A, 'atendente'), {
       ordemId: A.ordemId,
       para: E.RETIRADA_AGENDADA,
     })
+    // Conferido de propósito: era esta transição que falhava calada e derrubava
+    // tudo o que vinha depois, com mensagens de erro que apontavam para o lugar
+    // errado.
+    expect(agendou.ok).toBe(true)
     await avancarOrdem(A.ctx, ator(A, 'motorista'), {
       ordemId: A.ordemId,
       para: E.EM_ROTA_RETIRADA,
@@ -283,6 +314,27 @@ describe('a jornada completa chega ao fim', () => {
     })
 
     expect((await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.ORCAMENTO_INTERNO })).ok).toBe(true)
+
+    // O orçamento existe ANTES de ser enviado — a regra `ORCAMENTO_MONTADO`
+    // recusa mandar ao cliente um orçamento que não foi montado, ou que está
+    // zerado. O teste criava o orçamento só lá adiante, já aprovado, e por
+    // isso esta transição vinha falhando.
+    const orcamentoId = await comEscopo(A.ctx, async (tx) => {
+      const o = await tx.orcamento.create({
+        data: {
+          tenantId: A.tenantId,
+          ordemId: A.ordemId,
+          numero: 1,
+          status: 'RASCUNHO',
+          totalCentavos: 184000,
+          subtotalPecas: 77000,
+          subtotalServicos: 107000,
+        },
+        select: { id: true },
+      })
+      return o.id
+    })
+
     expect((await avancarOrdem(A.ctx, ator(A, 'gestor'), { ordemId: A.ordemId, para: E.ORCAMENTO_ENVIADO })).ok).toBe(true)
 
     // A aprovação vem do portal do cliente, não de um funcionário.
@@ -297,18 +349,11 @@ describe('a jornada completa chega ao fim', () => {
     const semOrc = await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.EM_MANUTENCAO })
     expect(semOrc.ok).toBe(false)
 
+    // O MESMO orçamento passa a APROVADO. Criar um segundo aqui, como o teste
+    // fazia, deixava a ordem com dois orçamentos número 1 — um estado que a
+    // tela não produz.
     await comEscopo(A.ctx, async (tx) => {
-      await tx.orcamento.create({
-        data: {
-          tenantId: A.tenantId,
-          ordemId: A.ordemId,
-          numero: 1,
-          status: 'APROVADO',
-          totalCentavos: 184000,
-          subtotalPecas: 77000,
-          subtotalServicos: 107000,
-        },
-      })
+      await tx.orcamento.update({ where: { id: orcamentoId }, data: { status: 'APROVADO' } })
     })
 
     expect((await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.EM_MANUTENCAO })).ok).toBe(true)
@@ -336,6 +381,9 @@ describe('a jornada completa chega ao fim', () => {
     })
 
     expect((await avancarOrdem(A.ctx, ator(A, 'financeiro'), { ordemId: A.ordemId, para: E.FATURADO })).ok).toBe(true)
+    // A volta agora exige parada igual à ida — a regra `PARADA_DE_ENTREGA` já
+    // existia no motor e não estava presa a transição nenhuma.
+    await marcarParada(A, 'ENTREGA')
     expect((await avancarOrdem(A.ctx, ator(A, 'motorista'), { ordemId: A.ordemId, para: E.EM_ROTA_ENTREGA })).ok).toBe(true)
 
     // Entrega sem assinatura de quem recebeu também não passa.
