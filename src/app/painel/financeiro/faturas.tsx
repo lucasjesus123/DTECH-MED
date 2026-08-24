@@ -123,7 +123,12 @@ export default function Faturas({
                   <th>Cliente</th>
                   <th>Equipamento</th>
                   <th className={estilo.dir}>Aprovado</th>
-                  <th />
+                  {/* A coluna dos botões: rótulo invisível na tela, presente para
+                      quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
+                      tabela inteira perder o cabeçalho. */}
+                  <th>
+                    <span className={estilo.soLeitor}>Ações</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -171,7 +176,12 @@ export default function Faturas({
               <th className={estilo.dir}>Recebido</th>
               <th className={estilo.dir}>Em aberto</th>
               <th>Situação</th>
-              <th />
+              {/* A coluna dos botões: rótulo invisível na tela, presente para
+                  quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
+                  tabela inteira perder o cabeçalho. */}
+              <th>
+                <span className={estilo.soLeitor}>Ações</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -300,7 +310,12 @@ function Detalhe({
                 <th>Forma</th>
                 <th className={estilo.dir}>Valor</th>
                 <th>Quem lançou</th>
-                <th />
+                {/* A coluna dos botões: rótulo invisível na tela, presente para
+                    quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
+                    tabela inteira perder o cabeçalho. */}
+                <th>
+                  <span className={estilo.soLeitor}>Ações</span>
+                </th>
               </tr>
             </thead>
             <tbody>
