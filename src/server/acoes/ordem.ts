@@ -215,6 +215,59 @@ export async function avancar(entrada: {
   return { ok: true }
 }
 
+/**
+ * Cancela a ordem.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO NÃO É UM BOTÃO DE ETAPA COMO OS OUTROS
+ * ---------------------------------------------------------------------------
+ * O cancelamento parte de quase qualquer lugar da esteira, e por isso fica
+ * fora da tabela de transições — listá-lo vinte vezes convidaria alguém a
+ * esquecer uma. A consequência é que ele também não aparece em
+ * `proximosPassos`, que é de onde saem os botões da ficha.
+ *
+ * Sem uma porta própria, o motor sabia cancelar e ninguém conseguia pedir: a
+ * etapa CANCELADO existia no banco, a validação recusava quem não é gestão, a
+ * régua do acompanhamento já tratava o cancelamento como saída — e não havia
+ * como chegar lá por tela nenhuma. Foi o que a conferência do diagrama contra o
+ * sistema encontrou.
+ *
+ * O motivo é obrigatório. Uma ordem que some sem explicação é a pergunta que
+ * volta em três meses, quando o cliente liga perguntando do aparelho dele.
+ */
+export async function cancelarOrdem(ordemId: string, motivo: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  const razao = motivo.trim()
+  if (razao.length < 5) {
+    return { ok: false, motivo: 'Escreva o motivo do cancelamento — ele fica gravado na ordem.' }
+  }
+
+  // Quem pode cancelar é decidido pela máquina de estados, não aqui: a regra
+  // mora num lugar só, e é a mesma que o teste cobra.
+  const r = await avancarOrdem(a.ctx, a.ator, {
+    ordemId,
+    para: EtapaOrdem.CANCELADO,
+    observacao: razao,
+    ip: await ipAtual(),
+  })
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.cancelada',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    negado: !r.ok,
+    detalhes: r.ok ? { motivo: razao } : { recusa: r.motivo },
+  })
+
+  if (!r.ok) return { ok: false, motivo: r.motivo }
+  revalidatePath(`/painel/ordens/${ordemId}`)
+  revalidatePath('/painel')
+  revalidatePath('/painel/acompanhar')
+  return { ok: true }
+}
+
 // ---------------------------------------------------------------------------
 // Fotos do técnico
 // ---------------------------------------------------------------------------

@@ -6,10 +6,11 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { prontuario } from '@/server/consultas/painel'
 import { listarPecas, motoristasDaEmpresa, tecnicosDaEmpresa } from '@/server/consultas/listas'
-import { proximosPassos, ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { proximosPassos, ROTULO_DOCUMENTO, ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
 import { verificarIntegridade } from '@/server/ordem/motor'
 import { env } from '@/lib/env'
 import BotoesEtapa from './botoes-etapa'
+import Cancelar from './cancelar'
 import Diagnostico from './diagnostico'
 import Responsavel from './responsavel'
 import Orcamento from './orcamento'
@@ -55,6 +56,17 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
   ])
 
   const passos = proximosPassos(o.etapa, sessao.papel)
+
+  /**
+   * O cancelamento fica fora da tabela de transições — parte de quase qualquer
+   * lugar — e por isso não aparece em `proximosPassos`. Quem decide de verdade
+   * é a máquina de estados; aqui só se resolve se vale desenhar o bloco.
+   */
+  const podeCancelar =
+    (sessao.papel === Papel.SUPER_ADMIN ||
+      sessao.papel === Papel.ADMIN_EMPRESA ||
+      sessao.papel === Papel.GESTOR) &&
+    !TERMINAIS.includes(o.etapa)
   const linkPortal = `${env.APP_URL}/os/${o.tokenPublico}`
 
   const fotosPorCategoria = o.fotos.reduce<Record<string, typeof o.fotos>>((acc, f) => {
@@ -163,6 +175,8 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
             ) : (
               <BotoesEtapa ordemId={o.id} passos={passos.map((p) => ({ para: p.para, titulo: p.titulo, avisaCliente: p.avisaCliente }))} />
             )}
+
+            {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
 
             <div className={estilo.passos}>
               <a href={linkPortal} target="_blank" rel="noreferrer" className={estilo.btnSec}>
