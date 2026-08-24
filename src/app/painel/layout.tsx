@@ -75,14 +75,17 @@ export default async function LayoutPainel({ children }: { children: React.React
         { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
       ],
     },
-    {
-      titulo: 'Cadastros',
-      itens: [
-        { href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' },
-        { href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' },
-      ],
-    },
   ]
+
+  // Cadastros: o equipamento é do trabalho de todos, a carteira de clientes
+  // não. Um `if` em volta do grupo inteiro para o menu não mostrar uma seção
+  // vazia a quem só enxerga metade dela.
+  const cadastros: ItemNav[] = []
+  if (podeVer(p, Papel.ATENDENTE)) {
+    cadastros.push({ href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' })
+  }
+  cadastros.push({ href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' })
+  grupos.push({ titulo: 'Cadastros', itens: cadastros })
 
   const retaguarda: ItemNav[] = []
   if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })

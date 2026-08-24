@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirSessao } from '@/server/auth/guarda'
+import { exigirNivel } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
 import Planilha from './planilha'
@@ -15,7 +15,17 @@ export default async function Clientes({
 }: {
   searchParams: Promise<{ busca?: string; novo?: string }>
 }) {
-  const { ctx, sessao } = await exigirSessao()
+  /**
+   * A carteira inteira é o dado mais sensível do sistema: nome, CPF/CNPJ,
+   * telefone e endereço de todos os clientes numa tela só. A rota que exporta
+   * isso em CSV já dizia, no próprio comentário, que "nem técnico nem
+   * motorista" — mas a TELA pedia só sessão, e o menu a oferecia a eles.
+   *
+   * Agora a régua é a mesma nos dois lugares. Quem trabalha numa ordem
+   * específica continua vendo o cliente daquela ordem, na ficha dela; o que
+   * some é a lista de todo mundo.
+   */
+  const { ctx, sessao } = await exigirNivel(Papel.ATENDENTE)
   // A mesma lista da rota `/painel/clientes/exportar`. Repetida de propósito:
   // se um dia divergirem, o pior que acontece é o botão sumir para quem podia,
   // nunca aparecer para quem não pode.
