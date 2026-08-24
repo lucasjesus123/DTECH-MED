@@ -90,7 +90,11 @@ export default async function PainelDoDia({
                   <th>Quem</th>
                   <th>Equipamento</th>
                   <th>O que contaram</th>
-                  <th />
+                  {/* A coluna do botão. Rótulo invisível na tela, presente
+                      para quem navega a tabela por leitor de tela. */}
+                  <th>
+                    <span className={estilo.soLeitor}>Ações</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>

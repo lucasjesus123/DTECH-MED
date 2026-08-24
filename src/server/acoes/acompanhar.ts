@@ -187,7 +187,11 @@ export async function dossieDaOrdem(
    * ignorar botão.
    */
   const despacho: Dossie['despacho'] =
-    o.etapa === 'ORDEM_RETIRADA_GERADA' ? 'RETIRADA' : o.etapa === 'FATURADO' ? 'ENTREGA' : null
+    o.etapa === 'ORDEM_RETIRADA_GERADA'
+      ? 'RETIRADA'
+      : o.etapa === 'FATURADO' || o.etapa === 'DEVOLVIDO_SEM_REPARO'
+        ? 'ENTREGA'
+        : null
 
   return {
     ok: true,

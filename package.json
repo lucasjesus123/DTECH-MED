@@ -10,7 +10,7 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -45,10 +45,16 @@
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.2",
     "prisma": "^7.9.1",
     "tailwindcss": "^4.0.15",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^3.0.9"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.2"
   }
 }

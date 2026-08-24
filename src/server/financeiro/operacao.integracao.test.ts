@@ -6,7 +6,7 @@ import { hashDocumento } from '@/lib/cripto'
 import { novoToken } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
 import { movimentar, reservarDoOrcamento, consumirNaExecucao, liberarReservas, abaixoDoMinimo } from '@/server/estoque/servico'
-import { conferir, darBaixa, emitirFatura, estornar, proximoNumero } from './servico'
+import { conferir, darBaixa, estornar, proximoNumero } from './servico'
 import { gerarPdfDaOrdem } from '@/server/documentos/gerar'
 
 /**

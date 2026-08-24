@@ -103,7 +103,12 @@ export default async function Estoque({
                 <th className={estilo.dir}>Livre</th>
                 <th className={estilo.dir}>Mínimo</th>
                 <th className={estilo.dir}>Venda</th>
-                <th />
+                {/* A coluna dos botões: rótulo invisível na tela, presente para
+                    quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
+                    tabela inteira perder o cabeçalho. */}
+                <th>
+                  <span className={estilo.soLeitor}>Ações</span>
+                </th>
               </tr>
             </thead>
             <tbody>

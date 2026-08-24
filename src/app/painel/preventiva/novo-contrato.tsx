@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { abrirContratoPreventiva } from '@/server/acoes/preventiva'
 import estilo from '../painel.module.css'
@@ -39,23 +39,39 @@ export type EquipamentoOpcao = {
  */
 export default function NovoContrato({ equipamentos }: { equipamentos: EquipamentoOpcao[] }) {
   const [aberto, setAberto] = useState(false)
-  const [estado, acao, pendente] = useActionState(abrirContratoPreventiva, inicial)
   const router = useRouter()
 
-  useEffect(() => {
-    if (estado.ok) {
+  // Fechar e recarregar acontece DENTRO da ação, não num `useEffect` que
+  // observa a resposta. O efeito rodava depois da renderização já concluída e
+  // disparava outra em cima — e, pior, engolia a confirmação: o formulário
+  // sumia sem dizer que o contrato tinha sido aberto nem quantas visitas
+  // haviam sido agendadas. Quem clicava em "Abrir contrato" ficava sem saber
+  // se tinha dado certo.
+  const [estado, acao, pendente] = useActionState(async (anterior: Resposta, form: FormData) => {
+    const r = await abrirContratoPreventiva(anterior, form)
+    if (r.ok) {
       setAberto(false)
       router.refresh()
     }
-  }, [estado, router])
+    return r
+  }, inicial)
 
   const livres = equipamentos.filter((e) => !e.jaTemContrato)
 
   if (!aberto) {
     return (
-      <button type="button" className={estilo.btn} onClick={() => setAberto(true)}>
-        Novo contrato
-      </button>
+      <>
+        {estado.ok && estado.dados ? (
+          <p className={estilo.sucesso}>
+            Contrato nº {estado.dados.numero} aberto, com {estado.dados.visitas}{' '}
+            {estado.dados.visitas === 1 ? 'visita agendada' : 'visitas agendadas'}. Elas já aparecem
+            na lista abaixo.
+          </p>
+        ) : null}
+        <button type="button" className={estilo.btn} onClick={() => setAberto(true)}>
+          Novo contrato
+        </button>
+      </>
     )
   }
 

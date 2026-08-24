@@ -21,7 +21,15 @@ import estilo from '../painel.module.css'
  *
  * O passo a mais custa cinco segundos. O que ele evita custa uma tarde.
  */
-export default function Planilha() {
+/**
+ * `podeExportar` vem do SERVIDOR, decidido pelo mesmo `PODE_EXPORTAR` da rota.
+ * A rota continua recusando por conta própria — esconder no navegador é
+ * enfeite, não permissão. O que muda aqui é o que a pessoa vê: antes o botão
+ * aparecia para todo mundo, e o motorista que clicasse recebia uma página
+ * branca do navegador escrita "Seu perfil não exporta a carteira de clientes."
+ * Botão que aparece e recusa ensina a ignorar botão.
+ */
+export default function Planilha({ podeExportar }: { podeExportar: boolean }) {
   const [aberto, setAberto] = useState(false)
   const [relatorio, setRelatorio] = useState<RelatorioImportacao | null>(null)
   const [trabalhando, iniciar] = useTransition()
@@ -54,9 +62,11 @@ export default function Planilha() {
           {/* Link comum, e não botão com JavaScript: baixar arquivo é o
               navegador pedindo um endereço. Funciona com clique do meio, com
               "salvar como", e sem script nenhum. */}
-          <a href="/painel/clientes/exportar" className={estilo.btnPrimario} download>
-            Exportar todos
-          </a>
+          {podeExportar ? (
+            <a href="/painel/clientes/exportar" className={estilo.btnPrimario} download>
+              Exportar todos
+            </a>
+          ) : null}
           <button
             type="button"
             className={estilo.btnLinha}

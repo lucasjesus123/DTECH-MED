@@ -1,6 +1,7 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { comEscopo, prisma, type ContextoAcesso, exigirEmpresa } from '@/lib/db'
+import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { janelaDoDia } from '@/lib/datas'
+import { filtroPorNumero } from '@/lib/numero-os'
 
 /**
  * Consultas de listagem do painel.
@@ -60,7 +61,7 @@ export async function listarOrdens(ctx: ContextoAcesso, f: FiltroOrdens) {
     where.OR = [
       // Número da O.S. é o que o cliente cita no telefone — precisa ser a
       // primeira coisa que a busca encontra.
-      ...(soDigitos ? [{ numero: Number(soDigitos) }] : []),
+      ...filtroPorNumero(busca),
       { cliente: { nome: { contains: busca, mode: 'insensitive' } } },
       // Documento só entra quando a busca tem dígitos. Antes havia aqui um
       // valor de reserva que, por acidente, era um byte NUL — e o Postgres
@@ -300,8 +301,11 @@ export async function listarFaturas(ctx: ContextoAcesso, f: FiltroFaturas) {
 
   if (b) {
     where.OR = [
-      ...(digitos ? [{ numero: Number(digitos) }] : []),
+      ...filtroPorNumero(b),
       { cliente: { nome: { contains: b, mode: 'insensitive' } } },
+      // Pelo documento também, como na tela de Ordens. Faltava aqui, e quem
+      // colava o CPF do cliente no Financeiro não achava a fatura dele.
+      ...(digitos ? [{ cliente: { documento: { contains: digitos } } }] : []),
     ]
   }
 
@@ -469,12 +473,27 @@ export async function agendaDoPeriodo(ctx: ContextoAcesso, dias = 7) {
   )
 }
 
-/** Ordens que precisam de agendamento e ainda não têm um em aberto. */
+/**
+ * Ordens que precisam de agendamento e ainda não têm um em aberto.
+ *
+ * São três momentos em que um aparelho espera alguém dirigir até ele: a ida
+ * (`ORDEM_RETIRADA_GERADA`), a volta depois do conserto (`FATURADO`) e a volta
+ * de quem decidiu NÃO consertar (`DEVOLVIDO_SEM_REPARO`). Esta última faltava
+ * aqui, e o efeito era o aparelho recusado ficar sem fila nenhuma: não
+ * aparecia para ninguém agendar, e a central acabava marcando "saiu para
+ * devolução" na ficha, sem motorista, sem endereço na rota de ninguém.
+ */
 export async function semAgendamento(ctx: ContextoAcesso) {
   return comEscopo(ctx, (tx) =>
     tx.ordem.findMany({
       where: {
-        etapa: { in: [EtapaOrdem.ORDEM_RETIRADA_GERADA, EtapaOrdem.FATURADO] },
+        etapa: {
+          in: [
+            EtapaOrdem.ORDEM_RETIRADA_GERADA,
+            EtapaOrdem.FATURADO,
+            EtapaOrdem.DEVOLVIDO_SEM_REPARO,
+          ],
+        },
         agendamentos: { none: { status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA'] } } },
       },
       orderBy: { atualizadoEm: 'asc' },
@@ -714,7 +733,7 @@ export async function ordensNaCasa(ctx: ContextoAcesso, busca?: string) {
                 { cliente: { nome: { contains: termo, mode: 'insensitive' as const } } },
                 { equipamento: { marca: { contains: termo, mode: 'insensitive' as const } } },
                 { equipamento: { modelo: { contains: termo, mode: 'insensitive' as const } } },
-                ...(Number.isFinite(Number(termo)) && termo !== '' ? [{ numero: Number(termo) }] : []),
+                ...filtroPorNumero(termo),
               ],
             }
           : {}),

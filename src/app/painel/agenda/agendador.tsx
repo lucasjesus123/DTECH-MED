@@ -68,7 +68,12 @@ export default function Agendador({
               <th>Tipo</th>
               <th>Cliente</th>
               <th>Equipamento</th>
-              <th />
+              {/* A coluna dos botões: rótulo invisível na tela, presente para
+                  quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
+                  tabela inteira perder o cabeçalho. */}
+              <th>
+                <span className={estilo.soLeitor}>Ações</span>
+              </th>
             </tr>
           </thead>
           <tbody>

@@ -1089,3 +1089,37 @@ bash infra/migrador.sh npx tsx scripts/limpar-demo.mts --apagar
 | **Rodar duas vezes** | Inofensivo. |
 
 > **Sobre as senhas.** A semeadura grava a mesma senha (`Dtech@2026`, escrita no repositório) em todas as contas da equipe, e nenhuma delas nasce obrigada a trocar. O script confere isso de verdade — com a mesma função do login, não pelo cadastro — e avisa quais contas ainda entram com ela. Apagar dado falso e deixar esses logins abertos é limpar a vitrine e deixar a porta destrancada.
+
+---
+
+## Por que o `package.json` trava a versão do `deepmerge-ts`
+
+```json
+"overrides": { "deepmerge-ts": "^8.0.2" }
+```
+
+O `npm audit` acusava 3 alertas altos: estouro de pilha ao mesclar objetos
+recursivos, no `deepmerge-ts` 7, que chega até aqui pelo caminho
+
+```
+prisma  ->  @prisma/config  ->  deepmerge-ts
+```
+
+O alcance real é pequeno — o pacote não vai para a imagem que serve o sistema,
+e o caminho vulnerável só roda quando o CLI do Prisma lê a configuração, no
+terminal, sobre um arquivo nosso. Mas a saída que o `npm audit fix --force`
+propõe é rebaixar o Prisma de 7.9 para 6.12, uma mudança de versão maior no
+pacote que sustenta o banco inteiro.
+
+O `override` resolve sem mexer no Prisma: força a versão 8 do pacote de dentro,
+onde a falha já está corrigida. Conferido depois da troca:
+
+```
+npm audit                -> found 0 vulnerabilities
+npx prisma generate      -> Generated Prisma Client (7.9.1)
+npx prisma migrate status-> 18 migrations found · Database schema is up to date!
+npm run build            -> passa
+```
+
+Quando o Prisma publicar uma versão que já traga o `deepmerge-ts` 8, esta linha
+pode sair. Ela não faz falta nenhuma além disso.

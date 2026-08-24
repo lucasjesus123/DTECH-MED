@@ -130,6 +130,12 @@ export async function InstagramFeed({ className }: { className?: string }) {
                 configuração, e o endereço do CDN do Instagram muda. Aqui a
                 imagem já passa pelo nosso espelho, que é o que a política de
                 segurança exige de qualquer jeito. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- estas
+                imagens vêm de rota NOSSA que confere a sessão antes de
+                devolver o byte. Passá-las pelo otimizador do next/image
+                colocaria conteúdo autenticado num cache compartilhado e
+                sem dono. O peso já é pequeno e o `loading="lazy"` resolve
+                o resto. */}
             <img
               src={`/api/insta-imagem?u=${encodeURIComponent(p.imagem)}`}
               alt={p.texto || 'Publicação da DTECH MED no Instagram'}
