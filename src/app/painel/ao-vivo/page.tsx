@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel } from '@/server/auth/guarda'
 import { paradasAoVivo } from '@/server/consultas/rastro'
+import { AtualizaSozinho } from './atualiza-sozinho'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Ao vivo', robots: { index: false } }
@@ -55,15 +56,11 @@ export default async function AoVivo() {
           <p className={estilo.grav}>A esteira</p>
           <h1 className={estilo.titulo}>Ao vivo</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
-            Quem está na rua agora. A página se atualiza sozinha a cada meio minuto.
+            Quem está na rua agora.
           </p>
+          <AtualizaSozinho segundos={30} />
         </div>
       </div>
-
-      {/* A atualização é do NAVEGADOR, e não um relógio em JavaScript: sem
-          script, sem estado para desandar, e a aba esquecida aberta a noite
-          inteira não vira um vazamento de memória. */}
-      <meta httpEquiv="refresh" content="30" />
 
       <div className={estilo.resumo}>
         <div className={estilo.indicador}>
