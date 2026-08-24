@@ -171,7 +171,12 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                   <th className={estilo.dir}>Ordens</th>
                   <th>WhatsApp</th>
                   <th>Situação</th>
-                  <th />
+                  {/* A coluna dos botões. O título fica só para o leitor de
+                      tela: um `<th>` vazio faz a tabela inteira perder o
+                      cabeçalho para quem navega por ela. */}
+                  <th>
+                    <span className={estilo.soLeitor}>Ações</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -314,7 +319,12 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                   <th>Perfil</th>
                   <th>Último acesso</th>
                   <th>Situação</th>
-                  <th />
+                  {/* A coluna dos botões. O título fica só para o leitor de
+                      tela: um `<th>` vazio faz a tabela inteira perder o
+                      cabeçalho para quem navega por ela. */}
+                  <th>
+                    <span className={estilo.soLeitor}>Ações</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>

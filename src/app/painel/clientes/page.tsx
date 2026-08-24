@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
@@ -14,7 +15,12 @@ export default async function Clientes({
 }: {
   searchParams: Promise<{ busca?: string; novo?: string }>
 }) {
-  const { ctx } = await exigirSessao()
+  const { ctx, sessao } = await exigirSessao()
+  // A mesma lista da rota `/painel/clientes/exportar`. Repetida de propósito:
+  // se um dia divergirem, o pior que acontece é o botão sumir para quem podia,
+  // nunca aparecer para quem não pode.
+  const PODE_EXPORTAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
+  const podeExportar = PODE_EXPORTAR.includes(sessao.papel)
   const q = await searchParams
   const clientes = await listarClientes(ctx, q.busca)
 
@@ -35,7 +41,7 @@ export default async function Clientes({
       {/* Exportar e importar. Fica acima da busca porque é operação sobre a
           carteira INTEIRA, e não sobre o que o filtro mostra — colocá-la depois
           da busca sugeriria que exporta só o resultado filtrado. */}
-      <Planilha />
+      <Planilha podeExportar={podeExportar} />
 
       <form method="get" className={estilo.filtros}>
         <div className={estilo.busca}>
