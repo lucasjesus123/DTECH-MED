@@ -122,6 +122,17 @@ export default async function LayoutPainel({ children }: { children: React.React
     cadastros.push({ href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' })
     grupos.push({ titulo: 'Cadastros', itens: cadastros })
 
+    // A equipe é do ADMINISTRADOR da empresa: é ele quem contrata, quem tira
+    // acesso de quem saiu, e quem responde se alguém entrar onde não devia.
+    // Gestor não aparece aqui de propósito — dar a chave da porta a quem
+    // conduz a esteira é como o primeiro acesso indevido costuma começar.
+    if (podeVer(p, Papel.ADMIN_EMPRESA)) {
+      grupos.push({
+        titulo: 'Equipe',
+        itens: [{ href: '/painel/usuarios', rotulo: 'Pessoas e acessos', icone: 'clientes' }],
+      })
+    }
+
     const retaguarda: ItemNav[] = []
     if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
     if (podeVer(p, Papel.ATENDENTE)) retaguarda.push({ href: '/painel/preventiva', rotulo: 'Preventiva', icone: 'preventiva' })
