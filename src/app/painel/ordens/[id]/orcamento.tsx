@@ -189,7 +189,16 @@ export default function Orcamento({
         )}
       </p>
 
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {/*
+        O aviso nasce depois do clique, e quem usa leitor de tela não tem como
+        adivinhar que ele apareceu. `alert` interrompe para a recusa — que é o
+        que precisa ser ouvido na hora; `status` espera a pausa para o "salvo".
+      */}
+      {msg ? (
+        <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>
+          {msg.texto}
+        </p>
+      ) : null}
 
       {/* ----- Orçamento já montado --------------------------------------- */}
       {atual && !abrirEditor ? (
