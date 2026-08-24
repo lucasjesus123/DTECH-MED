@@ -28,6 +28,22 @@ const nextConfig: NextConfig = {
   // que o Next também o resolva do disco em vez de embutir.
   serverExternalPackages: ['pdfkit'],
 
+  /**
+   * Só vale em `next dev`. O build de produção ignora esta linha.
+   *
+   * O Next 16 recusa servir os pedaços de JavaScript do modo desenvolvimento a
+   * quem chega por um endereço que ele não reconhece como o próprio — e ele
+   * considera `127.0.0.1` diferente de `localhost`. O sintoma não parece um
+   * bloqueio: a página CARREGA, o texto aparece inteiro, e nada responde ao
+   * clique. É o React que nunca hidratou, porque o pacote dele voltou 403.
+   *
+   * Custou meia hora de caça em cima de um robô de teste que abria a tela, via
+   * a lista certa, clicava em "Marcar" e esperava trinta segundos por um
+   * formulário que nunca ia abrir. O aviso existe no terminal, mas passa
+   * despercebido entre as linhas de compilação.
+   */
+  allowedDevOrigins: ['127.0.0.1'],
+
   experimental: {
     // As Server Actions só aceitam requisição da própria origem.
     serverActions: { allowedOrigins: (process.env.ALLOWED_ORIGINS ?? '').split(',').filter(Boolean) },
