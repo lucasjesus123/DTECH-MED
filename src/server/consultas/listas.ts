@@ -1,6 +1,7 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { janelaDoDia } from '@/lib/datas'
+import { filtroPorNumero } from '@/lib/numero-os'
 
 /**
  * Consultas de listagem do painel.
@@ -60,7 +61,7 @@ export async function listarOrdens(ctx: ContextoAcesso, f: FiltroOrdens) {
     where.OR = [
       // Número da O.S. é o que o cliente cita no telefone — precisa ser a
       // primeira coisa que a busca encontra.
-      ...(soDigitos ? [{ numero: Number(soDigitos) }] : []),
+      ...filtroPorNumero(busca),
       { cliente: { nome: { contains: busca, mode: 'insensitive' } } },
       // Documento só entra quando a busca tem dígitos. Antes havia aqui um
       // valor de reserva que, por acidente, era um byte NUL — e o Postgres
@@ -300,8 +301,11 @@ export async function listarFaturas(ctx: ContextoAcesso, f: FiltroFaturas) {
 
   if (b) {
     where.OR = [
-      ...(digitos ? [{ numero: Number(digitos) }] : []),
+      ...filtroPorNumero(b),
       { cliente: { nome: { contains: b, mode: 'insensitive' } } },
+      // Pelo documento também, como na tela de Ordens. Faltava aqui, e quem
+      // colava o CPF do cliente no Financeiro não achava a fatura dele.
+      ...(digitos ? [{ cliente: { documento: { contains: digitos } } }] : []),
     ]
   }
 
@@ -729,7 +733,7 @@ export async function ordensNaCasa(ctx: ContextoAcesso, busca?: string) {
                 { cliente: { nome: { contains: termo, mode: 'insensitive' as const } } },
                 { equipamento: { marca: { contains: termo, mode: 'insensitive' as const } } },
                 { equipamento: { modelo: { contains: termo, mode: 'insensitive' as const } } },
-                ...(Number.isFinite(Number(termo)) && termo !== '' ? [{ numero: Number(termo) }] : []),
+                ...filtroPorNumero(termo),
               ],
             }
           : {}),
