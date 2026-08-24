@@ -20,6 +20,27 @@ import { ehProducao, env } from '@/lib/env'
 
 const NOME_COOKIE = 'dtm_sessao'
 
+/**
+ * A empresa em que o dono da plataforma está ENTRANDO.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE UM SEGUNDO COOKIE, E NÃO UM CAMPO NA SESSÃO DO BANCO
+ * ---------------------------------------------------------------------------
+ * Entrar numa empresa é uma escolha de NAVEGAÇÃO, não de identidade: a pessoa
+ * continua sendo ela, com o mesmo login e a mesma sessão. Gravar isso na linha
+ * da sessão significaria escrever no banco a cada troca de empresa, e — pior —
+ * a sessão aberta no celular mudaria de empresa junto com a do computador.
+ *
+ * Como cookie, cada aba do navegador da pessoa carrega a sua própria escolha, e
+ * fechar o navegador devolve ao lugar de origem: a visão da rede.
+ *
+ * Ele guarda um id de empresa, que não é segredo — quem o edita à mão só
+ * consegue pedir "quero entrar na empresa X", e a resposta a esse pedido é
+ * conferida do zero em toda leitura de sessão: só SUPER_ADMIN entra, e só em
+ * empresa que existe, está ativa e não está suspensa.
+ */
+const NOME_COOKIE_EMPRESA = 'dtm_empresa'
+
 export type Sessao = {
   userId: string
   nome: string
@@ -28,6 +49,15 @@ export type Sessao = {
   tenantId: string | null
   tenantNome: string | null
   trocarSenha: boolean
+  /**
+   * `true` quando é o dono da plataforma olhando de DENTRO de uma empresa.
+   *
+   * Enquanto isso vale, ele enxerga exatamente o que aquela empresa enxerga —
+   * nem uma linha a mais. Ver `contextoDe`, logo abaixo: o atalho de super
+   * admin do banco é DESLIGADO durante a visita, de modo que o isolamento
+   * passa a ser feito pelo Postgres e não pela boa vontade do código.
+   */
+  visitando: boolean
 }
 
 const TTL_MS = () => env.SESSION_TTL_HOURS * 60 * 60 * 1000
@@ -111,7 +141,7 @@ export async function lerSessao(): Promise<Sessao | null> {
     })
   }
 
-  return {
+  const base: Sessao = {
     userId: u.id,
     nome: u.nome,
     email: u.email,
@@ -119,7 +149,48 @@ export async function lerSessao(): Promise<Sessao | null> {
     tenantId: u.tenantId,
     tenantNome: u.tenant?.nome ?? null,
     trocarSenha: u.trocarSenha,
+    visitando: false,
   }
+
+  // O dono da plataforma pode estar DENTRO de uma empresa. A escolha vem do
+  // cookie, mas o direito é conferido aqui, do zero, a cada leitura — cookie
+  // é pedido, nunca permissão.
+  if (u.papel === 'SUPER_ADMIN') {
+    const alvo = jar.get(NOME_COOKIE_EMPRESA)?.value
+    if (alvo) {
+      const empresa = await comContextoAuth(async (tx) =>
+        tx.tenant.findFirst({
+          where: { id: alvo, ativo: true, bloqueado: false },
+          select: { id: true, nome: true },
+        }),
+      )
+      // Empresa apagada, desativada ou suspensa no meio da visita: a sessão
+      // volta sozinha para a visão da rede, em vez de servir uma tela vazia
+      // que parece defeito.
+      if (empresa) {
+        return { ...base, tenantId: empresa.id, tenantNome: empresa.nome, visitando: true }
+      }
+    }
+  }
+
+  return base
+}
+
+/** Entra numa empresa. Só o dono da plataforma, e a conferência real é em `lerSessao`. */
+export async function marcarEmpresaVisitada(tenantId: string): Promise<void> {
+  const jar = await cookies()
+  jar.set(NOME_COOKIE_EMPRESA, tenantId, {
+    httpOnly: true,
+    secure: ehProducao,
+    sameSite: 'strict',
+    path: '/',
+  })
+}
+
+/** Volta para a visão da rede. */
+export async function limparEmpresaVisitada(): Promise<void> {
+  const jar = await cookies()
+  jar.delete(NOME_COOKIE_EMPRESA)
 }
 
 export async function encerrarSessao(): Promise<void> {
@@ -147,11 +218,31 @@ export async function revogarTodasAsSessoes(userId: string): Promise<number> {
   })
 }
 
+/**
+ * O contexto que o banco recebe.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE O ATALHO DE SUPER ADMIN É DESLIGADO DURANTE A VISITA
+ * ---------------------------------------------------------------------------
+ * `app.is_super_admin` é o escape hatch das políticas de RLS: com ele ligado, o
+ * Postgres devolve as linhas de TODAS as empresas. Isso é o que a visão da rede
+ * precisa — e é exatamente o que a visita não pode ter.
+ *
+ * Ao entrar numa empresa, o dono da plataforma passa a operar dentro dela: abre
+ * ordens, olha o financeiro DELA, fala com os clientes DELA. Se o atalho
+ * continuasse ligado, uma consulta que confia no RLS — e há dezenas — traria
+ * junto o dado das outras franquias, e o vazamento apareceria numa tela de
+ * trabalho comum, sem ninguém suspeitar.
+ *
+ * Desligado, o isolamento durante a visita é feito pelo BANCO, e não pela
+ * disciplina de quem escreveu a consulta. É a mesma diferença entre trancar a
+ * porta e pedir para não entrarem.
+ */
 export function contextoDe(s: Sessao): ContextoAcesso {
   return {
     tenantId: s.tenantId,
     userId: s.userId,
-    ehSuperAdmin: s.papel === 'SUPER_ADMIN',
+    ehSuperAdmin: s.papel === 'SUPER_ADMIN' && !s.visitando,
   }
 }
 

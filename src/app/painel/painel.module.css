@@ -2128,3 +2128,56 @@
 @media (prefers-reduced-motion: reduce) {
   .aoVivoPulso { animation: none; }
 }
+
+/* ==========================================================================
+   A FAIXA DA VISITA
+   --------------------------------------------------------------------------
+   Aparece quando o dono da plataforma entra numa empresa da rede. Usa o âmbar
+   de "aguardando" e não o vermelho de "erro": estar dentro de uma franquia não
+   é falha nenhuma — é um estado que precisa ficar à vista.
+
+   Sem `position: sticky`. A faixa é uma afirmação sobre a TELA inteira, e não
+   um controle que precisa acompanhar a rolagem; grudada no topo, disputaria
+   espaço com a barra que já está lá e comeria altura útil em telas de
+   notebook, onde a lista de ordens já é o que menos cabe.
+   ========================================================================== */
+
+.faixaVisita {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s3) var(--s5);
+  background: var(--espera-veu);
+  border-bottom: 1px solid var(--espera-borda);
+  font-size: var(--t-sm);
+  color: var(--txt);
+}
+
+.faixaVisitaTxt { min-width: 0; }
+.faixaVisitaTxt strong { color: var(--espera); font-weight: 700; }
+
+.faixaVisitaBtn {
+  flex: none;
+  /* 36px de altura: a saída não pode ser um alvo menor que o resto da tela,
+     e é ela que se procura com pressa. */
+  min-height: 36px;
+  padding: 0 var(--s4);
+  border: 1px solid var(--espera-borda);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+}
+
+.faixaVisitaBtn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--espera) 12%, transparent);
+  border-color: var(--espera);
+}
+
+.faixaVisitaBtn:disabled { opacity: .6; cursor: progress; }

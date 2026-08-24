@@ -7,6 +7,7 @@ import { lerTema } from '@/server/acoes/tema'
 import estilo from './painel.module.css'
 import Navegacao, { type GrupoNav, type ItemNav } from './nav'
 import SeletorDeTema from './tema'
+import FaixaDaVisita from './faixa-da-visita'
 import { Credito } from '../credito'
 import { Marca } from '../marca'
 
@@ -87,7 +88,7 @@ export default async function LayoutPainel({ children }: { children: React.React
    * de uma ordem chega nela, como sempre chegou. O que muda é o que o menu
    * oferece de saída.
    */
-  if (p === Papel.SUPER_ADMIN) {
+  if (p === Papel.SUPER_ADMIN && !sessao.visitando) {
     // "Administração", e não "Plataforma": o crachá logo acima já diz
     // Plataforma, porque é o lugar do nome da empresa e o super admin não tem
     // uma. A mesma palavra duas vezes, uma embaixo da outra, é metade da
@@ -188,6 +189,11 @@ export default async function LayoutPainel({ children }: { children: React.React
               `landmark-one-main` e `region` nas 23 telas do painel — todo o
               conteúdo ficava fora de qualquer marco, e quem navega por
               teclado precisava atravessar o menu inteiro a cada tela. */}
+          {/* A faixa da visita. Fica ACIMA do conteúdo e em toda tela, porque
+              esquecer em que empresa se está é o erro que faz alguém abrir uma
+              ordem na franquia errada. */}
+          {sessao.visitando ? <FaixaDaVisita empresa={sessao.tenantNome ?? 'empresa'} /> : null}
+
           <main>{children}</main>
           <footer className={estilo.rodape}>
             <Credito />

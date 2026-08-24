@@ -2,7 +2,13 @@
 
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { alternarBloqueio, alternarUsuario, criarEmpresa, salvarUsuario } from '@/server/acoes/plataforma'
+import {
+  alternarBloqueio,
+  alternarUsuario,
+  criarEmpresa,
+  entrarNaEmpresa,
+  salvarUsuario,
+} from '@/server/acoes/plataforma'
 import estilo from '../painel.module.css'
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
@@ -43,8 +49,42 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
   const [estadoEmpresa, acaoEmpresa, salvandoEmpresa] = useActionState(criarEmpresa, inicial)
   const [estadoUsuario, acaoUsuario, salvandoUsuario] = useActionState(salvarUsuario, inicial)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
+  const [busca, setBusca] = useState('')
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
+
+  /**
+   * A busca da rede: nome, cidade, CNPJ ou identificador.
+   *
+   * Filtra no navegador, e não no servidor, de propósito. A lista de franquias
+   * é a menor do sistema — são dezenas, não milhares — e ir ao banco a cada
+   * tecla digitada custaria uma viagem de rede para responder o que já está na
+   * memória. O dia em que forem centenas, isto vira consulta paginada; hoje
+   * seria complexidade comprada adiantada.
+   */
+  const termo = busca.trim().toLowerCase()
+  const visiveis = termo
+    ? empresas.filter((e) =>
+        [e.nome, e.cidade ?? '', e.uf ?? '', e.cnpj ?? '', e.slug]
+          .join(' ')
+          .toLowerCase()
+          .includes(termo),
+      )
+    : empresas
+
+  /** Entra na empresa e cai no painel do dia DELA. */
+  function entrar(e: Empresa) {
+    setMsg(null)
+    iniciar(async () => {
+      const r = await entrarNaEmpresa(e.id)
+      if (!r.ok) {
+        setMsg({ ok: false, texto: r.motivo })
+        return
+      }
+      router.push('/painel')
+      router.refresh()
+    })
+  }
 
   function agir(fn: () => Promise<Resposta>) {
     setMsg(null)
@@ -84,6 +124,20 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
             <button type="button" className={estilo.btn} onClick={() => setNovaEmpresa((v) => !v)}>
               {novaEmpresa ? 'Fechar' : 'Cadastrar empresa'}
             </button>
+            <input
+              className={estilo.campo}
+              type="search"
+              value={busca}
+              onChange={(ev) => setBusca(ev.target.value)}
+              placeholder="Buscar por nome, cidade, CNPJ ou identificador"
+              aria-label="Buscar empresa"
+              style={{ maxWidth: 380 }}
+            />
+            <span className={estilo.fraco}>
+              {visiveis.length === empresas.length
+                ? `${empresas.length} ${empresas.length === 1 ? 'empresa' : 'empresas'}`
+                : `${visiveis.length} de ${empresas.length}`}
+            </span>
           </div>
 
           {novaEmpresa ? (
@@ -180,7 +234,7 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                 </tr>
               </thead>
               <tbody>
-                {empresas.map((e) => (
+                {visiveis.map((e) => (
                   <tr key={e.id}>
                     <td>
                       <span className={estilo.forte}>{e.nome}</span>
@@ -208,6 +262,22 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                       {e.motivoBloqueio ? <div className={estilo.fraco}>{e.motivoBloqueio}</div> : null}
                     </td>
                     <td className={estilo.dir}>
+                      {/* "Entrar" é a ação principal desta tela: é assim que o
+                          dono da plataforma chega ao dia a dia de cada
+                          franquia. Empresa suspensa não recebe visita — entrar
+                          numa casa que você mesmo fechou é o caminho curto para
+                          esquecer que ela está fechada. */}
+                      {!e.bloqueado ? (
+                        <button
+                          type="button"
+                          className={estilo.btn}
+                          disabled={pendente}
+                          onClick={() => entrar(e)}
+                          style={{ marginRight: 'var(--s2)' }}
+                        >
+                          Entrar
+                        </button>
+                      ) : null}
                       {e.bloqueado ? (
                         <button
                           type="button"

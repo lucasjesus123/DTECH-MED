@@ -6,7 +6,13 @@ import { Papel } from '@/generated/prisma/enums'
 import { conferirSenha, hashSenha } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
-import { contextoDe, lerSessao, revogarTodasAsSessoes } from '@/server/auth/sessao'
+import {
+  contextoDe,
+  lerSessao,
+  limparEmpresaVisitada,
+  marcarEmpresaVisitada,
+  revogarTodasAsSessoes,
+} from '@/server/auth/sessao'
 
 /**
  * Administração da plataforma e dos usuários.
@@ -389,4 +395,86 @@ export async function encerrarTodasAsSessoes(): Promise<Resposta> {
   const n = await revogarTodasAsSessoes(a.sessao.userId)
   await auditar(a.ctx, a.sessao, { acao: 'sessoes.encerradas', detalhes: { quantidade: n } })
   return { ok: true, mensagem: `${n} ${n === 1 ? 'sessão encerrada' : 'sessões encerradas'}. Entre de novo.` }
+}
+
+// ---------------------------------------------------------------------------
+// ENTRAR NUMA EMPRESA
+// ---------------------------------------------------------------------------
+
+/**
+ * O dono da plataforma entra numa das empresas da rede.
+ *
+ * ---------------------------------------------------------------------------
+ * O QUE ISTO É, E O QUE NÃO É
+ * ---------------------------------------------------------------------------
+ * NÃO é virar outra pessoa. Ele continua sendo ele — mesmo nome no crachá,
+ * mesma trilha de auditoria, mesmo login. O que muda é o CONJUNTO DE DADOS que
+ * ele está olhando: ao entrar na franquia de Lajeado, o painel, as ordens, a
+ * agenda e o financeiro passam a ser os de Lajeado, e só os de Lajeado.
+ *
+ * É a diferença entre "assumir o crachá de alguém" e "ir até a loja". A
+ * primeira apaga o rastro; a segunda deixa um.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO NÃO ABRE UM BURACO NO ISOLAMENTO
+ * ---------------------------------------------------------------------------
+ * Porque durante a visita o atalho de super admin do banco fica DESLIGADO
+ * (ver `contextoDe`). Quem separa uma franquia da outra passa a ser o Postgres,
+ * exatamente como para qualquer funcionário — o dono da plataforma dentro de
+ * Lajeado tem o alcance de Lajeado, nem uma linha além.
+ *
+ * A entrada e a saída ficam registradas na trilha. Numa rede de franquias, o
+ * franqueado tem direito de saber quando o franqueador esteve dentro da casa
+ * dele.
+ */
+export async function entrarNaEmpresa(tenantId: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (a.sessao.papel !== Papel.SUPER_ADMIN) {
+    return { ok: false, motivo: 'Só o administrador da plataforma entra em outra empresa.' }
+  }
+
+  const ctxPlataforma: ContextoAcesso = { tenantId: null, userId: a.sessao.userId, ehSuperAdmin: true }
+  const empresa = await comEscopo(ctxPlataforma, async (tx) =>
+    tx.tenant.findUnique({
+      where: { id: tenantId },
+      select: { id: true, nome: true, ativo: true, bloqueado: true },
+    }),
+  )
+
+  if (!empresa || !empresa.ativo) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'empresa.entrada_negada', entidade: 'tenant', entidadeId: tenantId, negado: true,
+    })
+    return { ok: false, motivo: 'Empresa não encontrada.' }
+  }
+  if (empresa.bloqueado) {
+    return { ok: false, motivo: 'Esta empresa está suspensa. Reative antes de entrar nela.' }
+  }
+
+  await marcarEmpresaVisitada(empresa.id)
+  await auditar(a.ctx, a.sessao, {
+    acao: 'empresa.entrou', entidade: 'tenant', entidadeId: empresa.id,
+    detalhes: { empresa: empresa.nome },
+  })
+
+  revalidatePath('/painel', 'layout')
+  return { ok: true, mensagem: `Você está dentro de ${empresa.nome}.` }
+}
+
+/** Volta para a visão da rede. */
+export async function sairDaEmpresa(): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  if (a.sessao.visitando) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'empresa.saiu', entidade: 'tenant', entidadeId: a.sessao.tenantId ?? undefined,
+      detalhes: { empresa: a.sessao.tenantNome },
+    })
+  }
+
+  await limparEmpresaVisitada()
+  revalidatePath('/painel', 'layout')
+  return { ok: true }
 }

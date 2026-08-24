@@ -22,10 +22,16 @@ export default async function PainelDoDia({
   const { ctx, sessao } = await exigirSessao()
 
   // O super admin cai aqui ao entrar, mas "onde a esteira está agora" é a
-  // pergunta de quem opera uma franquia — ele não tem esteira. Sem este desvio
-  // ele aterrissava numa tela de números vazios que o menu dele nem oferece
-  // mais, e precisava de dois cliques para chegar onde de fato trabalha.
-  if (sessao.papel === Papel.SUPER_ADMIN) redirect('/painel/empresas')
+  // pergunta de quem opera uma franquia — e fora de uma empresa ele não tem
+  // esteira. Sem este desvio ele aterrissava numa tela de números vazios que o
+  // menu dele nem oferece, e precisava de dois cliques para chegar onde de fato
+  // trabalha.
+  //
+  // `!visitando` é a metade que faltava: DENTRO de uma franquia ele tem esteira
+  // sim, e é justamente esta tela que ele foi ver. Sem essa condição, clicar em
+  // "Entrar" devolvia a pessoa para a lista de empresas — de onde ela tinha
+  // acabado de sair — e a visita parecia não ter funcionado.
+  if (sessao.papel === Papel.SUPER_ADMIN && !sessao.visitando) redirect('/painel/empresas')
 
   const { degrau = 'manut' } = await searchParams
 
