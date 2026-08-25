@@ -9,6 +9,7 @@ import {
   entrarNaEmpresa,
   salvarUsuario,
 } from '@/server/acoes/plataforma'
+import FichaEmpresa from './ficha-empresa'
 import estilo from '../painel.module.css'
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
@@ -29,6 +30,15 @@ type Empresa = {
   abertas: number
   whats: string | null
   criadoEm: string
+  razaoSocial: string | null
+  email: string | null
+  telefone: string | null
+  whatsapp: string | null
+  cep: string | null
+  logradouro: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
 }
 
 type Usuario = {
@@ -50,6 +60,8 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
   const [estadoUsuario, acaoUsuario, salvandoUsuario] = useActionState(salvarUsuario, inicial)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [busca, setBusca] = useState('')
+  /** A empresa cujo cadastro está aberto. `null` = nenhuma. */
+  const [emEdicao, setEmEdicao] = useState<Empresa | null>(null)
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
@@ -278,6 +290,17 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                           Entrar
                         </button>
                       ) : null}
+                      {/* Editar abre para qualquer empresa, inclusive a
+                          suspensa: corrigir o cadastro de quem está parado é
+                          justamente o que costuma preceder a reativação. */}
+                      <button
+                        type="button"
+                        className={estilo.btnSec}
+                        onClick={() => setEmEdicao(e)}
+                        style={{ marginRight: 'var(--s2)' }}
+                      >
+                        Editar
+                      </button>
                       {e.bloqueado ? (
                         <button
                           type="button"
@@ -308,6 +331,10 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
               </tbody>
             </table>
           </div>
+
+          {emEdicao ? (
+            <FichaEmpresa empresa={emEdicao} aoFechar={() => setEmEdicao(null)} />
+          ) : null}
 
           <p className={estilo.fraco} style={{ marginTop: 'var(--s4)' }}>
             Suspender encerra na hora todas as sessões abertas da empresa. Sem

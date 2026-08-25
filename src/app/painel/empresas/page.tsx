@@ -66,6 +66,15 @@ export default async function PaginaEmpresas() {
           abertas: e.abertas,
           whats: e.whats,
           criadoEm: e.criadoEm.toISOString(),
+          razaoSocial: e.razaoSocial,
+          email: e.email,
+          telefone: e.telefone,
+          whatsapp: e.whatsapp,
+          cep: e.cep,
+          logradouro: e.logradouro,
+          numero: e.numero,
+          complemento: e.complemento,
+          bairro: e.bairro,
         }))}
         usuarios={usuarios.map((u) => ({
           id: u.id,

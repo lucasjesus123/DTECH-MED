@@ -318,6 +318,25 @@ model User {
   /// Avatar e assinatura digitalizada do técnico/motorista (usada nos laudos).
   avatarUrl String?
 
+  /// CPF de quem trabalha aqui. Entra em documento assinado — o termo de
+  /// retirada leva o nome e o documento de quem recebeu o equipamento, e do
+  /// nosso lado leva quem entregou.
+  documento String?
+
+  /// Endereço de quem trabalha aqui.
+  ///
+  /// Existe por dois motivos práticos: a ficha de funcionário que a empresa
+  /// precisa ter, e a rota — o motorista que sai de casa direto para a
+  /// primeira retirada não passa pela oficina, e o ponto de partida dele muda
+  /// a ordem das paradas do dia.
+  cep         String?
+  logradouro  String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cidade      String?
+  uf          String?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
   criadoPorId  String?

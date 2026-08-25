@@ -655,10 +655,21 @@ export async function listarEmpresas() {
       abertas: bigint
       whats: string | null
       whatsNumero: string | null
+      razaoSocial: string | null
+      email: string | null
+      telefone: string | null
+      whatsapp: string | null
+      cep: string | null
+      logradouro: string | null
+      numero: string | null
+      complemento: string | null
+      bairro: string | null
     }>
   >`
     SELECT t.id, t.slug, t.nome, t.cnpj, t.cidade, t.uf, t.ativo, t.bloqueado,
            t."motivoBloqueio", t.plano, t."criadoEm",
+           t."razaoSocial", t.email, t.telefone, t.whatsapp,
+           t.cep, t.logradouro, t.numero, t.complemento, t.bairro,
            (SELECT count(*) FROM usuarios u WHERE u."tenantId" = t.id AND u.ativo) AS usuarios,
            (SELECT count(*) FROM ordens o WHERE o."tenantId" = t.id)               AS ordens,
            (SELECT count(*) FROM ordens o WHERE o."tenantId" = t.id
@@ -694,6 +705,15 @@ export async function listarUsuarios(ctx: ContextoAcesso, tenantId?: string) {
         ultimoLogin: true,
         bloqueadoAte: true,
         trocarSenha: true,
+        telefone: true,
+        documento: true,
+        cep: true,
+        logradouro: true,
+        numero: true,
+        complemento: true,
+        bairro: true,
+        cidade: true,
+        uf: true,
         tenant: { select: { nome: true } },
       },
     }),

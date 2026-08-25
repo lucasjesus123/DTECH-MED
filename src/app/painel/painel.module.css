@@ -2181,3 +2181,68 @@
 }
 
 .faixaVisitaBtn:disabled { opacity: .6; cursor: progress; }
+
+/* ==========================================================================
+   A FOLHA — a ficha que abre por cima da lista
+   --------------------------------------------------------------------------
+   Usada pela ficha da pessoa e pelo cadastro da empresa. Uma folha, e não uma
+   página nova: quem abre a ficha de alguém quase sempre vai abrir a de outro em
+   seguida, e página nova obriga a voltar, esperar a lista carregar e
+   reencontrar onde estava.
+
+   O fundo escurecido não é enfeite — ele é o que diz "o resto está esperando".
+   E clicar nele fecha, porque é o gesto que a mão faz antes de procurar o botão.
+   ========================================================================== */
+
+.folhaFundo {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(12px, 4vh, 48px) var(--s4);
+  background: rgb(0 0 0 / .55);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+  /* `overscroll-behavior` impede a rolagem de "vazar" para a página de trás
+     quando a folha chega ao fim — o efeito de rolar a lista por baixo enquanto
+     se lê a ficha é desorientador. */
+  overscroll-behavior: contain;
+}
+
+.folha {
+  width: min(760px, 100%);
+  background: var(--mesa);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: 0 30px 80px -30px rgb(0 0 0 / .7);
+  overflow: hidden;
+}
+
+.folhaTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s4) var(--s5);
+  border-bottom: 1px solid var(--borda);
+  background: var(--mesa);
+  /* Grudado no topo: numa ficha longa, o nome de quem se está editando é a
+     informação que não pode sair da tela — é ela que impede salvar o telefone
+     na pessoa errada. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.folhaNome {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+
+.folhaCorpo { padding: var(--s5); }

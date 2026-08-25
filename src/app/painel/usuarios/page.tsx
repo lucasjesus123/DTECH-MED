@@ -74,6 +74,15 @@ export default async function PaginaEquipe() {
           ativo: u.ativo,
           ultimoLogin: u.ultimoLogin?.toISOString() ?? null,
           trocarSenha: u.trocarSenha,
+          telefone: u.telefone,
+          documento: u.documento,
+          cep: u.cep,
+          logradouro: u.logradouro,
+          numero: u.numero,
+          complemento: u.complemento,
+          bairro: u.bairro,
+          cidade: u.cidade,
+          uf: u.uf,
         }))}
       />
     </>

@@ -3,20 +3,12 @@
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { alternarUsuario, salvarUsuario } from '@/server/acoes/plataforma'
+import Ficha, { type Pessoa } from './ficha'
 import estilo from '../painel.module.css'
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
 const inicial: Resposta = { ok: false, motivo: '' }
 
-type Pessoa = {
-  id: string
-  nome: string
-  email: string
-  papel: string
-  ativo: boolean
-  ultimoLogin: string | null
-  trocarSenha: boolean
-}
 
 /**
  * Os perfis, do mais alto para o mais baixo, com o que cada um faz escrito ao
@@ -68,6 +60,8 @@ export default function Equipe({
   papelDeQuemOlha: string
 }) {
   const [novo, setNovo] = useState(false)
+  /** A pessoa cuja ficha está aberta. `null` = nenhuma. */
+  const [aberta, setAberta] = useState<Pessoa | null>(null)
   const [estado, acao, salvando] = useActionState(salvarUsuario, inicial)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [busca, setBusca] = useState('')
@@ -215,6 +209,17 @@ export default function Equipe({
                     ) : null}
                   </td>
                   <td className={estilo.dir}>
+                    {/* A ficha abre para QUALQUER pessoa da lista, inclusive
+                        quem está acima — ler o cadastro de alguém não é mexer
+                        nele, e o que não se pode mudar chega desabilitado. */}
+                    <button
+                      type="button"
+                      className={estilo.btnSec}
+                      onClick={() => setAberta(u)}
+                      style={{ marginRight: 'var(--s2)' }}
+                    >
+                      Ficha
+                    </button>
                     {acima ? (
                       <span className={estilo.fraco}>—</span>
                     ) : u.ativo ? (
@@ -243,6 +248,15 @@ export default function Equipe({
           </tbody>
         </table>
       </div>
+
+      {aberta ? (
+        <Ficha
+          pessoa={aberta}
+          perfis={PERFIS}
+          podeTrocarPerfil={ehDono || (NIVEL[aberta.papel] ?? 0) < meuNivel}
+          aoFechar={() => setAberta(null)}
+        />
+      ) : null}
 
       <p className={estilo.fraco} style={{ marginTop: 'var(--s4)' }}>
         Desativar corta o acesso na hora, inclusive as sessões já abertas — é o

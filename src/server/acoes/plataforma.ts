@@ -191,7 +191,42 @@ const schemaUsuario = z.object({
   telefone: z.string().trim().nullish(),
   papel: z.enum(['ADMIN_EMPRESA', 'GESTOR', 'FINANCEIRO', 'ATENDENTE', 'TECNICO', 'MOTORISTA']),
   senha: z.string().nullish(),
+
+  // A ficha da pessoa. Tudo opcional: obrigar endereço para cadastrar um
+  // acesso é travar a contratação por causa de um CEP que ninguém tem à mão na
+  // hora — e o acesso é o que a pessoa precisa para começar a trabalhar.
+  documento: z.string().nullish(),
+  cep: z.string().nullish(),
+  logradouro: z.string().trim().nullish(),
+  numero: z.string().trim().nullish(),
+  complemento: z.string().trim().nullish(),
+  bairro: z.string().trim().nullish(),
+  cidade: z.string().trim().nullish(),
+  uf: z.string().trim().nullish(),
 })
+
+/** Os campos da ficha, do jeito que vão para o banco. Vazio vira `null`. */
+function fichaDe(v: {
+  documento?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+}) {
+  return {
+    documento: v.documento?.replace(/\D/g, '') || null,
+    cep: v.cep?.replace(/\D/g, '') || null,
+    logradouro: v.logradouro?.trim() || null,
+    numero: v.numero?.trim() || null,
+    complemento: v.complemento?.trim() || null,
+    bairro: v.bairro?.trim() || null,
+    cidade: v.cidade?.trim() || null,
+    uf: v.uf?.trim().toUpperCase() || null,
+  }
+}
 
 export async function salvarUsuario(_anterior: Resposta, form: FormData): Promise<Resposta> {
   const a = await atorDaSessao()
@@ -242,6 +277,7 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
           email: v.email,
           telefone: v.telefone?.replace(/\D/g, '') || null,
           papel: v.papel as Papel,
+          ...fichaDe(v),
           ...(senhaHash ? { senhaHash, trocarSenha: true } : {}),
         },
       })
@@ -255,6 +291,7 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
         email: v.email,
         telefone: v.telefone?.replace(/\D/g, '') || null,
         papel: v.papel as Papel,
+        ...fichaDe(v),
         senhaHash: senhaHash!,
         trocarSenha: true,
         criadoPorId: a.sessao.userId,
@@ -526,4 +563,112 @@ export async function salvarWhatsappDaPlataforma(_anterior: Resposta, form: Form
 
   revalidatePath('/painel/plataforma-whatsapp')
   return { ok: true, mensagem: 'Conta de WhatsApp da plataforma salva.' }
+}
+
+// ---------------------------------------------------------------------------
+// EDITAR A EMPRESA
+// ---------------------------------------------------------------------------
+
+/**
+ * O que se pode mudar depois que a empresa nasceu.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE O IDENTIFICADOR NÃO ESTÁ AQUI
+ * ---------------------------------------------------------------------------
+ * O `slug` é o nome curto da empresa dentro do sistema, e ele encosta em coisa
+ * que já saiu de casa: aparece em endereço, em arquivo guardado e em conversa
+ * de suporte. Trocar depois é o tipo de mudança que funciona em toda tela que
+ * alguém lembrou de testar e quebra na que ninguém lembrou.
+ *
+ * Nome muda quando a empresa muda de nome; identificador não. É a mesma
+ * distinção entre como você é chamado e o número do seu CPF.
+ *
+ * O endereço da matriz entra aqui inteiro porque ele sai impresso no cabeçalho
+ * das ordens de serviço e dos orçamentos — um CEP errado vira PDF errado na mão
+ * do cliente, e hoje só se corrigia mexendo no banco.
+ */
+const schemaEdicaoEmpresa = z.object({
+  id: z.string().min(1),
+  nome: z.string().trim().min(3, 'Informe o nome da empresa.'),
+  razaoSocial: z.string().trim().nullish(),
+  cnpj: z.string().transform((v) => v.replace(/\D/g, '')).nullish(),
+  email: z.string().trim().toLowerCase().nullish(),
+  telefone: z.string().trim().nullish(),
+  whatsapp: z.string().trim().nullish(),
+  cep: z.string().trim().nullish(),
+  logradouro: z.string().trim().nullish(),
+  numero: z.string().trim().nullish(),
+  complemento: z.string().trim().nullish(),
+  bairro: z.string().trim().nullish(),
+  cidade: z.string().trim().nullish(),
+  uf: z.string().trim().nullish(),
+  plano: z.string().trim().min(1).default('padrao'),
+})
+
+export async function editarEmpresa(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (a.sessao.papel !== Papel.SUPER_ADMIN) {
+    return { ok: false, motivo: 'Só o dono da plataforma edita o cadastro de uma empresa.' }
+  }
+
+  const d = schemaEdicaoEmpresa.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const uf = v.uf?.trim().toUpperCase() || null
+  if (uf && uf.length !== 2) return { ok: false, motivo: 'UF com duas letras.' }
+
+  const ctxPlataforma: ContextoAcesso = { tenantId: null, userId: a.sessao.userId, ehSuperAdmin: true }
+
+  const r = await comEscopo(ctxPlataforma, async (tx) => {
+    // O CNPJ é único na plataforma inteira. Sem esta conferência, o choque
+    // apareceria como erro cru do banco numa tela de cadastro.
+    if (v.cnpj) {
+      const colide = await tx.tenant.findFirst({
+        where: { cnpj: v.cnpj, NOT: { id: v.id } },
+        select: { nome: true },
+      })
+      if (colide) {
+        return { ok: false as const, motivo: `Este CNPJ já está cadastrado em "${colide.nome}".` }
+      }
+    }
+
+    const antes = await tx.tenant.findUnique({ where: { id: v.id }, select: { nome: true } })
+    if (!antes) return { ok: false as const, motivo: 'Empresa não encontrada.' }
+
+    await tx.tenant.update({
+      where: { id: v.id },
+      data: {
+        nome: v.nome,
+        razaoSocial: v.razaoSocial?.trim() || null,
+        cnpj: v.cnpj || null,
+        email: v.email?.trim() || null,
+        telefone: v.telefone?.replace(/\D/g, '') || null,
+        whatsapp: v.whatsapp?.replace(/\D/g, '') || null,
+        cep: v.cep?.replace(/\D/g, '') || null,
+        logradouro: v.logradouro?.trim() || null,
+        numero: v.numero?.trim() || null,
+        complemento: v.complemento?.trim() || null,
+        bairro: v.bairro?.trim() || null,
+        cidade: v.cidade?.trim() || null,
+        uf,
+        plano: v.plano,
+      },
+    })
+    return { ok: true as const, nomeAntes: antes.nome }
+  })
+
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'empresa.editada',
+    entidade: 'tenant',
+    entidadeId: v.id,
+    detalhes: r.nomeAntes !== v.nome ? { de: r.nomeAntes, para: v.nome } : { nome: v.nome },
+  })
+
+  revalidatePath('/painel/empresas')
+  revalidatePath('/painel', 'layout')
+  return { ok: true, mensagem: 'Cadastro da empresa atualizado.' }
 }
