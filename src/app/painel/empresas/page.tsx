@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { exigirSuperAdmin } from '@/server/auth/guarda'
 import { formatarBRL } from '@/lib/dinheiro'
-import { listarEmpresas, listarUsuarios } from '@/server/consultas/listas'
+import { listarEmpresas } from '@/server/consultas/listas'
 import Empresas from './empresas'
 import estilo from '../painel.module.css'
 
@@ -19,9 +19,9 @@ export const dynamic = 'force-dynamic'
  * exibido não vaza.
  */
 export default async function PaginaEmpresas() {
-  const { ctx } = await exigirSuperAdmin()
+  await exigirSuperAdmin()
 
-  const [empresas, usuarios] = await Promise.all([listarEmpresas(), listarUsuarios(ctx)])
+  const empresas = await listarEmpresas()
 
   const operando = empresas.filter((e) => e.online > 0).length
   const pessoasOnline = empresas.reduce((s, e) => s + e.online, 0)
@@ -97,26 +97,6 @@ export default async function PaginaEmpresas() {
           bairro: e.bairro,
           online: e.online,
           recebidoMes: e.recebidoMes,
-        }))}
-        usuarios={usuarios.map((u) => ({
-          id: u.id,
-          nome: u.nome,
-          email: u.email,
-          papel: u.papel,
-          ativo: u.ativo,
-          empresa: u.tenant?.nome ?? 'Plataforma',
-          ultimoLogin: u.ultimoLogin?.toISOString() ?? null,
-          trocarSenha: u.trocarSenha,
-          telas: u.telas,
-          telefone: u.telefone,
-          documento: u.documento,
-          cep: u.cep,
-          logradouro: u.logradouro,
-          numero: u.numero,
-          complemento: u.complemento,
-          bairro: u.bairro,
-          cidade: u.cidade,
-          uf: u.uf,
         }))}
       />
     </>

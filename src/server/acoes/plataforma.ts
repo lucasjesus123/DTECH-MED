@@ -711,3 +711,93 @@ export async function editarEmpresa(_anterior: Resposta, form: FormData): Promis
   revalidatePath('/painel', 'layout')
   return { ok: true, mensagem: 'Cadastro da empresa atualizado.' }
 }
+
+/**
+ * Apagar de vez o acesso de alguém.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO SÓ VALE PARA QUEM NUNCA TRABALHOU
+ * ---------------------------------------------------------------------------
+ * Todas as ligações do usuário no banco são `ON DELETE SET NULL`. Isso quer
+ * dizer que apagar uma pessoa não derruba nada — apenas **apaga o nome dela de
+ * tudo o que ela fez**. O evento "deu entrada no equipamento" continua lá, com
+ * data, hora e hash; o autor vira um traço.
+ *
+ * Num sistema cuja promessa é "a trilha não se apaga", esse é o pior tipo de
+ * perda: silenciosa, irreversível, e descoberta meses depois, quando alguém
+ * precisa saber quem assinou a retirada de um aparelho que sumiu.
+ *
+ * Então a regra é: **acesso que já foi usado não se apaga, se desativa.**
+ * Desativar corta na hora, derruba as sessões abertas, e o histórico fica
+ * inteiro com o nome de quem fez. Apagar fica para o que realmente é lixo —
+ * o cadastro com e-mail errado, criado há dez minutos, que nunca entrou.
+ *
+ * A recusa diz o número, e não um "não pode": saber que a pessoa aparece em 47
+ * registros é o que faz a decisão de desativar parecer óbvia em vez de
+ * arbitrária.
+ */
+export async function excluirUsuario(userId: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (NIVEL[a.sessao.papel] < NIVEL[Papel.ADMIN_EMPRESA]) {
+    return { ok: false, motivo: 'Seu perfil não exclui usuário.' }
+  }
+  if (userId === a.sessao.userId) {
+    return { ok: false, motivo: 'Você não pode excluir o próprio acesso.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const alvo = await tx.user.findUnique({
+      where: { id: userId },
+      select: { nome: true, email: true, papel: true, ultimoLogin: true },
+    })
+    if (!alvo) return { ok: false as const, motivo: 'Usuário não encontrado.' }
+
+    if (alvo.papel === Papel.SUPER_ADMIN) {
+      return { ok: false as const, motivo: 'O administrador da plataforma não pode ser excluído.' }
+    }
+    if (NIVEL[alvo.papel] >= NIVEL[a.sessao.papel] && a.sessao.papel !== Papel.SUPER_ADMIN) {
+      return { ok: false as const, motivo: 'Você não pode excluir um usuário de perfil igual ou acima do seu.' }
+    }
+
+    // Tudo o que carrega o nome dela. Contado de uma vez, para a mensagem poder
+    // dizer o tamanho do rastro em vez de só recusar.
+    // Assinatura fica de fora: quem assina é o CLIENTE, não alguém da equipe.
+    const [eventos, fotos, pagamentos, ordensAtend, ordensTec, paradas, orcamentos] =
+      await Promise.all([
+        tx.eventoOrdem.count({ where: { autorId: userId } }),
+        tx.foto.count({ where: { autorId: userId } }),
+        tx.pagamento.count({ where: { autorId: userId } }),
+        tx.ordem.count({ where: { atendenteId: userId } }),
+        tx.ordem.count({ where: { tecnicoId: userId } }),
+        tx.agendamento.count({ where: { motoristaId: userId } }),
+        tx.orcamento.count({ where: { tecnicoId: userId } }),
+      ])
+    const rastro = eventos + fotos + pagamentos + ordensAtend + ordensTec + paradas + orcamentos
+
+    if (rastro > 0 || alvo.ultimoLogin) {
+      const onde = rastro > 0 ? `${rastro} ${rastro === 1 ? 'registro' : 'registros'} do histórico` : 'acessos já feitos'
+      return {
+        ok: false as const,
+        motivo:
+          `${alvo.nome} aparece em ${onde}. Apagar o cadastro tiraria o nome dela ` +
+          `de tudo o que fez, e o histórico ficaria sem autor. Use Desativar: o acesso ` +
+          `é cortado na hora, as sessões abertas caem, e a trilha continua inteira.`,
+      }
+    }
+
+    await tx.user.delete({ where: { id: userId } })
+    return { ok: true as const, nome: alvo.nome, email: alvo.email }
+  })
+
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'usuario.excluido',
+    entidade: 'usuario',
+    entidadeId: userId,
+    detalhes: { nome: r.nome, email: r.email },
+  })
+  revalidatePath('/painel/usuarios')
+  return { ok: true, mensagem: `Cadastro de ${r.nome} excluído.` }
+}

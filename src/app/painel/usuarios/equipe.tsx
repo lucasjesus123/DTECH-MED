@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { alternarUsuario, salvarUsuario } from '@/server/acoes/plataforma'
+import { alternarUsuario, excluirUsuario, salvarUsuario } from '@/server/acoes/plataforma'
 import Abas from './abas'
 import Ficha, { type Pessoa } from './ficha'
 import estilo from '../painel.module.css'
@@ -255,6 +255,30 @@ export default function Equipe({
                         Reativar
                       </button>
                     )}
+                    {/* Excluir só aparece para quem NUNCA entrou. Cadastro com
+                        e-mail errado, criado há dez minutos, é lixo e some. Quem
+                        já trabalhou tem nome na trilha, e apagar o cadastro
+                        apagaria o nome de tudo o que a pessoa fez — o servidor
+                        recusa, e este botão nem se oferece. */}
+                    {!u.ultimoLogin && !acima ? (
+                      <button
+                        type="button"
+                        className={estilo.btnPerigo}
+                        disabled={pendente}
+                        style={{ marginLeft: 'var(--s2)' }}
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `Excluir o cadastro de ${u.nome}? Esta pessoa nunca entrou no sistema, então nada do histórico é afetado. Não dá para desfazer.`,
+                            )
+                          ) {
+                            agir(() => excluirUsuario(u.id))
+                          }
+                        }}
+                      >
+                        Excluir
+                      </button>
+                    ) : null}
                   </td>
                 </tr>
               )
@@ -276,6 +300,11 @@ export default function Equipe({
         Desativar corta o acesso na hora, inclusive as sessões já abertas — é o
         que serve para o dia em que alguém sai da empresa. Nada é apagado: o que
         a pessoa fez continua na trilha das ordens, com o nome dela.
+        <br />
+        Excluir só aparece para quem <strong>nunca entrou</strong> — o cadastro
+        com e-mail errado, criado há dez minutos. Depois do primeiro acesso, o
+        nome da pessoa está espalhado pelo histórico, e apagar o cadastro
+        apagaria esse nome de tudo o que ela fez.
       </p>
     </>
   )

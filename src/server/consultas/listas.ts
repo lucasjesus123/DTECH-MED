@@ -725,7 +725,18 @@ export async function listarEmpresas() {
 export async function listarUsuarios(ctx: ContextoAcesso, tenantId?: string) {
   return comEscopo(ctx, (tx) =>
     tx.user.findMany({
-      where: tenantId ? { tenantId } : {},
+      /**
+       * O DONO DA PLATAFORMA NÃO APARECE EM LISTA DE USUÁRIO NENHUMA.
+       *
+       * Ele não é funcionário de empresa alguma — é quem manda no sistema. Numa
+       * lista de equipe ele fica ao lado de um motorista, com um botão de
+       * "Desativar" do lado, e esse botão é o clique que tranca o dono para fora
+       * da própria plataforma sem ninguém para reabrir.
+       *
+       * O `NOT` também vale para quem administra uma empresa: mesmo que um dia
+       * uma política de banco afrouxe, a linha dele não sai por aqui.
+       */
+      where: { papel: { not: Papel.SUPER_ADMIN }, ...(tenantId ? { tenantId } : {}) },
       orderBy: [{ ativo: 'desc' }, { nome: 'asc' }],
       take: 200,
       select: {

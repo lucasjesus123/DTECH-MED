@@ -2,15 +2,8 @@
 
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  alternarBloqueio,
-  alternarUsuario,
-  criarEmpresa,
-  entrarNaEmpresa,
-  salvarUsuario,
-} from '@/server/acoes/plataforma'
+import { alternarBloqueio, criarEmpresa, entrarNaEmpresa } from '@/server/acoes/plataforma'
 import { formatarBRL } from '@/lib/dinheiro'
-import Ficha, { type Pessoa } from '../usuarios/ficha'
 import FichaEmpresa from './ficha-empresa'
 import estilo from '../painel.module.css'
 
@@ -45,38 +38,28 @@ type Empresa = {
   bairro: string | null
 }
 
-type Usuario = Pessoa & {
-  /** Só aqui: a lista do dono da plataforma atravessa as empresas. */
-  empresa: string
-}
-
 /**
- * Os perfis, com o que cada um faz escrito ao lado.
+ * A visão da rede.
  *
- * A mesma lista da tela de Equipe. O dono da plataforma vê todos — ele é o
- * único que pode criar e editar um administrador de empresa.
+ * ---------------------------------------------------------------------------
+ * POR QUE A LISTA DE USUÁRIOS SAIU DAQUI
+ * ---------------------------------------------------------------------------
+ * Ela era uma lista só, com a gente de todas as franquias misturada e uma
+ * coluna "Empresa" para desempatar. A pergunta que ela provocava era sempre a
+ * mesma: "de qual empresa é este aqui?" — e responder isso lendo uma coluna, em
+ * vinte linhas, é trabalho que a tela deveria ter poupado.
+ *
+ * Equipe é assunto de DENTRO da empresa. Agora se entra na franquia pelo botão
+ * do cartão e se administra a equipe lá, com o nome dela na faixa do topo e no
+ * crachá — sem coluna nenhuma para conferir, porque não há como se enganar.
  */
-const PERFIS = [
-  { valor: 'ADMIN_EMPRESA', rotulo: 'Administrador', faz: 'organiza a equipe e enxerga tudo da empresa' },
-  { valor: 'GESTOR', rotulo: 'Gestor', faz: 'libera orçamento ao cliente e conduz a esteira' },
-  { valor: 'FINANCEIRO', rotulo: 'Financeiro', faz: 'fatura, recebe e dá baixa no caixa' },
-  { valor: 'ATENDENTE', rotulo: 'Atendente', faz: 'abre ordem, agenda retirada e monta orçamento' },
-  { valor: 'TECNICO', rotulo: 'Técnico', faz: 'bancada: entrada, laudo, manutenção e testes' },
-  { valor: 'MOTORISTA', rotulo: 'Motorista', faz: 'só o aplicativo de rota: retirada e entrega' },
-] as const
-
-export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; usuarios: Usuario[] }) {
-  const [aba, setAba] = useState<'empresas' | 'usuarios'>('empresas')
+export default function Empresas({ empresas }: { empresas: Empresa[] }) {
   const [novaEmpresa, setNovaEmpresa] = useState(false)
-  const [novoUsuario, setNovoUsuario] = useState(false)
   const [estadoEmpresa, acaoEmpresa, salvandoEmpresa] = useActionState(criarEmpresa, inicial)
-  const [estadoUsuario, acaoUsuario, salvandoUsuario] = useActionState(salvarUsuario, inicial)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [busca, setBusca] = useState('')
   /** A empresa cujo cadastro está aberto. `null` = nenhuma. */
   const [emEdicao, setEmEdicao] = useState<Empresa | null>(null)
-  /** A pessoa cuja ficha está aberta. `null` = nenhuma. */
-  const [fichaAberta, setFichaAberta] = useState<Usuario | null>(null)
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
@@ -124,29 +107,9 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
 
   return (
     <>
-      <nav className={estilo.abas}>
-        <button
-          type="button"
-          className={`${estilo.aba} ${aba === 'empresas' ? estilo.abaAtiva : ''}`}
-          onClick={() => setAba('empresas')}
-          style={{ background: 'none', border: 0, cursor: 'pointer' }}
-        >
-          Empresas
-        </button>
-        <button
-          type="button"
-          className={`${estilo.aba} ${aba === 'usuarios' ? estilo.abaAtiva : ''}`}
-          onClick={() => setAba('usuarios')}
-          style={{ background: 'none', border: 0, cursor: 'pointer' }}
-        >
-          Usuários
-        </button>
-      </nav>
 
       {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
 
-      {aba === 'empresas' ? (
-        <>
           <div className={estilo.acoesForm} style={{ marginBottom: 'var(--s4)' }}>
             <button type="button" className={estilo.btn} onClick={() => setNovaEmpresa((v) => !v)}>
               {novaEmpresa ? 'Fechar' : 'Cadastrar empresa'}
@@ -347,148 +310,6 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
             Suspender encerra na hora todas as sessões abertas da empresa. Sem
             isso, a suspensão só valeria para quem ainda não tinha entrado.
           </p>
-        </>
-      ) : (
-        <>
-          <div className={estilo.acoesForm} style={{ marginBottom: 'var(--s4)' }}>
-            <button type="button" className={estilo.btn} onClick={() => setNovoUsuario((v) => !v)}>
-              {novoUsuario ? 'Fechar' : 'Criar usuário'}
-            </button>
-          </div>
-
-          {novoUsuario ? (
-            <form action={acaoUsuario} className={`${estilo.bloco} ${estilo.form}`}>
-              <p className={estilo.blocoTitulo}>Novo usuário</p>
-              {!estadoUsuario.ok && estadoUsuario.motivo ? <p className={estilo.erro}>{estadoUsuario.motivo}</p> : null}
-              {estadoUsuario.ok && estadoUsuario.mensagem ? (
-                <p className={estilo.sucesso}>{estadoUsuario.mensagem}</p>
-              ) : null}
-
-              <div className={estilo.grade}>
-                <label className={estilo.rotulo}>
-                  Empresa *
-                  <select className={estilo.selecao} name="tenantId" required style={{ width: '100%' }}>
-                    <option value="">Escolha…</option>
-                    {empresas.map((e) => (
-                      <option key={e.id} value={e.id}>
-                        {e.nome}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={estilo.rotulo}>
-                  Nome *
-                  <input className={estilo.campo} name="nome" required minLength={3} />
-                </label>
-                <label className={estilo.rotulo}>
-                  E-mail *
-                  <input className={estilo.campo} name="email" type="email" required autoComplete="off" />
-                </label>
-                <label className={estilo.rotulo}>
-                  Telefone
-                  <input className={estilo.campo} name="telefone" inputMode="tel" />
-                </label>
-                <label className={estilo.rotulo}>
-                  Perfil *
-                  <select className={estilo.selecao} name="papel" required style={{ width: '100%' }}>
-                    <option value="ADMIN_EMPRESA">Administrador da empresa</option>
-                    <option value="GESTOR">Gestor</option>
-                    <option value="FINANCEIRO">Financeiro</option>
-                    <option value="ATENDENTE">Atendente</option>
-                    <option value="TECNICO">Técnico</option>
-                    <option value="MOTORISTA">Motorista</option>
-                  </select>
-                </label>
-                <label className={estilo.rotulo}>
-                  Senha provisória *
-                  <input className={estilo.campo} name="senha" type="text" required minLength={10} autoComplete="off" />
-                </label>
-              </div>
-
-              <div className={estilo.acoesForm}>
-                <button type="submit" className={estilo.btn} disabled={salvandoUsuario}>
-                  {salvandoUsuario ? 'Criando…' : 'Criar usuário'}
-                </button>
-              </div>
-            </form>
-          ) : null}
-
-          <div className={`${estilo.quadro} ${estilo.rolaX}`}>
-            <table className={estilo.tabela}>
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Empresa</th>
-                  <th>Perfil</th>
-                  <th>Último acesso</th>
-                  <th>Situação</th>
-                  {/* A coluna dos botões. O título fica só para o leitor de
-                      tela: um `<th>` vazio faz a tabela inteira perder o
-                      cabeçalho para quem navega por ela. */}
-                  <th>
-                    <span className={estilo.soLeitor}>Ações</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuarios.map((u) => (
-                  <tr key={u.id}>
-                    <td className={estilo.forte}>{u.nome}</td>
-                    <td className={estilo.num}>{u.email}</td>
-                    <td>{u.empresa}</td>
-                    <td>
-                      <span className={estilo.tag}>{u.papel.toLowerCase().replace('_', ' ')}</span>
-                    </td>
-                    <td className={estilo.num}>
-                      {u.ultimoLogin ? new Date(u.ultimoLogin).toLocaleDateString('pt-BR') : <span className={estilo.fraco}>nunca</span>}
-                    </td>
-                    <td>
-                      <span className={`${estilo.tag} ${u.ativo ? estilo.tagOk : estilo.tagNeutra}`}>
-                        {u.ativo ? 'ativo' : 'desativado'}
-                      </span>
-                      {u.trocarSenha ? <div className={estilo.fraco}>troca a senha no acesso</div> : null}
-                    </td>
-                    <td className={estilo.dir}>
-                      {/* A ficha, igual à da tela de Equipe. O dono da
-                          plataforma edita QUALQUER pessoa da rede, inclusive
-                          administrador de empresa — é o único que pode, e é o
-                          caminho para socorrer quem perdeu a senha. */}
-                      <button
-                        type="button"
-                        className={estilo.btnSec}
-                        onClick={() => setFichaAberta(u)}
-                        style={{ marginRight: 'var(--s2)' }}
-                      >
-                        Ficha
-                      </button>
-                      <button
-                        type="button"
-                        className={u.ativo ? estilo.btnPerigo : estilo.btnSec}
-                        disabled={pendente}
-                        onClick={() => agir(() => alternarUsuario(u.id, !u.ativo))}
-                      >
-                        {u.ativo ? 'Desativar' : 'Reativar'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {fichaAberta ? (
-            <Ficha
-              pessoa={fichaAberta}
-              perfis={PERFIS}
-              /* O dono da plataforma pode trocar qualquer perfil — inclusive
-                 rebaixar um administrador de empresa. Ninguém está acima dele. */
-              podeTrocarPerfil
-              aoFechar={() => setFichaAberta(null)}
-            />
-          ) : null}
-        </>
-      )}
     </>
   )
 }
