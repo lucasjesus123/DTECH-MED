@@ -10,6 +10,7 @@ import {
   salvarUsuario,
 } from '@/server/acoes/plataforma'
 import { formatarBRL } from '@/lib/dinheiro'
+import Ficha, { type Pessoa } from '../usuarios/ficha'
 import FichaEmpresa from './ficha-empresa'
 import estilo from '../painel.module.css'
 
@@ -44,16 +45,25 @@ type Empresa = {
   bairro: string | null
 }
 
-type Usuario = {
-  id: string
-  nome: string
-  email: string
-  papel: string
-  ativo: boolean
+type Usuario = Pessoa & {
+  /** Só aqui: a lista do dono da plataforma atravessa as empresas. */
   empresa: string
-  ultimoLogin: string | null
-  trocarSenha: boolean
 }
+
+/**
+ * Os perfis, com o que cada um faz escrito ao lado.
+ *
+ * A mesma lista da tela de Equipe. O dono da plataforma vê todos — ele é o
+ * único que pode criar e editar um administrador de empresa.
+ */
+const PERFIS = [
+  { valor: 'ADMIN_EMPRESA', rotulo: 'Administrador', faz: 'organiza a equipe e enxerga tudo da empresa' },
+  { valor: 'GESTOR', rotulo: 'Gestor', faz: 'libera orçamento ao cliente e conduz a esteira' },
+  { valor: 'FINANCEIRO', rotulo: 'Financeiro', faz: 'fatura, recebe e dá baixa no caixa' },
+  { valor: 'ATENDENTE', rotulo: 'Atendente', faz: 'abre ordem, agenda retirada e monta orçamento' },
+  { valor: 'TECNICO', rotulo: 'Técnico', faz: 'bancada: entrada, laudo, manutenção e testes' },
+  { valor: 'MOTORISTA', rotulo: 'Motorista', faz: 'só o aplicativo de rota: retirada e entrega' },
+] as const
 
 export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; usuarios: Usuario[] }) {
   const [aba, setAba] = useState<'empresas' | 'usuarios'>('empresas')
@@ -65,6 +75,8 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
   const [busca, setBusca] = useState('')
   /** A empresa cujo cadastro está aberto. `null` = nenhuma. */
   const [emEdicao, setEmEdicao] = useState<Empresa | null>(null)
+  /** A pessoa cuja ficha está aberta. `null` = nenhuma. */
+  const [fichaAberta, setFichaAberta] = useState<Usuario | null>(null)
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
@@ -438,6 +450,18 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
                       {u.trocarSenha ? <div className={estilo.fraco}>troca a senha no acesso</div> : null}
                     </td>
                     <td className={estilo.dir}>
+                      {/* A ficha, igual à da tela de Equipe. O dono da
+                          plataforma edita QUALQUER pessoa da rede, inclusive
+                          administrador de empresa — é o único que pode, e é o
+                          caminho para socorrer quem perdeu a senha. */}
+                      <button
+                        type="button"
+                        className={estilo.btnSec}
+                        onClick={() => setFichaAberta(u)}
+                        style={{ marginRight: 'var(--s2)' }}
+                      >
+                        Ficha
+                      </button>
                       <button
                         type="button"
                         className={u.ativo ? estilo.btnPerigo : estilo.btnSec}
@@ -452,6 +476,17 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
               </tbody>
             </table>
           </div>
+
+          {fichaAberta ? (
+            <Ficha
+              pessoa={fichaAberta}
+              perfis={PERFIS}
+              /* O dono da plataforma pode trocar qualquer perfil — inclusive
+                 rebaixar um administrador de empresa. Ninguém está acima dele. */
+              podeTrocarPerfil
+              aoFechar={() => setFichaAberta(null)}
+            />
+          ) : null}
         </>
       )}
     </>

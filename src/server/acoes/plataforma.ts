@@ -245,8 +245,31 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
     return { ok: false, motivo: 'Você não pode criar um usuário com perfil igual ou acima do seu.' }
   }
 
-  // O Super Admin escolhe a empresa; qualquer outro cria dentro da própria.
-  const tenantAlvo = a.sessao.papel === Papel.SUPER_ADMIN ? v.tenantId : a.ctx.tenantId
+  /**
+   * De qual empresa é esta pessoa.
+   *
+   * Criando: o Super Admin escolhe; qualquer outro cria dentro da própria.
+   *
+   * EDITANDO: a empresa é a que a pessoa já tem, e nunca a que veio do
+   * formulário. Duas razões, e a segunda é a que pega.
+   *
+   * A primeira é conforto: a ficha de edição não precisa carregar um seletor de
+   * empresa que ninguém vai mexer — e sem ele, o Super Admin batia num "Escolha
+   * a empresa do usuário" ao tentar corrigir um telefone.
+   *
+   * A segunda é que aceitar o campo aqui seria aceitar MUDAR alguém de empresa
+   * por um valor de formulário. Isso levaria o histórico da pessoa junto — as
+   * ordens que ela assinou, as fotos que ela tirou — para uma franquia que não
+   * viveu aquilo. Trocar de empresa, se um dia precisar, é criar acesso novo lá
+   * e desativar o daqui, com as duas trilhas intactas.
+   */
+  const tenantAlvo = v.id
+    ? ((await comEscopo(a.ctx, (tx) =>
+        tx.user.findUnique({ where: { id: v.id! }, select: { tenantId: true } }),
+      ))?.tenantId ?? null)
+    : a.sessao.papel === Papel.SUPER_ADMIN
+      ? v.tenantId
+      : a.ctx.tenantId
   if (!tenantAlvo) return { ok: false, motivo: 'Escolha a empresa do usuário.' }
 
   const senhaHash = v.senha ? await hashSenha(v.senha) : null
