@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirNivel } from '@/server/auth/guarda'
+import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
 import Planilha from './planilha'
@@ -26,6 +26,8 @@ export default async function Clientes({
    * some é a lista de todo mundo.
    */
   const { ctx, sessao } = await exigirNivel(Papel.ATENDENTE)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('clientes')
   // A mesma lista da rota `/painel/clientes/exportar`. Repetida de propósito:
   // se um dia divergirem, o pior que acontece é o botão sumir para quem podia,
   // nunca aparecer para quem não pode.

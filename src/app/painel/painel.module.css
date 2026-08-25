@@ -2588,3 +2588,55 @@
   .latItem:hover { transform: none; }
   .cartaoEmpresa:hover { transform: none; }
 }
+
+/* --------------------------------------------------------------------------
+   AS ABAS MARCÁVEIS
+   --------------------------------------------------------------------------
+   Grade que se adapta: em tela larga cabem três por linha, no celular uma. O
+   alvo tem 40px de altura porque marcar acesso de gente é coisa que se faz com
+   atenção, e caixinha pequena colada na outra é onde se marca a errada.
+   -------------------------------------------------------------------------- */
+
+.abasGrupo { margin-top: var(--s4); }
+
+.abasGrupoNome {
+  margin: 0 0 var(--s2);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+
+.abasLista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: var(--s1);
+}
+
+.abaOpcao,
+.abaOpcaoBloqueada {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 40px;
+  padding: 0 var(--s3);
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  font-size: var(--t-sm);
+  cursor: pointer;
+  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+}
+
+.abaOpcao:hover { background: var(--vio-veu); border-color: var(--vio-borda); }
+.abaOpcao input { accent-color: var(--vio); width: 17px; height: 17px; cursor: pointer; }
+
+/* Fora do alcance do perfil: aparece, e diz por quê ao pousar o mouse. Sumir
+   faria a pessoa concluir que o sistema não tem aquela tela. */
+.abaOpcaoBloqueada {
+  color: var(--txt-3);
+  cursor: not-allowed;
+  opacity: .55;
+}
+.abaOpcaoBloqueada input { width: 17px; height: 17px; cursor: not-allowed; }

@@ -737,6 +737,7 @@ export async function listarUsuarios(ctx: ContextoAcesso, tenantId?: string) {
         ultimoLogin: true,
         bloqueadoAte: true,
         trocarSenha: true,
+        telas: true,
         telefone: true,
         documento: true,
         cep: true,

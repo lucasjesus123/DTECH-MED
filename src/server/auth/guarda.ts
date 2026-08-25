@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { podeAbrir } from '@/server/auth/telas'
 import { contextoDe, lerSessao, type Sessao } from './sessao'
 
 /**
@@ -63,6 +64,32 @@ export async function exigirSuperAdmin(): Promise<Autenticado> {
   const a = await exigirSessao()
   if (a.sessao.papel !== P.SUPER_ADMIN) redirect('/painel/sem-permissao')
   return a
+}
+
+/**
+ * Exige que a pessoa TENHA a aba.
+ *
+ * Fica ao LADO do guarda de papel de cada página, e não no lugar dele: são duas
+ * perguntas, e as duas precisam valer.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ISTO EXISTE ALÉM DO `exigirNivel`
+ * ---------------------------------------------------------------------------
+ * `exigirNivel` responde "o papel dela alcança esta tela?". Esta função responde
+ * a outra pergunta: "esta tela foi dada a ela?".
+ *
+ * As duas precisam valer. Um financeiro cujo administrador deixou marcado só o
+ * Financeiro tem papel para abrir a Preventiva — e não deve abrir, porque não
+ * foi isso que combinaram. Sem esta checagem, esconder a aba no menu seria
+ * enfeite: bastaria digitar o endereço.
+ *
+ * Devolve para a mesma tela de "sem permissão" das outras recusas. Dizer "você
+ * até poderia, mas não te deram" seria mapear o sistema para quem estivesse
+ * tateando.
+ */
+export async function exigirAba(chave: string): Promise<void> {
+  const a = await exigirSessao()
+  if (!podeAbrir(a.sessao.papel, a.sessao.telas, chave)) redirect('/painel/sem-permissao')
 }
 
 /** Só para a tela decidir o que desenhar. Nunca para autorizar. */

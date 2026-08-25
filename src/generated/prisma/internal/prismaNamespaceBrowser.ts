@@ -144,6 +144,7 @@ export const UserScalarFieldEnum = {
   tentativasFalhas: 'tentativasFalhas',
   bloqueadoAte: 'bloqueadoAte',
   avatarUrl: 'avatarUrl',
+  telas: 'telas',
   documento: 'documento',
   cep: 'cep',
   logradouro: 'logradouro',

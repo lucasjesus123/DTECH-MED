@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { salvarUsuario } from '@/server/acoes/plataforma'
+import Abas from './abas'
 import estilo from '../painel.module.css'
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
@@ -16,6 +17,7 @@ export type Pessoa = {
   ativo: boolean
   ultimoLogin: string | null
   trocarSenha: boolean
+  telas: string[]
   telefone: string | null
   documento: string | null
   cep: string | null
@@ -172,6 +174,8 @@ export default function Ficha({
               ) : null}
             </label>
           </div>
+
+          <Abas papel={pessoa.papel} marcadas={pessoa.telas} />
 
           <p className={estilo.blocoTitulo} style={{ marginTop: 'var(--s5)' }}>
             Onde mora

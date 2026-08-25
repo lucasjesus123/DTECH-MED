@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { exigirSessao } from '@/server/auth/guarda'
+import { exigirSessao, exigirAba } from '@/server/auth/guarda'
 import { listarClientes, listarEquipamentos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import FormularioEquipamento from './formulario'
@@ -22,6 +22,8 @@ export default async function Equipamentos({
   searchParams: Promise<{ busca?: string; novo?: string }>
 }) {
   const { ctx } = await exigirSessao()
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('equipamentos')
   const q = await searchParams
 
   const [equipamentos, clientes] = await Promise.all([

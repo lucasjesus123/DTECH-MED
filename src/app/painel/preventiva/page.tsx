@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
 import { visitasAVencer, ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
@@ -36,6 +36,8 @@ export const dynamic = 'force-dynamic'
  */
 export default async function Preventiva() {
   const { ctx } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE, Papel.FINANCEIRO)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('preventiva')
 
   const [visitas, travadas, contratos, equipamentos] = await Promise.all([
     visitasAVencer(ctx, 45),

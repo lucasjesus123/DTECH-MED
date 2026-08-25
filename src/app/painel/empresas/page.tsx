@@ -107,6 +107,7 @@ export default async function PaginaEmpresas() {
           empresa: u.tenant?.nome ?? 'Plataforma',
           ultimoLogin: u.ultimoLogin?.toISOString() ?? null,
           trocarSenha: u.trocarSenha,
+          telas: u.telas,
           telefone: u.telefone,
           documento: u.documento,
           cep: u.cep,

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
 import { montarTrilha } from '@/server/ordem/trilha'
 import { Cartoes, type CartaoOrdem } from './cartoes'
@@ -48,6 +48,8 @@ export default async function Acompanhar({
     Papel.TECNICO,
     Papel.FINANCEIRO,
   )
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('acompanhar')
   const { q } = await searchParams
   const [ordens, motoristas] = await Promise.all([ordensNaCasa(ctx, q), motoristasDaEmpresa(ctx)])
 

@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { alternarUsuario, salvarUsuario } from '@/server/acoes/plataforma'
+import Abas from './abas'
 import Ficha, { type Pessoa } from './ficha'
 import estilo from '../painel.module.css'
 
@@ -60,6 +61,8 @@ export default function Equipe({
   papelDeQuemOlha: string
 }) {
   const [novo, setNovo] = useState(false)
+  /** O perfil escolhido no formulário de criação. As abas dependem dele. */
+  const [papelNovo, setPapelNovo] = useState<string>('')
   /** A pessoa cuja ficha está aberta. `null` = nenhuma. */
   const [aberta, setAberta] = useState<Pessoa | null>(null)
   const [estado, acao, salvando] = useActionState(salvarUsuario, inicial)
@@ -135,7 +138,14 @@ export default function Equipe({
             </label>
             <label className={estilo.rotulo}>
               Perfil *
-              <select className={estilo.selecao} name="papel" required style={{ width: '100%' }}>
+              <select
+                className={estilo.selecao}
+                name="papel"
+                required
+                style={{ width: '100%' }}
+                value={papelNovo || perfisQuePosseCriar[0]?.valor || ''}
+                onChange={(e) => setPapelNovo(e.target.value)}
+              >
                 {perfisQuePosseCriar.map((p) => (
                   <option key={p.valor} value={p.valor}>
                     {p.rotulo} — {p.faz}
@@ -159,6 +169,10 @@ export default function Equipe({
               </span>
             </label>
           </div>
+
+          {/* As abas já no cadastro: montar o acesso e depois lembrar de
+              voltar para apertá-lo é o passo que ninguém dá. */}
+          <Abas papel={papelNovo} marcadas={[]} />
 
           <div className={estilo.acoesForm}>
             <button type="submit" className={estilo.btn} disabled={salvando}>

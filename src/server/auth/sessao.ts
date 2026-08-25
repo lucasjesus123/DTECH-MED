@@ -50,6 +50,13 @@ export type Sessao = {
   tenantNome: string | null
   trocarSenha: boolean
   /**
+   * As abas do sistema que esta pessoa vê. Lista vazia = o padrão do papel.
+   * Viaja na sessão porque o menu é montado a cada tela, e ir ao banco por isso
+   * seria uma consulta a mais em toda navegação para responder algo que não
+   * muda no meio do expediente.
+   */
+  telas: string[]
+  /**
    * `true` quando é o dono da plataforma olhando de DENTRO de uma empresa.
    *
    * Enquanto isso vale, ele enxerga exatamente o que aquela empresa enxerga —
@@ -149,6 +156,7 @@ export async function lerSessao(): Promise<Sessao | null> {
     tenantId: u.tenantId,
     tenantNome: u.tenant?.nome ?? null,
     trocarSenha: u.trocarSenha,
+    telas: u.telas,
     visitando: false,
   }
 

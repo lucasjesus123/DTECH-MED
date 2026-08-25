@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { agendaDoPeriodo, motoristasDaEmpresa, semAgendamento } from '@/server/consultas/listas'
 import Agendador from './agendador'
 import estilo from '../painel.module.css'
@@ -20,6 +20,8 @@ export const dynamic = 'force-dynamic'
  */
 export default async function Agenda() {
   const { ctx } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('agenda')
 
   const [paradas, pendentes, motoristas] = await Promise.all([
     agendaDoPeriodo(ctx, 10),

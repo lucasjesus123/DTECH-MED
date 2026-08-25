@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { paradasAoVivo } from '@/server/consultas/rastro'
 import { AtualizaSozinho } from './atualiza-sozinho'
 import estilo from '../painel.module.css'
@@ -46,6 +46,8 @@ export default async function AoVivo() {
     Papel.ATENDENTE,
     Papel.FINANCEIRO,
   )
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('ao-vivo')
   const paradas = await paradasAoVivo(ctx)
   const comPosicao = paradas.filter((p) => p.posicao).length
 

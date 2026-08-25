@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirNivel } from '@/server/auth/guarda'
+import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { listarUsuarios } from '@/server/consultas/listas'
 import Equipe from './equipe'
 import estilo from '../painel.module.css'
@@ -34,6 +34,8 @@ export const dynamic = 'force-dynamic'
  */
 export default async function PaginaEquipe() {
   const { ctx, sessao } = await exigirNivel(Papel.ADMIN_EMPRESA)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('usuarios')
   const usuarios = await listarUsuarios(ctx)
 
   return (
@@ -74,6 +76,7 @@ export default async function PaginaEquipe() {
           ativo: u.ativo,
           ultimoLogin: u.ultimoLogin?.toISOString() ?? null,
           trocarSenha: u.trocarSenha,
+          telas: u.telas,
           telefone: u.telefone,
           documento: u.documento,
           cep: u.cep,

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
-import { podeVer } from '@/server/auth/guarda'
+import { telasEfetivas } from '@/server/auth/telas'
 import { encerrarSessao, lerSessao } from '@/server/auth/sessao'
 import { lerTema } from '@/server/acoes/tema'
 import estilo from './painel.module.css'
@@ -102,44 +102,22 @@ export default async function LayoutPainel({ children }: { children: React.React
       ],
     })
   } else {
-    grupos.push({
-      titulo: 'A esteira',
-      itens: [
-        { href: '/painel', rotulo: 'Painel do dia', icone: 'mostrador' },
-        { href: '/painel/acompanhar', rotulo: 'Acompanhar', icone: 'trilha' },
-        { href: '/painel/ao-vivo', rotulo: 'Ao vivo', icone: 'aoVivo' },
-        { href: '/painel/ordens', rotulo: 'Ordens', icone: 'ordens' },
-        { href: '/painel/agenda', rotulo: 'Agenda de rota', icone: 'rota' },
-      ],
-    })
-
-    // Cadastros: o equipamento é do trabalho de todos, a carteira de clientes
-    // não. Um `if` em volta do grupo inteiro para o menu não mostrar uma seção
-    // vazia a quem só enxerga metade dela.
-    const cadastros: ItemNav[] = []
-    if (podeVer(p, Papel.ATENDENTE)) {
-      cadastros.push({ href: '/painel/clientes', rotulo: 'Clientes', icone: 'clientes' })
+    /**
+     * O menu de quem trabalha numa empresa nasce das ABAS que essa pessoa tem.
+     *
+     * Antes ele era escrito à mão aqui, e o guarda de cada página era escrito lá
+     * na página — duas listas da mesma verdade, em arquivos diferentes, que
+     * precisavam ser editadas juntas para sempre. É assim que se ganha um menu
+     * que oferece uma tela que recusa.
+     *
+     * Agora as duas leem `TELAS`, o mesmo catálogo. Aba nova entra num lugar só.
+     */
+    for (const t of telasEfetivas(p, sessao.telas)) {
+      const grupo = grupos.find((g) => g.titulo === t.grupo)
+      const item: ItemNav = { href: t.href, rotulo: t.rotulo, icone: t.icone }
+      if (grupo) grupo.itens.push(item)
+      else grupos.push({ titulo: t.grupo, itens: [item] })
     }
-    cadastros.push({ href: '/painel/equipamentos', rotulo: 'Equipamentos', icone: 'equipamento' })
-    grupos.push({ titulo: 'Cadastros', itens: cadastros })
-
-    // A equipe é do ADMINISTRADOR da empresa: é ele quem contrata, quem tira
-    // acesso de quem saiu, e quem responde se alguém entrar onde não devia.
-    // Gestor não aparece aqui de propósito — dar a chave da porta a quem
-    // conduz a esteira é como o primeiro acesso indevido costuma começar.
-    if (podeVer(p, Papel.ADMIN_EMPRESA)) {
-      grupos.push({
-        titulo: 'Equipe',
-        itens: [{ href: '/painel/usuarios', rotulo: 'Pessoas e acessos', icone: 'clientes' }],
-      })
-    }
-
-    const retaguarda: ItemNav[] = []
-    if (podeVer(p, Papel.TECNICO)) retaguarda.push({ href: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' })
-    if (podeVer(p, Papel.ATENDENTE)) retaguarda.push({ href: '/painel/preventiva', rotulo: 'Preventiva', icone: 'preventiva' })
-    if (podeVer(p, Papel.FINANCEIRO)) retaguarda.push({ href: '/painel/financeiro', rotulo: 'Financeiro', icone: 'financeiro' })
-    if (podeVer(p, Papel.GESTOR)) retaguarda.push({ href: '/painel/whatsapp', rotulo: 'WhatsApp', icone: 'balao' })
-    if (retaguarda.length > 0) grupos.push({ titulo: 'Retaguarda', itens: retaguarda })
   }
 
   return (

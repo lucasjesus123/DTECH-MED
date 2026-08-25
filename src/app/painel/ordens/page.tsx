@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { EtapaOrdem } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
-import { exigirSessao } from '@/server/auth/guarda'
+import { exigirSessao, exigirAba } from '@/server/auth/guarda'
 import { listarOrdens, tecnicosDaEmpresa } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from '../painel.module.css'
@@ -24,6 +24,8 @@ export default async function Ordens({
   searchParams: Promise<{ busca?: string; etapa?: string; tecnico?: string; situacao?: string }>
 }) {
   const { ctx } = await exigirSessao()
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('ordens')
   const q = await searchParams
 
   const [ordens, tecnicos] = await Promise.all([

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirNivel } from '@/server/auth/guarda'
+import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { painelWhatsapp } from '@/server/consultas/listas'
 import Conexao from './conexao'
 import estilo from '../painel.module.css'
@@ -20,6 +20,8 @@ export const dynamic = 'force-dynamic'
  */
 export default async function Whatsapp() {
   const { ctx } = await exigirNivel(Papel.GESTOR)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('whatsapp')
   const { instancia, mensagens, fila } = await painelWhatsapp(ctx)
 
   /**

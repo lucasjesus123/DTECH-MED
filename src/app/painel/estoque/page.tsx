@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { listarPecas, ultimosMovimentos } from '@/server/consultas/listas'
 import Painel from './painel-estoque'
 import estilo from '../painel.module.css'
@@ -24,6 +24,8 @@ export default async function Estoque({
   searchParams: Promise<{ busca?: string; criticas?: string; peca?: string }>
 }) {
   const { ctx, sessao } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('estoque')
   const q = await searchParams
 
   const [pecas, movimentos] = await Promise.all([

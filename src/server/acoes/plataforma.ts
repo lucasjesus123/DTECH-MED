@@ -192,6 +192,12 @@ const schemaUsuario = z.object({
   papel: z.enum(['ADMIN_EMPRESA', 'GESTOR', 'FINANCEIRO', 'ATENDENTE', 'TECNICO', 'MOTORISTA']),
   senha: z.string().nullish(),
 
+  // As abas do sistema que esta pessoa vê. Vazio = o padrão do papel.
+  // A regra do "subtrai, nunca soma" NÃO é aplicada aqui: ela vive em
+  // `telasEfetivas`, e é lá que ela vale para todo mundo — inclusive para uma
+  // lista que alguém tenha forjado no formulário.
+  telas: z.array(z.string().max(40)).max(40).optional(),
+
   // A ficha da pessoa. Tudo opcional: obrigar endereço para cadastrar um
   // acesso é travar a contratação por causa de um CEP que ninguém tem à mão na
   // hora — e o acesso é o que a pessoa precisa para começar a trabalhar.
@@ -235,7 +241,15 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
     return { ok: false, motivo: 'Seu perfil não cadastra usuário.' }
   }
 
-  const d = schemaUsuario.safeParse(Object.fromEntries(form))
+  /**
+   * `Object.fromEntries` fica com o ÚLTIMO valor de cada campo repetido — e as
+   * abas chegam como vários campos `telas`, um por caixinha marcada. Lidas
+   * assim, dezoito marcações virariam uma. `getAll` é o que enxerga a lista.
+   */
+  const d = schemaUsuario.safeParse({
+    ...Object.fromEntries(form),
+    telas: form.getAll('telas').map(String),
+  })
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
   const v = d.data
 
@@ -300,6 +314,7 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
           email: v.email,
           telefone: v.telefone?.replace(/\D/g, '') || null,
           papel: v.papel as Papel,
+          telas: v.telas ?? [],
           ...fichaDe(v),
           ...(senhaHash ? { senhaHash, trocarSenha: true } : {}),
         },
@@ -314,6 +329,7 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
         email: v.email,
         telefone: v.telefone?.replace(/\D/g, '') || null,
         papel: v.papel as Papel,
+        telas: v.telas ?? [],
         ...fichaDe(v),
         senhaHash: senhaHash!,
         trocarSenha: true,

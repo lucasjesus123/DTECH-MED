@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
-import { exigirPapel, podeVer } from '@/server/auth/guarda'
+import { exigirPapel, podeVer, exigirAba } from '@/server/auth/guarda'
 import { aguardandoFatura, caixaDoMes, listarFaturas } from '@/server/consultas/listas'
 import Faturas from './faturas'
 import estilo from '../painel.module.css'
@@ -28,6 +28,8 @@ export default async function Financeiro({
   searchParams: Promise<{ status?: string; busca?: string }>
 }) {
   const { ctx, sessao } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.FINANCEIRO)
+  // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
+  await exigirAba('financeiro')
   const q = await searchParams
 
   const [faturas, caixa, aFaturar] = await Promise.all([

@@ -318,6 +318,20 @@ model User {
   /// Avatar e assinatura digitalizada do técnico/motorista (usada nos laudos).
   avatarUrl String?
 
+  /// As ABAS do sistema que esta pessoa vê.
+  ///
+  /// Vazio significa "o padrão do papel dela" — e é assim que nasce todo mundo,
+  /// porque sistema em que cada acesso precisa ser montado do zero é sistema em
+  /// que alguém esquece de marcar, e o esquecido vira a pessoa parada sem
+  /// conseguir trabalhar no dia seguinte.
+  ///
+  /// A marcação SUBTRAI, nunca SOMA: cada aba tem um piso de papel, e marcar
+  /// "Financeiro" para um motorista não faz ele ver o caixa. Sem essa regra, a
+  /// hierarquia inteira cairia por uma caixinha — e caixinha é bem mais fácil
+  /// de clicar por engano do que papel é de trocar. A regra vive em
+  /// `src/server/auth/telas.ts`, num lugar só.
+  telas String[]
+
   /// CPF de quem trabalha aqui. Entra em documento assinado — o termo de
   /// retirada leva o nome e o documento de quem recebeu o equipamento, e do
   /// nosso lado leva quem entregou.

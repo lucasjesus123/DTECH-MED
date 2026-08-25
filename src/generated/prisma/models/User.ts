@@ -102,6 +102,7 @@ export type UserCountAggregateOutputType = {
   tentativasFalhas: number
   bloqueadoAte: number
   avatarUrl: number
+  telas: number
   documento: number
   cep: number
   logradouro: number
@@ -193,6 +194,7 @@ export type UserCountAggregateInputType = {
   tentativasFalhas?: true
   bloqueadoAte?: true
   avatarUrl?: true
+  telas?: true
   documento?: true
   cep?: true
   logradouro?: true
@@ -307,6 +309,7 @@ export type UserGroupByOutputType = {
   tentativasFalhas: number
   bloqueadoAte: Date | null
   avatarUrl: string | null
+  telas: string[]
   documento: string | null
   cep: string | null
   logradouro: string | null
@@ -357,6 +360,7 @@ export type UserWhereInput = {
   tentativasFalhas?: Prisma.IntFilter<"User"> | number
   bloqueadoAte?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  telas?: Prisma.StringNullableListFilter<"User">
   documento?: Prisma.StringNullableFilter<"User"> | string | null
   cep?: Prisma.StringNullableFilter<"User"> | string | null
   logradouro?: Prisma.StringNullableFilter<"User"> | string | null
@@ -396,6 +400,7 @@ export type UserOrderByWithRelationInput = {
   tentativasFalhas?: Prisma.SortOrder
   bloqueadoAte?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  telas?: Prisma.SortOrder
   documento?: Prisma.SortOrderInput | Prisma.SortOrder
   cep?: Prisma.SortOrderInput | Prisma.SortOrder
   logradouro?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -439,6 +444,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   tentativasFalhas?: Prisma.IntFilter<"User"> | number
   bloqueadoAte?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  telas?: Prisma.StringNullableListFilter<"User">
   documento?: Prisma.StringNullableFilter<"User"> | string | null
   cep?: Prisma.StringNullableFilter<"User"> | string | null
   logradouro?: Prisma.StringNullableFilter<"User"> | string | null
@@ -478,6 +484,7 @@ export type UserOrderByWithAggregationInput = {
   tentativasFalhas?: Prisma.SortOrder
   bloqueadoAte?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  telas?: Prisma.SortOrder
   documento?: Prisma.SortOrderInput | Prisma.SortOrder
   cep?: Prisma.SortOrderInput | Prisma.SortOrder
   logradouro?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -513,6 +520,7 @@ export type UserScalarWhereWithAggregatesInput = {
   tentativasFalhas?: Prisma.IntWithAggregatesFilter<"User"> | number
   bloqueadoAte?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telas?: Prisma.StringNullableListFilter<"User">
   documento?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   cep?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   logradouro?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -539,6 +547,7 @@ export type UserCreateInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -578,6 +587,7 @@ export type UserUncheckedCreateInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -615,6 +625,7 @@ export type UserUpdateInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +665,7 @@ export type UserUncheckedUpdateInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -692,6 +704,7 @@ export type UserCreateManyInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -718,6 +731,7 @@ export type UserUpdateManyMutationInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -745,6 +759,7 @@ export type UserUncheckedUpdateManyInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -768,6 +783,14 @@ export type UserOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
 export type UserTenantIdEmailCompoundUniqueInput = {
   tenantId: string
   email: string
@@ -787,6 +810,7 @@ export type UserCountOrderByAggregateInput = {
   tentativasFalhas?: Prisma.SortOrder
   bloqueadoAte?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  telas?: Prisma.SortOrder
   documento?: Prisma.SortOrder
   cep?: Prisma.SortOrder
   logradouro?: Prisma.SortOrder
@@ -914,6 +938,10 @@ export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserCreatetelasInput = {
+  set: string[]
+}
+
 export type EnumPapelFieldUpdateOperationsInput = {
   set?: $Enums.Papel
 }
@@ -928,6 +956,11 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type UserUpdatetelasInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type UserCreateNestedOneWithoutSessoesInput = {
@@ -1117,6 +1150,7 @@ export type UserCreateWithoutTenantInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1154,6 +1188,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1221,6 +1256,7 @@ export type UserScalarWhereInput = {
   tentativasFalhas?: Prisma.IntFilter<"User"> | number
   bloqueadoAte?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  telas?: Prisma.StringNullableListFilter<"User">
   documento?: Prisma.StringNullableFilter<"User"> | string | null
   cep?: Prisma.StringNullableFilter<"User"> | string | null
   logradouro?: Prisma.StringNullableFilter<"User"> | string | null
@@ -1247,6 +1283,7 @@ export type UserCreateWithoutSessoesInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1285,6 +1322,7 @@ export type UserUncheckedCreateWithoutSessoesInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1337,6 +1375,7 @@ export type UserUpdateWithoutSessoesInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1375,6 +1414,7 @@ export type UserUncheckedUpdateWithoutSessoesInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1411,6 +1451,7 @@ export type UserCreateWithoutOrdensAtendenteInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1449,6 +1490,7 @@ export type UserUncheckedCreateWithoutOrdensAtendenteInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1490,6 +1532,7 @@ export type UserCreateWithoutOrdensTecnicoInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1528,6 +1571,7 @@ export type UserUncheckedCreateWithoutOrdensTecnicoInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1580,6 +1624,7 @@ export type UserUpdateWithoutOrdensAtendenteInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1618,6 +1663,7 @@ export type UserUncheckedUpdateWithoutOrdensAtendenteInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1665,6 +1711,7 @@ export type UserUpdateWithoutOrdensTecnicoInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1703,6 +1750,7 @@ export type UserUncheckedUpdateWithoutOrdensTecnicoInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1739,6 +1787,7 @@ export type UserCreateWithoutEventosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1777,6 +1826,7 @@ export type UserUncheckedCreateWithoutEventosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1829,6 +1879,7 @@ export type UserUpdateWithoutEventosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1867,6 +1918,7 @@ export type UserUncheckedUpdateWithoutEventosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1903,6 +1955,7 @@ export type UserCreateWithoutFotosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1941,6 +1994,7 @@ export type UserUncheckedCreateWithoutFotosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -1993,6 +2047,7 @@ export type UserUpdateWithoutFotosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2031,6 +2086,7 @@ export type UserUncheckedUpdateWithoutFotosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2067,6 +2123,7 @@ export type UserCreateWithoutOrcamentosTecnicoInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2105,6 +2162,7 @@ export type UserUncheckedCreateWithoutOrcamentosTecnicoInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2146,6 +2204,7 @@ export type UserCreateWithoutOrcamentosRevisorInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2184,6 +2243,7 @@ export type UserUncheckedCreateWithoutOrcamentosRevisorInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2236,6 +2296,7 @@ export type UserUpdateWithoutOrcamentosTecnicoInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2274,6 +2335,7 @@ export type UserUncheckedUpdateWithoutOrcamentosTecnicoInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2321,6 +2383,7 @@ export type UserUpdateWithoutOrcamentosRevisorInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2359,6 +2422,7 @@ export type UserUncheckedUpdateWithoutOrcamentosRevisorInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2395,6 +2459,7 @@ export type UserCreateWithoutMovimentosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2433,6 +2498,7 @@ export type UserUncheckedCreateWithoutMovimentosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2485,6 +2551,7 @@ export type UserUpdateWithoutMovimentosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2523,6 +2590,7 @@ export type UserUncheckedUpdateWithoutMovimentosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2559,6 +2627,7 @@ export type UserCreateWithoutPagamentosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2597,6 +2666,7 @@ export type UserUncheckedCreateWithoutPagamentosInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2649,6 +2719,7 @@ export type UserUpdateWithoutPagamentosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2687,6 +2758,7 @@ export type UserUncheckedUpdateWithoutPagamentosInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2723,6 +2795,7 @@ export type UserCreateWithoutAgendamentosMotoristaInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2761,6 +2834,7 @@ export type UserUncheckedCreateWithoutAgendamentosMotoristaInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2813,6 +2887,7 @@ export type UserUpdateWithoutAgendamentosMotoristaInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2851,6 +2926,7 @@ export type UserUncheckedUpdateWithoutAgendamentosMotoristaInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2887,6 +2963,7 @@ export type UserCreateWithoutAuditoriaInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2925,6 +3002,7 @@ export type UserUncheckedCreateWithoutAuditoriaInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -2977,6 +3055,7 @@ export type UserUpdateWithoutAuditoriaInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3015,6 +3094,7 @@ export type UserUncheckedUpdateWithoutAuditoriaInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3051,6 +3131,7 @@ export type UserCreateManyTenantInput = {
   tentativasFalhas?: number
   bloqueadoAte?: Date | string | null
   avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
   documento?: string | null
   cep?: string | null
   logradouro?: string | null
@@ -3077,6 +3158,7 @@ export type UserUpdateWithoutTenantInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3114,6 +3196,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3151,6 +3234,7 @@ export type UserUncheckedUpdateManyWithoutTenantInput = {
   tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
   bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
   documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3299,6 +3383,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   tentativasFalhas?: boolean
   bloqueadoAte?: boolean
   avatarUrl?: boolean
+  telas?: boolean
   documento?: boolean
   cep?: boolean
   logradouro?: boolean
@@ -3339,6 +3424,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   tentativasFalhas?: boolean
   bloqueadoAte?: boolean
   avatarUrl?: boolean
+  telas?: boolean
   documento?: boolean
   cep?: boolean
   logradouro?: boolean
@@ -3367,6 +3453,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   tentativasFalhas?: boolean
   bloqueadoAte?: boolean
   avatarUrl?: boolean
+  telas?: boolean
   documento?: boolean
   cep?: boolean
   logradouro?: boolean
@@ -3395,6 +3482,7 @@ export type UserSelectScalar = {
   tentativasFalhas?: boolean
   bloqueadoAte?: boolean
   avatarUrl?: boolean
+  telas?: boolean
   documento?: boolean
   cep?: boolean
   logradouro?: boolean
@@ -3408,7 +3496,7 @@ export type UserSelectScalar = {
   criadoPorId?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "nome" | "email" | "telefone" | "senhaHash" | "papel" | "ativo" | "trocarSenha" | "ultimoLogin" | "tentativasFalhas" | "bloqueadoAte" | "avatarUrl" | "documento" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "criadoEm" | "atualizadoEm" | "criadoPorId", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "nome" | "email" | "telefone" | "senhaHash" | "papel" | "ativo" | "trocarSenha" | "ultimoLogin" | "tentativasFalhas" | "bloqueadoAte" | "avatarUrl" | "telas" | "documento" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "criadoEm" | "atualizadoEm" | "criadoPorId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.User$tenantArgs<ExtArgs>
   sessoes?: boolean | Prisma.User$sessoesArgs<ExtArgs>
@@ -3473,6 +3561,21 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * Avatar e assinatura digitalizada do técnico/motorista (usada nos laudos).
      */
     avatarUrl: string | null
+    /**
+     * As ABAS do sistema que esta pessoa vê.
+     * 
+     * Vazio significa "o padrão do papel dela" — e é assim que nasce todo mundo,
+     * porque sistema em que cada acesso precisa ser montado do zero é sistema em
+     * que alguém esquece de marcar, e o esquecido vira a pessoa parada sem
+     * conseguir trabalhar no dia seguinte.
+     * 
+     * A marcação SUBTRAI, nunca SOMA: cada aba tem um piso de papel, e marcar
+     * "Financeiro" para um motorista não faz ele ver o caixa. Sem essa regra, a
+     * hierarquia inteira cairia por uma caixinha — e caixinha é bem mais fácil
+     * de clicar por engano do que papel é de trocar. A regra vive em
+     * `src/server/auth/telas.ts`, num lugar só.
+     */
+    telas: string[]
     /**
      * CPF de quem trabalha aqui. Entra em documento assinado — o termo de
      * retirada leva o nome e o documento de quem recebeu o equipamento, e do
@@ -3945,6 +4048,7 @@ export interface UserFieldRefs {
   readonly tentativasFalhas: Prisma.FieldRef<"User", 'Int'>
   readonly bloqueadoAte: Prisma.FieldRef<"User", 'DateTime'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
+  readonly telas: Prisma.FieldRef<"User", 'String[]'>
   readonly documento: Prisma.FieldRef<"User", 'String'>
   readonly cep: Prisma.FieldRef<"User", 'String'>
   readonly logradouro: Prisma.FieldRef<"User", 'String'>
