@@ -232,6 +232,55 @@ export const esquemaConteudo = z.object({
         message: 'O id do GTM tem o formato GTM-XXXXXXX. Copie do painel do Tag Manager.',
       })
       .default(''),
+
+    /**
+     * O Google Analytics 4.
+     *
+     * -----------------------------------------------------------------------
+     * POR QUE ELE EXISTE SE JÁ HÁ O GTM
+     * -----------------------------------------------------------------------
+     * Porque são duas coisas, e quem cuida de tráfego pago sabe disso na pele:
+     * o GTM é o CANO por onde tag de terceiro passa; o Analytics é o RELATÓRIO
+     * que diz quantas pessoas entraram e de onde vieram. Dá para ter Analytics
+     * sem GTM, e é o caminho mais simples para quem só quer medir a visita.
+     *
+     * Quem já mede tudo pelo Tag Manager deixa este campo vazio: preencher os
+     * dois faz a mesma visita ser contada duas vezes, e um relatório com o
+     * dobro do movimento é pior que relatório nenhum — decisão de anúncio é
+     * tomada em cima dele.
+     */
+    ga4Id: z
+      .string()
+      .trim()
+      .max(20)
+      .refine((v) => v === '' || /^G-[A-Z0-9]{6,12}$/.test(v), {
+        message: 'O id do Analytics tem o formato G-XXXXXXXXXX. Copie de Administrador → Fluxos de dados.',
+      })
+      .default(''),
+
+    /**
+     * O Google Ads, para a conversão voltar até o anúncio que a gerou.
+     *
+     * Sem este id, o Ads mostra cliques e gasto e para por aí: ele não sabe
+     * quais desses cliques viraram pedido de retirada. É a diferença entre
+     * "gastei R$ 400 e tive 90 cliques" e "gastei R$ 400, tive 90 cliques e 7
+     * pedidos" — e só a segunda frase permite decidir se vale continuar.
+     *
+     * O rótulo vem junto porque o Ads exige os dois: o id diz QUAL conta, o
+     * rótulo diz QUAL conversão daquela conta. Um sem o outro não dispara nada,
+     * e falha calada — que é como se descobre, um mês depois, que a campanha
+     * inteira rodou sem medição.
+     */
+    googleAdsId: z
+      .string()
+      .trim()
+      .max(20)
+      .refine((v) => v === '' || /^AW-[0-9]{8,12}$/.test(v), {
+        message: 'O id do Google Ads tem o formato AW-000000000. Copie de Ferramentas → Conversões.',
+      })
+      .default(''),
+
+    googleAdsRotulo: opc(40),
   }),
 })
 
@@ -401,6 +450,9 @@ export const CONTEUDO_PADRAO: Conteudo = {
     verificacaoGoogle: '',
     // O contêiner da DTECH MED. Trocável na tela do painel, sem publicar de novo.
     gtmId: 'GTM-THVZJV46',
+    ga4Id: '',
+    googleAdsId: '',
+    googleAdsRotulo: '',
   },
 }
 

@@ -368,6 +368,36 @@ export const ABAS: Aba[] = [
           'Verificar. Pode deixar vazio: enquanto estiver, nada é escrito na página.',
       },
       {
+        caminho: 'seo.ga4Id',
+        rotulo: 'Google Analytics (relatório de visitas)',
+        tipo: 'texto',
+        ajuda:
+          'O relatório que diz quantas pessoas entraram e de onde vieram. No Analytics, ' +
+          'em Administrador → Fluxos de dados, o código aparece como G-XXXXXXXXXX. ' +
+          'Se você já mede tudo pelo Tag Manager abaixo, DEIXE VAZIO: preencher os dois ' +
+          'conta a mesma visita duas vezes, e relatório com o dobro do movimento é pior ' +
+          'que relatório nenhum.',
+      },
+      {
+        caminho: 'seo.googleAdsId',
+        rotulo: 'Google Ads — conta',
+        tipo: 'texto',
+        ajuda:
+          'É o que faz a conversão voltar até o anúncio que a gerou. Sem ele, o Ads mostra ' +
+          'cliques e gasto e para por aí. Em Ferramentas → Conversões, o código tem o ' +
+          'formato AW-000000000.',
+      },
+      {
+        caminho: 'seo.googleAdsRotulo',
+        rotulo: 'Google Ads — rótulo da conversão',
+        tipo: 'texto',
+        ajuda:
+          'O Ads exige os dois: a conta diz QUAL conta, o rótulo diz QUAL conversão dela. ' +
+          'Um sem o outro não dispara nada — e falha calada, que é como se descobre um mês ' +
+          'depois que a campanha inteira rodou sem medição. Na mesma tela de Conversões, ' +
+          'em "Instalar a tag manualmente", é o valor de send_to depois da barra.',
+      },
+      {
         caminho: 'seo.gtmId',
         rotulo: 'Google Tag Manager (tráfego pago)',
         tipo: 'texto',

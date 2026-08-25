@@ -95,3 +95,52 @@ export function GoogleTagManagerNoScript({ id }: { id: string }) {
     </noscript>
   )
 }
+
+/**
+ * O `gtag` — Analytics e Google Ads, sem depender do Tag Manager.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ELE EXISTE AO LADO DO GTM
+ * ---------------------------------------------------------------------------
+ * São duas coisas diferentes, e confundi-las é o que faz alguém rodar campanha
+ * um mês inteiro sem medição. O Tag Manager é o CANO por onde tag de terceiro
+ * passa; o Analytics é o RELATÓRIO de quem entrou; o Ads é o que devolve a
+ * conversão para o anúncio que a gerou.
+ *
+ * Quem já mede tudo pelo GTM não precisa deste bloco — e o campo do Analytics
+ * fica vazio de propósito nesse caso, porque preencher os dois conta a mesma
+ * visita duas vezes.
+ *
+ * ---------------------------------------------------------------------------
+ * O MESMO CUIDADO DO GTM, PELOS MESMOS MOTIVOS
+ * ---------------------------------------------------------------------------
+ * Vazio não escreve nada. O nonce da requisição vai junto, senão o script
+ * inline não executa sob a nossa CSP e o sintoma é o pior possível: a página
+ * fica perfeita e o relatório fica vazio. E isto mora na PÁGINA do site, nunca
+ * no layout de todo mundo — o painel, os aplicativos de campo e o link do
+ * cliente ficam de fora, porque aquele link é a credencial da ordem dele.
+ */
+export async function GoogleGtag({ ga4Id, adsId }: { ga4Id: string; adsId: string }) {
+  const ids = [ga4Id, adsId].filter(Boolean)
+  if (ids.length === 0) return null
+  const nonce = (await headers()).get('x-nonce') ?? ''
+
+  // Um carregador só para os dois: o gtag.js aceita quantos `config` vierem, e
+  // pedir o mesmo arquivo duas vezes atrasaria a página para não medir nada a
+  // mais. O `src` leva o primeiro id; os `config` abaixo ligam todos.
+  return (
+    <>
+      <Script
+        id="gtag-js"
+        strategy="afterInteractive"
+        nonce={nonce}
+        src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ids[0]!)}`}
+      />
+      <Script id="gtag-config" strategy="afterInteractive" nonce={nonce}>
+        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+${ids.map((i) => `gtag('config', '${i}');`).join('\n')}`}
+      </Script>
+    </>
+  )
+}

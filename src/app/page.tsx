@@ -15,7 +15,7 @@ import { FOTOS, Foto, acharFoto, type NomeFoto } from './foto'
 import { FormularioRetirada } from './formulario-retirada'
 import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
-import { GoogleTagManager, GoogleTagManagerNoScript } from './gtm'
+import { GoogleGtag, GoogleTagManager, GoogleTagManagerNoScript } from './gtm'
 import { MedirCliques } from './medir-cliques'
 import { InstagramFeed } from './instagram-feed'
 import {
@@ -250,6 +250,9 @@ export default async function Home({
           a URL do portal É a credencial do cliente. */}
       <GoogleTagManagerNoScript id={c.seo.gtmId} />
       <GoogleTagManager id={c.seo.gtmId} />
+      {/* Analytics e Google Ads, para quem mede sem passar pelo Tag Manager.
+          Os dois campos vazios não escrevem nada na página. */}
+      <GoogleGtag ga4Id={c.seo.ga4Id} adsId={c.seo.googleAdsId} />
       {/* Um ouvinte só, que mede todo clique de WhatsApp e telefone da página —
           inclusive os que ainda não existem. Ver `./medir-cliques`. */}
       <MedirCliques />

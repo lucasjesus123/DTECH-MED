@@ -62,6 +62,7 @@ const GOOGLE = {
     'https://www.google.com',
     'https://www.google.com.br',
     'https://googleads.g.doubleclick.net',
+    'https://www.googleadservices.com',
   ],
   /** As medições do GA4 e do Ads, que vão por `fetch` e `sendBeacon`. */
   conexao: [
@@ -72,6 +73,7 @@ const GOOGLE = {
     'https://*.g.doubleclick.net',
     'https://www.google.com',
     'https://www.google.com.br',
+    'https://www.googleadservices.com',
   ],
   /** A moldura do `<noscript>` e a de remarketing do Ads. */
   moldura: ['https://www.googletagmanager.com', 'https://td.doubleclick.net'],
