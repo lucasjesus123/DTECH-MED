@@ -78,7 +78,16 @@ export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento
 
                   return (
                     <span key={no.etapa} className={estilo.trilhaNoCaixa}>
-                      <span className={classe} title={detalhe}>
+                      {/* `--ordem` é o passo da etapa, e é ele que faz as
+                          bolinhas já cumpridas acenderem EM SEQUÊNCIA, atrás do
+                          fio que cresce. O atraso mora no CSS; aqui vai só o
+                          número, para o cálculo não virar estilo embutido em
+                          dezoito elementos. */}
+                      <span
+                        className={classe}
+                        title={detalhe}
+                        style={{ '--ordem': no.passo } as React.CSSProperties}
+                      >
                         <span className={estilo.trilhaNum}>{no.passo}</span>
                       </span>
                       <span className={estilo.soLeitor}>{detalhe}</span>

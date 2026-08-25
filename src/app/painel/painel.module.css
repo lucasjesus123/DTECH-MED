@@ -13,7 +13,44 @@
    affordance inventada. O que muda é profundidade, estado e ritmo.
    ========================================================================== */
 
+/* ==========================================================================
+   A ESCALA DO PAINEL — maior que a do site, de propósito
+   --------------------------------------------------------------------------
+   O site é lido uma vez, de longe, rolando. O painel é lido oito horas por dia,
+   de perto, com os olhos indo e voltando entre rótulo, número e botão. São dois
+   jeitos de ler, e a mesma escala não serve para os dois.
+
+   Os degraus de baixo sobem um ponto cada: o rótulo de campo e a legenda de
+   tabela saem de 12px para 13, e o texto de apoio de 13 para 14. Não é
+   preciosismo — 12px é o piso do que as diretrizes ainda chamam de texto
+   pequeno aceitável, e o painel vive inteiro nesse piso: rótulo de formulário,
+   cabeçalho de tabela, dica embaixo do campo, texto de botão. Passar o dia no
+   limite cansa.
+
+   Os degraus de cima sobem junto para a hierarquia não achatar. E tudo isto vive
+   AQUI, dentro de `.app`: o site não é tocado por nenhuma destas linhas.
+   ========================================================================== */
+
 .app {
+  --t-xs:   0.8125rem;  /* 13px — era 12 */
+  --t-sm:   0.875rem;   /* 14px — era 13 */
+  --t-base: 1rem;
+  --t-lg:   1.375rem;   /* 22px — era 20 */
+  --t-xl:   1.75rem;    /* 28px — era 25 */
+
+  /* --- A LUZ -----------------------------------------------------------
+     O painel tem uma cor de marca forte e não a usava para nada além de
+     preencher botão. Estes três tokens dão a ela a função de LUZ: um halo que
+     acende no que responde ao toque.
+
+     Três intensidades, e não uma: repouso (o cartão que só existe), atenção
+     (o dedo em cima) e foco (o teclado chegou). Foco é o mais forte de
+     propósito — quem navega por teclado precisa achar onde está de relance,
+     e o halo é o que faz isso sem depender de um contorno fino. */
+  --luz-fraca: 0 0 0 1px var(--vio-borda), 0 4px 14px -8px var(--neon-veu);
+  --luz:       0 0 0 1px var(--vio-borda), 0 8px 24px -10px var(--neon-veu);
+  --luz-forte: 0 0 0 2px var(--vio-claro), 0 10px 30px -8px var(--neon-veu);
+
   display: grid;
   grid-template-columns: 244px 1fr;
   min-height: 100dvh;
@@ -811,13 +848,32 @@
   min-height: 84px;
 }
 
+/* --------------------------------------------------------------------------
+   OS BOTÕES
+   --------------------------------------------------------------------------
+   Eram retângulos chapados que só trocavam de cor no hover. Ganham três coisas,
+   e cada uma responde a uma pergunta que a pessoa faz sem perceber:
+
+     "isto é clicável?"   → o gradiente e a borda de luz em repouso
+     "estou em cima?"     → o halo acende e o botão sobe 1px
+     "o clique pegou?"    → ele AFUNDA e o halo encolhe, na hora
+
+   O afundar é o que mais falta num sistema de trabalho. Sem ele, quem clica e
+   espera não sabe se o clique valeu, e clica de novo — e clicar duas vezes em
+   "Emitir fatura" é o tipo de coisa que dá trabalho para desfazer.
+
+   O `:active` é imediato (`transition: none` no transform) de propósito: uma
+   resposta física com meio segundo de atraso não é resposta, é animação.
+   -------------------------------------------------------------------------- */
+
 .btn,
 .btnSec {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--s2);
-  padding: 9px 16px;
+  padding: 10px 18px;
   border-radius: var(--r);
   border: 1px solid transparent;
   font-family: inherit;
@@ -827,20 +883,57 @@
   text-decoration: none;
   white-space: nowrap;
   transition:
-    background 300ms var(--ease),
-    border-color 300ms var(--ease),
-    color 300ms var(--ease);
+    background 240ms var(--ease),
+    border-color 240ms var(--ease),
+    box-shadow 240ms var(--ease),
+    color 240ms var(--ease),
+    transform 160ms var(--ease);
 }
-.btn { background: var(--vio-forte); color: var(--sobre-vio); }
-.btn:hover:not(:disabled) { background: var(--vio-tinta); }
+
+.btn {
+  background: linear-gradient(160deg, var(--vio) 0%, var(--vio-forte) 100%);
+  color: var(--sobre-vio);
+  box-shadow: var(--luz-fraca);
+}
+.btn:hover:not(:disabled) {
+  background: linear-gradient(160deg, var(--vio-claro) 0%, var(--vio) 100%);
+  box-shadow: var(--luz);
+  transform: translateY(-1px);
+}
+.btn:focus-visible { box-shadow: var(--luz-forte); outline: none; }
+
 .btnSec {
   background: transparent;
   border-color: var(--borda-viva);
   color: var(--txt-2);
 }
-.btnSec:hover:not(:disabled) { border-color: var(--vio); color: var(--txt); }
+.btnSec:hover:not(:disabled) {
+  border-color: var(--vio);
+  color: var(--txt);
+  box-shadow: var(--luz-fraca);
+  transform: translateY(-1px);
+}
+.btnSec:focus-visible { box-shadow: var(--luz-forte); outline: none; }
+
+/* O afundar. Sem transição no transform: a resposta ao dedo é agora. */
+.btn:active:not(:disabled),
+.btnSec:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--luz-fraca);
+  transition: box-shadow 120ms var(--ease);
+}
+
 .btn:disabled,
-.btnSec:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnSec:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* Movimento reduzido: a luz fica, o deslocamento sai. O halo informa; o pulo é
+   só conforto, e é ele que incomoda quem pediu menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover:not(:disabled),
+  .btnSec:hover:not(:disabled),
+  .btn:active:not(:disabled),
+  .btnSec:active:not(:disabled) { transform: none; }
+}
 .btnPerigo {
   background: transparent;
   border: 1px solid var(--alerta-borda);
@@ -1630,11 +1723,57 @@
   border-radius: 99px;
   transition: width 420ms var(--ease);
 }
+/* --------------------------------------------------------------------------
+   O FIO QUE SE DESENHA
+   --------------------------------------------------------------------------
+   A linha do tempo é o órgão vital deste sistema, e estava parada: um traço
+   pintado, igual a qualquer barra de progresso. Agora ela se DESENHA, da
+   esquerda para a direita, toda vez que a ficha abre.
+
+   Não é enfeite. O que a peça precisa dizer é "o equipamento andou até aqui", e
+   andar é movimento. Um traço que cresce diante dos olhos conta a história do
+   percurso; o mesmo traço já pronto conta só o resultado.
+
+   Um segundo e meio, com a curva de saída da casa: rápido o bastante para não
+   atrasar quem só quer ver a etapa atual, lento o bastante para o olho
+   acompanhar o caminho.
+
+   O brilho vem junto e é o que o dono chamou de "luz": o fio não é uma barra
+   pintada, é uma linha acesa. Ele respira de leve enquanto a ordem está
+   andando, e fica firme quando ela para — parado não pisca.
+   -------------------------------------------------------------------------- */
+
 .trilhaFioCheio {
-  background: linear-gradient(to right, var(--vio-forte), var(--vio));
-  box-shadow: 0 0 12px -2px var(--neon-veu);
+  background: linear-gradient(to right, var(--vio-forte), var(--vio-claro));
+  box-shadow: 0 0 14px -1px var(--neon-veu);
+  transform-origin: left center;
 }
-.trilhaFioParado { background: var(--alerta); }
+
+.trilhaFioParado {
+  background: var(--alerta);
+  box-shadow: 0 0 14px -1px var(--alerta-borda);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trilhaFioCheio,
+  .trilhaFioParado {
+    animation: fioCresce 1500ms var(--ease-firme) both;
+  }
+  /* Só o fio VIVO respira. O parado é um aviso, e aviso que pisca vira ruído
+     de fundo em dez minutos. */
+  .trilhaFioCheio { animation: fioCresce 1500ms var(--ease-firme) both, fioRespira 3.2s ease-in-out 1600ms infinite; }
+}
+
+@keyframes fioCresce {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes fioRespira {
+  0%, 100% { box-shadow: 0 0 14px -1px var(--neon-veu); }
+  50%      { box-shadow: 0 0 22px 0 var(--neon-veu); }
+}
 
 .trilhaFases {
   position: relative;
@@ -1677,7 +1816,10 @@
   border: 1px solid var(--borda-viva);
   color: var(--txt-3);
 }
-/* O único elemento grande da peça. É ele a resposta. */
+/* O único elemento grande da peça. É ele a resposta.
+   E é o único que PULSA: numa peça com dezoito bolinhas, o olho precisa de um
+   jeito de achar "onde está agora" sem ler número nenhum. O anel que abre e
+   fecha faz isso de longe, e some inteiro para quem pediu menos movimento. */
 .trilhaNoAgora {
   width: 30px;
   height: 30px;
@@ -1687,6 +1829,26 @@
   color: var(--sobre-vio);
   box-shadow: 0 0 0 4px var(--vio-veu-2), 0 0 20px -2px var(--neon-veu);
   scroll-margin-inline: 120px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .trilhaNoAgora { animation: noPulsa 2.6s var(--ease) 900ms infinite; }
+  /* As etapas já cumpridas acendem EM SEQUÊNCIA, atrás do fio que cresce. O
+     atraso de cada uma vem do índice, escrito no elemento pelo componente. */
+  .trilhaNoFeito {
+    animation: noAcende 520ms var(--ease-firme) both;
+    animation-delay: calc(var(--ordem, 0) * 90ms);
+  }
+}
+
+@keyframes noPulsa {
+  0%, 100% { box-shadow: 0 0 0 4px var(--vio-veu-2), 0 0 20px -2px var(--neon-veu); }
+  50%      { box-shadow: 0 0 0 8px transparent,      0 0 30px 0 var(--neon-veu); }
+}
+
+@keyframes noAcende {
+  from { opacity: 0; transform: scale(.4); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .trilhaNoFeito:hover,
 .trilhaNoAdiante:hover,
@@ -2380,4 +2542,49 @@
   margin: 0;
   font-size: var(--t-sm);
   color: var(--alerta);
+}
+
+/* ==========================================================================
+   A LUZ NO RESTO DO PAINEL
+   --------------------------------------------------------------------------
+   Os tokens `--luz*` definidos lá em cima, aplicados onde o painel responde ao
+   toque. A regra é uma só: o que reage ao dedo acende; o que só informa, não.
+   Piscar tudo é o mesmo que não piscar nada.
+   ========================================================================== */
+
+/* O item ativo da lateral. Ele já tinha cor de fundo; ganha a barra da esquerda
+   e o halo — de relance, é o "você está aqui" sem precisar ler. */
+.latItemAtivo {
+  box-shadow: inset 3px 0 0 var(--vio-claro), 0 0 18px -10px var(--neon-veu);
+}
+
+/* O item comum desliza um fio para a direita no hover. Dois pixels: o bastante
+   para o olho registrar que aquilo é clicável, pouco o bastante para não
+   parecer que o menu inteiro treme quando o mouse atravessa. */
+.latItem {
+  transition:
+    background 200ms var(--ease),
+    color 200ms var(--ease),
+    transform 200ms var(--ease);
+}
+.latItem:hover { transform: translateX(2px); }
+
+/* Os cartões e as folhas ganham profundidade ao serem apontados. */
+.cartaoEmpresa:hover { border-color: var(--vio-borda); box-shadow: var(--luz); }
+.cartaoEmpresa:focus-within { box-shadow: var(--luz-forte); }
+
+/* Campo em foco: o mesmo halo dos botões. Um sistema em que o foco do teclado
+   se parece com o foco do mouse é um sistema em que dá para trabalhar sem
+   tirar a mão do teclado — e é o que a atendente faz o dia inteiro. */
+.campo:focus-visible,
+.selecao:focus-visible,
+.area:focus-visible {
+  outline: none;
+  border-color: var(--vio);
+  box-shadow: var(--luz-fraca);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .latItem:hover { transform: none; }
+  .cartaoEmpresa:hover { transform: none; }
 }
