@@ -664,6 +664,8 @@ export async function listarEmpresas() {
       numero: string | null
       complemento: string | null
       bairro: string | null
+      online: bigint
+      recebidoMes: bigint
     }>
   >`
     SELECT t.id, t.slug, t.nome, t.cnpj, t.cidade, t.uf, t.ativo, t.bloqueado,
@@ -675,7 +677,35 @@ export async function listarEmpresas() {
            (SELECT count(*) FROM ordens o WHERE o."tenantId" = t.id
               AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')) AS abertas,
            (SELECT w.status::text FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS whats,
-           (SELECT w.numero      FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS "whatsNumero"
+           (SELECT w.numero      FROM whatsapp_instances w WHERE w."tenantId" = t.id) AS "whatsNumero",
+
+           -- QUEM ESTÁ TRABALHANDO AGORA.
+           --
+           -- Sessão viva é a que não foi revogada, ainda não venceu, e teve uso
+           -- nos últimos 15 minutos. Os três juntos: sem o 'revogadaEm' uma
+           -- demissão continuaria "online"; sem o 'expiraEm', quem fechou o
+           -- navegador na sexta apareceria trabalhando no domingo; e sem a
+           -- janela de uso, qualquer sessão aberta e esquecida numa aba mentiria
+           -- o dia inteiro.
+           --
+           -- Quinze minutos porque a sessão só regrava 'ultimoUso' a cada cinco
+           -- (renovação preguiçosa, para não escrever no banco a cada tela). A
+           -- janela precisa ser maior que esse intervalo, senão quem está lendo
+           -- uma tela longa pisca para fora do ar.
+           (SELECT count(DISTINCT s."userId")
+              FROM sessoes s JOIN usuarios u ON u.id = s."userId"
+             WHERE u."tenantId" = t.id
+               AND s."revogadaEm" IS NULL
+               AND s."expiraEm" > now()
+               AND s."ultimoUso" > now() - interval '15 minutes') AS online,
+
+           -- O que entrou no caixa DESTE mês. Estorno sai da conta: dinheiro
+           -- devolvido nunca foi faturamento.
+           (SELECT coalesce(sum(pg."valorCentavos"), 0)
+              FROM pagamentos pg
+             WHERE pg."tenantId" = t.id
+               AND pg."estornadoEm" IS NULL
+               AND pg."recebidoEm" >= date_trunc('month', now())) AS "recebidoMes"
       FROM tenants t
      ORDER BY t.nome ASC
   `,
@@ -686,6 +716,8 @@ export async function listarEmpresas() {
     usuarios: Number(e.usuarios),
     ordens: Number(e.ordens),
     abertas: Number(e.abertas),
+    online: Number(e.online),
+    recebidoMes: Number(e.recebidoMes),
   }))
 }
 

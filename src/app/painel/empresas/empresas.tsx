@@ -9,6 +9,7 @@ import {
   entrarNaEmpresa,
   salvarUsuario,
 } from '@/server/acoes/plataforma'
+import { formatarBRL } from '@/lib/dinheiro'
 import FichaEmpresa from './ficha-empresa'
 import estilo from '../painel.module.css'
 
@@ -30,6 +31,8 @@ type Empresa = {
   abertas: number
   whats: string | null
   criadoEm: string
+  online: number
+  recebidoMes: number
   razaoSocial: string | null
   email: string | null
   telefone: string | null
@@ -226,110 +229,102 @@ export default function Empresas({ empresas, usuarios }: { empresas: Empresa[]; 
             </form>
           ) : null}
 
-          <div className={`${estilo.quadro} ${estilo.rolaX}`}>
-            <table className={estilo.tabela}>
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th>Identificador</th>
-                  <th>Cidade</th>
-                  <th className={estilo.dir}>Usuários</th>
-                  <th className={estilo.dir}>Ordens</th>
-                  <th>WhatsApp</th>
-                  <th>Situação</th>
-                  {/* A coluna dos botões. O título fica só para o leitor de
-                      tela: um `<th>` vazio faz a tabela inteira perder o
-                      cabeçalho para quem navega por ela. */}
-                  <th>
-                    <span className={estilo.soLeitor}>Ações</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {visiveis.map((e) => (
-                  <tr key={e.id}>
-                    <td>
-                      <span className={estilo.forte}>{e.nome}</span>
-                      {e.cnpj ? <div className={estilo.fraco}>{e.cnpj}</div> : null}
-                    </td>
-                    <td className={estilo.num}>{e.slug}</td>
-                    <td>
-                      {e.cidade ?? '—'}
-                      {e.uf ? `/${e.uf}` : ''}
-                    </td>
-                    <td className={`${estilo.num} ${estilo.dir}`}>{e.usuarios}</td>
-                    <td className={`${estilo.num} ${estilo.dir}`}>
-                      {e.abertas}
-                      <div className={estilo.fraco}>de {e.ordens}</div>
-                    </td>
-                    <td>
-                      <span className={`${estilo.tag} ${e.whats === 'CONECTADA' ? estilo.tagOk : estilo.tagNeutra}`}>
-                        {e.whats ? e.whats.toLowerCase() : 'sem instância'}
+          <div className={estilo.rede}>
+            {visiveis.map((e) => {
+              const vivo = !e.bloqueado && e.online > 0
+              const estado = e.bloqueado ? 'Suspenso' : vivo ? 'Vivo' : 'Parado'
+              return (
+                <article key={e.id} className={`${estilo.cartaoEmpresa} ${estilo['cartao' + estado]}`}>
+                  <div className={estilo.cartaoTopo}>
+                    <div style={{ minWidth: 0 }}>
+                      <strong className={estilo.cartaoNome}>{e.nome}</strong>
+                      <span className={estilo.cartaoOnde}>
+                        {e.cidade ?? 'sem cidade'}
+                        {e.uf ? `/${e.uf}` : ''}
+                        {e.cnpj ? ` · ${e.cnpj}` : ''}
                       </span>
-                    </td>
-                    <td>
-                      <span className={`${estilo.tag} ${e.bloqueado ? estilo.tagAlerta : estilo.tagOk}`}>
-                        {e.bloqueado ? 'suspensa' : 'ativa'}
-                      </span>
-                      {e.motivoBloqueio ? <div className={estilo.fraco}>{e.motivoBloqueio}</div> : null}
-                    </td>
-                    <td className={estilo.dir}>
-                      {/* "Entrar" é a ação principal desta tela: é assim que o
-                          dono da plataforma chega ao dia a dia de cada
-                          franquia. Empresa suspensa não recebe visita — entrar
-                          numa casa que você mesmo fechou é o caminho curto para
-                          esquecer que ela está fechada. */}
-                      {!e.bloqueado ? (
-                        <button
-                          type="button"
-                          className={estilo.btn}
-                          disabled={pendente}
-                          onClick={() => entrar(e)}
-                          style={{ marginRight: 'var(--s2)' }}
-                        >
-                          Entrar
-                        </button>
-                      ) : null}
-                      {/* Editar abre para qualquer empresa, inclusive a
-                          suspensa: corrigir o cadastro de quem está parado é
-                          justamente o que costuma preceder a reativação. */}
+                    </div>
+
+                    {/* O sinal de vida traz a PALAVRA junto da cor. Verde e
+                        vermelho pequenos lado a lado se confundem numa grade
+                        cheia, e há quem não os distinga de jeito nenhum. */}
+                    <span className={`${estilo.sinal} ${estilo['sinal' + estado]}`}>
+                      <i className={estilo.bolinha} aria-hidden="true" />
+                      {e.bloqueado ? 'suspensa' : vivo ? `${e.online} online` : 'ninguém'}
+                    </span>
+                  </div>
+
+                  <div className={estilo.cartaoNumeros}>
+                    <div className={estilo.cartaoNumero}>
+                      <span className={estilo.cartaoNumeroValor}>{e.usuarios}</span>
+                      <span className={estilo.cartaoNumeroRot}>pessoas</span>
+                    </div>
+                    <div className={estilo.cartaoNumero}>
+                      <span className={estilo.cartaoNumeroValor}>{e.abertas}</span>
+                      <span className={estilo.cartaoNumeroRot}>na esteira</span>
+                    </div>
+                    <div className={estilo.cartaoNumero}>
+                      <span className={estilo.cartaoNumeroValor}>{formatarBRL(e.recebidoMes)}</span>
+                      <span className={estilo.cartaoNumeroRot}>no mês</span>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`${estilo.tag} ${e.whats === 'CONECTADA' ? estilo.tagOk : estilo.tagNeutra}`}
+                  >
+                    WhatsApp: {e.whats ? e.whats.toLowerCase() : 'sem instância'}
+                  </span>
+
+                  {e.motivoBloqueio ? <p className={estilo.cartaoMotivo}>{e.motivoBloqueio}</p> : null}
+
+                  <div className={estilo.cartaoAcoes}>
+                    {!e.bloqueado ? (
+                      <button
+                        type="button"
+                        className={estilo.btn}
+                        disabled={pendente}
+                        onClick={() => entrar(e)}
+                      >
+                        Entrar
+                      </button>
+                    ) : null}
+                    <button type="button" className={estilo.btnSec} onClick={() => setEmEdicao(e)}>
+                      Editar
+                    </button>
+                    {e.bloqueado ? (
                       <button
                         type="button"
                         className={estilo.btnSec}
-                        onClick={() => setEmEdicao(e)}
-                        style={{ marginRight: 'var(--s2)' }}
+                        disabled={pendente}
+                        onClick={() => agir(() => alternarBloqueio(e.id, false))}
                       >
-                        Editar
+                        Reativar
                       </button>
-                      {e.bloqueado ? (
-                        <button
-                          type="button"
-                          className={estilo.btnSec}
-                          disabled={pendente}
-                          onClick={() => agir(() => alternarBloqueio(e.id, false))}
-                        >
-                          Reativar
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className={estilo.btnPerigo}
-                          disabled={pendente}
-                          onClick={() => {
-                            const motivo = window.prompt(
-                              'Por que esta empresa está sendo suspensa? O texto aparece para quem tentar entrar.',
-                            )
-                            if (motivo) agir(() => alternarBloqueio(e.id, true, motivo))
-                          }}
-                        >
-                          Suspender
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    ) : (
+                      <button
+                        type="button"
+                        className={estilo.btnPerigo}
+                        disabled={pendente}
+                        onClick={() => {
+                          const motivo = window.prompt(
+                            'Por que esta empresa está sendo suspensa? O texto aparece para quem tentar entrar.',
+                          )
+                          if (motivo) agir(() => alternarBloqueio(e.id, true, motivo))
+                        }}
+                      >
+                        Suspender
+                      </button>
+                    )}
+                  </div>
+                </article>
+              )
+            })}
+
+            {visiveis.length === 0 ? (
+              <p className={estilo.vazio}>
+                Nenhuma empresa com esse termo. Limpe a busca para ver a rede inteira.
+              </p>
+            ) : null}
           </div>
 
           {emEdicao ? (

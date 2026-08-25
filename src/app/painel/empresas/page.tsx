@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { exigirSuperAdmin } from '@/server/auth/guarda'
+import { formatarBRL } from '@/lib/dinheiro'
 import { listarEmpresas, listarUsuarios } from '@/server/consultas/listas'
 import Empresas from './empresas'
 import estilo from '../painel.module.css'
@@ -22,6 +23,9 @@ export default async function PaginaEmpresas() {
 
   const [empresas, usuarios] = await Promise.all([listarEmpresas(), listarUsuarios(ctx)])
 
+  const operando = empresas.filter((e) => e.online > 0).length
+  const pessoasOnline = empresas.reduce((s, e) => s + e.online, 0)
+
   return (
     <>
       <div className={estilo.cab}>
@@ -32,21 +36,37 @@ export default async function PaginaEmpresas() {
       </div>
 
       <div className={estilo.resumo}>
-        <Indicador rotulo="Empresas" valor={String(empresas.length)} nota="cadastradas na plataforma" />
+        <Indicador rotulo="Empresas" valor={String(empresas.length)} nota="na rede" />
         <Indicador
           rotulo="Ativas"
           valor={String(empresas.filter((e) => !e.bloqueado).length)}
           nota="sem suspensão"
         />
+        {/* O número que responde "a rede está viva agora?" — e é a pergunta
+            que se faz ao abrir esta tela de manhã. */}
         <Indicador
-          rotulo="Usuários"
+          rotulo="Operando agora"
+          valor={String(operando)}
+          nota={
+            operando === 0
+              ? 'nenhuma franquia com gente dentro'
+              : `${pessoasOnline} ${pessoasOnline === 1 ? 'pessoa' : 'pessoas'} trabalhando`
+          }
+        />
+        <Indicador
+          rotulo="Recebido no mês"
+          valor={formatarBRL(empresas.reduce((s, e) => s + e.recebidoMes, 0))}
+          nota="a rede inteira, sem estornos"
+        />
+        <Indicador
+          rotulo="Pessoas"
           valor={String(empresas.reduce((s, e) => s + e.usuarios, 0))}
           nota="somando todas as franquias"
         />
         <Indicador
-          rotulo="Ordens em andamento"
+          rotulo="Na esteira"
           valor={String(empresas.reduce((s, e) => s + e.abertas, 0))}
-          nota="em toda a plataforma"
+          nota="ordens em andamento na rede"
         />
       </div>
 
@@ -75,6 +95,8 @@ export default async function PaginaEmpresas() {
           numero: e.numero,
           complemento: e.complemento,
           bairro: e.bairro,
+          online: e.online,
+          recebidoMes: e.recebidoMes,
         }))}
         usuarios={usuarios.map((u) => ({
           id: u.id,

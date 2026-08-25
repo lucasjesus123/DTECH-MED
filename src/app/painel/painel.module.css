@@ -2246,3 +2246,138 @@
 }
 
 .folhaCorpo { padding: var(--s5); }
+
+/* ==========================================================================
+   A VISÃO DA REDE — um cartão por franquia
+   --------------------------------------------------------------------------
+   Tabela é boa para comparar coluna a coluna; cartão é bom para RECONHECER.
+   Numa rede de franquias, a pergunta que se faz ao abrir esta tela não é
+   "quem tem mais ordens" — é "quem está trabalhando agora e quem parou". Essa
+   pergunta se responde de relance, e é isso que o cartão faz melhor.
+
+   O sinal de vida é a informação principal de cada cartão, e por isso ele
+   aparece três vezes: na bolinha, na palavra ao lado dela, e na borda esquerda
+   do cartão inteiro. Cor sozinha não chega a quem não a distingue — e mesmo
+   para quem distingue, verde e vermelho pequenos lado a lado se confundem numa
+   tela cheia.
+   ========================================================================== */
+
+.rede {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+
+.cartaoEmpresa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--mesa);
+  border: 1px solid var(--borda);
+  /* A faixa da esquerda é o terceiro sinal do estado — larga o bastante para
+     ser vista de longe, e é ela que separa as ativas das paradas numa grade
+     cheia sem exigir leitura. */
+  border-left: 3px solid var(--borda);
+  border-radius: var(--r-lg);
+  transition: border-color 160ms var(--ease), transform 160ms var(--ease);
+}
+
+.cartaoEmpresa:hover { transform: translateY(-2px); }
+
+.cartaoVivo      { border-left-color: var(--sinal); }
+.cartaoParado    { border-left-color: var(--borda); }
+.cartaoSuspenso  { border-left-color: var(--alerta); }
+
+.cartaoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.cartaoNome {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+  color: var(--txt);
+  /* Nome de franquia é imprevisível; sem isto, um nome longo estica o cartão e
+     quebra o alinhamento da grade inteira. */
+  overflow-wrap: anywhere;
+}
+
+.cartaoOnde {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  overflow-wrap: anywhere;
+}
+
+/* O sinal de vida: bolinha + palavra, sempre juntos. */
+.sinal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sinalVivo     { background: var(--sinal-veu); border: 1px solid var(--sinal-borda); color: var(--sinal); }
+.sinalParado   { background: transparent;     border: 1px solid var(--borda);        color: var(--txt-3); }
+.sinalSuspenso { background: var(--alerta-veu); border: 1px solid var(--alerta-borda); color: var(--alerta); }
+
+.bolinha { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sinalVivo .bolinha { animation: respira 2.4s ease-in-out infinite; }
+}
+@keyframes respira {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+.cartaoNumeros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+  padding: var(--s3) 0;
+  border-top: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda);
+}
+
+.cartaoNumero { min-width: 0; }
+.cartaoNumeroValor {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}
+.cartaoNumeroRot {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+
+.cartaoAcoes { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.cartaoAcoes > * { flex: 1 1 auto; }
+.cartaoMotivo {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--alerta);
+}
