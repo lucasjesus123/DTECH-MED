@@ -17,6 +17,7 @@ import { FundoOsciloscopio } from './fundo-osciloscopio'
 import { FundoVideo } from './fundo-video'
 import { GoogleGtag, GoogleTagManager, GoogleTagManagerNoScript } from './gtm'
 import { MedirCliques } from './medir-cliques'
+import MedirSecoes from './medir-secoes'
 import { InstagramFeed } from './instagram-feed'
 import {
   ICONES,
@@ -256,6 +257,9 @@ export default async function Home({
       {/* Um ouvinte só, que mede todo clique de WhatsApp e telefone da página —
           inclusive os que ainda não existem. Ver `./medir-cliques`. */}
       <MedirCliques />
+      {/* E até onde a pessoa desceu. Num site de uma página só, é isto que
+          separa quem leu a chamada de quem chegou ao formulário. */}
+      <MedirSecoes />
 
       <header className={estilo.topo}>
         <div className={`${estilo.container} ${estilo.topoIn}`}>

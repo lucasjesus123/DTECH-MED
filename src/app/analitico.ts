@@ -36,6 +36,8 @@ export type DadosEvento = {
   assunto?: string
   /** Por onde: `whatsapp`, `telefone`, `formulario`. */
   canal?: string
+  /** Qual bloco da página foi visto: `servicos`, `onde-estamos`… */
+  secao?: string
 }
 
 declare global {
@@ -76,4 +78,18 @@ export const EVENTOS = {
   whatsapp: 'contato_whatsapp',
   /** Clique num número de telefone. */
   telefone: 'clique_telefone',
+
+  /**
+   * Até onde a pessoa desceu.
+   *
+   * O site é uma página só: para o Analytics isso é UMA página vista, e uma
+   * página vista não distingue quem leu a chamada e foi embora de quem chegou
+   * ao formulário. Estes cinco respondem a pergunta que decide investimento —
+   * ONDE eles param.
+   */
+  viuServicos: 'viu_servicos',
+  viuProntuario: 'viu_prontuario',
+  viuEmpresa: 'viu_a_empresa',
+  viuFormulario: 'viu_formulario',
+  viuOndeEstamos: 'viu_onde_estamos',
 } as const
