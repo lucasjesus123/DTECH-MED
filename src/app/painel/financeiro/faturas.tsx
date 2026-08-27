@@ -109,7 +109,7 @@ export default function Faturas({
 
   return (
     <>
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
       {/* ----- Ordens liberadas, ainda sem fatura --------------------------- */}
       {pendentes.length > 0 ? (

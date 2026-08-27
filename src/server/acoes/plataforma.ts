@@ -59,7 +59,24 @@ const schemaEmpresa = z.object({
     .regex(/^[a-z0-9-]{3,40}$/, 'O identificador aceita só letras minúsculas, números e hífen.'),
   cnpj: z.string().transform((v) => v.replace(/\D/g, '')).nullish(),
   cidade: z.string().trim().nullish(),
-  uf: z.string().trim().length(2, 'UF com duas letras.').nullish(),
+  /**
+   * UF é OPCIONAL, e por isso a string vazia precisa passar.
+   *
+   * `.length(2).nullish()` aceita `null` e `undefined` — e um campo de texto
+   * que ninguém tocou não chega como nenhum dos dois. `Object.fromEntries(form)`
+   * entrega STRING VAZIA, que bate no `.length(2)` e derruba o cadastro inteiro
+   * com "UF com duas letras.".
+   *
+   * O efeito era este, medido num navegador de verdade: quem cadastrasse uma
+   * empresa sem preencher UF — um campo sem asterisco, que a tela apresenta
+   * como opcional — via o formulário recusar, apontando para um campo que ela
+   * não tinha motivo para preencher.
+   *
+   * `.or(z.literal(''))` é o mesmo remédio que `cadastros.ts` já usa no e-mail
+   * do cliente. Vazio passa e vira `null` na gravação; preenchido continua
+   * tendo de ter duas letras.
+   */
+  uf: z.string().trim().length(2, 'UF com duas letras.').nullish().or(z.literal('')),
   telefone: z.string().trim().nullish(),
   whatsapp: z.string().trim().nullish(),
   adminNome: z.string().trim().min(3, 'Informe o nome do responsável.'),

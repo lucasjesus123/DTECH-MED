@@ -73,7 +73,7 @@ export default function PecasRetiradas({
         <span className={estilo.fraco}>{pecas.length}</span>
       </p>
 
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
       {pecas.length === 0 ? (
         <p className={estilo.texto}>

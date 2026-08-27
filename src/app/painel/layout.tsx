@@ -93,10 +93,23 @@ export default async function LayoutPainel({ children }: { children: React.React
     // Plataforma, porque é o lugar do nome da empresa e o super admin não tem
     // uma. A mesma palavra duas vezes, uma embaixo da outra, é metade da
     // sensação de bagunça — parece hierarquia onde não há.
+    /**
+     * "Empresas e usuários" era um item só, e apontava para as EMPRESAS.
+     *
+     * O rótulo prometia gente e entregava franquia. A tela das pessoas da rede
+     * existia, funcionava, e não tinha como chegar nela sem digitar o endereço —
+     * o que é o mesmo que não existir.
+     *
+     * Agora são dois itens, com o nome do que cada um faz. E a Trilha entra
+     * aqui: quem é dono da rede é justamente quem precisa da pergunta "quem fez
+     * isso?" respondida sem depender de ninguém.
+     */
     grupos.push({
       titulo: 'Administração',
       itens: [
-        { href: '/painel/empresas', rotulo: 'Empresas e usuários', icone: 'empresas' },
+        { href: '/painel/empresas', rotulo: 'Empresas', icone: 'empresas' },
+        { href: '/painel/usuarios', rotulo: 'Pessoas da rede', icone: 'clientes' },
+        { href: '/painel/auditoria', rotulo: 'Trilha', icone: 'registro' },
         { href: '/painel/plataforma-whatsapp', rotulo: 'WhatsApp da rede', icone: 'balao' },
         { href: '/painel/site', rotulo: 'Site', icone: 'site' },
       ],

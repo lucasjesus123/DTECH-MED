@@ -41,7 +41,7 @@ export function GerarOrdem({ visitaId }: { visitaId: string }) {
       <button type="button" className={estilo.btnSec} onClick={gerar} disabled={pendente}>
         {pendente ? 'Abrindo…' : 'Gerar ordem'}
       </button>
-      {erro ? <div className={estilo.erro}>{erro}</div> : null}
+      {erro ? <div className={estilo.erro} role="alert">{erro}</div> : null}
     </>
   )
 }
@@ -96,7 +96,7 @@ export function EncerrarContrato({ contratoId, numero }: { contratoId: string; n
       <button type="button" className={estilo.acaoRara} onClick={() => setConfirmando(false)} disabled={pendente}>
         Não
       </button>
-      {erro ? <span className={estilo.erro}>{erro}</span> : null}
+      {erro ? <span className={estilo.erro} role="alert">{erro}</span> : null}
     </span>
   )
 }

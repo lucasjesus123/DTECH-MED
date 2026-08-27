@@ -114,6 +114,21 @@ export async function auditar(
     ip?: string | null
     userAgent?: string | null
     negado?: boolean
+    /**
+     * Quem fez, quando NÃO HÁ SESSÃO — e mesmo assim se sabe quem é.
+     *
+     * A recuperação de senha é o caso: a pessoa está deslogada por definição,
+     * mas o link prova de quem é a conta. Sem isto, a linha mais importante da
+     * trilha ("a senha desta pessoa foi trocada por um link") aparecia como
+     * "Sem autor registrado" — verdadeiro e inútil, porque quem lê quer saber
+     * exatamente de quem.
+     *
+     * Só vale quando não há sessão. Havendo, a sessão manda: o nome de quem
+     * está logado não pode ser sobrescrito por um parâmetro de chamada, senão
+     * a trilha deixa de provar qualquer coisa.
+     */
+    autorNome?: string | null
+    autorPapel?: Papel | null
   },
 ): Promise<void> {
   try {
@@ -122,8 +137,9 @@ export async function auditar(
         data: {
           tenantId: ctx.tenantId,
           userId: sessao?.userId ?? null,
-          userNome: sessao?.nome ?? null,
-          userPapel: sessao?.papel ?? null,
+          // A sessão vence sempre; o parâmetro só preenche o vazio.
+          userNome: sessao?.nome ?? dados.autorNome ?? null,
+          userPapel: sessao?.papel ?? dados.autorPapel ?? null,
           acao: dados.acao,
           entidade: dados.entidade ?? null,
           entidadeId: dados.entidadeId ?? null,

@@ -43,7 +43,7 @@ export default async function NovaOrdem({
       </div>
 
       {lead ? (
-        <p className={estilo.sucesso} style={{ marginBottom: 'var(--s4)' }}>
+        <p className={estilo.sucesso} role="status" style={{ marginBottom: 'var(--s4)' }}>
           Preenchido com o que {lead.nome} escreveu no site. Confira e complete o
           CPF/CNPJ e o endereço antes de abrir.
         </p>

@@ -62,7 +62,7 @@ export default function Diagnostico({
     <form action={salvar} className={estilo.form} style={{ marginTop: 'var(--s4)' }}>
       <input type="hidden" name="ordemId" value={ordemId} />
 
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
       <label className={estilo.rotulo}>
         O que você encontrou no aparelho *

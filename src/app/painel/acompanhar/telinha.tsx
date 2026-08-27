@@ -161,7 +161,7 @@ export function Telinha({
               {d.tecnico ? <span className={estilo.fraco}>técnico: {d.tecnico}</span> : null}
             </div>
 
-            {d.faltaPeca ? <p className={estilo.erro}>{d.faltaPeca}</p> : null}
+            {d.faltaPeca ? <p className={estilo.erro} role="alert">{d.faltaPeca}</p> : null}
 
             {/* --- A LINHA DO TEMPO, que é o motivo da tela existir --------- */}
             <section className={estilo.telaBloco}>

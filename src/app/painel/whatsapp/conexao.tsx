@@ -65,7 +65,7 @@ export default function Conexao({
         </span>
       </p>
 
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
       <div className={estilo.pares}>
         <div className={estilo.par}>

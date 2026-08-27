@@ -56,9 +56,22 @@ const NIVEL: Record<string, number> = {
 export default function Equipe({
   usuarios,
   papelDeQuemOlha,
+  mostrarEmpresa = false,
+  empresas = [],
 }: {
   usuarios: Pessoa[]
   papelDeQuemOlha: string
+  /** As franquias onde o dono da plataforma pode cadastrar alguém. */
+  empresas?: { id: string; nome: string }[]
+  /**
+   * Acrescenta a coluna "Empresa".
+   *
+   * Vale só para o dono da plataforma fora de uma visita, que é quando a lista
+   * mistura franquias. Para quem administra uma empresa, todo mundo é da mesma
+   * casa — a coluna repetiria o mesmo nome em todas as linhas e roubaria
+   * largura de quem já precisa rolar de lado no celular.
+   */
+  mostrarEmpresa?: boolean
 }) {
   const [novo, setNovo] = useState(false)
   /** O perfil escolhido no formulário de criação. As abas dependem dele. */
@@ -77,7 +90,11 @@ export default function Equipe({
 
   const termo = busca.trim().toLowerCase()
   const visiveis = termo
-    ? usuarios.filter((u) => `${u.nome} ${u.email} ${u.papel}`.toLowerCase().includes(termo))
+    ? usuarios.filter((u) =>
+        // A empresa entra na busca: com a rede inteira numa lista só, "procurar
+        // pela franquia" é o primeiro recorte que alguém faz.
+        `${u.nome} ${u.email} ${u.papel} ${u.empresa ?? ''}`.toLowerCase().includes(termo),
+      )
     : usuarios
 
   function agir(fn: () => Promise<Resposta>) {
@@ -106,7 +123,9 @@ export default function Equipe({
           type="search"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por nome, e-mail ou perfil"
+          placeholder={
+            mostrarEmpresa ? 'Buscar por nome, empresa, e-mail ou perfil' : 'Buscar por nome, e-mail ou perfil'
+          }
           aria-label="Buscar pessoa"
           style={{ maxWidth: 340 }}
         />
@@ -120,10 +139,37 @@ export default function Equipe({
       {novo ? (
         <form action={acao} className={`${estilo.bloco} ${estilo.form}`}>
           <p className={estilo.blocoTitulo}>Nova pessoa na equipe</p>
-          {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
-          {estado.ok && estado.mensagem ? <p className={estilo.sucesso}>{estado.mensagem}</p> : null}
+          {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
+          {estado.ok && estado.mensagem ? <p className={estilo.sucesso} role="status">{estado.mensagem}</p> : null}
 
           <div className={estilo.grade}>
+            {/* A EMPRESA, e por que ela é o primeiro campo.
+                O servidor já exigia `tenantId` de quem cria pela plataforma — e
+                recusava com "Escolha a empresa do usuário." Só que a tela não
+                oferecia onde escolher: o dono da plataforma não conseguia
+                cadastrar ninguém por aqui, e a mensagem de erro apontava para um
+                campo que não existia.
+                Vem primeiro porque é a decisão que muda todas as outras: o
+                perfil, as abas e o e-mail passam a existir DENTRO dela. */}
+            {mostrarEmpresa ? (
+              <label className={estilo.rotulo} style={{ gridColumn: 'span 2' }}>
+                Empresa *
+                <select className={estilo.selecao} name="tenantId" required style={{ width: '100%' }} defaultValue="">
+                  <option value="" disabled>
+                    Escolha a franquia
+                  </option>
+                  {empresas.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
+                  ))}
+                </select>
+                <span className={estilo.dica}>
+                  A pessoa nasce dentro desta empresa e só enxerga o que é dela. Isso não muda
+                  depois — para mover alguém de franquia, cadastre na nova e desative na antiga.
+                </span>
+              </label>
+            ) : null}
             <label className={estilo.rotulo}>
               Nome completo *
               <input className={estilo.campo} name="nome" required minLength={3} />
@@ -187,6 +233,7 @@ export default function Equipe({
           <thead>
             <tr>
               <th>Nome</th>
+              {mostrarEmpresa ? <th>Empresa</th> : null}
               <th>E-mail</th>
               <th>Perfil</th>
               <th>Último acesso</th>
@@ -203,6 +250,11 @@ export default function Equipe({
               return (
                 <tr key={u.id}>
                   <td className={estilo.forte}>{u.nome}</td>
+                  {mostrarEmpresa ? (
+                    <td>
+                      <span className={estilo.tag}>{u.empresa ?? 'plataforma'}</span>
+                    </td>
+                  ) : null}
                   <td className={estilo.num}>{u.email}</td>
                   <td>
                     <span className={estilo.tag}>{perfil?.rotulo ?? u.papel.toLowerCase()}</span>

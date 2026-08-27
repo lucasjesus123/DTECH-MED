@@ -44,14 +44,19 @@ type Empresa = {
  * ---------------------------------------------------------------------------
  * POR QUE A LISTA DE USUÁRIOS SAIU DAQUI
  * ---------------------------------------------------------------------------
- * Ela era uma lista só, com a gente de todas as franquias misturada e uma
- * coluna "Empresa" para desempatar. A pergunta que ela provocava era sempre a
- * mesma: "de qual empresa é este aqui?" — e responder isso lendo uma coluna, em
- * vinte linhas, é trabalho que a tela deveria ter poupado.
+ * Ela era uma ABA desta tela, e isso confundia duas coisas: administrar uma
+ * franquia e administrar a rede. Quem estava mexendo numa empresa via, ao lado,
+ * gente de todas as outras.
  *
- * Equipe é assunto de DENTRO da empresa. Agora se entra na franquia pelo botão
- * do cartão e se administra a equipe lá, com o nome dela na faixa do topo e no
- * crachá — sem coluna nenhuma para conferir, porque não há como se enganar.
+ * Equipe é assunto de DENTRO da empresa. O caminho certo para mexer no acesso
+ * de alguém é ENTRAR na franquia pelo botão do cartão e administrar lá, com o
+ * nome dela na faixa do topo e no crachá — sem coluna nenhuma para conferir,
+ * porque não há como se enganar.
+ *
+ * A lista da rede inteira continua existindo, em "Pessoas da rede", para o que
+ * ela serve de verdade: procurar uma pessoa quando não se sabe de qual franquia
+ * ela é, e cadastrar alguém escolhendo a empresa. Lá ela tem coluna de empresa,
+ * busca por franquia e um seletor no cadastro — porque lá o assunto É a rede.
  */
 export default function Empresas({ empresas }: { empresas: Empresa[] }) {
   const [novaEmpresa, setNovaEmpresa] = useState(false)
@@ -108,7 +113,7 @@ export default function Empresas({ empresas }: { empresas: Empresa[] }) {
   return (
     <>
 
-      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+      {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
           <div className={estilo.acoesForm} style={{ marginBottom: 'var(--s4)' }}>
             <button type="button" className={estilo.btn} onClick={() => setNovaEmpresa((v) => !v)}>
@@ -133,9 +138,9 @@ export default function Empresas({ empresas }: { empresas: Empresa[] }) {
           {novaEmpresa ? (
             <form action={acaoEmpresa} className={`${estilo.bloco} ${estilo.form}`}>
               <p className={estilo.blocoTitulo}>Nova empresa</p>
-              {!estadoEmpresa.ok && estadoEmpresa.motivo ? <p className={estilo.erro}>{estadoEmpresa.motivo}</p> : null}
+              {!estadoEmpresa.ok && estadoEmpresa.motivo ? <p className={estilo.erro} role="alert">{estadoEmpresa.motivo}</p> : null}
               {estadoEmpresa.ok && estadoEmpresa.mensagem ? (
-                <p className={estilo.sucesso}>{estadoEmpresa.mensagem}</p>
+                <p className={estilo.sucesso} role="status">{estadoEmpresa.mensagem}</p>
               ) : null}
 
               <div className={estilo.grade}>
@@ -145,7 +150,35 @@ export default function Empresas({ empresas }: { empresas: Empresa[] }) {
                 </label>
                 <label className={estilo.rotulo}>
                   Identificador *
-                  <input className={estilo.campo} name="slug" required pattern="[a-z0-9-]{3,40}" placeholder="dtechmed-lajeado" />
+                  {/**
+                   * O HÍFEN VAI ESCAPADO, E ISSO NÃO É PRECIOSISMO.
+                   *
+                   * O navegador compila o `pattern` com a flag `v` do
+                   * JavaScript moderno. Sob ela, um `-` solto no fim de uma
+                   * classe de caracteres é ERRO de sintaxe, e o padrão inteiro
+                   * é descartado:
+                   *
+                   *   Invalid regular expression: /[a-z0-9-]{3,40}/v:
+                   *   Invalid character class
+                   *
+                   * O efeito não é "a validação afrouxa" — é pior. A chamada
+                   * interna de validação estoura, e o navegador RECUSA ENVIAR o
+                   * formulário. Nenhuma mensagem aparece na tela: a pessoa
+                   * preenche tudo, clica em criar, e não acontece nada.
+                   *
+                   * Ou seja: o dono da plataforma não conseguia cadastrar
+                   * empresa nenhuma em navegador atual, e o erro só existia no
+                   * console. Achado ao rodar o cadastro num navegador de
+                   * verdade — nenhum teste de código pegaria isto, porque o
+                   * `pattern` só é compilado pelo navegador.
+                   */}
+                  <input
+                    className={estilo.campo}
+                    name="slug"
+                    required
+                    pattern="[a-z0-9\-]{3,40}"
+                    placeholder="dtechmed-lajeado"
+                  />
                   <span className={estilo.dica}>Minúsculas, números e hífen. Não muda depois.</span>
                 </label>
                 <label className={estilo.rotulo}>

@@ -47,8 +47,8 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
       {aba === 'peca' ? (
         <form action={acaoPeca} className={`${estilo.bloco} ${estilo.form}`} style={{ marginTop: 'var(--s4)' }}>
           <p className={estilo.blocoTitulo}>Nova peça</p>
-          {!estadoPeca.ok && estadoPeca.motivo ? <p className={estilo.erro}>{estadoPeca.motivo}</p> : null}
-          {estadoPeca.ok ? <p className={estilo.sucesso}>Peça cadastrada.</p> : null}
+          {!estadoPeca.ok && estadoPeca.motivo ? <p className={estilo.erro} role="alert">{estadoPeca.motivo}</p> : null}
+          {estadoPeca.ok ? <p className={estilo.sucesso} role="status">Peça cadastrada.</p> : null}
 
           <div className={estilo.grade}>
             <label className={estilo.rotulo}>
@@ -109,8 +109,8 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
       {aba === 'movimento' ? (
         <form action={acaoMov} className={`${estilo.bloco} ${estilo.form}`} style={{ marginTop: 'var(--s4)' }}>
           <p className={estilo.blocoTitulo}>Movimento de estoque</p>
-          {!estadoMov.ok && estadoMov.motivo ? <p className={estilo.erro}>{estadoMov.motivo}</p> : null}
-          {estadoMov.ok ? <p className={estilo.sucesso}>Movimento lançado.</p> : null}
+          {!estadoMov.ok && estadoMov.motivo ? <p className={estilo.erro} role="alert">{estadoMov.motivo}</p> : null}
+          {estadoMov.ok ? <p className={estilo.sucesso} role="status">Movimento lançado.</p> : null}
 
           <div className={estilo.grade}>
             <label className={estilo.rotulo} style={{ gridColumn: 'span 2' }}>

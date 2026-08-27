@@ -73,7 +73,7 @@ export default function Responsavel({
           </select>
         </label>
 
-        {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro}>{msg.texto}</p> : null}
+        {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
 
         <button type="submit" className={estilo.btnSec} disabled={pendente}>
           {pendente ? 'Salvando…' : 'Salvar'}

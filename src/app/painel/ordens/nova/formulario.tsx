@@ -40,7 +40,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
 
   return (
     <form action={acao} className={`${estilo.bloco} ${estilo.form}`} style={{ maxWidth: 900 }}>
-      {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
+      {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
       {lead ? <input type="hidden" name="leadId" value={lead.id} /> : null}
 
       <p className={estilo.blocoTitulo}>Quem é o cliente</p>

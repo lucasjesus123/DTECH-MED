@@ -67,6 +67,18 @@ export function Cartoes({
           >
             <div className={estilo.acompTopo}>
               <span className={estilo.cardOs}>#{String(o.numero).padStart(4, '0')}</span>
+              {/* O selo de quem está esperando a rua. É o que faz a pessoa abrir
+                  ESTE cartão em vez de percorrer os sessenta.
+
+                  Ele fica NA LINHA, junto dos outros. Antes era posicionado no
+                  canto superior direito do cartão — exatamente onde a etiqueta
+                  da etapa também está — e os dois se escreviam por cima quando a
+                  ordem estava esperando a rua E tinha etapa para mostrar, que é
+                  justamente o caso mais comum. Resultado: as duas informações
+                  ficavam ilegíveis nos cartões que mais importam. */}
+              {o.podeDespachar ? (
+                <span className={estilo.acompDespachar}>esperando a rua</span>
+              ) : null}
               <span className={o.atrasada ? `${estilo.tag} ${estilo.tagAlerta}` : `${estilo.tag} ${estilo.tagNeutra}`}>
                 {o.atrasada ? 'passou do prazo' : o.agora}
               </span>
@@ -103,11 +115,6 @@ export function Cartoes({
               </span>
             </div>
 
-            {/* O selo de quem está esperando a rua. É o que faz a pessoa abrir
-                ESTE cartão em vez de percorrer os sessenta. */}
-            {o.podeDespachar ? (
-              <span className={estilo.acompDespachar}>esperando a rua</span>
-            ) : null}
           </button>
         ))}
       </div>

@@ -57,8 +57,8 @@ export default function Agendador({
         <span className={estilo.fraco}>{pendentes.length}</span>
       </p>
 
-      {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
-      {estado.ok ? <p className={estilo.sucesso}>Parada marcada. O cliente foi avisado com data, hora e motorista.</p> : null}
+      {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
+      {estado.ok ? <p className={estilo.sucesso} role="status">Parada marcada. O cliente foi avisado com data, hora e motorista.</p> : null}
 
       <div className={estilo.rolaX}>
         <table className={estilo.tabela}>

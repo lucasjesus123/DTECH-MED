@@ -1981,10 +1981,13 @@
 
 /* O selo de quem está esperando a rua. Fica no canto do cartão porque é o que
    faz a pessoa abrir ESTE, e não percorrer os sessenta. */
+/* Na LINHA, não no canto.
+   Era `position: absolute` no canto superior direito — o mesmo lugar onde a
+   etiqueta da etapa vive. Nos cartões que estão esperando a rua E têm etapa
+   para mostrar (o caso mais comum, e o mais importante), os dois textos se
+   escreviam por cima e nenhum dos dois era legível. */
 .acompDespachar {
-  position: absolute;
-  top: var(--s4);
-  right: var(--s4);
+  flex: none;
   padding: 2px 7px;
   border-radius: 999px;
   background: var(--vio-veu-2);
@@ -2186,9 +2189,12 @@
 .acompTopo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--s3);
+  gap: var(--s2);
+  flex-wrap: wrap;
 }
+/* O número empurra o resto para a direita. Com `space-between` e três filhos, o
+   selo do meio ficaria flutuando no vazio entre os dois. */
+.acompTopo .cardOs { margin-right: auto; }
 .acompCliente {
   font-size: var(--t-base);
   font-weight: 700;
@@ -2841,6 +2847,413 @@
   max-height: 240px;
 }
 
+/* O recado do rodapé precisa de ar e de largura de leitura. Colado na última
+   linha da trilha ele parecia mais uma entrada da lista. */
+.audRodape {
+  margin: var(--s6) 0 0;
+  padding-top: var(--s5);
+  border-top: 1px solid var(--borda);
+  max-width: 72ch;
+  font-size: var(--t-xs);
+  line-height: 1.6;
+  color: var(--txt-3);
+}
+
 @media (max-width: 620px) {
   .audQuando { margin-left: 0; width: 100%; }
+}
+
+/* ==========================================================================
+   ==========================================================================
+   SEGUNDA PASSADA DE VISUAL — O SISTEMA INTEIRO
+   ==========================================================================
+   --------------------------------------------------------------------------
+   A primeira passada deu ao painel escala de leitura e luz nos botões. Esta
+   vai adiante e trata a tela como INSTRUMENTO: um lugar onde o estado das
+   coisas se lê antes de se ler o texto.
+
+   A régua continua a mesma e não é negociável: **nada aqui pode tornar o
+   trabalho mais lento de ler.** Uma tela de oficina é usada oito horas por
+   dia, com pressa, e efeito que disputa atenção com um número atrasado é
+   defeito, não ousadia.
+
+   Então o que muda é onde a informação já estava e o desenho não contava:
+
+     • A esteira ganha TEMPERATURA. O percurso vai do frio (chegou) ao quente
+       (vai sair). Hoje os oito degraus são iguais e a ordem deles só existe
+       na cabeça de quem já sabe.
+     • Os cartões ganham PROFUNDIDADE e reagem ao toque, para o que é
+       clicável parecer clicável.
+     • O que grita — atraso, alerta — RESPIRA em vez de só ficar vermelho.
+       Movimento lento chama o olho de longe; cor sozinha se perde numa tela
+       cheia.
+     • A área de trabalho ganha um fundo que se move devagar, muito abaixo do
+       limiar de distração. É a mesma aurora da tela de entrar: quem passa do
+       login para o painel continua no mesmo lugar.
+
+   TUDO vive dentro de `.app`. O site não é tocado por nenhuma linha daqui.
+   E todo movimento tem desligamento por `prefers-reduced-motion`.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   O FUNDO DA MESA
+   --------------------------------------------------------------------------
+   Duas manchas de luz que giram devagar atrás do conteúdo. `fixed` para não
+   rolar junto — fundo que rola vira textura, e textura em movimento cansa.
+
+   A opacidade é baixíssima de propósito: o efeito tem de ser sentido e não
+   percebido. Se você consegue apontar a mancha, ela está forte demais.
+   -------------------------------------------------------------------------- */
+.principal { position: relative; isolation: isolate; }
+
+.principal::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 32rem at 82% 8%, var(--vio-veu), transparent 70%),
+    radial-gradient(38rem 30rem at 12% 92%, var(--neon-veu), transparent 72%);
+  opacity: .85;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .principal::before {
+    animation: mesaRespira 26s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes mesaRespira {
+  from { transform: translate3d(0, 0, 0) scale(1); opacity: .7; }
+  to   { transform: translate3d(-2%, 1.5%, 0) scale(1.06); opacity: 1; }
+}
+
+/* A barra de cima ganha um fio de luz na base. Ela já era "vidro"; o fio é o
+   que faz o vidro ter borda em vez de terminar no nada. */
+.barra { position: sticky; }
+.barra::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vio-borda) 18%, var(--vio-borda) 82%, transparent);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   A LATERAL — o item aberto agora tem trilho
+   --------------------------------------------------------------------------
+   O "você está aqui" existia por cor de fundo. Um trilho aceso na borda diz a
+   mesma coisa mais rápido, porque a borda esquerda é onde o olho encosta ao
+   varrer uma lista vertical.
+   -------------------------------------------------------------------------- */
+.latItemAtivo::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 99px;
+  background: var(--vio-claro);
+  box-shadow: 0 0 12px 0 var(--vio-claro);
+}
+
+/* O ícone acompanha. Deslocamento de um pixel e meio: o suficiente para a
+   linha responder ao dedo, pouco o bastante para ninguém reparar por quê. */
+.latItem .latIcone,
+.latItemAtivo .latIcone {
+  transition: transform 220ms var(--ease-firme), color 160ms var(--ease);
+}
+.latItem:hover .latIcone { transform: translateX(1.5px); }
+.latItemAtivo .latIcone { color: var(--vio-claro); }
+
+/* --------------------------------------------------------------------------
+   A ESTEIRA COM TEMPERATURA
+   --------------------------------------------------------------------------
+   `--passo` chega do React: a posição do degrau no percurso, de 0 a 7.
+
+   `--calor` transforma isso numa proporção, e a faixa do topo mistura as duas
+   cores do sistema nessa proporção — violeta na chegada, verde na saída. O
+   resultado é uma escala contínua em vez de oito etiquetas, e ela sobrevive a
+   um degrau novo sem ninguém precisar escolher a cor dele.
+
+   O fallback (`--passo: 0`) importa: se um dia a variável não vier, a faixa
+   fica violeta em todos, que é exatamente o que existia antes. Nada quebra.
+   -------------------------------------------------------------------------- */
+.degrau {
+  --passo: 0;
+  --calor: calc(var(--passo) / 7 * 100%);
+  overflow: hidden;
+}
+
+.degrau::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: color-mix(in oklab, var(--sinal) var(--calor), var(--vio));
+  opacity: .55;
+  transition: opacity 200ms var(--ease), height 200ms var(--ease);
+}
+.degrau:hover::after { opacity: 1; height: 4px; }
+.degrauAtivo::after { opacity: 1; height: 4px; }
+
+/* A chegada em cascata, no mesmo sentido em que o trabalho anda. 45ms por
+   degrau: os oito entram em menos de meio segundo, que é rápido demais para
+   ser espera e devagar o bastante para ler como movimento. */
+@media (prefers-reduced-motion: no-preference) {
+  .degrau {
+    animation: degrauEntra 420ms var(--ease-firme) both;
+    animation-delay: calc(var(--passo) * 45ms);
+  }
+}
+
+@keyframes degrauEntra {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* O degrau que grita RESPIRA.
+   Vermelho parado se perde numa tela com oito cartões. Um halo que cresce e
+   volta a cada dois segundos e meio é visto pelo canto do olho, de longe, sem
+   precisar estar lendo aquela parte da tela. */
+.degrauGrita { border-color: var(--alerta-borda); }
+.degrauGrita::after { background: var(--alerta); opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .degrauGrita { animation: degrauEntra 420ms var(--ease-firme) both, gritaRespira 2.6s var(--ease) 600ms infinite; }
+}
+
+@keyframes gritaRespira {
+  0%, 100% { box-shadow: var(--sombra-1), 0 0 0 0 var(--alerta-veu); }
+  50%      { box-shadow: var(--sombra-1), 0 0 0 6px transparent, 0 0 22px -4px var(--alerta); }
+}
+
+/* O trilho da esteira ganha um brilho que corre da chegada para a saída — o
+   sentido do trabalho, desenhado. Lento (7s) e translúcido: é pano de fundo,
+   não animação de carregamento. */
+@media (prefers-reduced-motion: no-preference) {
+  .esteira::after {
+    content: '';
+    position: absolute;
+    left: 6%;
+    top: 34px;
+    width: 22%;
+    height: 2px;
+    border-radius: 99px;
+    background: linear-gradient(to right, transparent, var(--vio-claro), transparent);
+    opacity: .5;
+    pointer-events: none;
+    animation: esteiraCorre 7s linear infinite;
+  }
+}
+
+@keyframes esteiraCorre {
+  from { transform: translateX(-30%); opacity: 0; }
+  15%  { opacity: .5; }
+  85%  { opacity: .5; }
+  to   { transform: translateX(400%); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   OS CARTÕES — profundidade, e reação ao dedo
+   --------------------------------------------------------------------------
+   O indicador, o cartão de ordem e o bloco eram retângulos com borda de um
+   pixel. Ganham a mesma gramática dos cartões da rede: um brilho na borda de
+   cima (onde a luz bateria), elevação ao passar o mouse, e o número em
+   destaque de verdade.
+   -------------------------------------------------------------------------- */
+.indicador,
+.bloco,
+.cardOrdem {
+  position: relative;
+}
+
+.indicador::before,
+.cardOrdem::before {
+  content: '';
+  position: absolute;
+  left: var(--s5);
+  right: var(--s5);
+  top: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vio-borda), transparent);
+  pointer-events: none;
+}
+
+.indicador {
+  transition:
+    transform 200ms var(--ease),
+    border-color 200ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+.indicador:hover {
+  transform: translateY(-2px);
+  border-color: var(--vio-borda);
+  box-shadow: var(--luz);
+}
+
+/* O número cresce um degrau e ganha o gradiente da marca. É o elemento que a
+   tela existe para mostrar; ele merecia mais peso do que o rótulo acima. */
+.indValor {
+  font-size: var(--t-2xl);
+  background: linear-gradient(160deg, var(--txt), color-mix(in oklab, var(--txt) 62%, var(--vio-claro)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===== O número em alerta ===============================================
+   ATENÇÃO à convenção, porque ela não é óbvia e me custou um desenho errado:
+   `indAlerta` marca o NÚMERO (`.indValor`), não o cartão. É assim em oito
+   telas do painel, e é o que faz sentido — o alerta é sobre aquele valor.
+
+   Então o gradiente da marca sai (cor de aviso não pode ser desbotada por
+   mistura) e entra um brilho que respira no PRÓPRIO texto. Sombra de texto, e
+   não de caixa: uma caixa desenharia um retângulo em volta do número, que é
+   exatamente o que parece defeito.
+
+   O cartão em volta reage por `:has()`, sem que nenhuma das oito telas precise
+   ganhar uma classe nova. */
+.indAlerta {
+  background: none;
+  -webkit-text-fill-color: var(--alerta);
+  color: var(--alerta);
+}
+
+.indicador:has(.indAlerta) { border-color: var(--alerta-borda); }
+.indicador:has(.indAlerta)::before {
+  background: linear-gradient(to right, transparent, var(--alerta), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .indAlerta { animation: numeroRespira 3.4s var(--ease) infinite; }
+}
+
+@keyframes numeroRespira {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50%      { text-shadow: 0 0 18px color-mix(in oklab, var(--alerta) 60%, transparent); }
+}
+
+/* --------------------------------------------------------------------------
+   A TABELA — a linha que acende
+   --------------------------------------------------------------------------
+   NÃO grudamos o cabeçalho, e vale registrar por quê: toda tabela do painel
+   vive dentro de `.rolaX`, que é `overflow-x: auto`. Um `overflow` no eixo X
+   faz o navegador computar `auto` no Y também, e isso transforma a caixa num
+   contexto de rolagem próprio — um `position: sticky` no `th` passaria a se
+   prender ao topo DAQUELA caixa, que não rola verticalmente. Ou seja: o
+   cabeçalho ficaria exatamente onde já está, e o código sugeriria um
+   comportamento que não existe.
+   Grudar de verdade exigiria altura fixa e rolagem interna na tabela, o que
+   muda o desenho de dez telas. Fica para quando for o assunto.
+
+   A linha sob o mouse ganha um traço na borda esquerda. Numa tabela larga, o
+   fundo colorido some no meio do caminho; o traço marca a linha inteira. */
+.tabela tbody tr td:first-child { position: relative; }
+.tabela tbody tr:hover td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--vio);
+}
+
+/* --------------------------------------------------------------------------
+   O NÓ DE AGORA, NA LINHA DO TEMPO
+   --------------------------------------------------------------------------
+   A trilha já acende e o fio já cresce. Faltava a etapa ATUAL se distinguir
+   de "mais uma que já passou": um anel que pulsa para fora, como um sinal
+   sendo emitido. É o único ponto da tela onde o equipamento está agora.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .trilhaNoAgora::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--vio-claro);
+    animation: anelSai 2.4s var(--ease) infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes anelSai {
+  0%   { transform: scale(.75); opacity: .9; }
+  70%  { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   O BOTÃO PRIMÁRIO GANHA UM BRILHO QUE ATRAVESSA
+   --------------------------------------------------------------------------
+   Só ao passar o mouse, e uma vez. Botão que brilha sozinho o tempo todo vira
+   anúncio; botão que responde ao dedo vira instrumento.
+   -------------------------------------------------------------------------- */
+.btnPrimario { position: relative; overflow: hidden; }
+.btnPrimario::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in oklab, #fff 26%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btnPrimario:hover::after { animation: brilhoAtravessa 700ms var(--ease-firme); }
+}
+@keyframes brilhoAtravessa {
+  to { transform: translateX(120%); }
+}
+
+/* --------------------------------------------------------------------------
+   FOCO — um só, em tudo
+   --------------------------------------------------------------------------
+   Quem navega por teclado precisa achar onde está de relance. Um contorno fino
+   some sobre fundo escuro; o halo não some. Está por último de propósito: é a
+   regra que tem de vencer as outras.
+   -------------------------------------------------------------------------- */
+.app a:focus-visible,
+.app button:focus-visible,
+.app summary:focus-visible,
+.app [tabindex]:focus-visible {
+  outline: 2px solid var(--vio-claro);
+  outline-offset: 2px;
+  box-shadow: var(--luz-forte);
+  border-radius: var(--r);
+}
+
+/* --------------------------------------------------------------------------
+   O DESLIGAMENTO GERAL
+   --------------------------------------------------------------------------
+   Quem pediu menos movimento no sistema operacional recebe a tela inteira
+   parada — inclusive as animações desta passada. Não é degradação: o desenho
+   continua o mesmo, sem o que se move.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .principal::before,
+  .degrau,
+  .degrauGrita,
+  .indAlerta,
+  .indicador,
+  .esteira::after,
+  .trilhaNoAgora::after,
+  .btnPrimario::after {
+    animation: none !important;
+  }
+  .esteira::after,
+  .trilhaNoAgora::after { display: none; }
 }

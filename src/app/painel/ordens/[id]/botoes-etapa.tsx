@@ -41,7 +41,7 @@ export default function BotoesEtapa({ ordemId, passos }: { ordemId: string; pass
 
   return (
     <div className={estilo.form}>
-      {erro ? <p className={estilo.erro}>{erro}</p> : null}
+      {erro ? <p className={estilo.erro} role="alert">{erro}</p> : null}
 
       <div className={estilo.acoesForm}>
         {passos.map((p) => (

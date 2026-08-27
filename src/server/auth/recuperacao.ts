@@ -135,6 +135,11 @@ export async function pedirRecuperacao(entrada: PedidoRecuperacao): Promise<void
       entidade: 'usuario',
       entidadeId: conta.id,
       detalhes: entregue ? { canal: 'whatsapp' } : { motivo: numero ? 'envio falhou' : 'sem telefone' },
+      // Não há sessão — quem pede está deslogado —, mas se sabe de quem é a
+      // conta. Sem o nome, a linha vira "Sem autor registrado" e não serve
+      // para nada: o administrador precisa saber QUEM ficou sem link.
+      autorNome: conta.nome,
+      autorPapel: conta.papel,
       ip: entrada.ip,
       userAgent: entrada.userAgent,
       // Sem canal não é ataque, mas é uma pessoa que ficou sem saída: precisa
@@ -258,14 +263,19 @@ export async function redefinirComToken(entrada: {
   // Para registrar a troca na trilha DA EMPRESA da pessoa, e não só na da
   // plataforma: quem administra a franquia precisa ver a senha mudando lá.
   const conta = await comContextoAuth((tx) =>
-    tx.user.findUnique({ where: { id: userId }, select: { tenantId: true, nome: true } }),
+    tx.user.findUnique({ where: { id: userId }, select: { tenantId: true, nome: true, papel: true } }),
   )
 
   await auditar(ctxDaConta(conta?.tenantId ?? null), null, {
     acao: 'senha.esqueci.usado',
     entidade: 'usuario',
     entidadeId: userId,
-    detalhes: { quem: conta?.nome ?? null, sessoes: 'encerradas' },
+    detalhes: { sessoes: 'encerradas' },
+    // Quem clicou no link é o dono da conta: o link é a prova disso. Esta é a
+    // linha que o administrador procura no dia em que perguntar "quem trocou
+    // a senha dessa pessoa?" — e ela precisa responder com um nome.
+    autorNome: conta?.nome ?? null,
+    autorPapel: conta?.papel ?? null,
     ip: entrada.ip,
     userAgent: entrada.userAgent,
   })

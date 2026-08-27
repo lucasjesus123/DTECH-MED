@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -146,7 +147,7 @@ export default async function PainelDoDia({
       {/* A ESTEIRA. Cada degrau diz quantos estão parados e há quanto tempo —
           é o número que faz alguém agir, e é o que o ERP antigo escondia. */}
       <nav className={estilo.esteira} aria-label="Etapas da esteira">
-        {degraus.map((d) => {
+        {degraus.map((d, i) => {
           const ativo = d.chave === degrau
           return (
             <Link
@@ -156,6 +157,20 @@ export default async function PainelDoDia({
                 .filter(Boolean)
                 .join(' ')}
               aria-current={ativo ? 'page' : undefined}
+              /**
+               * A POSIÇÃO NA ESTEIRA, entregue ao CSS.
+               *
+               * Com ela o degrau sabe onde está no percurso, e o desenho passa a
+               * carregar informação em vez de enfeite: a faixa de cima esquenta
+               * da chegada (frio, violeta) para a saída (quente, verde), e a
+               * entrada dos oito acontece em cascata, da esquerda para a
+               * direita — o mesmo sentido em que o trabalho anda.
+               *
+               * Vem daqui e não de oito classes no CSS porque a esteira pode
+               * mudar de tamanho: acrescentar um degrau amanhã não deve exigir
+               * lembrar de acrescentar uma cor.
+               */
+              style={{ '--passo': i } as CSSProperties}
             >
               <span className={estilo.degrauRot}>{d.rotulo}</span>
               <span className={estilo.degrauNum}>{d.total}</span>

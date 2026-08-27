@@ -27,6 +27,16 @@ export type Pessoa = {
   bairro: string | null
   cidade: string | null
   uf: string | null
+  /**
+   * De qual empresa esta pessoa é.
+   *
+   * Nulo para quem administra a empresa e olha a própria equipe: ali todo mundo
+   * é da mesma casa, e repetir o nome dela em cada linha é ruído. Preenchido
+   * para o dono da plataforma, que vê a rede inteira numa lista só — e sem esta
+   * coluna, um "Ana Prado · Atendente" não responde a pergunta que importa:
+   * atendente de QUAL franquia.
+   */
+  empresa?: string | null
 }
 
 /**

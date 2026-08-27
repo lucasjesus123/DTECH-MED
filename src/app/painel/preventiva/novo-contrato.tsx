@@ -62,7 +62,7 @@ export default function NovoContrato({ equipamentos }: { equipamentos: Equipamen
     return (
       <>
         {estado.ok && estado.dados ? (
-          <p className={estilo.sucesso}>
+          <p className={estilo.sucesso} role="status">
             Contrato nº {estado.dados.numero} aberto, com {estado.dados.visitas}{' '}
             {estado.dados.visitas === 1 ? 'visita agendada' : 'visitas agendadas'}. Elas já aparecem
             na lista abaixo.
@@ -81,7 +81,7 @@ export default function NovoContrato({ equipamentos }: { equipamentos: Equipamen
         <span>Novo contrato de preventiva</span>
       </p>
 
-      {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
+      {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
 
       {livres.length === 0 ? (
         <p className={estilo.texto}>

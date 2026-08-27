@@ -199,7 +199,7 @@ export default async function PaginaAuditoria({
         </ol>
       )}
 
-      <p className={estilo.dica}>
+      <p className={estilo.audRodape}>
         Esta tela só lê. A trilha é gravada uma vez e não pode ser alterada nem apagada por
         ninguém — nem por aqui, nem pelo administrador da empresa. É o que a torna útil no dia em
         que alguém disser &ldquo;não fui eu&rdquo;.
@@ -234,9 +234,15 @@ function Indicador({
   alerta?: boolean
 }) {
   return (
-    <div className={alerta ? `${estilo.indicador} ${estilo.indAlerta}` : estilo.indicador}>
+    <div className={estilo.indicador}>
       <span className={estilo.grav}>{rotulo}</span>
-      <strong className={estilo.indValor}>{valor}</strong>
+      {/* `indAlerta` vai no NÚMERO, e não no cartão. É a convenção das outras
+          oito telas do painel, e o CSS conta com ela: o cartão reage por
+          `:has()`. Marcar o cartão aqui daria a esta tela um alerta com desenho
+          diferente do resto do sistema. */}
+      <strong className={[estilo.indValor, alerta ? estilo.indAlerta : ''].filter(Boolean).join(' ')}>
+        {valor}
+      </strong>
       <span className={estilo.indNota}>{nota}</span>
     </div>
   )

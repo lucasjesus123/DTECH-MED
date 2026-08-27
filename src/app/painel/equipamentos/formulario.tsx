@@ -14,8 +14,8 @@ export default function FormularioEquipamento({ clientes }: { clientes: Array<{ 
     <form action={acao} className={`${estilo.bloco} ${estilo.form}`}>
       <p className={estilo.blocoTitulo}>Novo equipamento</p>
 
-      {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
-      {estado.ok && estado.mensagem ? <p className={estilo.sucesso}>{estado.mensagem}</p> : null}
+      {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
+      {estado.ok && estado.mensagem ? <p className={estilo.sucesso} role="status">{estado.mensagem}</p> : null}
 
       {clientes.length === 0 ? (
         <p className={estilo.texto}>

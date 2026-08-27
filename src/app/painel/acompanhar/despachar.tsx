@@ -74,7 +74,7 @@ export function Despachar({
       <input type="hidden" name="contatoNome" value={contatoNome} />
       <input type="hidden" name="contatoTelefone" value={contatoTelefone} />
 
-      {!estado.ok && estado.motivo ? <p className={estilo.erro}>{estado.motivo}</p> : null}
+      {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
 
       <div className={estilo.despachoLinha}>
         <label className={estilo.rotulo}>
