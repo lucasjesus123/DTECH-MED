@@ -1,5 +1,6 @@
 import Script from 'next/script'
 import { headers } from 'next/headers'
+import { ARRANQUE_CONSENTIMENTO } from './consentimento-arranque'
 
 /**
  * GOOGLE TAG MANAGER — só no site público.
@@ -61,7 +62,8 @@ export async function GoogleTagManager({ id }: { id: string }) {
 
   return (
     <Script id="gtm" strategy="afterInteractive" nonce={nonce}>
-      {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      {`${ARRANQUE_CONSENTIMENTO}
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;
@@ -130,6 +132,12 @@ export async function GoogleGtag({ ga4Id, adsId }: { ga4Id: string; adsId: strin
   // mais. O `src` leva o primeiro id; os `config` abaixo ligam todos.
   return (
     <>
+      {/* O consentimento vai num script PRÓPRIO e ANTES do `gtag.js` porque
+          aquele lá tem `src` e não aceita conteúdo. A ordem é a coisa toda:
+          padrão de consentimento que chega depois da tag não vale nada. */}
+      <Script id="gtag-consentimento" strategy="afterInteractive" nonce={nonce}>
+        {ARRANQUE_CONSENTIMENTO}
+      </Script>
       <Script
         id="gtag-js"
         strategy="afterInteractive"

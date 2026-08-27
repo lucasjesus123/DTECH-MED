@@ -216,12 +216,37 @@
   cursor: progress;
 }
 
+/* O botão às vezes é um link: "voltar para o login" depois de a senha trocar
+   não envia formulário nenhum, e usar <button> ali daria a um elemento de ação
+   o papel de navegação. Estas duas linhas fazem o <a> se comportar como o
+   botão — sem elas ele viraria uma faixa roxa com o texto encostado à esquerda. */
+.botao {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Recado de desfecho bom, no lugar onde o erro apareceria. Verde-azulado do
+   token de confirmação, e não o roxo da marca: a marca já está no cartão
+   inteiro, e um aviso que se confunde com a moldura não é lido. */
+.aviso {
+  padding: 11px var(--s4);
+  border-radius: var(--r);
+  background: color-mix(in oklab, var(--confirma) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--confirma) 34%, transparent);
+  color: var(--txt);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+}
+.aviso strong { color: var(--confirma); }
+
 .ajuda {
   font-size: var(--t-xs);
   color: var(--txt-3);
   line-height: 1.6;
   text-align: center;
 }
+.ajuda a { color: var(--vio-claro); }
 
 .rodape {
   position: relative;

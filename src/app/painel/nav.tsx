@@ -142,8 +142,18 @@ const AoVivo = () => (
   </svg>
 )
 
+/** Trilha de auditoria: as linhas do registro sob a lente. */
+const Registro = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
+    <path d="M5 5.5h14M5 9.5h9M5 13.5h5" />
+    <circle cx="15" cy="16" r="3.6" />
+    <path d="M17.7 18.7 20.5 21.5" />
+  </svg>
+)
+
 const ICONES = {
   mostrador: Mostrador,
+  registro: Registro,
   trilha: Trilha,
   aoVivo: AoVivo,
   preventiva: Preventiva,

@@ -2185,3 +2185,239 @@
   transition: color 180ms var(--ease);
 }
 .credito a:hover { color: var(--vio-claro); }
+
+/* ==========================================================================
+   A FAIXA DE COOKIES
+   --------------------------------------------------------------------------
+   Ancorada embaixo, largura contida, sem escurecer a página atrás. Não é um
+   modal: o site continua legível e utilizável enquanto a pessoa decide. Um
+   véu preto sobre o conteúdo transformaria um aviso em pedágio, e pedágio é o
+   que faz todo mundo clicar em "aceitar" sem ler.
+
+   Os dois botões têm o MESMO peso visual e o MESMO tamanho de alvo. Recusa
+   escondida num link cinza não é recusa — e uma faixa desenhada para empurrar
+   o "sim" não colhe consentimento, colhe cansaço.
+   ========================================================================== */
+.consentimento {
+  position: fixed;
+  z-index: 60;
+  left: var(--s4);
+  right: var(--s4);
+  /* Acima do botão flutuante de WhatsApp, que mora no canto inferior direito.
+     Sem esta folga, a faixa cobriria justamente o botão de atendimento. */
+  bottom: var(--s4);
+  margin-inline: auto;
+  max-width: 720px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s4) var(--s5);
+  border-radius: var(--r-lg);
+  background: color-mix(in oklab, var(--carta) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--borda-viva);
+  box-shadow: var(--sombra-3);
+  animation: consentSobe 420ms var(--ease-firme) both;
+}
+
+@keyframes consentSobe {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.consentTexto {
+  flex: 1;
+  min-width: 260px;
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+.consentTexto strong { color: var(--txt); }
+.consentTexto a {
+  color: var(--vio-claro);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.consentBotoes {
+  display: flex;
+  gap: var(--s2);
+  flex: none;
+}
+
+.consentAceitar,
+.consentRecusar {
+  min-height: 42px;
+  padding: 0 var(--s5);
+  border-radius: var(--r);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 200ms var(--ease),
+    border-color 200ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+
+.consentAceitar {
+  border: 0;
+  background: var(--vio-forte);
+  color: #fff;
+}
+.consentAceitar:hover { background: var(--vio); box-shadow: 0 0 28px -8px var(--brilho); }
+
+.consentRecusar {
+  border: 1px solid var(--borda-viva);
+  background: transparent;
+  color: var(--txt);
+}
+.consentRecusar:hover { border-color: var(--txt-3); background: var(--sup); }
+
+.consentAceitar:focus-visible,
+.consentRecusar:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vio-veu-2);
+}
+
+@media (max-width: 560px) {
+  .consentBotoes { width: 100%; }
+  .consentAceitar,
+  .consentRecusar { flex: 1; padding-inline: var(--s3); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .consentimento { animation: none; }
+}
+
+/* ==========================================================================
+   PÁGINAS DE DOCUMENTO — privacidade, e o que vier depois
+   --------------------------------------------------------------------------
+   Uma política de privacidade que ninguém consegue ler não cumpre a lei: a
+   LGPD pede informação "clara, adequada e ostensiva", e parede de texto
+   cinza a 13px não é nenhuma das três.
+
+   Então: coluna estreita de leitura (65 caracteres é onde o olho volta sem se
+   perder), títulos com ar em volta, e nada de caixa colorida chamando atenção
+   para si. O conteúdo é o assunto.
+   ========================================================================== */
+.docTopo {
+  padding: var(--s5) 0;
+  border-bottom: 1px solid var(--borda);
+}
+
+.doc {
+  padding: var(--s8) 0 var(--s9);
+}
+.doc .container { max-width: 760px; }
+
+.docGrav {
+  margin: 0 0 var(--s2);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--vio-claro);
+}
+
+.docTitulo {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-display);
+  font-size: var(--t-4xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
+  color: var(--txt);
+}
+
+.docNota {
+  margin: 0 0 var(--s8);
+  padding-bottom: var(--s6);
+  border-bottom: 1px solid var(--borda);
+  font-size: var(--t-sm);
+  line-height: 1.7;
+  color: var(--txt-3);
+}
+
+.docBloco { margin-bottom: var(--s8); }
+
+.docBloco h2 {
+  margin: 0 0 var(--s4);
+  font-family: var(--f-display);
+  font-size: var(--t-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--txt);
+}
+
+/* O subtítulo puxa para a esquerda e ganha um traço: dentro de um bloco longo,
+   ele precisa se separar do parágrafo anterior sem virar outro título. */
+.docBloco h3 {
+  margin: var(--s6) 0 var(--s3);
+  padding-left: var(--s3);
+  border-left: 2px solid var(--vio);
+  font-size: var(--t-base);
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.docBloco p {
+  margin: 0 0 var(--s3);
+  font-size: var(--t-base);
+  line-height: 1.75;
+  color: var(--txt-2);
+  max-width: 65ch;
+}
+.docBloco p strong { color: var(--txt); font-weight: 600; }
+
+.docBloco code {
+  font-family: var(--f-mono);
+  font-size: 0.9em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--sup-2);
+  color: var(--txt);
+}
+
+.docLista {
+  margin: 0 0 var(--s3);
+  padding-left: var(--s5);
+  max-width: 65ch;
+}
+.docLista li {
+  margin-bottom: var(--s3);
+  font-size: var(--t-base);
+  line-height: 1.75;
+  color: var(--txt-2);
+}
+.docLista li::marker { color: var(--vio); }
+.docLista strong { color: var(--txt); font-weight: 600; }
+
+.docVoltar {
+  margin: var(--s8) 0 0;
+  padding-top: var(--s6);
+  border-top: 1px solid var(--borda);
+}
+.docVoltar a {
+  color: var(--vio-claro);
+  font-size: var(--t-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.docPe {
+  padding: var(--s5) 0 var(--s7);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+.docPe .container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s5);
+  justify-content: space-between;
+}

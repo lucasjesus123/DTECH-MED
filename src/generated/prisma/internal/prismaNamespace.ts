@@ -423,6 +423,7 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
+  RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
@@ -443,7 +444,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2371,6 +2372,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RecuperacaoSenha: {
+      payload: Prisma.$RecuperacaoSenhaPayload<ExtArgs>
+      fields: Prisma.RecuperacaoSenhaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecuperacaoSenhaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecuperacaoSenhaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        findFirst: {
+          args: Prisma.RecuperacaoSenhaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecuperacaoSenhaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        findMany: {
+          args: Prisma.RecuperacaoSenhaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>[]
+        }
+        create: {
+          args: Prisma.RecuperacaoSenhaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        createMany: {
+          args: Prisma.RecuperacaoSenhaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecuperacaoSenhaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>[]
+        }
+        delete: {
+          args: Prisma.RecuperacaoSenhaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        update: {
+          args: Prisma.RecuperacaoSenhaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecuperacaoSenhaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecuperacaoSenhaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecuperacaoSenhaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecuperacaoSenhaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecuperacaoSenhaPayload>
+        }
+        aggregate: {
+          args: Prisma.RecuperacaoSenhaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecuperacaoSenha>
+        }
+        groupBy: {
+          args: Prisma.RecuperacaoSenhaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecuperacaoSenhaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecuperacaoSenhaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecuperacaoSenhaCountAggregateOutputType> | number
+        }
+      }
+    }
     Contador: {
       payload: Prisma.$ContadorPayload<ExtArgs>
       fields: Prisma.ContadorFieldRefs
@@ -3356,6 +3431,20 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const RecuperacaoSenhaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tenantId: 'tenantId',
+  tokenHash: 'tokenHash',
+  expiraEm: 'expiraEm',
+  usadoEm: 'usadoEm',
+  ip: 'ip',
+  criadoEm: 'criadoEm'
+} as const
+
+export type RecuperacaoSenhaScalarFieldEnum = (typeof RecuperacaoSenhaScalarFieldEnum)[keyof typeof RecuperacaoSenhaScalarFieldEnum]
+
+
 export const ContadorScalarFieldEnum = {
   tenantId: 'tenantId',
   chave: 'chave',
@@ -4018,6 +4107,7 @@ export type GlobalOmitConfig = {
   whatsappInstance?: Prisma.WhatsappInstanceOmit
   lead?: Prisma.LeadOmit
   auditLog?: Prisma.AuditLogOmit
+  recuperacaoSenha?: Prisma.RecuperacaoSenhaOmit
   contador?: Prisma.ContadorOmit
   conteudoSite?: Prisma.ConteudoSiteOmit
   conteudoSiteVersao?: Prisma.ConteudoSiteVersaoOmit

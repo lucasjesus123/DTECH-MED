@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState, useState } from 'react'
 import { entrar } from './acoes'
 import estilo from './entrar.module.css'
@@ -80,8 +81,8 @@ export function Formulario({ destino }: { destino?: string }) {
       </button>
 
       <p className={estilo.ajuda}>
-        Esqueceu a senha? Fale com o responsável pela sua empresa — só ele pode
-        gerar um acesso novo para você.
+        <Link href="/esqueci">Esqueci minha senha</Link> — o link de troca chega pelo WhatsApp
+        cadastrado na conta.
       </p>
     </form>
   )

@@ -77,6 +77,7 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
+  RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
@@ -674,6 +675,20 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const RecuperacaoSenhaScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tenantId: 'tenantId',
+  tokenHash: 'tokenHash',
+  expiraEm: 'expiraEm',
+  usadoEm: 'usadoEm',
+  ip: 'ip',
+  criadoEm: 'criadoEm'
+} as const
+
+export type RecuperacaoSenhaScalarFieldEnum = (typeof RecuperacaoSenhaScalarFieldEnum)[keyof typeof RecuperacaoSenhaScalarFieldEnum]
 
 
 export const ContadorScalarFieldEnum = {

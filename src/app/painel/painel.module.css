@@ -2640,3 +2640,207 @@
   opacity: .55;
 }
 .abaOpcaoBloqueada input { width: 17px; height: 17px; cursor: not-allowed; }
+
+/* ==========================================================================
+   A TRILHA DE AUDITORIA
+   --------------------------------------------------------------------------
+   Uma lista de log é a coisa mais fácil de fazer virar parede de texto — e
+   parede de texto não é lida, é rolada. Por isso ela é desenhada como TRILHA,
+   com o mesmo vocabulário da linha do tempo da ordem: um fio vertical, um nó
+   por acontecimento, o tempo à direita.
+
+   O que muda em relação à linha do tempo: aqui o fio não tem fim nem
+   progresso. Ele é histórico, não percurso. Então o nó é discreto e a cor só
+   aparece onde importa — nas linhas BARRADAS, que precisam saltar de uma lista
+   de trezentas.
+   ========================================================================== */
+
+.audLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  display: grid;
+  gap: 2px;
+}
+
+/* O fio corre por trás dos nós, do primeiro ao último. Fica em `::before` da
+   lista e não em cada item: assim ele é contínuo, sem emenda entre linhas de
+   alturas diferentes. */
+.audLista::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(var(--borda), var(--borda-viva) 12%, var(--borda-viva) 88%, var(--borda));
+}
+
+.audItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: var(--s3);
+  padding: var(--s3) var(--s3) var(--s3) 0;
+  border-radius: var(--r);
+  transition: background 160ms var(--ease);
+}
+.audItem:hover { background: var(--sup); }
+
+.audNo {
+  margin-top: 6px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--bg-1);
+  border: 2px solid var(--borda-viva);
+  box-shadow: 0 0 0 3px var(--bg);
+  z-index: 1;
+}
+
+/* ===== A linha barrada ==================================================
+   O alarme. Tentativa de CPF chutado, entrada negada em empresa, troca de
+   senha recusada. Três marcas somadas — nó vermelho, faixa à esquerda e selo
+   escrito — porque cor sozinha não é sinal: quem não distingue vermelho de
+   cinza fica sem a informação, e esta é justamente a que não pode faltar. */
+.audBarrado { background: var(--alerta-veu); }
+.audBarrado:hover { background: var(--alerta-veu); }
+.audBarrado .audNo {
+  border-color: var(--alerta);
+  background: var(--alerta);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 14px -2px var(--alerta);
+}
+.audBarrado .audAcao { color: var(--alerta); }
+
+.audCorpo { min-width: 0; }
+
+.audTopo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2);
+}
+
+.audAcao {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+  letter-spacing: -0.01em;
+}
+
+.audSelo {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--alerta);
+  border: 1px solid var(--alerta-borda);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+/* O tempo empurrado para a direita: a coluna que o olho desce quando está
+   procurando "quando foi", sem ler o resto. */
+.audQuando {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.audQuem {
+  margin: 3px 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+
+/* Papel e empresa como etiquetas, não como texto corrido: são qualificadores
+   de quem fez, e precisam ser puláveis pelo olho quando não interessam. */
+.audPapel {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  background: var(--sup-2);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+/* ===== Os detalhes ======================================================
+   `<details>` nativo: fecha por padrão, abre no clique e no Enter, e não custa
+   um byte de JavaScript. Uma tela de auditoria com trezentas linhas abertas é
+   ilegível; com trezentas linhas fechadas e uma aberta, é uma investigação. */
+.audMais { margin-top: var(--s2); }
+.audMais summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  cursor: pointer;
+  border-radius: var(--r);
+  padding: 2px 4px;
+  margin-left: -4px;
+  list-style: none;
+  transition: color 160ms var(--ease);
+}
+.audMais summary::-webkit-details-marker { display: none; }
+.audMais summary::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 180ms var(--ease);
+}
+.audMais[open] summary::before { transform: rotate(90deg) translateX(1px); }
+.audMais summary:hover { color: var(--vio); }
+.audMais summary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--vio-veu-2); }
+
+.audPares {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px var(--s3);
+  margin: var(--s2) 0 0;
+  padding: var(--s3);
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+}
+.audPares dt { margin: 0; }
+.audValor {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+  overflow-wrap: anywhere;
+}
+
+/* O conteúdo cru, para quando a pergunta é técnica. Rola sozinho: um payload
+   largo não pode empurrar a largura da página inteira. */
+.audJson {
+  margin: var(--s2) 0 0;
+  padding: var(--s3);
+  background: var(--casca);
+  color: var(--casca-txt-2);
+  border-radius: var(--r);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  line-height: 1.55;
+  overflow-x: auto;
+  max-height: 240px;
+}
+
+@media (max-width: 620px) {
+  .audQuando { margin-left: 0; width: 100%; }
+}

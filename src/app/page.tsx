@@ -9,6 +9,7 @@ import {
   mapaUrlDe,
 } from '@/lib/conteudo'
 import { lerConteudo } from '@/server/conteudo'
+import Consentimento from './consentimento'
 import { Credito } from './credito'
 import { DadosEstruturados } from './dados-estruturados'
 import { FOTOS, Foto, acharFoto, type NomeFoto } from './foto'
@@ -896,6 +897,7 @@ export default async function Home({
             © {anoAtual} {c.identidade.razaoSocial}
           </span>
           <Credito className={estilo.credito} />
+          <Link href="/privacidade">Privacidade e cookies</Link>
           <Link href="/entrar">Acesso ao sistema</Link>
         </div>
       </footer>
@@ -904,6 +906,12 @@ export default async function Home({
           página. Assim quem navega por leitor de tela não tromba com ele no
           meio da leitura — encontra no fim, onde se procura contato. */}
       <BotaoWhatsapp />
+
+      {/* A faixa de cookies. Fica ao lado do botão de WhatsApp e não dentro do
+          <main> pelo mesmo motivo: não é conteúdo da página, é um aviso sobre
+          ela. Só aparece para quem ainda não respondeu — e enquanto ninguém
+          responde, nenhum cookie de medição é gravado. */}
+      <Consentimento />
 
       {/* O bloco que o Google lê. Fica no fim porque não é conteúdo visível e
           não deve atrasar a pintura do que a pessoa veio ver. */}

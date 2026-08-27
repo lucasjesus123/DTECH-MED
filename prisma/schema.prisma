@@ -289,6 +289,7 @@ model Tenant {
   auditoria           AuditLog[]
   contadores          Contador[]
   posicoesRota        PosicaoRota[]
+  recuperacoes        RecuperacaoSenha[]
 
   @@index([ativo])
   @@map("tenants")
@@ -366,6 +367,7 @@ model User {
   movimentos            MovimentoEstoque[]
   pagamentos            Pagamento[]
   auditoria             AuditLog[]
+  recuperacoes          RecuperacaoSenha[]
 
   /// E-mail é único DENTRO da empresa: o mesmo e-mail pode existir em duas
   /// franquias diferentes sem colidir.
@@ -1336,6 +1338,37 @@ model AuditLog {
   @@index([acao, criadoEm])
   @@index([negado, criadoEm])
   @@map("audit_logs")
+}
+
+/// Pedido de recuperação de senha.
+///
+/// Guarda o SHA-256 do token do link, nunca o token. Mesma decisão do cookie de
+/// sessão, e pelo mesmo motivo: um backup vazado não pode virar um link que
+/// troca a senha de alguém.
+///
+/// Nenhuma tela lê esta tabela. Ela é escrita e consumida por duas funções
+/// `SECURITY DEFINER` do banco — quem pede está deslogado, sem empresa no
+/// contexto, e o RLS devolveria zero linhas para qualquer consulta normal.
+model RecuperacaoSenha {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Repetido de propósito: as funções do banco precisam saber a empresa sem
+  /// atravessar `usuarios`, que está sob FORCE ROW LEVEL SECURITY.
+  tenantId String?
+  tenant   Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  tokenHash String    @unique
+  expiraEm  DateTime
+  /// Preenchido quando o link é gasto — ou quando um pedido novo o substitui.
+  usadoEm   DateTime?
+  ip        String?
+  criadoEm  DateTime  @default(now())
+
+  @@index([userId, criadoEm])
+  @@index([expiraEm])
+  @@map("recuperacoes_senha")
 }
 
 /// Numeração sequencial por empresa e por documento, sem sequence global.

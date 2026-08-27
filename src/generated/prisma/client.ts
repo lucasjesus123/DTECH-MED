@@ -203,6 +203,19 @@ export type Lead = Prisma.LeadModel
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model RecuperacaoSenha
+ * Pedido de recuperação de senha.
+ * 
+ * Guarda o SHA-256 do token do link, nunca o token. Mesma decisão do cookie de
+ * sessão, e pelo mesmo motivo: um backup vazado não pode virar um link que
+ * troca a senha de alguém.
+ * 
+ * Nenhuma tela lê esta tabela. Ela é escrita e consumida por duas funções
+ * `SECURITY DEFINER` do banco — quem pede está deslogado, sem empresa no
+ * contexto, e o RLS devolveria zero linhas para qualquer consulta normal.
+ */
+export type RecuperacaoSenha = Prisma.RecuperacaoSenhaModel
+/**
  * Model Contador
  * Numeração sequencial por empresa e por documento, sem sequence global.
  * Incrementada com bloqueio de linha dentro da transação.
