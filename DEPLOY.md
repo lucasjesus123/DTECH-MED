@@ -862,14 +862,87 @@ docker compose -p dtechmed ps                 # saúde dos serviços
 
 ### Atualizar o sistema
 
+**O caminho curto, quando a atualização não mexe no banco:**
+
 ```bash
 cd /opt/gavetas/DTECHMED
 git pull
-docker compose -p dtechmed up -d --build
-bash infra/migrador.sh
+bash infra/subir.sh
 ```
 
+O `infra/subir.sh` reconstrói, aplica as migrações pendentes pelo `migrador.sh`, confere que o número de migrações do repositório bate com o do banco, e fotografa os vizinhos antes e depois. É seguro rodar de novo: nenhuma etapa apaga dado.
+
 O `restart: unless-stopped` do compose já religa tudo sozinho se a VPS reiniciar.
+
+---
+
+### Atualizar quando vem MIGRAÇÃO junto
+
+Uma atualização que traz pasta nova em `prisma/migrations/` muda a forma do banco. O `subir.sh` aplica sozinho e confere — mas migração é a única parte do deploy que **não desfaz com um `git checkout`**. Por isso, aqui, o dump vem antes.
+
+**1. Descubra se há migração nova.** Antes do `git pull`:
+
+```bash
+cd /opt/gavetas/DTECHMED
+git fetch origin
+git log --oneline HEAD..origin/claude/dtech-med-technical-management-mta9r4
+git diff --name-only HEAD..origin/claude/dtech-med-technical-management-mta9r4 -- prisma/migrations/
+```
+
+A terceira linha é a que decide. Vazia → siga pelo caminho curto acima. Com nomes → continue por aqui.
+
+**2. Guarde de onde você está saindo.** É o endereço de volta:
+
+```bash
+git rev-parse --short HEAD
+```
+
+Anote. Se algo der errado no código, `git checkout <esse-hash>` seguido de `bash infra/subir.sh` devolve o sistema ao que era.
+
+**3. Force um backup AGORA, e confira que ele nasceu.** O backup roda sozinho de 24 em 24 horas; o que interessa aqui é ter um de minutos atrás, não de ontem à noite:
+
+```bash
+docker compose -p dtechmed restart backup
+sleep 20
+docker compose -p dtechmed exec backup ls -lh /backups | tail -3
+```
+
+O arquivo do topo tem que ser de agora e ter tamanho maior que zero. **Se não tiver, pare** — sem esse arquivo, uma migração que dê errado não tem volta.
+
+**4. Traga o código e suba:**
+
+```bash
+git pull
+bash infra/subir.sh
+```
+
+O `subir.sh` para na primeira etapa que falhar. A que interessa nesta hora é a última do migrador — ela compara os dois lados e imprime o mesmo número duas vezes:
+
+```
+  ✓ N migrações no repositório, N aplicadas no banco
+```
+
+Não decore o N: ele cresce a cada atualização que mexe no banco, e número escrito à mão num guia envelhece calado. O que importa é os **dois serem iguais**. Se não forem, o script **morre ali de propósito** e escreve "NÃO coloque em uso". Nesse caso não insista: mande a saída inteira.
+
+**5. Confira que o sistema respondeu.** Estas quatro linhas cobrem o que uma migração pode quebrar sem dar erro na tela:
+
+```bash
+curl -s -o /dev/null -w 'saúde        %{http_code}\n' http://172.17.0.1:5400/api/health
+curl -s -o /dev/null -w 'login        %{http_code}\n' http://172.17.0.1:5400/entrar
+curl -s -o /dev/null -w 'site         %{http_code}\n' http://172.17.0.1:5400/
+docker compose -p dtechmed logs --since 3m app | grep -i "error\|does not exist" | head
+```
+
+As três primeiras têm que dar `200`. A quarta tem que sair **vazia** — `does not exist` ali é tabela que a migração deveria ter criado e não criou.
+
+**6. Se precisar desfazer.** Volte o código e suba de novo:
+
+```bash
+git checkout <hash-do-passo-2>
+bash infra/subir.sh
+```
+
+Isso resolve tudo que for código. **A migração NÃO volta por aqui** — o Prisma não desfaz migração aplicada, e `prisma migrate reset` apaga o banco inteiro (está na lista do que não fazer, mais abaixo). Se o problema for a própria forma do banco, o caminho é restaurar o dump do passo 3, e aí me chame antes: restaurar por cima de um banco em uso perde tudo o que entrou desde o dump.
 
 ### Quando os avisos param de sair
 
@@ -1105,7 +1178,17 @@ bash infra/migrador.sh npx tsx scripts/limpar-demo.mts --apagar
 | **Arquivos no disco** | As pastas de fotos e assinaturas das ordens falsas são removidas junto — senão o banco fica limpo e o disco não. |
 | **Rodar duas vezes** | Inofensivo. |
 
-> **Sobre as senhas.** A semeadura grava a mesma senha (`Dtech@2026`, escrita no repositório) em todas as contas da equipe, e nenhuma delas nasce obrigada a trocar. O script confere isso de verdade — com a mesma função do login, não pelo cadastro — e avisa quais contas ainda entram com ela. Apagar dado falso e deixar esses logins abertos é limpar a vitrine e deixar a porta destrancada.
+> 🚨 **Sobre as senhas — e por que isto virou urgente.** A semeadura grava a mesma senha (`Dtech@2026`, escrita no repositório) em todas as contas da equipe, e nenhuma delas nasce obrigada a trocar. O script confere isso de verdade — com a mesma função do login, não pelo cadastro — e avisa quais contas ainda entram com ela.
+>
+> Enquanto o repositório era privado, isso era uma dívida a pagar com calma. **Com o repositório público, deixou de ser.** Quem abre o `prisma/seed.ts` no GitHub lê, na mesma tela, três coisas que juntas são um acesso pronto:
+>
+> - a senha `Dtech@2026`,
+> - os sete e-mails (`lucas@`, `camila@`, `ana@`, `rafael@`, `diego@`, `adriano@`, `fabio@dtechmed.com.br`),
+> - e o endereço do login, que o `APP_URL` do guia entrega.
+>
+> Não é força bruta, então o limitador de tentativas não protege: é senha certa na primeira tentativa. Enquanto qualquer uma das sete entrar com ela, o sistema está aberto para quem passar os olhos no código.
+>
+> Trocar as sete é o **passo zero** de qualquer coisa depois de abrir o repositório. O relatório abaixo diz exatamente quais ainda estão assim.
 
 ---
 
