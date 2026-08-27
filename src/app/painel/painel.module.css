@@ -31,6 +31,41 @@
    AQUI, dentro de `.app`: o site não é tocado por nenhuma destas linhas.
    ========================================================================== */
 
+/* ==========================================================================
+   AS TRÊS FONTES, E QUANDO CADA UMA ENTRA
+   --------------------------------------------------------------------------
+   O sistema tinha três faces e usava duas como se fossem intercambiáveis. O
+   resultado: rótulo de formulário, cabeçalho de tabela, etiqueta de situação e
+   até a data do topo saíam em MONOESPAÇADA. Isso não é neutro — monoespaçada
+   diz "isto é código", e o sistema inteiro passou a parecer um terminal.
+
+   Pior: o campo de texto usava `font-family: inherit`, e o `<input>` mora
+   DENTRO do `<label>`. Como o rótulo era mono, todo campo e todo placeholder do
+   sistema herdavam a mono sem que nenhuma linha de CSS dissesse isso. "Rua,
+   número, sala, bairro" aparecia em fonte de terminal num formulário de
+   cadastro de cliente.
+
+   A regra agora é uma frase:
+
+     ┌───────────────────────────────────────────────────────────────────┐
+     │  MONOESPAÇADA (--f-mono) é só para o que ALINHA EM COLUNA ou se   │
+     │  COPIA LITERALMENTE.                                              │
+     └───────────────────────────────────────────────────────────────────┘
+
+   ENTRA:  número de O.S., valores em coluna, CPF/CNPJ, número de série,
+           hora numa lista, id, endereço de rede, hash, conteúdo cru.
+           Nesses, a largura fixa é FUNÇÃO: o olho desce a coluna sem
+           reancorar, e um dígito trocado salta.
+
+   NÃO ENTRA:  rótulo, placeholder, cabeçalho de tabela, etiqueta, título de
+           bloco, nome de grupo, data por extenso, e-mail, nome de gente.
+           Nada disso alinha com nada — ali a mono só custa legibilidade e
+           empresta um ar de coisa técnica ao que é trabalho de escritório.
+
+   E nenhum campo herda fonte: todos declaram `var(--f-texto)`. Herança foi
+   como o defeito entrou, sem aparecer em revisão nenhuma.
+   ========================================================================== */
+
 .app {
   --t-xs:   0.8125rem;  /* 13px — era 12 */
   --t-sm:   0.875rem;   /* 14px — era 13 */
@@ -226,7 +261,7 @@
   border-radius: 99px;
   background: transparent;
   color: var(--casca-txt-2);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   cursor: pointer;
@@ -290,7 +325,7 @@
   border-radius: var(--r);
   background: transparent;
   color: var(--casca-txt-2);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   padding: 5px 9px;
@@ -340,7 +375,7 @@
 }
 .data {
   margin-left: auto;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: 0.09em;
   color: var(--txt-3);
@@ -388,7 +423,7 @@
   max-width: 100%;
 }
 .grav {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: 0.13em;
@@ -678,7 +713,7 @@
   border-radius: 3px;
   background: var(--vio-veu-2);
   border: 1px solid var(--vio-borda);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 9.5px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -705,7 +740,7 @@
   margin-top: var(--s3);
   padding-top: var(--s3);
   border-top: 1px solid var(--borda);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10.5px;
   color: var(--txt-3);
 }
@@ -821,7 +856,7 @@
   border-radius: var(--r);
   padding: 9px 12px;
   color: var(--txt);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   transition: border-color 240ms var(--ease);
 }
@@ -841,7 +876,7 @@
   border-radius: var(--r);
   padding: 10px 12px;
   color: var(--txt);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   line-height: 1.55;
   resize: vertical;
@@ -876,7 +911,7 @@
   padding: 10px 18px;
   border-radius: var(--r);
   border: 1px solid transparent;
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   font-weight: 600;
   cursor: pointer;
@@ -959,7 +994,7 @@
   padding: 10px var(--s4);
   background: var(--sup);
   border-bottom: 1px solid var(--borda);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.11em;
@@ -1021,7 +1056,7 @@
   display: inline-block;
   padding: 3px 8px;
   border-radius: 3px;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 9.5px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -1082,7 +1117,7 @@
   margin-bottom: var(--s4);
 }
 .blocoTitulo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.13em;
@@ -1101,7 +1136,7 @@
 }
 .par { display: grid; gap: 3px; min-width: 0; }
 .parRot {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 9.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1217,7 +1252,7 @@
   bottom: 0;
   padding: 3px 5px;
   background: linear-gradient(transparent, var(--veu-foto));
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 8.5px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1234,7 +1269,7 @@
 .rotulo {
   display: grid;
   gap: 5px;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -1397,7 +1432,7 @@
   border-radius: 999px;
   background: var(--branco);
   color: var(--ink);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   font-weight: 600;
   text-decoration: none;
@@ -1429,7 +1464,7 @@
   border: 1px dashed var(--linha);
   border-radius: var(--r);
   background: var(--papel);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   color: var(--ink-2);
 }
@@ -1993,7 +2028,7 @@
   background: var(--vio-veu-2);
   border: 1px solid var(--vio-borda);
   color: var(--vio-claro);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 9px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -2336,7 +2371,7 @@
   border-radius: var(--r);
   background: transparent;
   color: var(--txt);
-  font-family: inherit;
+  font-family: var(--f-texto);
   font-size: var(--t-sm);
   font-weight: 600;
   cursor: pointer;
@@ -2481,7 +2516,7 @@
 .cartaoOnde {
   display: block;
   margin-top: 2px;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   color: var(--txt-3);
   overflow-wrap: anywhere;
@@ -2495,7 +2530,7 @@
   flex: none;
   padding: 4px 9px;
   border-radius: 999px;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .06em;
@@ -2537,7 +2572,7 @@
 }
 .cartaoNumeroRot {
   display: block;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   color: var(--txt-3);
 }
@@ -2607,7 +2642,7 @@
 
 .abasGrupoNome {
   margin: 0 0 var(--s2);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .1em;
@@ -2736,7 +2771,7 @@
 }
 
 .audSelo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -2771,7 +2806,7 @@
 /* Papel e empresa como etiquetas, não como texto corrido: são qualificadores
    de quem fez, e precisam ser puláveis pelo olho quando não interessam. */
 .audPapel {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 10px;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -3256,4 +3291,271 @@
   }
   .esteira::after,
   .trilhaNoAgora::after { display: none; }
+}
+
+/* ==========================================================================
+   OS CONTATOS DO SITE
+   --------------------------------------------------------------------------
+   A REGRA QUE ORGANIZA TUDO AQUI: texto que vem de fora não tem tamanho.
+
+   O bloco antigo colocava a mensagem inteira numa célula de tabela, com um
+   `max-width` que limitava a LARGURA e não a ALTURA. Uma prospecção em massa
+   de vinte linhas virou uma linha de tabela de vinte linhas, e a esteira saiu
+   da tela.
+
+   Então nada aqui cresce com o conteúdo. A tira do painel tem uma linha por
+   contato, cortada. O cartão da tela cheia mostra três linhas e guarda o resto
+   atrás de um `<details>`.
+   ========================================================================== */
+
+/* ===== A tira do painel do dia ========================================== */
+.recados {
+  margin: 0 0 var(--s6);
+  padding: var(--s4) var(--s5);
+  border: 1px solid var(--espera-borda);
+  border-radius: var(--r-lg);
+  background: var(--espera-veu);
+}
+
+.recadosCab {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+
+.recadosTitulo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+}
+
+/* O ponto que respira. É gente esperando resposta — o único bloco do painel
+   onde a demora tem custo em dinheiro. */
+.recadosPulso {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--espera);
+  flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .recadosPulso { animation: recadoPulsa 2.4s var(--ease) infinite; }
+}
+@keyframes recadoPulsa {
+  0%, 100% { box-shadow: 0 0 0 0 var(--espera-veu); }
+  50%      { box-shadow: 0 0 0 5px transparent, 0 0 12px 0 var(--espera); }
+}
+
+.recadosTodos {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--vio-claro);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.recadosTodos:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.recadosLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1px;
+}
+
+/* UMA LINHA. `grid` com uma coluna `minmax(0, 1fr)` para o trecho: sem o
+   `minmax(0, …)`, uma palavra longa faria a coluna crescer além do container e
+   a página inteira rolaria de lado. */
+.recado {
+  display: grid;
+  grid-template-columns: 72px minmax(120px, auto) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s3);
+  padding: 7px 0;
+  border-top: 1px solid color-mix(in oklab, var(--espera-borda) 55%, transparent);
+}
+.recado:first-child { border-top: 0; }
+
+.recadoQuando {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.recadoQuem {
+  font-size: var(--t-sm);
+  color: var(--txt);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* O trecho: uma linha, e o que não couber vira reticências. O texto já chega
+   cortado do servidor; isto é o cinto do suspensório. */
+.recadoTrecho {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.recadoAbrir {
+  flex: none;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--vio-claro);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.recadoAbrir:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.recadosResto {
+  margin: var(--s3) 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+
+@media (max-width: 860px) {
+  /* No celular a linha vira duas: hora e nome em cima, trecho embaixo. O botão
+     sai — a tela inteira de contatos está a um toque no menu. */
+  .recado { grid-template-columns: 72px minmax(0, 1fr); }
+  .recadoTrecho { grid-column: 1 / -1; }
+  .recadoAbrir { display: none; }
+}
+
+/* ===== A tela cheia ===================================================== */
+.contatos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(380px, 100%), 1fr));
+  gap: var(--s4);
+}
+
+.contato {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5) var(--s5);
+  background: var(--carta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-1);
+  transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
+}
+.contato:hover { border-color: var(--vio-borda); box-shadow: var(--luz-fraca); }
+
+.contatoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.contatoNome {
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--txt);
+  /* Nome vindo de formulário público: cabe qualquer coisa, inclusive uma
+     palavra de sessenta caracteres sem espaço. */
+  overflow-wrap: anywhere;
+}
+
+.contatoOnde {
+  margin: 2px 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  overflow-wrap: anywhere;
+}
+
+.contatoPares {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--s3);
+  margin: 0;
+  padding: var(--s3) 0;
+  border-block: 1px solid var(--borda);
+}
+.contatoPares div { min-width: 0; }
+.contatoPares dt { margin: 0 0 2px; }
+.contatoPares dd {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--txt);
+  overflow-wrap: anywhere;
+}
+.contatoPares a { color: var(--vio-claro); text-decoration: none; }
+.contatoPares a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.contatoEmail { font-family: var(--f-texto); font-size: var(--t-xs) !important; }
+
+/* ===== A mensagem, cortada até alguém pedir =============================
+   Três linhas por `line-clamp`, e o resto atrás do `<details>`. Numa lista de
+   trinta contatos, trinta mensagens abertas é uma parede que ninguém lê. */
+.contatoMsg summary {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--r);
+}
+.contatoMsg summary::-webkit-details-marker { display: none; }
+.contatoMsg summary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--vio-veu-2); }
+
+.contatoTrecho {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--txt-2);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.contatoMsg[open] .contatoTrecho { display: none; }
+
+.contatoLer {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--vio-claro);
+}
+.contatoMsg[open] .contatoLer { display: none; }
+
+/* O texto inteiro rola dentro do próprio quadro. Uma mensagem de quatro mil
+   caracteres aberta não pode esticar o cartão até o rodapé da página. */
+.contatoTexto {
+  margin: 0;
+  padding: var(--s3);
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  font-size: var(--t-sm);
+  line-height: 1.65;
+  color: var(--txt-2);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.contatoAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: auto;
+  padding-top: var(--s2);
 }

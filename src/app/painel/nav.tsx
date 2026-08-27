@@ -151,9 +151,19 @@ const Registro = () => (
   </svg>
 )
 
+/** Contatos do site: o envelope com o aviso de que tem coisa dentro. */
+const Recado = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
+    <path d="M3.5 7.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2Z" />
+    <path d="M3.9 6.8 10.5 12l6.6-5.2" />
+    <circle cx="19" cy="6" r="2.4" fill="currentColor" stroke="none" />
+  </svg>
+)
+
 const ICONES = {
   mostrador: Mostrador,
   registro: Registro,
+  recado: Recado,
   trilha: Trilha,
   aoVivo: AoVivo,
   preventiva: Preventiva,

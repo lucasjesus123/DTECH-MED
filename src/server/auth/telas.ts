@@ -61,6 +61,7 @@ export const TELAS: readonly Tela[] = [
   { chave: 'ao-vivo',      rotulo: 'Ao vivo',           grupo: 'A esteira',  href: '/painel/ao-vivo',      icone: 'aoVivo',      piso: Papel.MOTORISTA },
   { chave: 'ordens',       rotulo: 'Ordens',            grupo: 'A esteira',  href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
   { chave: 'agenda',       rotulo: 'Agenda de rota',    grupo: 'A esteira',  href: '/painel/agenda',       icone: 'rota',        piso: Papel.MOTORISTA },
+  { chave: 'contatos',     rotulo: 'Contatos do site',  grupo: 'A esteira',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
 
   { chave: 'clientes',     rotulo: 'Clientes',          grupo: 'Cadastros',  href: '/painel/clientes',     icone: 'clientes',    piso: Papel.ATENDENTE },
   { chave: 'equipamentos', rotulo: 'Equipamentos',      grupo: 'Cadastros',  href: '/painel/equipamentos', icone: 'equipamento', piso: Papel.MOTORISTA },

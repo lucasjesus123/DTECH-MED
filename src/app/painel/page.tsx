@@ -6,7 +6,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { exigirSessao } from '@/server/auth/guarda'
 import { esteira, filaDoDegrau, resumoDoDia } from '@/server/consultas/painel'
-import { leadsNovos } from '@/server/consultas/listas'
+import { contatosNovosContagem, leadsNovos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from './painel.module.css'
 
@@ -36,11 +36,14 @@ export default async function PainelDoDia({
 
   const { degrau = 'manut' } = await searchParams
 
-  const [degraus, resumo, fila, leads] = await Promise.all([
+  const [degraus, resumo, fila, leads, contatosNovos] = await Promise.all([
     esteira(ctx),
     resumoDoDia(ctx),
     filaDoDegrau(ctx, degrau),
+    // A tira traz três; a contagem diz quantos são de verdade. Sem ela, "3
+    // pessoas chamaram" seria mentira num dia de trinta.
     leadsNovos(ctx),
+    contatosNovosContagem(ctx),
   ])
 
   const selecionado = degraus.find((d) => d.chave === degrau) ?? degraus[0]!
@@ -88,64 +91,18 @@ export default async function PainelDoDia({
         />
       </div>
 
-      {/* Chegou pelo site e ainda não virou ordem. Fica ANTES da esteira: é
-          gente esperando resposta, e esperar é o que faz perder o serviço. */}
-      {leads.length > 0 ? (
-        <div className={estilo.bloco}>
-          <p className={estilo.blocoTitulo}>
-            <span>Chamaram pelo site</span>
-            <span className={estilo.fraco}>
-              {leads.length} {leads.length === 1 ? 'aguardando' : 'aguardando'}
-            </span>
-          </p>
-          <div className={estilo.rolaX}>
-            <table className={estilo.tabela}>
-              <thead>
-                <tr>
-                  <th>Quando</th>
-                  <th>Quem</th>
-                  <th>Equipamento</th>
-                  <th>O que contaram</th>
-                  {/* A coluna do botão. Rótulo invisível na tela, presente
-                      para quem navega a tabela por leitor de tela. */}
-                  <th>
-                    <span className={estilo.soLeitor}>Ações</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((l) => (
-                  <tr key={l.id}>
-                    <td className={estilo.num}>{haQuanto(l.criadoEm)}</td>
-                    <td>
-                      <span className={estilo.forte}>{l.nome}</span>
-                      <div className={estilo.fraco}>
-                        {l.empresa ? `${l.empresa} · ` : ''}
-                        {l.cidade ?? ''}
-                      </div>
-                      <a href={`https://wa.me/55${l.telefone}`} className={estilo.fraco}>
-                        {l.telefone}
-                      </a>
-                    </td>
-                    <td>{l.equipamento ?? <span className={estilo.fraco}>não informou</span>}</td>
-                    <td className={estilo.texto} style={{ maxWidth: 420 }}>
-                      {l.mensagem}
-                    </td>
-                    <td className={estilo.dir}>
-                      <Link href={`/painel/ordens/nova?lead=${l.id}`} className={estilo.btnSec}>
-                        Abrir ordem
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
-
       {/* A ESTEIRA. Cada degrau diz quantos estão parados e há quanto tempo —
-          é o número que faz alguém agir, e é o que o ERP antigo escondia. */}
+          é o número que faz alguém agir, e é o que o ERP antigo escondia.
+
+          ELA VEM PRIMEIRO, e isto foi corrigido: os contatos do site ficavam
+          acima dela, com a mensagem inteira de cada um numa célula de tabela.
+          Bastou chegar UMA prospecção em massa — vinte linhas, em inglês, com
+          assinatura completa — para a esteira sair do primeiro olhar. Quem
+          abria o sistema para saber onde o trabalho está via um e-mail de
+          propaganda ocupando a tela.
+
+          O erro não foi o spam ter passado pela armadilha: foi a tela supor que
+          texto vindo de fora seria curto. Texto de terceiro não tem tamanho. */}
       <nav className={estilo.esteira} aria-label="Etapas da esteira">
         {degraus.map((d, i) => {
           const ativo = d.chave === degrau
@@ -185,6 +142,54 @@ export default async function PainelDoDia({
           )
         })}
       </nav>
+
+      {/* A TIRA DOS CONTATOS DO SITE.
+          Depois da esteira, no máximo três, uma linha cada, com a mensagem já
+          cortada pelo servidor. É um AVISO de que tem gente esperando, não o
+          lugar de ler o que ela escreveu — isso é a tela de Contatos do site,
+          que este bloco linka. */}
+      {leads.length > 0 ? (
+        <section className={estilo.recados} aria-label="Contatos do site aguardando resposta">
+          <div className={estilo.recadosCab}>
+            <p className={estilo.recadosTitulo}>
+              <span className={estilo.recadosPulso} aria-hidden="true" />
+              {contatosNovos === 1
+                ? '1 pessoa chamou pelo site e ainda não teve resposta'
+                : `${contatosNovos} pessoas chamaram pelo site e ainda não tiveram resposta`}
+            </p>
+            <Link href="/painel/contatos" className={estilo.recadosTodos}>
+              Ver todos
+            </Link>
+          </div>
+
+          <ul className={estilo.recadosLista}>
+            {leads.map((l) => (
+              <li key={l.id} className={estilo.recado}>
+                <span className={estilo.recadoQuando}>{haQuanto(l.criadoEm)}</span>
+                <span className={estilo.recadoQuem}>
+                  <strong>{l.nome}</strong>
+                  {l.cidade ? <span className={estilo.fraco}> · {l.cidade}</span> : null}
+                </span>
+                {/* Uma linha só, e o que não couber é cortado com reticências.
+                    O texto já chega curto do servidor; isto é o cinto do
+                    suspensório, para o nome de uma empresa comprida não
+                    empurrar a linha. */}
+                <span className={estilo.recadoTrecho}>{l.mensagem || 'sem mensagem'}</span>
+                <Link href="/painel/contatos" className={estilo.recadoAbrir}>
+                  Responder
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {contatosNovos > leads.length ? (
+            <p className={estilo.recadosResto}>
+              e mais {contatosNovos - leads.length}{' '}
+              {contatosNovos - leads.length === 1 ? 'contato' : 'contatos'} em Contatos do site
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       <div className={estilo.filaCab}>
         <h2 className={estilo.filaTitulo}>{selecionado.rotulo}</h2>

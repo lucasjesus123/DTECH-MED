@@ -521,12 +521,97 @@ export async function semAgendamento(ctx: ContextoAcesso) {
  * Aparece no painel do dia porque um contato que ninguém lê é pior que
  * formulário nenhum: a pessoa do outro lado acha que pediu e fica esperando.
  */
+/**
+ * Os contatos novos, para a TIRA do painel do dia.
+ *
+ * `take: 3`, e a mensagem cortada em 110 caracteres pelo servidor.
+ *
+ * Antes eram 20, com a mensagem inteira. Um único contato — daqueles de
+ * "avaliamos fornecedores para projetos futuros", que chegam em inglês e têm
+ * vinte linhas de assinatura — ocupava a tela toda e empurrava a esteira para
+ * fora do primeiro olhar. Quem abria o sistema para saber onde o trabalho está
+ * via, no lugar, um e-mail de prospecção.
+ *
+ * O corte é no SERVIDOR e não no CSS de propósito: `text-overflow` esconde o
+ * texto mas ele continua vindo pelo fio, e uma mensagem de 4000 caracteres
+ * atravessa a rede para ser aparada no navegador.
+ */
 export async function leadsNovos(ctx: ContextoAcesso) {
-  return comEscopo(ctx, (tx) =>
+  const linhas = await comEscopo(ctx, (tx) =>
     tx.lead.findMany({
       where: { status: 'novo' },
       orderBy: { criadoEm: 'asc' },
-      take: 20,
+      take: 3,
+      select: {
+        id: true,
+        nome: true,
+        telefone: true,
+        empresa: true,
+        cidade: true,
+        equipamento: true,
+        mensagem: true,
+        criadoEm: true,
+      },
+    }),
+  )
+
+  return linhas.map((l) => ({
+    ...l,
+    mensagem: resumir(l.mensagem, 110),
+  }))
+}
+
+/** Quantos contatos novos existem no total — a tira mostra três. */
+export async function contatosNovosContagem(ctx: ContextoAcesso): Promise<number> {
+  return comEscopo(ctx, (tx) => tx.lead.count({ where: { status: 'novo' } }))
+}
+
+export type FiltroContatos = {
+  /** 'novos' (padrão) | 'descartados' | 'convertidos' | 'todos' */
+  situacao?: string
+  busca?: string
+}
+
+/**
+ * A lista da tela de Contatos do site — a completa.
+ *
+ * Aqui a mensagem vem INTEIRA: é a tela onde se lê o que a pessoa escreveu, e
+ * cortar ali seria esconder justamente o que se veio buscar. Quem controla o
+ * tamanho na tela é o `<details>`, que abre a pedido.
+ */
+export async function listarContatos(ctx: ContextoAcesso, f: FiltroContatos) {
+  const busca = (f.busca ?? '').trim().slice(0, 120)
+  const situacao = ['descartados', 'convertidos', 'todos'].includes(f.situacao ?? '')
+    ? f.situacao!
+    : 'novos'
+
+  const porSituacao: Record<string, unknown> = {
+    novos: { status: 'novo' },
+    descartados: { status: 'descartado' },
+    convertidos: { status: 'convertido' },
+    todos: {},
+  }
+
+  const where = {
+    ...(porSituacao[situacao] as object),
+    ...(busca
+      ? {
+          OR: [
+            { nome: { contains: busca, mode: 'insensitive' as const } },
+            { empresa: { contains: busca, mode: 'insensitive' as const } },
+            { cidade: { contains: busca, mode: 'insensitive' as const } },
+            { equipamento: { contains: busca, mode: 'insensitive' as const } },
+            { telefone: { contains: busca.replace(/\D/g, '') || busca } },
+          ],
+        }
+      : {}),
+  }
+
+  const [linhas, novos, descartados, convertidos] = await comEscopo(ctx, async (tx) => [
+    await tx.lead.findMany({
+      where,
+      orderBy: { criadoEm: 'desc' },
+      take: LIMITE,
       select: {
         id: true,
         nome: true,
@@ -536,10 +621,23 @@ export async function leadsNovos(ctx: ContextoAcesso) {
         cidade: true,
         equipamento: true,
         mensagem: true,
+        status: true,
         criadoEm: true,
+        ordemGeradaId: true,
       },
     }),
-  )
+    await tx.lead.count({ where: { status: 'novo' } }),
+    await tx.lead.count({ where: { status: 'descartado' } }),
+    await tx.lead.count({ where: { status: 'convertido' } }),
+  ])
+
+  return { linhas, novos, descartados, convertidos, situacao, busca }
+}
+
+/** Uma frase, sem quebras de linha, cortada no limite com reticências. */
+function resumir(texto: string | null, limite: number): string {
+  const s = (texto ?? '').replace(/\s+/g, ' ').trim()
+  return s.length <= limite ? s : `${s.slice(0, limite).trimEnd()}…`
 }
 
 export async function leadPorId(ctx: ContextoAcesso, id: string) {
