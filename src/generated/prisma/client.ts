@@ -242,6 +242,26 @@ export type Lancamento = Prisma.LancamentoModel
  */
 export type Compromisso = Prisma.CompromissoModel
 /**
+ * Model ModeloDocumento
+ * O MOLDE DE UM DOCUMENTO — escrito pela empresa, não pelo programador.
+ * 
+ * Contrato de prestação e nota promissória nasceram com o texto dentro do
+ * código. Funciona para um molde e só um: a cláusula de foro é a de Lajeado, o
+ * prazo é o que ficou escrito, e mudar uma vírgula é mexer no sistema.
+ * 
+ * Uma assistência que atende hospital, clínica e órgão público não tem UM
+ * contrato — tem o do particular, o do convênio, o que o setor de compras
+ * exige. E uma franquia nova terá os dela, com outro foro.
+ * 
+ * O corpo é texto corrido com `{{marcador}}` no meio da frase, porque contrato
+ * não é formulário. O que acontece com marcador desconhecido está em
+ * `src/server/documentos/variaveis.ts`, e é a decisão mais importante deste
+ * desenho: ele NÃO é apagado, sai impresso — um documento com
+ * `{{cliente_nomee}}` na folha é notado; um com um buraco no lugar do nome é
+ * assinado.
+ */
+export type ModeloDocumento = Prisma.ModeloDocumentoModel
+/**
  * Model Recorrencia
  * O que se repete todo mês: aluguel, energia, contador, o contrato de
  * manutenção que o cliente paga mensalmente.

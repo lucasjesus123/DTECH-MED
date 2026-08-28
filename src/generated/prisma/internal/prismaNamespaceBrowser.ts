@@ -79,6 +79,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
   Compromisso: 'Compromisso',
+  ModeloDocumento: 'ModeloDocumento',
   Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
@@ -729,6 +730,24 @@ export const CompromissoScalarFieldEnum = {
 } as const
 
 export type CompromissoScalarFieldEnum = (typeof CompromissoScalarFieldEnum)[keyof typeof CompromissoScalarFieldEnum]
+
+
+export const ModeloDocumentoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  nome: 'nome',
+  tipo: 'tipo',
+  corpo: 'corpo',
+  descricao: 'descricao',
+  padrao: 'padrao',
+  ativo: 'ativo',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ModeloDocumentoScalarFieldEnum = (typeof ModeloDocumentoScalarFieldEnum)[keyof typeof ModeloDocumentoScalarFieldEnum]
 
 
 export const RecorrenciaScalarFieldEnum = {

@@ -425,6 +425,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
   Compromisso: 'Compromisso',
+  ModeloDocumento: 'ModeloDocumento',
   Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
@@ -447,7 +448,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2523,6 +2524,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ModeloDocumento: {
+      payload: Prisma.$ModeloDocumentoPayload<ExtArgs>
+      fields: Prisma.ModeloDocumentoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ModeloDocumentoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ModeloDocumentoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        findFirst: {
+          args: Prisma.ModeloDocumentoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ModeloDocumentoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        findMany: {
+          args: Prisma.ModeloDocumentoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>[]
+        }
+        create: {
+          args: Prisma.ModeloDocumentoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        createMany: {
+          args: Prisma.ModeloDocumentoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ModeloDocumentoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>[]
+        }
+        delete: {
+          args: Prisma.ModeloDocumentoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        update: {
+          args: Prisma.ModeloDocumentoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        deleteMany: {
+          args: Prisma.ModeloDocumentoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ModeloDocumentoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ModeloDocumentoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>[]
+        }
+        upsert: {
+          args: Prisma.ModeloDocumentoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ModeloDocumentoPayload>
+        }
+        aggregate: {
+          args: Prisma.ModeloDocumentoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateModeloDocumento>
+        }
+        groupBy: {
+          args: Prisma.ModeloDocumentoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModeloDocumentoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ModeloDocumentoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ModeloDocumentoCountAggregateOutputType> | number
+        }
+      }
+    }
     Recorrencia: {
       payload: Prisma.$RecorrenciaPayload<ExtArgs>
       fields: Prisma.RecorrenciaFieldRefs
@@ -3707,6 +3782,24 @@ export const CompromissoScalarFieldEnum = {
 export type CompromissoScalarFieldEnum = (typeof CompromissoScalarFieldEnum)[keyof typeof CompromissoScalarFieldEnum]
 
 
+export const ModeloDocumentoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  nome: 'nome',
+  tipo: 'tipo',
+  corpo: 'corpo',
+  descricao: 'descricao',
+  padrao: 'padrao',
+  ativo: 'ativo',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ModeloDocumentoScalarFieldEnum = (typeof ModeloDocumentoScalarFieldEnum)[keyof typeof ModeloDocumentoScalarFieldEnum]
+
+
 export const RecorrenciaScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -4421,6 +4514,7 @@ export type GlobalOmitConfig = {
   auditLog?: Prisma.AuditLogOmit
   lancamento?: Prisma.LancamentoOmit
   compromisso?: Prisma.CompromissoOmit
+  modeloDocumento?: Prisma.ModeloDocumentoOmit
   recorrencia?: Prisma.RecorrenciaOmit
   recuperacaoSenha?: Prisma.RecuperacaoSenhaOmit
   contador?: Prisma.ContadorOmit

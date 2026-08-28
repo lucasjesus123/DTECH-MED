@@ -310,6 +310,7 @@ model Tenant {
   lancamentos         Lancamento[]
   recorrencias        Recorrencia[]
   compromissos        Compromisso[]
+  modelosDocumento    ModeloDocumento[]
 
   @@index([ativo])
   @@map("tenants")
@@ -1524,6 +1525,61 @@ model Compromisso {
   @@index([tenantId, dia])
   @@index([tenantId, responsavelId, dia])
   @@map("compromissos")
+}
+
+/// O MOLDE DE UM DOCUMENTO — escrito pela empresa, não pelo programador.
+///
+/// Contrato de prestação e nota promissória nasceram com o texto dentro do
+/// código. Funciona para um molde e só um: a cláusula de foro é a de Lajeado, o
+/// prazo é o que ficou escrito, e mudar uma vírgula é mexer no sistema.
+///
+/// Uma assistência que atende hospital, clínica e órgão público não tem UM
+/// contrato — tem o do particular, o do convênio, o que o setor de compras
+/// exige. E uma franquia nova terá os dela, com outro foro.
+///
+/// O corpo é texto corrido com `{{marcador}}` no meio da frase, porque contrato
+/// não é formulário. O que acontece com marcador desconhecido está em
+/// `src/server/documentos/variaveis.ts`, e é a decisão mais importante deste
+/// desenho: ele NÃO é apagado, sai impresso — um documento com
+/// `{{cliente_nomee}}` na folha é notado; um com um buraco no lugar do nome é
+/// assinado.
+model ModeloDocumento {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// Como a pessoa chama este molde: "Contrato hospital", "Promissória 30 dias".
+  nome String
+
+  /// CONTRATO_PRESTACAO | NOTA_PROMISSORIA | ORDEM_SERVICO.
+  ///
+  /// Texto, e não o enum `TipoDocumento`, de propósito: aquele é o que a ESTEIRA
+  /// emite — dez valores disparados por fatos. Aqui é o que se pode MODELAR à
+  /// mão, e são três. Amarrar os dois faria a lista oferecer "comprovante de
+  /// retirada", que nasce sozinho e ninguém escreve. A trava é um CHECK no
+  /// banco, não só na tela.
+  tipo String
+
+  corpo     String
+  descricao String?
+
+  /// O molde usado quando ninguém escolhe. UM por tipo, garantido por índice
+  /// único parcial no banco — sem ele, dois cliques rápidos deixariam dois
+  /// padrões e a emissão escolheria um por acaso.
+  padrao Boolean @default(false)
+
+  /// Aposentar sem apagar: documento já emitido aponta para o molde, e "com que
+  /// texto isto foi assinado?" precisa de resposta.
+  ativo Boolean @default(true)
+
+  autorId   String?
+  autorNome String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([tenantId, tipo, ativo])
+  @@map("modelos_documento")
 }
 
 /// O que se repete todo mês: aluguel, energia, contador, o contrato de
