@@ -161,6 +161,45 @@ if (!ordemId) { console.log('\n  Sem ordem: nada a percorrer.\n'); await nav.clo
 registros.push(`ordem nº ${numero} (${ordemId})`)
 const token = sql(`SELECT "tokenPublico" FROM ordens WHERE id='${ordemId}'`)
 
+/**
+ * O NÚMERO DA O.S. COMO ÂNCORA — o que este roteiro usa no lugar de `.first()`.
+ *
+ * Toda tela de LISTA por onde a jornada passa — a fila da Agenda, a rota do
+ * motorista, a fila de faturamento, a de recebimento — mostra o número da ordem
+ * no formato `#0023`. Enquanto a bateria começava com o banco quase vazio, a
+ * ordem recém-aberta era sempre a primeira da lista e o `.first()` acertava por
+ * sorte. Com o cenário completo semeado antes da fase 2, ele passou a clicar na
+ * ordem de outra pessoa: a jornada agendava a retirada alheia, a sua ficava
+ * parada, e as dez etapas seguintes caíam em cascata — arrastando junto o
+ * `isolamento.mjs`, que confere o que este roteiro deixou.
+ *
+ * Nada disso era defeito do produto. Era `.first()` num lugar onde há
+ * identificador à mão.
+ */
+const OS = `#${String(numero).padStart(4, '0')}`
+/** A linha (tabela) ou o cartão (aplicativo) que fala DESTA ordem. */
+const daOrdem = (pagina, seletor) => pagina.locator(seletor).filter({ hasText: OS }).first()
+
+/**
+ * A parada DESTA ordem que ainda oferece a ação.
+ *
+ * O número da O.S. sozinho não basta na rota do motorista: uma ordem tem DUAS
+ * paradas — a retirada e a entrega — e as duas mostram `#0023`. Depois que a
+ * retirada é concluída, o cartão dela continua na lista (o motorista precisa
+ * poder conferir o endereço aonde foi), só que sem botão. O `.first()` caía
+ * nesse cartão morto, o clique não acontecia, e a etapa 16 reprovava dizendo
+ * que a rota de entrega não saiu.
+ *
+ * Então a âncora é o par: o cartão desta ordem QUE TEM o botão.
+ */
+const paradaComBotao = (pagina, rotulo) =>
+  pagina
+    .locator('article')
+    .filter({ hasText: OS })
+    .filter({ has: pagina.getByRole('button', { name: rotulo }) })
+    .first()
+    .getByRole('button', { name: rotulo })
+
 // ---------------------------------------------------------------------------
 // 02 · ORDEM_RETIRADA_GERADA
 // ---------------------------------------------------------------------------
@@ -178,7 +217,7 @@ ok(2, 'TRAVA · sem parada na Agenda, "agendada" é recusada', travou1)
 // ---------------------------------------------------------------------------
 await ana.goto(`${QA_BASE}/painel/agenda`, { waitUntil: 'domcontentloaded' })
 await ana.waitForTimeout(1200)
-await ana.getByRole('button', { name: 'Marcar', exact: true }).first().click()
+await daOrdem(ana, 'tr').getByRole('button', { name: 'Marcar', exact: true }).click()
 await ana.waitForTimeout(1200)
 const agendar = ana.locator('form').filter({ has: ana.locator('input[name=data]') }).first()
 await agendar.locator('input[name=data]').fill(HOJE)
@@ -194,7 +233,7 @@ ok(3, 'RETIRADA_AGENDADA · dia, hora e motorista marcados', etapaNoBanco(ordemI
 const adriano = await como('adriano', 'adriano@dtechmed.com.br', SENHA)
 await adriano.goto(`${QA_BASE}/app/motorista`, { waitUntil: 'domcontentloaded' })
 await adriano.waitForTimeout(1500)
-const saida = adriano.getByRole('button', { name: /Saí para esta parada/i }).first()
+const saida = paradaComBotao(adriano, /Saí para esta parada/i)
 if (await saida.count()) { await saida.click(); await adriano.waitForTimeout(2800) }
 else console.log('     [rota do motorista]', ((await adriano.locator('body').textContent()) ?? '').replace(/\s+/g,' ').slice(0, 260))
 ok(4, 'EM_ROTA_RETIRADA · o motorista marcou a saída', etapaNoBanco(ordemId) === 'EM_ROTA_RETIRADA')
@@ -383,7 +422,7 @@ ok(14, 'FATURAMENTO · a fatura nasce do valor aprovado', etapaNoBanco(ordemId) 
 const fabio = await como('fabio', 'fabio@dtechmed.com.br', SENHA)
 await fabio.goto(`${QA_BASE}/painel/financeiro`, { waitUntil: 'domcontentloaded' })
 await fabio.waitForTimeout(1500)
-const emitir = fabio.getByRole('button', { name: /emitir fatura/i }).first()
+const emitir = daOrdem(fabio, 'li, tr').getByRole('button', { name: /emitir fatura/i })
 if (await emitir.count()) { await emitir.click(); await fabio.waitForTimeout(3000) }
 
 const fatura = sql(`SELECT id FROM faturas WHERE "ordemId"='${ordemId}' LIMIT 1`)
@@ -403,7 +442,7 @@ ok(14, 'TRAVA · sem o pagamento fechar, não vira FATURADO', etapaNoBanco(ordem
 const receber = async (reais) => {
   await fabio.goto(`${QA_BASE}/painel/financeiro`, { waitUntil: 'domcontentloaded' })
   await fabio.waitForTimeout(1500)
-  const abrir = fabio.getByRole('button', { name: 'Abrir', exact: true }).first()
+  const abrir = daOrdem(fabio, 'li, tr').getByRole('button', { name: 'Abrir', exact: true })
   if (!(await abrir.count())) return false
   await abrir.click()
   await fabio.waitForTimeout(1200)
@@ -435,7 +474,7 @@ ok(15, 'TRAVA NOVA · sem parada de entrega, "saiu para entrega" é recusada',
 // ---------------------------------------------------------------------------
 await ana.goto(`${QA_BASE}/painel/agenda`, { waitUntil: 'domcontentloaded' })
 await ana.waitForTimeout(1500)
-await ana.getByRole('button', { name: 'Marcar', exact: true }).first().click().catch(() => {})
+await daOrdem(ana, 'tr').getByRole('button', { name: 'Marcar', exact: true }).click().catch(() => {})
 await ana.waitForTimeout(1200)
 const ag2 = ana.locator('form').filter({ has: ana.locator('input[name=data]') }).first()
 if (await ag2.count()) {
@@ -450,7 +489,7 @@ ok(16, 'a parada de entrega foi marcada na Agenda', paradaEntrega !== '')
 
 await adriano.goto(`${QA_BASE}/app/motorista`, { waitUntil: 'domcontentloaded' })
 await adriano.waitForTimeout(1500)
-const saida2 = adriano.getByRole('button', { name: /Saí para esta parada/i }).first()
+const saida2 = paradaComBotao(adriano, /Saí para esta parada/i)
 if (await saida2.count()) { await saida2.click(); await adriano.waitForTimeout(2500) }
 ok(16, 'EM_ROTA_ENTREGA · mesma rota, sentido contrário', etapaNoBanco(ordemId) === 'EM_ROTA_ENTREGA')
 
