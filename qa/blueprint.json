@@ -1,0 +1,550 @@
+{
+  "_comentario": "Blueprint extraído do diagrama 'A Esteira DTECH MED' (8 páginas). Um fluxo por caminho do diagrama. Cada fluxo TERMINA clicando em Sair, porque /entrar redireciona para /painel quando já existe sessão — sem o logout o motor entraria no fluxo seguinte com o usuário errado.",
+  "nome": "DTECH MED — a esteira",
+  "baseUrl": "http://127.0.0.1:3111",
+  "login": {
+    "url": "/entrar",
+    "user": "ana@dtechmed.com.br",
+    "pass": "${QA_SENHA}",
+    "userSelector": "input[name=email]",
+    "passSelector": "input[type=password]",
+    "submitSelector": "form button[type=submit]"
+  },
+  "fluxos": [
+    {
+      "nome": "SITE — o visitante que pede uma retirada (diagrama: etapa 01, 'o cliente preencheu o formulário do site')",
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/",
+          "espera": "a home do site institucional"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "DTECH",
+          "espera": "a marca aparece"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Lajeado",
+          "espera": "diagrama: assistência própria em Lajeado"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "nada de dado quebrado na tela"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "[object Object]",
+          "espera": "nada de dado não formatado"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "{{",
+          "espera": "nenhuma variável de template crua"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "NaN",
+          "espera": "nenhum número quebrado"
+        },
+        {
+          "acao": "preencher",
+          "campo": "form input[name=nome]",
+          "valor": "auto:nome"
+        },
+        {
+          "acao": "preencher",
+          "campo": "form input[name=telefone]",
+          "valor": "51991234567"
+        },
+        {
+          "acao": "preencher",
+          "campo": "form textarea",
+          "valor": "O aparelho de radiofrequência faz barulho quando esquenta."
+        },
+        {
+          "acao": "clicar",
+          "seletor": "form button[type=submit]",
+          "espera": "diagrama: o pedido do site vira contato para a central"
+        },
+        {
+          "acao": "esperar",
+          "valor": 3000
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Recebemos",
+          "espera": "o site confirma para o visitante"
+        },
+        {
+          "acao": "esperar",
+          "valor": 2000
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "nenhum erro técnico depois de enviar"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "[object Object]",
+          "espera": "nenhum dado cru na confirmação"
+        }
+      ]
+    },
+    {
+      "nome": "LINKAGEM — o pedido do site chega na central (diagrama: 'as telas se conversam')",
+      "usuario": {
+        "user": "ana@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel",
+          "espera": "diagrama: quem chamou pelo site e ainda não virou ordem"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Teste QA",
+          "espera": "o nome digitado no SITE aparece no PAINEL"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "ATENDENTE 1 — abrir a ordem (diagrama: 'Telefone tocou: Ordens → Nova')",
+      "usuario": {
+        "user": "ana@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel",
+          "espera": "diagrama: a central entra no Painel do dia"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Painel",
+          "espera": "o painel abriu"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/ordens/nova",
+          "espera": "diagrama: tela Ordens → Nova"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "O que está acontecendo",
+          "espera": "o campo do defeito nas palavras do cliente"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "sem erro técnico exposto"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "ATENDENTE 2 — Acompanhar, Despachar e Ao vivo (diagrama: passos 2, 3 e 4 da central)",
+      "usuario": {
+        "user": "ana@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel/acompanhar",
+          "espera": "diagrama: a régua de acompanhamento"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Acompanhar",
+          "espera": "a tela abriu"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/agenda",
+          "espera": "diagrama: Agenda de rota — dia, hora e motorista"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Agenda",
+          "espera": "a agenda abriu"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/ao-vivo",
+          "espera": "diagrama: 'Quer saber se o motorista já chegou? Ao vivo'"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Ao vivo",
+          "espera": "a tela do rastro abriu"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Pausar",
+          "espera": "a atualização automática pode ser pausada (WCAG 2.2.1)"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "TÉCNICO — a bancada (diagrama: /app → a ordem → fotos → laudo → orçamento)",
+      "usuario": {
+        "user": "rafael@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/app",
+          "espera": "diagrama: o aplicativo de campo"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado no aplicativo"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/app/tecnico",
+          "espera": "diagrama: a fila do técnico"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "sem erro técnico exposto"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/estoque",
+          "espera": "diagrama: 'as peças saem do estoque sozinhas'"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Estoque",
+          "espera": "o técnico alcança o estoque"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/financeiro",
+          "espera": "o técnico NÃO decide dinheiro"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "sem-permissao",
+          "espera": "diagrama: Financeiro é do financeiro e da gestão"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "MOTORISTA — a rua (diagrama: /app no celular, a rota do dia)",
+      "usuario": {
+        "user": "adriano@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/app/motorista",
+          "espera": "diagrama: 'Abra /app no celular e veja a rota do dia'"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "NaN",
+          "espera": "sem número quebrado"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/financeiro",
+          "espera": "o motorista não vê dinheiro"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "sem-permissao",
+          "espera": "diagrama: Financeiro é do financeiro e da gestão"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/empresas",
+          "espera": "o motorista não administra a plataforma"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "sem-permissao",
+          "espera": "diagrama: Empresas é só do Super Admin"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "GESTOR — quem decide (diagrama: Painel do dia, Preventiva, e a liberação do orçamento)",
+      "usuario": {
+        "user": "camila@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel",
+          "espera": "diagrama: 'Painel do dia de manhã'"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/preventiva",
+          "espera": "diagrama: 'veja as visitas que vencem'"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Preventiva",
+          "espera": "a tela abriu"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Novo contrato",
+          "espera": "dá para abrir contrato de preventiva"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Novo contrato",
+          "espera": "o formulário abre"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Primeira visita",
+          "espera": "diagrama: dia do mês que se repete"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/whatsapp",
+          "espera": "diagrama: WhatsApp é da gestão"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "sem erro técnico exposto"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/empresas",
+          "espera": "nem o gestor administra a plataforma"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "sem-permissao",
+          "espera": "diagrama: Empresas é só do Super Admin"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "FINANCEIRO — as faturas (diagrama: 'Financeiro: as faturas em aberto e o que venceu')",
+      "usuario": {
+        "user": "fabio@dtechmed.com.br",
+        "pass": "${QA_SENHA}"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel/financeiro",
+          "espera": "diagrama: a tela do financeiro"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Financeiro",
+          "espera": "a tela abriu"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "NaN",
+          "espera": "nenhum valor quebrado — é tela de dinheiro"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/financeiro?busca=123.456.789-09",
+          "espera": "buscar por CPF não pode derrubar a tela"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "out of range",
+          "espera": "sem erro de banco na tela"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "Minified React error",
+          "espera": "sem quebra do React"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/empresas",
+          "espera": "o financeiro não administra a plataforma"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "sem-permissao",
+          "espera": "diagrama: Empresas é só do Super Admin"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "SUPER ADMIN — a plataforma (diagrama: 'Cadastra empresas e usuários, edita o conteúdo do site')",
+      "usuario": {
+        "user": "contato@conexaomkt.com.br",
+        "pass": "Ensaio@2026x"
+      },
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel/empresas",
+          "espera": "diagrama: Painel → Plataforma"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "Empresas",
+          "espera": "a tela abriu"
+        },
+        {
+          "acao": "verificarTexto",
+          "valor": "DTECH",
+          "espera": "a empresa aparece na lista"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "undefined",
+          "espera": "sem dado quebrado"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/site",
+          "espera": "diagrama: edita o conteúdo do site"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "sem erro técnico exposto"
+        },
+        {
+          "acao": "clicar",
+          "texto": "Sair",
+          "espera": "volta para a tela de entrada"
+        }
+      ]
+    },
+    {
+      "nome": "TRAVA — o portal do cliente recusa token inventado (diagrama: 'a bola está com o cliente')",
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/os/token-que-nao-existe-123",
+          "espera": "o portal não pode abrir com token qualquer"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "Clínica",
+          "espera": "nenhum nome de cliente vazou"
+        },
+        {
+          "acao": "verificarSemTexto",
+          "valor": "TypeError",
+          "espera": "sem erro técnico exposto"
+        }
+      ]
+    },
+    {
+      "nome": "TRAVA — sem sessão, o painel não abre",
+      "passos": [
+        {
+          "acao": "ir",
+          "alvo": "/painel/clientes",
+          "espera": "sem login, redireciona para a entrada"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "/entrar",
+          "espera": "toda tela do painel exige sessão"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/painel/financeiro",
+          "espera": "idem para o financeiro"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "/entrar",
+          "espera": "nenhum dado de dinheiro sem sessão"
+        },
+        {
+          "acao": "ir",
+          "alvo": "/app/motorista",
+          "espera": "idem para o aplicativo de campo"
+        },
+        {
+          "acao": "verificarUrl",
+          "valor": "/entrar",
+          "espera": "o aplicativo também exige sessão"
+        }
+      ]
+    }
+  ]
+}

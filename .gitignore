@@ -54,3 +54,10 @@ semgrep-report.json
 
 # O PDF é gerado a partir do PROCESSOS.md e não precisa ser versionado.
 PROCESSOS-DTECH-MED.pdf
+
+# A bateria grava vídeo, trace e print de cada execução — chega a gigabytes.
+# Os roteiros versionam; a evidência de uma passada é descartável.
+qa/runs/
+qa/jornada/
+qa/telas/
+qa/*.png

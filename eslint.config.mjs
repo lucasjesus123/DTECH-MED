@@ -48,6 +48,13 @@ export default defineConfig([
     'src/generated/**',
     'worker/dist/**',
     'public/**',
+    // A bateria de ensaio. São roteiros de Node que dirigem um navegador, não
+    // código do sistema: eles não vão para produção, não são importados por
+    // nada, e o estilo deles é deliberadamente diferente — `cond ? ok() : nao()`
+    // como linha inteira lê melhor num roteiro de conferência do que um `if`
+    // de três linhas, e é exatamente o que `no-unused-expressions` reclama.
+    // A trava que importa neles é `node --check`, que a própria bateria roda.
+    'qa/**',
   ]),
   {
     rules: {

@@ -1,0 +1,17 @@
+{
+  "_comentario": "TEMPLATE de disparo de WhatsApp. REGRA: o Claude SEMPRE pergunta o numero de teste ao usuario antes de disparar de verdade. Nunca dispara para numero real de cliente. Ajuste os seletores para o SEU sistema.",
+  "name": "Disparo de WhatsApp (teste)",
+  "baseUrl": "https://SEU-SISTEMA-DE-TESTE/",
+  "login": { "url": "https://SEU-SISTEMA-DE-TESTE/login", "user": "USUARIO_TESTE", "pass": "SENHA_TESTE" },
+  "steps": [
+    { "action": "goto", "url": "/whatsapp" },
+    { "action": "fill", "selector": "#numero, input[name*=telefone i], input[name*=numero i]", "value": "COLOCAR_NUMERO_DE_TESTE" },
+    { "action": "fill", "selector": "#mensagem, textarea", "value": "Teste automatizado QA Orquestra — pode ignorar." },
+    { "action": "click", "selector": "#enviar, button[type=submit]" },
+    { "action": "expectText", "value": "enviad" }
+  ],
+  "_verificacoes_manuais_do_claude": [
+    "Confirmar no numero de teste se a mensagem REALMENTE chegou (o sistema dizer 'enviado' nao prova entrega).",
+    "Conferir status/registro do disparo no painel (log, historico)."
+  ]
+}

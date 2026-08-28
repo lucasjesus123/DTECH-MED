@@ -1,0 +1,11 @@
+{
+  "_comentario": "Config do Mapeador (engine/run.js). Copie para config.json e preencha com o SEU ambiente de TESTE.",
+  "baseUrl": "https://SEU-SISTEMA-DE-TESTE/painel",
+  "maxPages": 40,
+  "login": {
+    "url": "https://SEU-SISTEMA-DE-TESTE/login",
+    "user": "USUARIO_TESTE",
+    "pass": "SENHA_TESTE",
+    "_dica": "Se o login nao for auto-detectado, informe userSelector, passSelector e submitSelector (seletores CSS)."
+  }
+}

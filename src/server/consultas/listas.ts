@@ -961,6 +961,28 @@ export async function ordensNaCasa(ctx: ContextoAcesso, busca?: string) {
           select: { totalCentavos: true, status: true },
         },
         _count: { select: { fotos: true, assinaturas: true } },
+        // A PROVA, e não a contagem dela. "3 fotos" obriga a abrir para ver;
+        // a miniatura da última mostra o aparelho na hora — que é o que
+        // alguém quer conferir quando o cliente liga.
+        fotos: {
+          orderBy: { criadoEm: 'desc' },
+          take: 1,
+          select: { id: true, categoria: true, criadoEm: true },
+        },
+        // Quem está com o aparelho na rua. O técnico responde pela bancada; na
+        // rota quem responde é o motorista da parada aberta, e são pessoas
+        // diferentes na maior parte do dia.
+        agendamentos: {
+          where: { status: { in: ['PENDENTE', 'EM_ROTA'] } },
+          orderBy: { janelaInicio: 'asc' },
+          take: 1,
+          select: {
+            tipo: true,
+            status: true,
+            janelaInicio: true,
+            motorista: { select: { nome: true } },
+          },
+        },
       },
     }),
   )

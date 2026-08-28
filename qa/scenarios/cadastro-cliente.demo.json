@@ -1,0 +1,13 @@
+{
+  "name": "Cadastro de cliente e linkagem",
+  "baseUrl": "http://localhost:8099",
+  "login": { "url": "http://localhost:8099/login", "user": "admin", "pass": "1234" },
+  "steps": [
+    { "action": "goto", "url": "/clientes/novo" },
+    { "action": "fill", "selector": "#nome", "value": "Cliente Teste QA 001" },
+    { "action": "fill", "selector": "#email", "value": "qa001@teste.com" },
+    { "action": "click", "selector": "button[type=submit]" },
+    { "action": "expectText", "value": "Cliente Teste QA 001" }
+  ],
+  "crossCheck": { "goto": "/clientes", "expectText": "Cliente Teste QA 001" }
+}

@@ -4016,3 +4016,65 @@
   .grafBarraItem { grid-template-columns: minmax(0, 1fr) auto; }
   .grafBarraPista { grid-column: 1 / -1; }
 }
+
+/* =========================================================================
+   ACOMPANHAR — onde o aparelho está, e a prova
+   ========================================================================= */
+
+/* A linha do LUGAR.
+ *
+ * Ela fica logo abaixo do equipamento e acima da régua, porque é nessa ordem
+ * que a pergunta é feita: quem é o cliente, qual aparelho, onde ele está, e só
+ * então quanto falta. Pôr o lugar no rodapé obrigaria o olho a descer até o
+ * fim do cartão para responder a pergunta mais frequente do balcão. */
+.acompOnde {
+  margin: 6px 0 0;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.acompOnde::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--txt-3);
+  flex: none;
+}
+
+/* Só a RUA ganha cor.
+ *
+ * Aparelho na rua é o único estado com risco de hoje: está num carro, fora da
+ * oficina, e é o que alguém precisa achar de relance numa tela de sessenta
+ * cartões. Pintar os quatro lugares tiraria o destaque justamente do que
+ * importa — e uma tela em que tudo grita é uma tela em que nada é ouvido. */
+.acompNaRua { color: var(--vio-claro); }
+.acompNaRua::before {
+  background: var(--vio);
+  box-shadow: 0 0 0 3px var(--vio-veu);
+}
+
+/* A miniatura da última foto.
+ *
+ * Quadrada e pequena de propósito: ela não é para examinar, é para reconhecer.
+ * "É aquele aparelho branco" resolve metade das ligações sem abrir nada.
+ * `object-fit: cover` porque foto de oficina vem em qualquer proporção, e
+ * esticar deforma o equipamento — que é exatamente o que se está tentando
+ * identificar. */
+.acompMini {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm, 4px);
+  object-fit: cover;
+  border: 1px solid var(--borda);
+  background: var(--sup-2);
+  flex: none;
+}
+.acompProva {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

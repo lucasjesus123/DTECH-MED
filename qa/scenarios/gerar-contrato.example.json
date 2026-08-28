@@ -1,0 +1,18 @@
+{
+  "_comentario": "TEMPLATE. Ajuste baseUrl, login e os seletores (#cliente, #gerar-contrato, etc.) para o SEU sistema. O Claude faz isso automaticamente lendo as telas reais na fase de execucao.",
+  "name": "Geracao de contrato",
+  "baseUrl": "https://SEU-SISTEMA-DE-TESTE/",
+  "login": { "url": "https://SEU-SISTEMA-DE-TESTE/login", "user": "USUARIO_TESTE", "pass": "SENHA_TESTE" },
+  "steps": [
+    { "action": "goto", "url": "/contratos/novo" },
+    { "action": "select", "selector": "#cliente", "value": "Cliente Teste QA 001" },
+    { "action": "click", "selector": "#gerar-contrato" },
+    { "action": "waitFor", "selector": ".contrato-pronto, #contrato-pdf, a[href$='.pdf']", "value": 25000 },
+    { "action": "expectText", "value": "Cliente Teste QA 001" },
+    { "action": "expectText", "value": "CPF" }
+  ],
+  "_verificacoes_manuais_do_claude": [
+    "Abrir o PDF/contrato gerado e conferir se TODAS as variaveis foram preenchidas (nome, CPF, valor, datas) — nada de {{campo}} vazio.",
+    "Conferir se o contrato ficou salvo/vinculado ao cliente correto."
+  ]
+}

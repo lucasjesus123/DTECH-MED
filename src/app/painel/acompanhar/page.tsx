@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
+import { ondeEsta } from '@/server/ordem/onde-esta'
 import { montarTrilha } from '@/server/ordem/trilha'
 import { Cartoes, type CartaoOrdem } from './cartoes'
 import estilo from '../painel.module.css'
@@ -134,6 +135,13 @@ export default async function Acompanhar({
       o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
     )
     const orc = o.orcamentos[0]
+    // Quem está com o aparelho AGORA: o motorista da parada aberta quando ele
+    // está na rua, o técnico quando está na bancada. São pessoas diferentes na
+    // maior parte do dia, e dizer o nome errado ao telefone é pior que não
+    // dizer nome nenhum.
+    const naRua = o.agendamentos[0]
+    const quem = naRua?.motorista?.nome ?? o.tecnico?.nome ?? null
+    const onde = ondeEsta(o.etapa, quem)
     return {
       id: o.id,
       numero: o.numero,
@@ -152,6 +160,9 @@ export default async function Acompanhar({
       fotos: o._count.fotos,
       assinaturas: o._count.assinaturas,
       podeDespachar: o.etapa === 'ORDEM_RETIRADA_GERADA' || o.etapa === 'FATURADO',
+      onde: onde.rotulo,
+      lugar: onde.lugar,
+      fotoId: o.fotos[0]?.id ?? null,
     }
   }
 }

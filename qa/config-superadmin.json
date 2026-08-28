@@ -1,0 +1,13 @@
+{
+  "baseUrl": "http://127.0.0.1:3111/painel",
+  "maxPages": 40,
+  "testPhone": "51987650000",
+  "login": {
+    "url": "http://127.0.0.1:3111/entrar",
+    "user": "contato@conexaomkt.com.br",
+    "pass": "Ensaio@2026x",
+    "userSelector": "input[name=email]",
+    "passSelector": "input[type=password]",
+    "submitSelector": "form button[type=submit]"
+  }
+}

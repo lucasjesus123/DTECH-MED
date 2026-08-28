@@ -21,6 +21,11 @@ export type CartaoOrdem = {
   fotos: number
   assinaturas: number
   podeDespachar: boolean
+  /** Onde o aparelho está fisicamente, dito em português. */
+  onde: string
+  lugar: 'cliente' | 'rua' | 'oficina' | 'entregue'
+  /** A última foto, para a miniatura. Nulo quando ainda não há nenhuma. */
+  fotoId: string | null
 }
 
 /**
@@ -45,6 +50,26 @@ export type CartaoOrdem = {
  * foco, Enter, Espaço e leitura de tela. Uma `div` clicável obriga a reescrever
  * as quatro coisas à mão, e normalmente reescreve só a primeira.
  */
+/**
+ * A cor de cada lugar. Mapa explícito e não busca por nome montado.
+ *
+ * `estilo['lugar' + capitalizar(x)]` compila e some no dia em que alguém
+ * renomeia a classe no CSS: o TypeScript não checa índice montado em string, e
+ * o resultado é `undefined` virando classe vazia — a cor simplesmente para de
+ * aparecer, sem erro em lugar nenhum.
+ *
+ * Só a RUA ganha destaque. Aparelho na rua é o único estado com risco de hoje:
+ * está num carro, fora da oficina, e é o que alguém precisa achar de relance
+ * numa tela de sessenta cartões. Pintar os quatro tiraria o destaque do que
+ * importa.
+ */
+const COR_DO_LUGAR: Record<'cliente' | 'rua' | 'oficina' | 'entregue', string> = {
+  cliente: '',
+  rua: estilo.acompNaRua!,
+  oficina: '',
+  entregue: '',
+}
+
 export function Cartoes({
   ordens,
   motoristas,
@@ -87,6 +112,13 @@ export function Cartoes({
             <p className={estilo.acompCliente}>{o.cliente}</p>
             <p className={estilo.acompEq}>{o.equipamento}</p>
 
+            {/* ONDE O APARELHO ESTÁ — a pergunta que o telefone faz.
+                A etapa responde outra coisa: quem lê "APROVACAO_GESTAO" não
+                consegue dizer ao cliente onde o equipamento se encontra. São
+                vinte e uma etapas e ninguém decora vinte e uma; o LUGAR é
+                sempre um de quatro. Ver `server/ordem/onde-esta.ts`. */}
+            <p className={`${estilo.acompOnde} ${COR_DO_LUGAR[o.lugar]}`}>{o.onde}</p>
+
             <div className={estilo.trilhaMini}>
               <div className={estilo.trilhaMiniFio}>
                 <span
@@ -109,7 +141,31 @@ export function Cartoes({
                   <span className={estilo.acompAberto}> · {formatarBRL(o.emAbertoCentavos)} em aberto</span>
                 ) : null}
               </span>
+              {/* A PROVA, e não a contagem dela.
+                  "3 fotos" obriga a abrir para ver. A miniatura da última
+                  mostra o aparelho na hora, que é o que se confere quando o
+                  cliente liga reclamando de um risco na tampa.
+                  A contagem fica ao lado, porque continua importando saber que
+                  existem outras — e a assinatura não tem miniatura: ela é
+                  prova jurídica, não visual, e o que importa dela é existir. */}
               <span className={estilo.acompProva}>
+                {o.fotoId ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- a
+                     rota `/api/foto` já entrega a miniatura pronta e exige
+                     sessão. Passar por `next/image` acrescentaria um salto
+                     pelo otimizador para reencodar uma imagem de 28px que já
+                     está no tamanho certo, e um salto a mais numa rota
+                     autenticada é ganho nenhum e risco a mais. É o mesmo
+                     caminho da ficha da ordem. */
+                  <img
+                    className={estilo.acompMini}
+                    src={`/api/foto/${o.fotoId}?t=1`}
+                    alt=""
+                    loading="lazy"
+                    width={28}
+                    height={28}
+                  />
+                ) : null}
                 {o.fotos} foto{o.fotos === 1 ? '' : 's'} · {o.assinaturas} assinatura
                 {o.assinaturas === 1 ? '' : 's'}
               </span>

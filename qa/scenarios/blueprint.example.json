@@ -1,0 +1,30 @@
+{
+  "_comentario": "BLUEPRINT — roteiro de fluxos que o Claude EXTRAI do DIAGRAMA (PDF) do sistema. Ajuste baseUrl/login e descreva cada fluxo do diagrama como uma sequência de passos. 'auto:campo' gera dado real. Ações: ir, clicar (por texto ou seletor), preencher, verificarTexto, verificarSemTexto, verificarUrl, esperar.",
+  "nome": "Meu Sistema",
+  "baseUrl": "https://SEU-SISTEMA-DE-TESTE",
+  "login": { "url": "/login", "user": "USUARIO_TESTE", "pass": "SENHA_TESTE" },
+  "fluxos": [
+    {
+      "nome": "Cadastro de cliente (diagrama: Menu > Clientes > Novo > Salvar)",
+      "usuario": { "user": "admin_teste", "pass": "senha_teste" },
+      "passos": [
+        { "acao": "ir", "alvo": "/clientes/novo", "espera": "formulário de novo cliente" },
+        { "acao": "preencher", "campo": "#nome", "valor": "auto:nome" },
+        { "acao": "preencher", "campo": "#email", "valor": "auto:email" },
+        { "acao": "clicar", "texto": "Salvar", "espera": "diagrama: vai para a tela de sucesso" },
+        { "acao": "verificarTexto", "valor": "sucesso", "espera": "confirmação de salvamento" },
+        { "acao": "ir", "alvo": "/clientes", "espera": "diagrama: cliente aparece na listagem" },
+        { "acao": "verificarTexto", "valor": "Teste QA", "espera": "linkagem entre módulos OK" }
+      ]
+    },
+    {
+      "nome": "Geração de contrato (diagrama: Cliente > Gerar contrato)",
+      "passos": [
+        { "acao": "ir", "alvo": "/contratos/novo" },
+        { "acao": "clicar", "texto": "Gerar contrato", "espera": "diagrama: PDF do contrato pronto" },
+        { "acao": "verificarSemTexto", "valor": "{{", "espera": "sem variável de template em branco" },
+        { "acao": "verificarTexto", "valor": "CPF", "espera": "contrato com os dados do cliente" }
+      ]
+    }
+  ]
+}
