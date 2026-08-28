@@ -61,6 +61,26 @@ semear() {
   psqlq -tAc "TRUNCATE $TABELAS RESTART IDENTITY CASCADE;" >/dev/null 2>&1
   set -a; . "$PG_ENV"; set +a
   SEED_SUPERADMIN_PASSWORD="${QA_SENHA_SUPER:-Ensaio@2026x}" npm run db:seed -- --demo >/dev/null 2>&1
+
+  # E O CENÁRIO, que é o que faltava aqui.
+  #
+  # `db:seed --demo` cria a empresa, a equipe, os clientes e o catálogo de
+  # peças — e NENHUMA ORDEM. Até hoje as ordens da fase 2 eram as que os
+  # próprios roteiros iam criando: a `jornada.mjs` fazia a sua, a `fluxos.js`
+  # fazia as dela, e quem rodasse depois herdava o que sobrou.
+  #
+  # Isso acopla os roteiros pela ORDEM em que rodam, que é o acoplamento mais
+  # difícil de enxergar. O `documentos.mjs` foi o primeiro a pagar: sozinho ele
+  # passava, e dentro da bateria reprovava dizendo "sem botão Emitir contrato"
+  # — acusando a tela. A tela estava certa. Não havia nenhuma ordem com
+  # orçamento aprovado e saldo em aberto, porque a `jornada.mjs` leva a dela
+  # até FINALIZADO (quitada) e mais ninguém deixava uma devendo.
+  #
+  # `cenario-demo.mts` monta 23 ordens em seis etapas diferentes, PELO MOTOR —
+  # com linha do tempo, eventos encadeados, fotos e assinaturas de verdade. São
+  # 19 segundos que trocam "o que sobrou da execução anterior" por um ponto de
+  # partida igual toda vez.
+  npx tsx scripts/cenario-demo.mts >/dev/null 2>&1
   # O super admin nasce com senha aleatória e obrigação de trocar; os roteiros
   # precisam de uma senha conhecida e de entrar direto.
   node -e "

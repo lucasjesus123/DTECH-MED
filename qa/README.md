@@ -97,5 +97,14 @@ Hoje ele lê a etapa, clica, e observa o banco até ela mudar.
 seguinte de um jeito que parece defeito do produto: uma ordem antiga na fila de
 faturamento faz o roteiro clicar no `.first()` errado.
 
+**Não herde o dado de outro roteiro.** É o acoplamento mais difícil de enxergar,
+porque não aparece em nenhum arquivo: os roteiros ficam presos à ORDEM em que
+rodam. O `documentos.mjs` foi o primeiro a pagar — sozinho passava, na bateria
+reprovava dizendo "sem botão Emitir contrato", acusando a tela. A tela estava
+certa: não existia nenhuma ordem com orçamento aprovado e saldo em aberto,
+porque o `db:seed --demo` não cria ordens e a `jornada.mjs` leva a dela até
+quitada. Hoje o `semear()` roda também o `scripts/cenario-demo.mts`, que monta 23
+ordens em seis etapas pelo motor — todo roteiro começa do mesmo lugar.
+
 **Não rode duas passadas ao mesmo tempo.** Elas compartilham o banco, e o
 `TRUNCATE` de uma apaga o mundo da outra no meio do caminho.

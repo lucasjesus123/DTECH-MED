@@ -31,19 +31,49 @@ async function entrar(email) {
   return p
 }
 
-// Uma ordem com orçamento APROVADO e SALDO EM ABERTO.
-//
-// A primeira versão pegava qualquer ordem aprovada, e caiu numa já quitada: o
-// contrato saía certo e a nota promissória saía com "ZERO REAL" por extenso no
-// meio da folha — um título sem objeto, assinável. O teste precisa de uma
-// ordem que deva alguma coisa, senão não exercita a nota.
+/**
+ * Uma ordem com orçamento APROVADO, SALDO EM ABERTO e — isto é o que faltava —
+ * DA EMPRESA DO FÁBIO.
+ *
+ * A primeira versão pegava qualquer ordem aprovada, e caiu numa já quitada: o
+ * contrato saía certo e a nota promissória saía com "ZERO REAL" por extenso no
+ * meio da folha — um título sem objeto, assinável. O teste precisa de uma ordem
+ * que deva alguma coisa, senão não exercita a nota.
+ *
+ * A segunda versão passava sozinha e reprovava dentro da bateria, que é o pior
+ * jeito de um teste falhar — parece defeito do produto. Ela anunciava "sem botão
+ * Emitir contrato", acusando a tela. A tela estava certa.
+ *
+ * O motivo verdadeiro: NÃO HAVIA ORDEM NENHUMA que servisse. O `db:seed --demo`
+ * não cria ordens, e a `jornada.mjs` leva a dela até FINALIZADO — quitada. Sem
+ * ninguém devendo nada, a consulta voltava vazia, o `goto` ia para
+ * `/painel/ordens/` (a LISTA, que naturalmente não tem botão de emitir), e o
+ * teste culpava a tela errada. Consertado na raiz: o `semear()` da bateria agora
+ * monta o cenário completo antes da fase 2.
+ *
+ * O `tenantId` abaixo é cinto de segurança para o problema VIZINHO, que ainda
+ * não tinha mordido: `isolamento.mjs` roda antes e cria uma segunda franquia.
+ * Este `sql` é super admin e enxerga as duas, então um dia o `limit 1` cairia
+ * numa ordem da vizinha — que o Fábio, corretamente, não pode abrir.
+ */
+const tenantDoFabio = sql(`select "tenantId" from usuarios where email = 'fabio@dtechmed.com.br' limit 1`)
 const ordemId = sql(`
   select o.id from ordens o
     join orcamentos q on q."ordemId" = o.id and q.status::text = 'APROVADO'
     left join faturas f on f."ordemId" = o.id
-   where coalesce(f."valorTotalCentavos" + f."multaCentavos" + f."jurosCentavos"
+   where o."tenantId" = '${tenantDoFabio}'
+     and coalesce(f."valorTotalCentavos" + f."multaCentavos" + f."jurosCentavos"
                   - f."valorPagoCentavos", q."totalCentavos") > 0
    limit 1`)
+
+// Sem ordem, o `goto` iria para `/painel/ordens/` — a LISTA, que naturalmente
+// não tem botão de emitir. O teste reprovaria dizendo "sem botão", que é uma
+// acusação falsa sobre a tela errada. Melhor parar aqui e dizer o que faltou.
+if (!ordemId) {
+  console.log('  🔴 nenhuma ordem com orçamento aprovado e saldo em aberto na empresa do Fábio')
+  console.log('     semeie o banco antes: npm run db:seed -- --demo')
+  process.exit(1)
+}
 // O CONTRATO usa o total; a NOTA usa o saldo em aberto. São números diferentes
 // de propósito: um contrato quitado continua valendo o que valia.
 const totalEsperado = sql(`
@@ -103,13 +133,18 @@ console.log('\n3) O valor por extenso está DENTRO do PDF')
 // O texto do PDF é comprimido; a prova aqui é o valor em algarismo no título e
 // o extenso conferido pelo teste unitário. O que dá para afirmar do arquivo é
 // que ele foi gerado a partir do valor certo — e isso a trilha registra.
+// Presa ao `entidadeId`: sem isso a leitura pegaria "o último documento emitido
+// no banco inteiro", que pode ser de outra ordem — e o teste compararia o valor
+// de uma ordem com a trilha de outra.
 const trilhaNota = sql(`
   select detalhes::text from audit_logs
-   where acao = 'documento.emitido' and detalhes::text like '%NOTA_PROMISSORIA%'
+   where acao = 'documento.emitido' and "entidadeId" = '${ordemId}'
+     and detalhes::text like '%NOTA_PROMISSORIA%'
    order by "criadoEm" desc limit 1`)
 const trilhaContrato = sql(`
   select detalhes::text from audit_logs
-   where acao = 'documento.emitido' and detalhes::text like '%CONTRATO_PRESTACAO%'
+   where acao = 'documento.emitido' and "entidadeId" = '${ordemId}'
+     and detalhes::text like '%CONTRATO_PRESTACAO%'
    order by "criadoEm" desc limit 1`)
 
 trilhaContrato.includes(totalEsperado)
@@ -123,9 +158,13 @@ Number(abertoEsperado) > 0
   : nao('a nota foi emitida sobre saldo zero')
 
 console.log('\n3b) Ordem QUITADA recusa a nota, mas aceita o contrato')
+// Da empresa do Fábio, pelo mesmo motivo de lá em cima: a vizinha tem ordens
+// quitadas também, e ele não pode abri-las.
 const quitada = sql(`
   select f."ordemId" from faturas f
-   where f."valorTotalCentavos" + f."multaCentavos" + f."jurosCentavos" - f."valorPagoCentavos" <= 0
+    join ordens o on o.id = f."ordemId"
+   where o."tenantId" = '${tenantDoFabio}'
+     and f."valorTotalCentavos" + f."multaCentavos" + f."jurosCentavos" - f."valorPagoCentavos" <= 0
    limit 1`)
 if (quitada) {
   await p.goto(`${QA_BASE}/painel/ordens/${quitada}`, { waitUntil: 'networkidle' })
@@ -158,7 +197,8 @@ await t.waitForTimeout(800)
 console.log('\n5) Ordem SEM valor aprovado é recusada com frase legível')
 const semValor = sql(`
   select o.id from ordens o
-   where not exists (select 1 from orcamentos q where q."ordemId" = o.id and q.status::text = 'APROVADO')
+   where o."tenantId" = '${tenantDoFabio}'
+     and not exists (select 1 from orcamentos q where q."ordemId" = o.id and q.status::text = 'APROVADO')
      and not exists (select 1 from faturas f where f."ordemId" = o.id)
    limit 1`)
 if (semValor) {
