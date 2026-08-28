@@ -5,6 +5,7 @@ import { formatarBRL } from '@/lib/dinheiro'
 import { exigirSessao, exigirAba } from '@/server/auth/guarda'
 import { listarOrdens, tecnicosDaEmpresa } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import AbasOS from '../os-abas'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Ordens', robots: { index: false } }
@@ -23,7 +24,7 @@ export default async function Ordens({
 }: {
   searchParams: Promise<{ busca?: string; etapa?: string; tecnico?: string; situacao?: string }>
 }) {
-  const { ctx } = await exigirSessao()
+  const { ctx, sessao } = await exigirSessao()
   // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
   await exigirAba('ordens')
   const q = await searchParams
@@ -43,12 +44,14 @@ export default async function Ordens({
       <div className={estilo.cab}>
         <div>
           <p className={estilo.grav}>Central</p>
-          <h1 className={estilo.titulo}>Ordens</h1>
+          <h1 className={estilo.titulo}>O.S.</h1>
         </div>
-        <Link href="/painel/ordens/nova" className={estilo.btnPrimario}>
-          Abrir ordem de retirada
+        <Link href="/painel/ordens/nova" className={estilo.btnOS}>
+          Abrir O.S.
         </Link>
       </div>
+
+      <AbasOS atual="ordens" papel={sessao.papel} telas={sessao.telas} />
 
       {/* Formulário GET: o filtro fica na URL, então o link pode ser mandado
           para outra pessoa e abre exatamente a mesma lista. */}

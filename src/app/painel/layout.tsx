@@ -133,6 +133,11 @@ export default async function LayoutPainel({ children }: { children: React.React
      * Agora as duas leem `TELAS`, o mesmo catálogo. Aba nova entra num lugar só.
      */
     for (const t of telasEfetivas(p, sessao.telas)) {
+      // As telas que são ABA de outra não ganham linha no menu — elas aparecem
+      // na barra de abas da tela dona. A permissão delas continua valendo: é
+      // por isso que elas passam por `telasEfetivas` normalmente e só depois
+      // são retiradas daqui.
+      if (t.abaDe) continue
       const grupo = grupos.find((g) => g.titulo === t.grupo)
       const item: ItemNav = { href: t.href, rotulo: t.rotulo, icone: t.icone }
       if (grupo) grupo.itens.push(item)

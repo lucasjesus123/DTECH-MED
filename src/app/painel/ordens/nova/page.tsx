@@ -5,7 +5,7 @@ import { leadPorId } from '@/server/consultas/listas'
 import Formulario from './formulario'
 import estilo from '../../painel.module.css'
 
-export const metadata: Metadata = { title: 'Abrir ordem de retirada', robots: { index: false } }
+export const metadata: Metadata = { title: 'Abrir O.S.', robots: { index: false } }
 export const dynamic = 'force-dynamic'
 
 /**
@@ -38,7 +38,7 @@ export default async function NovaOrdem({
       <div className={estilo.cab}>
         <div>
           <p className={estilo.grav}>{lead ? 'Contato do site' : 'Central'}</p>
-          <h1 className={estilo.titulo}>Abrir ordem de retirada</h1>
+          <h1 className={estilo.titulo}>Abrir O.S.</h1>
         </div>
       </div>
 

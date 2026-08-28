@@ -52,7 +52,7 @@ await f.locator('input[name=cidade]').fill('Lajeado')
 await f.locator('input[name=marca]').fill('Lavieen')
 await f.locator('input[name=modelo]').fill('Duo')
 await f.locator('textarea[name=defeito]').fill('Desliga sozinho depois de dez minutos de uso.')
-await f.getByRole('button', { name: /abrir ordem e gerar/i }).click()
+await f.getByRole('button', { name: /abrir O\.S\. e gerar/i }).click()
 await ana.waitForTimeout(3000)
 
 const ordemId = sql('SELECT id FROM ordens ORDER BY "abertaEm" DESC LIMIT 1')

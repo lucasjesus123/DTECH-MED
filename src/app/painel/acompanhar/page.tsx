@@ -5,6 +5,7 @@ import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
 import { ondeEsta } from '@/server/ordem/onde-esta'
 import { montarTrilha } from '@/server/ordem/trilha'
 import { Cartoes, type CartaoOrdem } from './cartoes'
+import AbasOS from '../os-abas'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Acompanhar', robots: { index: false } }
@@ -42,7 +43,7 @@ export default async function Acompanhar({
 }: {
   searchParams: Promise<{ q?: string }>
 }) {
-  const { ctx } = await exigirPapel(
+  const { ctx, sessao } = await exigirPapel(
     Papel.ADMIN_EMPRESA,
     Papel.GESTOR,
     Papel.ATENDENTE,
@@ -63,13 +64,15 @@ export default async function Acompanhar({
     <>
       <div className={estilo.cab}>
         <div>
-          <p className={estilo.grav}>A esteira</p>
+          <p className={estilo.grav}>O.S.</p>
           <h1 className={estilo.titulo}>Acompanhar</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
             Todo equipamento que está com a gente agora, e em que ponto está cada um.
           </p>
         </div>
       </div>
+
+      <AbasOS atual="acompanhar" papel={sessao.papel} telas={sessao.telas} />
 
       <div className={estilo.resumo}>
         <div className={estilo.indicador}>

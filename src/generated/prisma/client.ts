@@ -222,6 +222,26 @@ export type AuditLog = Prisma.AuditLogModel
  */
 export type Lancamento = Prisma.LancamentoModel
 /**
+ * Model Compromisso
+ * UM COMPROMISSO DA CASA — a única coisa do Calendário que não é consequência
+ * de outra.
+ * 
+ * As cinco fontes que o Calendário já juntava nascem de outro lugar: a parada
+ * vem de uma ordem, a preventiva vem de um contrato, o vencimento vem de um
+ * lançamento. Nenhuma delas se marca direto num dia.
+ * 
+ * Só que o dia de quem toca a assistência tem coisa que não é nenhuma das
+ * cinco: "visitar a clínica antes de orçar", "reunião com o contador",
+ * "treinamento do técnico no forno novo". Sem esta tabela o Calendário só
+ * espelhava as outras telas, e não deixava marcar nada.
+ * 
+ * É DA EMPRESA, e não de cada um: uma agenda privada responderia "o que EU
+ * tenho hoje" e perderia a pergunta que o Calendário existe para responder —
+ * "o que a EQUIPE tem essa semana". Numa assistência de sete pessoas, é a
+ * segunda que evita mandar dois técnicos para o mesmo lado.
+ */
+export type Compromisso = Prisma.CompromissoModel
+/**
  * Model Recorrencia
  * O que se repete todo mês: aluguel, energia, contador, o contrato de
  * manutenção que o cliente paga mensalmente.

@@ -53,6 +53,23 @@ export type Tela = {
   icone: NomeIcone
   /** O papel MÍNIMO. Abaixo dele, marcar a aba não adianta. */
   piso: Papel
+  /**
+   * A chave da tela DONA, quando esta é aba de outra.
+   *
+   * Ordens, Acompanhar e Rota respondem à mesma pergunta — "cadê esta O.S. e o
+   * que falta nela" — e ocupavam três linhas do menu. Pela regra da casa isso é
+   * ABA, não item.
+   *
+   * O que este campo NÃO faz é tirar permissão. As três continuam com chave
+   * própria, piso próprio e marcação própria: quem só pode ver a Rota continua
+   * podendo, e a barra de abas mostra só as abas que a pessoa alcança. O campo
+   * decide uma coisa só — se a tela ganha linha no menu lateral ou aparece
+   * como aba dentro da dona.
+   *
+   * Sem isso a alternativa seria fundir as três chaves numa, e aí a marcação de
+   * quem já escolheu "só Rota" apontaria para uma chave que deixou de existir.
+   */
+  abaDe?: string
 }
 
 /**
@@ -114,11 +131,27 @@ export const TELAS: readonly Tela[] = [
   // `eventosDoMes(ctx, mes, { comDinheiro })`.
   { chave: 'calendario',   rotulo: 'Calendário',        grupo: 'Hoje',       href: '/painel/calendario',   icone: 'preventiva',  piso: Papel.MOTORISTA },
 
-  { chave: 'ordens',       rotulo: 'Ordens',            grupo: 'O trabalho', href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
-  { chave: 'acompanhar',   rotulo: 'Acompanhar',        grupo: 'O trabalho', href: '/painel/acompanhar',   icone: 'trilha',      piso: Papel.MOTORISTA },
-  // Uma entrada onde havia quatro: a agenda, o mapa ao vivo e os dois
-  // aplicativos de campo. Ver o comentário dos grupos, acima.
-  { chave: 'rota',         rotulo: 'Rota',              grupo: 'O trabalho', href: '/painel/rota',         icone: 'rota',        piso: Papel.MOTORISTA },
+  // ---------------------------------------------------------------------------
+  // O.S. — as três que eram três linhas do menu
+  // ---------------------------------------------------------------------------
+  // Ordens, Acompanhar e Rota nunca foram assuntos diferentes: são três modos
+  // de olhar A MESMA O.S. — a lista dela, o estágio dela, e a rua dela. Três
+  // linhas no menu obrigavam a pessoa a escolher o modo ANTES de escolher o
+  // assunto, que é a ordem trocada: ninguém abre o sistema querendo "ver a
+  // aba Acompanhar", abre querendo saber de uma O.S.
+  //
+  // Pela regra da casa, isso é ABA. Uma linha no menu — O.S. — e as três como
+  // abas dentro dela.
+  //
+  // As CHAVES continuam três, e é de propósito: elas guardam a permissão de
+  // cada pessoa. Fundir as três numa faria a marcação de quem escolheu "só
+  // Rota" apontar para uma chave que deixou de existir, e essa pessoa abriria
+  // o sistema sem ter para onde ir.
+  { chave: 'ordens',       rotulo: 'O.S.',              grupo: 'O trabalho', href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
+  { chave: 'acompanhar',   rotulo: 'Acompanhar',        grupo: 'O trabalho', href: '/painel/acompanhar',   icone: 'trilha',      piso: Papel.MOTORISTA, abaDe: 'ordens' },
+  // Esta já tinha juntado quatro: a agenda, o mapa ao vivo e os dois
+  // aplicativos de campo. Agora ela mesma é aba.
+  { chave: 'rota',         rotulo: 'Rota',              grupo: 'O trabalho', href: '/painel/rota',         icone: 'rota',        piso: Papel.MOTORISTA, abaDe: 'ordens' },
 
   // A tela virou DUAS abas — contatos do site e o funil de orçamentos — e o
   // rótulo acompanhou. A chave NÃO muda: ela está gravada na marcação de abas

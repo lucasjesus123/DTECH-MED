@@ -383,6 +383,7 @@ export type UserWhereInput = {
   orcamentosRevisor?: Prisma.OrcamentoListRelationFilter
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
   pagamentos?: Prisma.PagamentoListRelationFilter
+  compromissos?: Prisma.CompromissoListRelationFilter
   auditoria?: Prisma.AuditLogListRelationFilter
   recuperacoes?: Prisma.RecuperacaoSenhaListRelationFilter
 }
@@ -424,6 +425,7 @@ export type UserOrderByWithRelationInput = {
   orcamentosRevisor?: Prisma.OrcamentoOrderByRelationAggregateInput
   movimentos?: Prisma.MovimentoEstoqueOrderByRelationAggregateInput
   pagamentos?: Prisma.PagamentoOrderByRelationAggregateInput
+  compromissos?: Prisma.CompromissoOrderByRelationAggregateInput
   auditoria?: Prisma.AuditLogOrderByRelationAggregateInput
   recuperacoes?: Prisma.RecuperacaoSenhaOrderByRelationAggregateInput
 }
@@ -469,6 +471,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   orcamentosRevisor?: Prisma.OrcamentoListRelationFilter
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
   pagamentos?: Prisma.PagamentoListRelationFilter
+  compromissos?: Prisma.CompromissoListRelationFilter
   auditoria?: Prisma.AuditLogListRelationFilter
   recuperacoes?: Prisma.RecuperacaoSenhaListRelationFilter
 }, "id" | "tenantId_email">
@@ -573,6 +576,7 @@ export type UserCreateInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -613,6 +617,7 @@ export type UserUncheckedCreateInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -653,6 +658,7 @@ export type UserUpdateInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -693,6 +699,7 @@ export type UserUncheckedUpdateInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1144,6 +1151,22 @@ export type UserUpdateOneWithoutAuditoriaNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditoriaInput, Prisma.UserUpdateWithoutAuditoriaInput>, Prisma.UserUncheckedUpdateWithoutAuditoriaInput>
 }
 
+export type UserCreateNestedOneWithoutCompromissosInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCompromissosInput, Prisma.UserUncheckedCreateWithoutCompromissosInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCompromissosInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCompromissosNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCompromissosInput, Prisma.UserUncheckedCreateWithoutCompromissosInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCompromissosInput
+  upsert?: Prisma.UserUpsertWithoutCompromissosInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCompromissosInput, Prisma.UserUpdateWithoutCompromissosInput>, Prisma.UserUncheckedUpdateWithoutCompromissosInput>
+}
+
 export type UserCreateNestedOneWithoutRecuperacoesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutRecuperacoesInput, Prisma.UserUncheckedCreateWithoutRecuperacoesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecuperacoesInput
@@ -1193,6 +1216,7 @@ export type UserCreateWithoutTenantInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -1232,6 +1256,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1328,6 +1353,7 @@ export type UserCreateWithoutSessoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -1367,6 +1393,7 @@ export type UserUncheckedCreateWithoutSessoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1422,6 +1449,7 @@ export type UserUpdateWithoutSessoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -1461,6 +1489,7 @@ export type UserUncheckedUpdateWithoutSessoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1500,6 +1529,7 @@ export type UserCreateWithoutOrdensAtendenteInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -1539,6 +1569,7 @@ export type UserUncheckedCreateWithoutOrdensAtendenteInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1583,6 +1614,7 @@ export type UserCreateWithoutOrdensTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -1622,6 +1654,7 @@ export type UserUncheckedCreateWithoutOrdensTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1677,6 +1710,7 @@ export type UserUpdateWithoutOrdensAtendenteInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -1716,6 +1750,7 @@ export type UserUncheckedUpdateWithoutOrdensAtendenteInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1766,6 +1801,7 @@ export type UserUpdateWithoutOrdensTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -1805,6 +1841,7 @@ export type UserUncheckedUpdateWithoutOrdensTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1844,6 +1881,7 @@ export type UserCreateWithoutEventosInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -1883,6 +1921,7 @@ export type UserUncheckedCreateWithoutEventosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1938,6 +1977,7 @@ export type UserUpdateWithoutEventosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -1977,6 +2017,7 @@ export type UserUncheckedUpdateWithoutEventosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2016,6 +2057,7 @@ export type UserCreateWithoutFotosInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2055,6 +2097,7 @@ export type UserUncheckedCreateWithoutFotosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2110,6 +2153,7 @@ export type UserUpdateWithoutFotosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -2149,6 +2193,7 @@ export type UserUncheckedUpdateWithoutFotosInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2188,6 +2233,7 @@ export type UserCreateWithoutOrcamentosTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2227,6 +2273,7 @@ export type UserUncheckedCreateWithoutOrcamentosTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2271,6 +2318,7 @@ export type UserCreateWithoutOrcamentosRevisorInput = {
   orcamentosTecnico?: Prisma.OrcamentoCreateNestedManyWithoutTecnicoInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2310,6 +2358,7 @@ export type UserUncheckedCreateWithoutOrcamentosRevisorInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTecnicoInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2365,6 +2414,7 @@ export type UserUpdateWithoutOrcamentosTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -2404,6 +2454,7 @@ export type UserUncheckedUpdateWithoutOrcamentosTecnicoInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2454,6 +2505,7 @@ export type UserUpdateWithoutOrcamentosRevisorInput = {
   orcamentosTecnico?: Prisma.OrcamentoUpdateManyWithoutTecnicoNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -2493,6 +2545,7 @@ export type UserUncheckedUpdateWithoutOrcamentosRevisorInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedUpdateManyWithoutTecnicoNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2532,6 +2585,7 @@ export type UserCreateWithoutMovimentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoCreateNestedManyWithoutTecnicoInput
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2571,6 +2625,7 @@ export type UserUncheckedCreateWithoutMovimentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTecnicoInput
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2626,6 +2681,7 @@ export type UserUpdateWithoutMovimentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUpdateManyWithoutTecnicoNestedInput
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -2665,6 +2721,7 @@ export type UserUncheckedUpdateWithoutMovimentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedUpdateManyWithoutTecnicoNestedInput
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2704,6 +2761,7 @@ export type UserCreateWithoutPagamentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoCreateNestedManyWithoutTecnicoInput
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2743,6 +2801,7 @@ export type UserUncheckedCreateWithoutPagamentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTecnicoInput
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2798,6 +2857,7 @@ export type UserUpdateWithoutPagamentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUpdateManyWithoutTecnicoNestedInput
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -2837,6 +2897,7 @@ export type UserUncheckedUpdateWithoutPagamentosInput = {
   orcamentosTecnico?: Prisma.OrcamentoUncheckedUpdateManyWithoutTecnicoNestedInput
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -2876,6 +2937,7 @@ export type UserCreateWithoutAgendamentosMotoristaInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
@@ -2915,6 +2977,7 @@ export type UserUncheckedCreateWithoutAgendamentosMotoristaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
@@ -2970,6 +3033,7 @@ export type UserUpdateWithoutAgendamentosMotoristaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -3009,6 +3073,7 @@ export type UserUncheckedUpdateWithoutAgendamentosMotoristaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -3049,6 +3114,7 @@ export type UserCreateWithoutAuditoriaInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
 }
 
@@ -3088,6 +3154,7 @@ export type UserUncheckedCreateWithoutAuditoriaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3143,6 +3210,7 @@ export type UserUpdateWithoutAuditoriaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
 
@@ -3182,6 +3250,183 @@ export type UserUncheckedUpdateWithoutAuditoriaInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCompromissosInput = {
+  id?: string
+  nome: string
+  email: string
+  telefone?: string | null
+  senhaHash: string
+  papel: $Enums.Papel
+  ativo?: boolean
+  trocarSenha?: boolean
+  ultimoLogin?: Date | string | null
+  tentativasFalhas?: number
+  bloqueadoAte?: Date | string | null
+  avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
+  documento?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  criadoPorId?: string | null
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsuariosInput
+  sessoes?: Prisma.SessaoCreateNestedManyWithoutUserInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutAutorInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutAutorInput
+  agendamentosMotorista?: Prisma.AgendamentoCreateNestedManyWithoutMotoristaInput
+  ordensTecnico?: Prisma.OrdemCreateNestedManyWithoutTecnicoInput
+  ordensAtendente?: Prisma.OrdemCreateNestedManyWithoutAtendenteInput
+  orcamentosTecnico?: Prisma.OrcamentoCreateNestedManyWithoutTecnicoInput
+  orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
+  pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCompromissosInput = {
+  id?: string
+  tenantId?: string | null
+  nome: string
+  email: string
+  telefone?: string | null
+  senhaHash: string
+  papel: $Enums.Papel
+  ativo?: boolean
+  trocarSenha?: boolean
+  ultimoLogin?: Date | string | null
+  tentativasFalhas?: number
+  bloqueadoAte?: Date | string | null
+  avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
+  documento?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  criadoPorId?: string | null
+  sessoes?: Prisma.SessaoUncheckedCreateNestedManyWithoutUserInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutAutorInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutAutorInput
+  agendamentosMotorista?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutMotoristaInput
+  ordensTecnico?: Prisma.OrdemUncheckedCreateNestedManyWithoutTecnicoInput
+  ordensAtendente?: Prisma.OrdemUncheckedCreateNestedManyWithoutAtendenteInput
+  orcamentosTecnico?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTecnicoInput
+  orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
+  pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCompromissosInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCompromissosInput, Prisma.UserUncheckedCreateWithoutCompromissosInput>
+}
+
+export type UserUpsertWithoutCompromissosInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCompromissosInput, Prisma.UserUncheckedUpdateWithoutCompromissosInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCompromissosInput, Prisma.UserUncheckedCreateWithoutCompromissosInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCompromissosInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCompromissosInput, Prisma.UserUncheckedUpdateWithoutCompromissosInput>
+}
+
+export type UserUpdateWithoutCompromissosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.StringFieldUpdateOperationsInput | string
+  papel?: Prisma.EnumPapelFieldUpdateOperationsInput | $Enums.Papel
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trocarSenha?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ultimoLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
+  bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
+  documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenant?: Prisma.TenantUpdateOneWithoutUsuariosNestedInput
+  sessoes?: Prisma.SessaoUpdateManyWithoutUserNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutAutorNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutAutorNestedInput
+  agendamentosMotorista?: Prisma.AgendamentoUpdateManyWithoutMotoristaNestedInput
+  ordensTecnico?: Prisma.OrdemUpdateManyWithoutTecnicoNestedInput
+  ordensAtendente?: Prisma.OrdemUpdateManyWithoutAtendenteNestedInput
+  orcamentosTecnico?: Prisma.OrcamentoUpdateManyWithoutTecnicoNestedInput
+  orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
+  pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCompromissosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.StringFieldUpdateOperationsInput | string
+  papel?: Prisma.EnumPapelFieldUpdateOperationsInput | $Enums.Papel
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trocarSenha?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ultimoLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
+  bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
+  documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessoes?: Prisma.SessaoUncheckedUpdateManyWithoutUserNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutAutorNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutAutorNestedInput
+  agendamentosMotorista?: Prisma.AgendamentoUncheckedUpdateManyWithoutMotoristaNestedInput
+  ordensTecnico?: Prisma.OrdemUncheckedUpdateManyWithoutTecnicoNestedInput
+  ordensAtendente?: Prisma.OrdemUncheckedUpdateManyWithoutAtendenteNestedInput
+  orcamentosTecnico?: Prisma.OrcamentoUncheckedUpdateManyWithoutTecnicoNestedInput
+  orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
+  pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3221,6 +3466,7 @@ export type UserCreateWithoutRecuperacoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
 }
 
@@ -3260,6 +3506,7 @@ export type UserUncheckedCreateWithoutRecuperacoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -3315,6 +3562,7 @@ export type UserUpdateWithoutRecuperacoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
 }
 
@@ -3354,6 +3602,7 @@ export type UserUncheckedUpdateWithoutRecuperacoesInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -3419,6 +3668,7 @@ export type UserUpdateWithoutTenantInput = {
   orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
 }
@@ -3458,6 +3708,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -3505,6 +3756,7 @@ export type UserCountOutputType = {
   orcamentosRevisor: number
   movimentos: number
   pagamentos: number
+  compromissos: number
   auditoria: number
   recuperacoes: number
 }
@@ -3520,6 +3772,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   orcamentosRevisor?: boolean | UserCountOutputTypeCountOrcamentosRevisorArgs
   movimentos?: boolean | UserCountOutputTypeCountMovimentosArgs
   pagamentos?: boolean | UserCountOutputTypeCountPagamentosArgs
+  compromissos?: boolean | UserCountOutputTypeCountCompromissosArgs
   auditoria?: boolean | UserCountOutputTypeCountAuditoriaArgs
   recuperacoes?: boolean | UserCountOutputTypeCountRecuperacoesArgs
 }
@@ -3607,6 +3860,13 @@ export type UserCountOutputTypeCountPagamentosArgs<ExtArgs extends runtime.Types
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountCompromissosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompromissoWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountAuditoriaArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AuditLogWhereInput
 }
@@ -3656,6 +3916,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   orcamentosRevisor?: boolean | Prisma.User$orcamentosRevisorArgs<ExtArgs>
   movimentos?: boolean | Prisma.User$movimentosArgs<ExtArgs>
   pagamentos?: boolean | Prisma.User$pagamentosArgs<ExtArgs>
+  compromissos?: boolean | Prisma.User$compromissosArgs<ExtArgs>
   auditoria?: boolean | Prisma.User$auditoriaArgs<ExtArgs>
   recuperacoes?: boolean | Prisma.User$recuperacoesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3760,6 +4021,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   orcamentosRevisor?: boolean | Prisma.User$orcamentosRevisorArgs<ExtArgs>
   movimentos?: boolean | Prisma.User$movimentosArgs<ExtArgs>
   pagamentos?: boolean | Prisma.User$pagamentosArgs<ExtArgs>
+  compromissos?: boolean | Prisma.User$compromissosArgs<ExtArgs>
   auditoria?: boolean | Prisma.User$auditoriaArgs<ExtArgs>
   recuperacoes?: boolean | Prisma.User$recuperacoesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3785,6 +4047,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     orcamentosRevisor: Prisma.$OrcamentoPayload<ExtArgs>[]
     movimentos: Prisma.$MovimentoEstoquePayload<ExtArgs>[]
     pagamentos: Prisma.$PagamentoPayload<ExtArgs>[]
+    compromissos: Prisma.$CompromissoPayload<ExtArgs>[]
     auditoria: Prisma.$AuditLogPayload<ExtArgs>[]
     recuperacoes: Prisma.$RecuperacaoSenhaPayload<ExtArgs>[]
   }
@@ -4258,6 +4521,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   orcamentosRevisor<T extends Prisma.User$orcamentosRevisorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$orcamentosRevisorArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrcamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movimentos<T extends Prisma.User$movimentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$movimentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovimentoEstoquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pagamentos<T extends Prisma.User$pagamentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pagamentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PagamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  compromissos<T extends Prisma.User$compromissosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$compromissosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompromissoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditoria<T extends Prisma.User$auditoriaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditoriaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   recuperacoes<T extends Prisma.User$recuperacoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recuperacoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecuperacaoSenhaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -4971,6 +5235,30 @@ export type User$pagamentosArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.PagamentoScalarFieldEnum | Prisma.PagamentoScalarFieldEnum[]
+}
+
+/**
+ * User.compromissos
+ */
+export type User$compromissosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Compromisso
+   */
+  select?: Prisma.CompromissoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Compromisso
+   */
+  omit?: Prisma.CompromissoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompromissoInclude<ExtArgs> | null
+  where?: Prisma.CompromissoWhereInput
+  orderBy?: Prisma.CompromissoOrderByWithRelationInput | Prisma.CompromissoOrderByWithRelationInput[]
+  cursor?: Prisma.CompromissoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompromissoScalarFieldEnum | Prisma.CompromissoScalarFieldEnum[]
 }
 
 /**

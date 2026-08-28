@@ -148,7 +148,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
 
       <div className={estilo.acoesForm}>
         <button type="submit" className={estilo.btn} disabled={pendente}>
-          {pendente ? 'Abrindo…' : 'Abrir ordem e gerar o PDF de retirada'}
+          {pendente ? 'Abrindo…' : 'Abrir O.S. e gerar o PDF de retirada'}
         </button>
       </div>
     </form>

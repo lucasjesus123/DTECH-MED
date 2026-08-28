@@ -309,6 +309,7 @@ model Tenant {
   recuperacoes        RecuperacaoSenha[]
   lancamentos         Lancamento[]
   recorrencias        Recorrencia[]
+  compromissos        Compromisso[]
 
   @@index([ativo])
   @@map("tenants")
@@ -385,6 +386,7 @@ model User {
   orcamentosRevisor     Orcamento[]        @relation("RevisorOrcamento")
   movimentos            MovimentoEstoque[]
   pagamentos            Pagamento[]
+  compromissos          Compromisso[]      @relation("ResponsavelCompromisso")
   auditoria             AuditLog[]
   recuperacoes          RecuperacaoSenha[]
 
@@ -1462,6 +1464,66 @@ model Lancamento {
   @@index([tenantId, grupo])
   @@index([tenantId, clienteId])
   @@map("lancamentos")
+}
+
+/// UM COMPROMISSO DA CASA — a única coisa do Calendário que não é consequência
+/// de outra.
+///
+/// As cinco fontes que o Calendário já juntava nascem de outro lugar: a parada
+/// vem de uma ordem, a preventiva vem de um contrato, o vencimento vem de um
+/// lançamento. Nenhuma delas se marca direto num dia.
+///
+/// Só que o dia de quem toca a assistência tem coisa que não é nenhuma das
+/// cinco: "visitar a clínica antes de orçar", "reunião com o contador",
+/// "treinamento do técnico no forno novo". Sem esta tabela o Calendário só
+/// espelhava as outras telas, e não deixava marcar nada.
+///
+/// É DA EMPRESA, e não de cada um: uma agenda privada responderia "o que EU
+/// tenho hoje" e perderia a pergunta que o Calendário existe para responder —
+/// "o que a EQUIPE tem essa semana". Numa assistência de sete pessoas, é a
+/// segunda que evita mandar dois técnicos para o mesmo lado.
+model Compromisso {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  titulo String
+
+  /// O DIA, sem hora e sem fuso — `@db.Date` de propósito.
+  ///
+  /// As outras fontes guardam instante porque o instante importa (a parada tem
+  /// hora marcada, o vencimento tem fuso). Um compromisso é do dia: guardar
+  /// `timestamp` traria de volta o evento do dia 12 aparecendo no 11 para quem
+  /// abre a tela de outro fuso.
+  dia DateTime @db.Date
+
+  /// 'HH:MM' ou nulo — "quinta de manhã" é um compromisso legítimo e não tem
+  /// hora. Texto, e não `time`, porque só é exibido e ordenado: 'HH:MM' ordena
+  /// igual em texto e em relógio.
+  hora String?
+
+  /// Quem vai. OPCIONAL de propósito: metade dos compromissos de uma empresa
+  /// pequena não tem dono ("entrega do fornecedor chega dia 12"), e obrigar um
+  /// nome faria alguém escolher um qualquer só para o formulário salvar.
+  responsavelId String?
+  responsavel   User?   @relation("ResponsavelCompromisso", fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  observacao String?
+
+  /// Resolvido. O compromisso NÃO é apagado quando cumprido: a agenda de trás é
+  /// o que responde "quando foi mesmo que estivemos lá".
+  concluido Boolean @default(false)
+
+  /// O id some se a pessoa for removida; o nome fica, e é ele que a tela mostra.
+  autorId   String?
+  autorNome String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([tenantId, dia])
+  @@index([tenantId, responsavelId, dia])
+  @@map("compromissos")
 }
 
 /// O que se repete todo mês: aluguel, energia, contador, o contrato de

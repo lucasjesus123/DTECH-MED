@@ -55,8 +55,8 @@ export default async function PainelDoDia({
           <p className={estilo.grav}>{saudacao()}, {primeiroNome(sessao.nome)}</p>
           <h1 className={estilo.titulo}>Onde a esteira está agora</h1>
         </div>
-        <Link href="/painel/ordens/nova" className={estilo.btnPrimario}>
-          Abrir ordem de retirada
+        <Link href="/painel/ordens/nova" className={estilo.btnOS}>
+          Abrir O.S.
         </Link>
       </div>
 

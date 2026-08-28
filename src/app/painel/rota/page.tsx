@@ -5,6 +5,7 @@ import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { agendaDoPeriodo, motoristasDaEmpresa, semAgendamento } from '@/server/consultas/listas'
 import Agendador from './agendador'
 import AbasDaRota from './abas'
+import AbasOS from '../os-abas'
 import estilo from '../painel.module.css'
 import { amanha, diaLocal, hoje } from '@/lib/datas'
 
@@ -20,7 +21,7 @@ export const dynamic = 'force-dynamic'
  * para ver a agenda cheia e não perceber as seis retiradas que ninguém marcou.
  */
 export default async function Agenda() {
-  const { ctx } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE)
+  const { ctx, sessao } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE)
   // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
   await exigirAba('rota')
 
@@ -40,13 +41,15 @@ export default async function Agenda() {
     <>
       <div className={estilo.cab}>
         <div>
-          <p className={estilo.grav}>O trabalho</p>
+          <p className={estilo.grav}>O.S.</p>
           <h1 className={estilo.titulo}>Rota</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
             O que está marcado para os próximos dias, e o que ninguém marcou ainda.
           </p>
         </div>
       </div>
+
+      <AbasOS atual="rota" papel={sessao.papel} telas={sessao.telas} />
 
       <AbasDaRota atual="planejada" />
 

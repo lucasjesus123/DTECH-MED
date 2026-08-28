@@ -456,6 +456,49 @@
   box-shadow: 0 0 30px -8px var(--brilho);
 }
 
+/* ===== Abrir O.S. — o botão que não se procura ==========================
+   A ação mais repetida do sistema é abrir uma O.S., e ela estava vestida igual
+   a qualquer outro botão primário — a pessoa varria a tela toda vez para achar
+   a mesma coisa que aperta trinta vezes por dia.
+
+   O destaque vem de TRÊS camadas, e nenhuma delas é cor gritada:
+
+     · o violeta VIVO (--vio) no lugar do fechado (--vio-forte), que é a mesma
+       família da marca com mais luz;
+     · um halo permanente em volta, não só no hover — é ele que faz o botão
+       "acender" na tela escura;
+     · uma borda clara de 1px, que separa o halo do fundo e evita o borrão que
+       sombra sem borda produz.
+
+   O pulso é discreto de propósito: 2,8 s, e some inteiro para quem pediu menos
+   movimento. Botão que pisca rápido vira anúncio, e anúncio o olho aprende a
+   ignorar — que é o contrário do que este botão precisa. */
+.btnOS {
+  composes: btnPrimario;
+  background: var(--vio);
+  border: 1px solid var(--vio-claro);
+  box-shadow:
+    0 0 0 1px var(--vio-veu-2),
+    0 0 22px -4px var(--brilho),
+    0 0 44px -12px var(--brilho);
+  animation: pulsoOS 2800ms var(--ease) infinite;
+}
+.btnOS:hover {
+  background: var(--vio-claro);
+  box-shadow:
+    0 0 0 1px var(--vio-veu-2),
+    0 0 30px 0 var(--brilho),
+    0 0 60px -8px var(--brilho);
+  animation: none;
+}
+@keyframes pulsoOS {
+  0%, 100% { box-shadow: 0 0 0 1px var(--vio-veu-2), 0 0 22px -4px var(--brilho), 0 0 44px -12px var(--brilho); }
+  50%      { box-shadow: 0 0 0 1px var(--vio-veu-2), 0 0 26px -2px var(--brilho), 0 0 56px -8px var(--brilho); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btnOS { animation: none; }
+}
+
 /* ===== Indicadores ======================================================
    Quatro números de contexto. São APOIO, não o assunto: a esteira abaixo é o
    assunto. Por isso eles ficam menores que antes e sobre a mesa, sem a moldura
