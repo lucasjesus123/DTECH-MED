@@ -14,6 +14,8 @@ import { janelaDoDia } from '@/lib/datas'
 export type Parada = {
   id: string
   ordemId: string
+  /** De quem é a parada. Só o modo gestão desenha isto. */
+  motorista: string | null
   tipo: 'RETIRADA' | 'ENTREGA'
   numero: number
   cliente: string
@@ -30,8 +32,31 @@ export type Parada = {
   emRota: boolean
 }
 
-/** As paradas do dia do motorista logado, na ordem da rota. */
-export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promise<Parada[]> {
+/**
+ * As paradas do dia, na ordem da rota.
+ *
+ * =============================================================================
+ * `motoristaId: null` É O MODO GESTÃO, E NÃO UM DESCUIDO
+ * =============================================================================
+ * Quem administra a empresa precisava ver o aplicativo de campo e não
+ * conseguia: a tela recusava qualquer papel que não fosse MOTORISTA, e mesmo
+ * atravessando essa recusa ela mostraria a rota DELE — que é vazia, porque ele
+ * não dirige.
+ *
+ * O efeito prático era que ninguém acima do motorista sabia o que o aplicativo
+ * mostra. Não dava para conferir se uma parada chegou, não dava para explicar
+ * por telefone o que o motorista está vendo, e não dava para descobrir que o
+ * endereço saiu errado antes de o cliente reclamar.
+ *
+ * Com `null`, vêm as paradas de TODA a empresa, e cada uma diz de quem é. É
+ * leitura: quem age na parada continua sendo o motorista dela, porque a máquina
+ * de estados confere o dono na hora da assinatura — não é a tela que decide
+ * isso, e por isso abrir a tela não abre a ação.
+ */
+export async function rotaDoDia(
+  ctx: ContextoAcesso,
+  motoristaId: string | null,
+): Promise<Parada[]> {
   // A janela do dia DE LAJEADO, e não a do fuso do processo. Ver `@/lib/datas`:
   // com `setHours` numa máquina em UTC, o "dia" corria das 21h às 21h e a rota
   // perdia toda parada marcada para depois das 21h.
@@ -40,7 +65,8 @@ export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promi
   const ags = await comEscopo(ctx, (tx) =>
     tx.agendamento.findMany({
       where: {
-        motoristaId,
+        // Sem motorista: a rota da empresa inteira (modo gestão).
+        ...(motoristaId ? { motoristaId } : {}),
         previstoPara: { gte: inicio, lt: fim },
         status: { in: ['ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] },
       },
@@ -52,6 +78,8 @@ export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promi
             equipamento: { select: { marca: true, modelo: true } },
           },
         },
+        // Só interessa no modo gestão, onde a lista mistura motoristas.
+        motorista: { select: { nome: true } },
       },
     }),
   )
@@ -60,6 +88,7 @@ export async function rotaDoDia(ctx: ContextoAcesso, motoristaId: string): Promi
   return ags.map((a) => ({
     id: a.id,
     ordemId: a.ordemId,
+    motorista: a.motorista?.nome ?? null,
     tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
     numero: a.ordem.numero,
     cliente: a.ordem.cliente.nome,

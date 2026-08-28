@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirSessao } from '@/server/auth/guarda'
+import { NIVEL, exigirSessao } from '@/server/auth/guarda'
 import { rotaDoDia } from '@/server/consultas/campo'
 import { Saida } from './saida'
 import { Rastro } from './rastro'
@@ -11,9 +11,26 @@ export const dynamic = 'force-dynamic'
 
 export default async function Motorista() {
   const { sessao, ctx } = await exigirSessao()
-  if (sessao.papel !== Papel.MOTORISTA && sessao.papel !== Papel.SUPER_ADMIN) redirect('/painel')
 
-  const paradas = await rotaDoDia(ctx, sessao.userId)
+  /**
+   * QUEM ENTRA AQUI, E POR QUE ISSO MUDOU.
+   *
+   * Antes: só MOTORISTA e SUPER_ADMIN. Quem administra a empresa não conseguia
+   * nem abrir a tela — e o efeito prático era que ninguém acima do motorista
+   * sabia o que o aplicativo mostra. Não dava para conferir se a parada chegou,
+   * nem para explicar por telefone o que ele está vendo, nem para descobrir que
+   * o endereço saiu errado antes de o cliente reclamar.
+   *
+   * Agora quem gerencia entra em MODO GESTÃO: vê a rota da empresa inteira, com
+   * o nome do motorista em cada parada, e não vê botão de ação nenhum. Abrir a
+   * tela não abre a ação — a máquina de estados confere o dono da parada na hora
+   * da assinatura, e continua conferindo.
+   */
+  const gerencia = NIVEL[sessao.papel] >= NIVEL[Papel.GESTOR]
+  if (sessao.papel !== Papel.MOTORISTA && !gerencia) redirect('/painel')
+
+  // Modo gestão vê a rota de TODOS; o motorista vê a dele.
+  const paradas = await rotaDoDia(ctx, gerencia ? null : sessao.userId)
   const feitas = paradas.filter((p) => p.concluida).length
   const proxima = paradas.find((p) => !p.concluida)
 
@@ -21,7 +38,7 @@ export default async function Motorista() {
     <>
       <header className={estilo.cabecalho}>
         <span className={estilo.grav}>Rota de hoje</span>
-        <h1>{sessao.nome}</h1>
+        <h1>{gerencia ? (sessao.tenantNome ?? 'A rota do dia') : sessao.nome}</h1>
         <div className={estilo.cabLinha}>
           <span>
             {paradas.length} {paradas.length === 1 ? 'parada' : 'paradas'} · {feitas} concluídas
@@ -31,10 +48,20 @@ export default async function Motorista() {
       </header>
 
       <main className={estilo.corpo}>
+        {/* A faixa que separa olhar de agir. Sem ela, quem gerencia acha que a
+            tela não funciona quando o botão de "cheguei" não aparece. */}
+        {gerencia ? (
+          <p className={estilo.modoGestao}>
+            <strong>Modo gestão.</strong> Você está vendo a rota de todos os motoristas, como eles
+            veem. Registrar chegada e colher assinatura continua sendo de quem está na rua.
+          </p>
+        ) : null}
+
         {paradas.length === 0 ? (
           <p className={estilo.vazio}>
-            Nenhuma parada atribuída a você hoje. Quando a central agendar uma retirada
-            ou entrega, ela aparece aqui.
+            {gerencia
+              ? 'Nenhuma parada agendada para hoje na empresa. O que a central marcar aparece aqui.'
+              : 'Nenhuma parada atribuída a você hoje. Quando a central agendar uma retirada ou entrega, ela aparece aqui.'}
           </p>
         ) : (
           paradas.map((p) => {

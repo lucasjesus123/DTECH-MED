@@ -63,6 +63,13 @@ export const TELAS: readonly Tela[] = [
   { chave: 'agenda',       rotulo: 'Agenda de rota',    grupo: 'A esteira',  href: '/painel/agenda',       icone: 'rota',        piso: Papel.MOTORISTA },
   { chave: 'contatos',     rotulo: 'Contatos do site',  grupo: 'A esteira',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
 
+  // Os aplicativos de campo, vistos de dentro do painel. Existiam e não tinham
+  // como chegar neles: quem gerencia precisava saber o endereço de cor — e,
+  // sabendo, era recusado na porta. Agora entram em modo gestão, que mostra a
+  // rota e a bancada da empresa inteira e não oferece botão de ação nenhum.
+  { chave: 'app-motorista', rotulo: 'App do motorista', grupo: 'A esteira', href: '/app/motorista', icone: 'rota',        piso: Papel.GESTOR },
+  { chave: 'app-tecnico',   rotulo: 'App do técnico',   grupo: 'A esteira', href: '/app/tecnico',   icone: 'equipamento', piso: Papel.GESTOR },
+
   { chave: 'clientes',     rotulo: 'Clientes',          grupo: 'Cadastros',  href: '/painel/clientes',     icone: 'clientes',    piso: Papel.ATENDENTE },
   { chave: 'equipamentos', rotulo: 'Equipamentos',      grupo: 'Cadastros',  href: '/painel/equipamentos', icone: 'equipamento', piso: Papel.MOTORISTA },
 

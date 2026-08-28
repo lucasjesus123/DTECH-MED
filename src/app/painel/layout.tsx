@@ -2,12 +2,14 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { telasEfetivas } from '@/server/auth/telas'
-import { encerrarSessao, lerSessao } from '@/server/auth/sessao'
+import { contextoDe, encerrarSessao, lerSessao } from '@/server/auth/sessao'
+import { estadoWhatsapp } from '@/server/consultas/listas'
 import { lerTema } from '@/server/acoes/tema'
 import estilo from './painel.module.css'
 import Navegacao, { type GrupoNav, type ItemNav } from './nav'
 import SeletorDeTema from './tema'
 import FaixaDaVisita from './faixa-da-visita'
+import SeloWhatsapp from './selo-whatsapp'
 import { Credito } from '../credito'
 import { Marca } from '../marca'
 
@@ -56,6 +58,11 @@ export default async function LayoutPainel({ children }: { children: React.React
   }
 
   const tema = await lerTema()
+
+  // O estado do número, para o selo da barra. Uma consulta por índice único, na
+  // mesma transação de escopo — e ela responde a pergunta que ninguém pensa em
+  // fazer: "os avisos ao cliente ainda estão saindo?".
+  const whats = await estadoWhatsapp(contextoDe(sessao))
 
   /**
    * A navegação, montada no SERVIDOR e entregue pronta ao componente cliente.
@@ -184,6 +191,16 @@ export default async function LayoutPainel({ children }: { children: React.React
             <i className={estilo.pulso} aria-hidden="true" />
             {sessao.tenantNome ?? 'Plataforma'}
           </span>
+
+          {/* O SELO DO WHATSAPP, e por que ele vive na barra de TODA tela.
+              Quando o número cai, nada na tela muda: o orçamento continua
+              salvando, a ordem continua andando, e os avisos ao cliente
+              simplesmente param de sair. A fila engorda em silêncio e alguém
+              descobre dias depois, pelo cliente reclamando que não foi avisado.
+              Um selo que só existisse na tela de WhatsApp seria visto por quem
+              já foi lá conferir — ou seja, por quem já desconfiava. */}
+          <SeloWhatsapp estado={whats} />
+
           <span className={estilo.data}>{hoje()}</span>
         </header>
         <div className={estilo.rolagem}>

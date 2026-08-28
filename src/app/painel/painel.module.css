@@ -2939,29 +2939,50 @@
    A opacidade é baixíssima de propósito: o efeito tem de ser sentido e não
    percebido. Se você consegue apontar a mancha, ela está forte demais.
    -------------------------------------------------------------------------- */
-.principal { position: relative; isolation: isolate; }
+/* --------------------------------------------------------------------------
+   DUAS CORREÇÕES, E VALE REGISTRAR AS DUAS PORQUE FORAM DEFEITO MEU.
+   --------------------------------------------------------------------------
+   1. ERA `position: fixed`. Somado ao `isolation: isolate` desta caixa, isso
+      criava um contexto de empilhamento que se pinta DEPOIS da lateral — e o
+      `inset: 0` do elemento fixo cobre a viewport inteira. Resultado: a mancha
+      lavava de roxo a metade de baixo do menu. `absolute` prende a mancha à
+      coluna de conteúdo, que é onde ela sempre deveria ter ficado.
+
+   2. ERA FORTE DEMAIS NO ESCURO. No claro, uma mancha a 0,85 sobre branco é um
+      sopro. No escuro, sobre quase-preto, a mesma mancha é um borrão colorido
+      no meio da tela de trabalho — e o painel escuro tem de ser CALMO: fundo
+      fundo, cartão claro, e o olho indo direto no número.
+
+      A opacidade agora é declarada por tema, e o escuro fica em 0,35. O efeito
+      tem de ser sentido, não percebido. Se você consegue apontar a mancha, ela
+      está forte demais — e estava.
+   -------------------------------------------------------------------------- */
+.principal { position: relative; isolation: isolate; overflow-x: clip; }
 
 .principal::before {
   content: '';
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(48rem 32rem at 82% 8%, var(--vio-veu), transparent 70%),
-    radial-gradient(38rem 30rem at 12% 92%, var(--neon-veu), transparent 72%);
-  opacity: .85;
+    radial-gradient(48rem 32rem at 88% 4%, var(--vio-veu), transparent 68%),
+    radial-gradient(34rem 26rem at 6% 96%, var(--neon-veu), transparent 70%);
+  opacity: .75;
 }
+
+/* O escuro recua. Sobre quase-preto qualquer cor pesa o dobro. */
+.app[data-tema='escuro'] .principal::before { opacity: .35; }
 
 @media (prefers-reduced-motion: no-preference) {
   .principal::before {
-    animation: mesaRespira 26s ease-in-out infinite alternate;
+    animation: mesaRespira 30s ease-in-out infinite alternate;
   }
 }
 
 @keyframes mesaRespira {
-  from { transform: translate3d(0, 0, 0) scale(1); opacity: .7; }
-  to   { transform: translate3d(-2%, 1.5%, 0) scale(1.06); opacity: 1; }
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-1.5%, 1%, 0) scale(1.04); }
 }
 
 /* A barra de cima ganha um fio de luz na base. Ela já era "vidro"; o fio é o
@@ -3558,4 +3579,81 @@
   gap: var(--s2);
   margin-top: auto;
   padding-top: var(--s2);
+}
+
+/* ==========================================================================
+   O SELO DO WHATSAPP NA BARRA
+   --------------------------------------------------------------------------
+   Três estados, e o bom é o mais discreto de propósito.
+
+   Conectado é a situação de 99% dos dias. Um selo verde gritando o dia inteiro
+   vira papel de parede — e aí, no dia em que ficar vermelho, ninguém repara na
+   diferença. Então ele é só um ponto e o número, sem moldura.
+
+   Caído ganha moldura, cor e texto por extenso. E é LINK: um aviso que não leva
+   à solução obriga a pessoa a procurar onde arrumar, e é aí que ela desiste.
+   ========================================================================== */
+.zapOk,
+.zapCaiu,
+.zapFalta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  flex: none;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease);
+}
+
+.zapOk {
+  color: var(--txt-3);
+  border: 1px solid transparent;
+}
+.zapOk .zapPonto { background: var(--sinal); box-shadow: 0 0 0 3px var(--sinal-veu); }
+
+.zapCaiu {
+  color: var(--alerta);
+  background: var(--alerta-veu);
+  border: 1px solid var(--alerta-borda);
+}
+.zapCaiu:hover { background: color-mix(in oklab, var(--alerta) 16%, transparent); }
+.zapCaiu .zapPonto { background: var(--alerta); box-shadow: 0 0 0 3px var(--alerta-veu); }
+
+.zapFalta {
+  color: var(--espera);
+  background: var(--espera-veu);
+  border: 1px solid var(--espera-borda);
+}
+.zapFalta:hover { background: color-mix(in oklab, var(--espera) 16%, transparent); }
+.zapFalta .zapPonto { background: var(--espera); box-shadow: 0 0 0 3px var(--espera-veu); }
+
+.zapPonto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* O ponto do estado RUIM pisca devagar. O do estado bom não: movimento
+   constante numa barra que fica na tela o dia inteiro cansa, e gasta a atenção
+   que precisa sobrar para o dia em que algo estiver errado. */
+@media (prefers-reduced-motion: no-preference) {
+  .zapCaiu .zapPonto,
+  .zapFalta .zapPonto { animation: zapPisca 2.2s var(--ease) infinite; }
+}
+@keyframes zapPisca {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+@media (max-width: 720px) {
+  /* No celular a barra é estreita: some o texto do estado BOM (o ponto verde
+     já diz), e o texto do estado ruim FICA — é o que a pessoa precisa ler. */
+  .zapOk .zapTxt { display: none; }
+  .zapOk { padding: 0 8px; }
 }

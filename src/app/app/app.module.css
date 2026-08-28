@@ -295,3 +295,20 @@
 @media (prefers-reduced-motion: reduce) {
   .rastroPulso { animation: none; }
 }
+
+/* A faixa do MODO GESTÃO nos aplicativos de campo.
+   Quem administra abre o app para CONFERIR, e vê uma tela sem os botões de
+   ação. Sem esta faixa isso parece defeito — "o botão de registrar chegada
+   sumiu" — em vez de parecer o que é: você está olhando o trabalho de outra
+   pessoa, e agir nele continua sendo dela. */
+.modoGestao {
+  margin: 0 0 var(--s4);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r);
+  background: var(--vio-veu);
+  border: 1px solid var(--vio-borda);
+  color: var(--txt-2);
+  font-size: var(--t-xs);
+  line-height: 1.6;
+}
+.modoGestao strong { color: var(--txt); }

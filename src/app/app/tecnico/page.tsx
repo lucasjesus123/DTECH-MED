@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { exigirSessao } from '@/server/auth/guarda'
+import { NIVEL, exigirSessao } from '@/server/auth/guarda'
 import { bancada } from '@/server/consultas/campo'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from '../app.module.css'
@@ -10,7 +10,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function Tecnico() {
   const { sessao, ctx } = await exigirSessao()
-  if (sessao.papel !== Papel.TECNICO && sessao.papel !== Papel.SUPER_ADMIN) redirect('/painel')
+
+  // Mesmo motivo do app do motorista: quem gerencia precisa ver o que a bancada
+  // vê. Aqui o modo gestão nem muda a consulta — `bancada` já mostra a oficina
+  // inteira de propósito, porque o trabalho ali é compartilhado.
+  const gerencia = NIVEL[sessao.papel] >= NIVEL[Papel.GESTOR]
+  if (sessao.papel !== Papel.TECNICO && !gerencia) redirect('/painel')
 
   const fila = await bancada(ctx, sessao.userId)
   const chegando = fila.filter((o) => o.etapa === EtapaOrdem.COLETADO)

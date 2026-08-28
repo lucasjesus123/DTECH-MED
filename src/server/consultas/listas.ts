@@ -640,6 +640,44 @@ function resumir(texto: string | null, limite: number): string {
   return s.length <= limite ? s : `${s.slice(0, limite).trimEnd()}…`
 }
 
+/**
+ * O estado do WhatsApp da empresa, para o selo da barra.
+ *
+ * =============================================================================
+ * POR QUE ISTO É CONSULTADO EM TODA TELA
+ * =============================================================================
+ * Porque a queda do número é INVISÍVEL. Quando a instância cai, nada na tela
+ * muda: o orçamento salva, a ordem anda, o gestor aprova. O que para é o aviso
+ * ao cliente — e ele para em silêncio, engordando uma fila que ninguém olha.
+ * Alguém descobre dias depois, pelo cliente ligando para perguntar por que não
+ * foi avisado.
+ *
+ * Um selo que só existisse na tela de WhatsApp seria visto por quem já foi lá
+ * conferir. Ou seja: por quem já desconfiava. O aviso precisa estar onde a
+ * pessoa já está.
+ *
+ * O custo é uma consulta por índice único (`tenantId` é UNIQUE nesta tabela),
+ * na mesma transação de escopo que o layout já abre.
+ *
+ * Devolve `null` para o dono da plataforma fora de uma visita: ele não tem
+ * número, e um selo "desconectado" ali seria falso.
+ */
+export async function estadoWhatsapp(
+  ctx: ContextoAcesso,
+): Promise<{ status: string; numero: string | null } | null> {
+  if (!ctx.tenantId) return null
+
+  return comEscopo(ctx, async (tx) => {
+    const i = await tx.whatsappInstance.findUnique({
+      where: { tenantId: ctx.tenantId! },
+      select: { status: true, numero: true },
+    })
+    // Sem instância nenhuma é diferente de instância caída, e a tela diz os
+    // dois de jeitos diferentes: uma pede para conectar, a outra pede socorro.
+    return i ? { status: i.status, numero: i.numero } : { status: 'SEM_INSTANCIA', numero: null }
+  })
+}
+
 export async function leadPorId(ctx: ContextoAcesso, id: string) {
   return comEscopo(ctx, (tx) =>
     tx.lead.findFirst({
