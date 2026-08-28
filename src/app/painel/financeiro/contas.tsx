@@ -71,6 +71,7 @@ export default function Contas({
   tipo,
   mes,
   situacao,
+  busca,
   contas,
   categorias,
   clientes,
@@ -79,6 +80,7 @@ export default function Contas({
   tipo: 'PAGAR' | 'RECEBER'
   mes: string
   situacao: string
+  busca: string
   contas: Conta[]
   categorias: string[]
   clientes: ClienteBreve[]
@@ -155,10 +157,16 @@ export default function Contas({
         <input type="hidden" name="aba" value={tipo === 'PAGAR' ? 'pagar' : 'receber'} />
         <input type="hidden" name="mes" value={mes} />
         <div className={estilo.busca}>
+          {/* O campo GUARDA o que foi buscado.
+              Sem isto ele voltava vazio depois de filtrar, e a pessoa ficava
+              com uma lista curta e nenhuma pista do porquê — o filtro seguia
+              ativo, invisível. Todas as outras buscas do painel devolvem o
+              termo (ordens, faturas, clientes); esta destoava. */}
           <input
             className={estilo.campo}
             type="search"
             name="busca"
+            defaultValue={busca}
             placeholder={p.placeholderBusca}
             aria-label="Buscar contas"
           />

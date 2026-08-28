@@ -109,10 +109,14 @@ export type Panorama = {
   entrouCentavos: number
   saiuCentavos: number
   sobrouCentavos: number
-  /** Previsto: em aberto, olhando para frente. */
-  aReceberCentavos: number
-  aPagarCentavos: number
-  /** Em aberto E já passou da data. É o que exige ação hoje. */
+  /**
+   * Previsto: em aberto E JÁ PASSOU DA DATA. É o que exige ação hoje.
+   *
+   * Uma versão anterior devolvia também o total em aberto do mês (`aReceber` /
+   * `aPagar`), e nenhuma tela chegou a usar. Somatório que ninguém lê é peso
+   * que a consulta carrega toda vez que a página abre — e, pior, é a próxima
+   * pessoa achando que existe um lugar mostrando aquele número. Saiu.
+   */
   receberVencidoCentavos: number
   pagarVencidoCentavos: number
   receberVencidas: number
@@ -142,8 +146,6 @@ export async function panoramaDoMes(ctx: ContextoAcesso, mes: string): Promise<P
       Array<{
         entrou: bigint
         saiu: bigint
-        areceber: bigint
-        apagar: bigint
         recvenc: bigint
         pagvenc: bigint
         nrecvenc: bigint
@@ -159,14 +161,6 @@ export async function panoramaDoMes(ctx: ContextoAcesso, mes: string): Promise<P
         coalesce(sum("valorPagoCentavos") FILTER (
           WHERE tipo = 'PAGAR'   AND "pagoEm" >= ${inicio} AND "pagoEm" < ${fim}), 0) AS saiu,
 
-        -- Previsto: em aberto com vencimento na janela.
-        coalesce(sum("valorCentavos") FILTER (
-          WHERE tipo = 'RECEBER' AND "pagoEm" IS NULL
-            AND vencimento >= ${inicio} AND vencimento < ${fim}), 0) AS areceber,
-        coalesce(sum("valorCentavos") FILTER (
-          WHERE tipo = 'PAGAR'   AND "pagoEm" IS NULL
-            AND vencimento >= ${inicio} AND vencimento < ${fim}), 0) AS apagar,
-
         -- Vencido NÃO se limita ao mês da tela: uma conta de março que ninguém
         -- pagou continua sendo problema em agosto. Prender o atraso à janela
         -- esconderia justamente a dívida mais velha, que é a pior.
@@ -181,15 +175,12 @@ export async function panoramaDoMes(ctx: ContextoAcesso, mes: string): Promise<P
       FROM lancamentos WHERE "tenantId" = ${ctx.tenantId}
     `
 
-    // As faturas de serviço em aberto entram no "a receber": elas são dívida do
-    // cliente do mesmo jeito que um lançamento avulso. Ignorá-las faria o número
-    // do topo contradizer a aba de faturas logo abaixo, na mesma tela.
-    const [fat] = await tx.$queryRaw<
-      Array<{ aberto: bigint; vencido: bigint; nvencidas: bigint }>
-    >`
+    // A fatura de serviço vencida entra no "a receber vencido" junto com o
+    // lançamento avulso vencido: as duas são dívida do mesmo cliente, atrasada
+    // do mesmo jeito. Contar só uma delas faria o número do topo contradizer a
+    // aba de faturas logo abaixo, na mesma tela.
+    const [fat] = await tx.$queryRaw<Array<{ vencido: bigint; nvencidas: bigint }>>`
       SELECT
-        coalesce(sum("valorTotalCentavos" + "multaCentavos" + "jurosCentavos"
-                     - "valorPagoCentavos"), 0)                        AS aberto,
         coalesce(sum("valorTotalCentavos" + "multaCentavos" + "jurosCentavos"
                      - "valorPagoCentavos")
                  FILTER (WHERE vencimento < now()), 0)                 AS vencido,
@@ -208,8 +199,6 @@ export async function panoramaDoMes(ctx: ContextoAcesso, mes: string): Promise<P
       entrouCentavos: entrou,
       saiuCentavos: saiu,
       sobrouCentavos: entrou - saiu,
-      aReceberCentavos: Number(lanc?.areceber ?? 0) + Number(fat?.aberto ?? 0),
-      aPagarCentavos: Number(lanc?.apagar ?? 0),
       receberVencidoCentavos: Number(lanc?.recvenc ?? 0) + Number(fat?.vencido ?? 0),
       pagarVencidoCentavos: Number(lanc?.pagvenc ?? 0),
       receberVencidas: Number(lanc?.nrecvenc ?? 0) + Number(fat?.nvencidas ?? 0),

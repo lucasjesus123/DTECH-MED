@@ -217,6 +217,7 @@ async function PainelContas({
       tipo={tipo}
       mes={mes}
       situacao={situacao}
+      busca={busca ?? ''}
       categorias={categorias}
       clientes={clientes}
       podeApagar={podeApagar}
