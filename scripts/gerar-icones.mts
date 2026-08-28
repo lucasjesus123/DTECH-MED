@@ -29,7 +29,15 @@ function lerSimbolo() {
   if (!vb || !transform || !d) {
     throw new Error(`Não consegui ler ${SIMBOLO}. O formato mudou?`)
   }
+  // O `viewBox` PRECISA ter quatro números. `split` devolve o que houver, e sem
+  // esta conferência `larg` e `alt` seguem como `number | undefined` até virarem
+  // `NaN` no meio de um cálculo de escala — e o ícone sai com tamanho zero, sem
+  // erro em lugar nenhum. Um SVG malformado tem que reclamar aqui, onde a
+  // mensagem ainda diz qual arquivo olhar.
   const [, , larg, alt] = vb.split(/\s+/).map(Number)
+  if (!Number.isFinite(larg) || !Number.isFinite(alt) || larg === undefined || alt === undefined) {
+    throw new Error(`O viewBox de ${SIMBOLO} não tem largura e altura numéricas: "${vb}"`)
+  }
   return { larg, alt, transform, d }
 }
 

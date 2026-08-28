@@ -39,7 +39,7 @@ Doze itens viram treze. Sem a regra, seriam dezoito.
 A fila não é por tamanho nem por gosto: é por **quanto cada uma destrava o dia**
 e por **quanto uma depende da outra**.
 
-### 1 · Acompanhar em cartões
+### 1 · Acompanhar em cartões  ✅ FEITO
 *Enhancement da tela que existe. Nenhum item novo.*
 
 É a tela mais olhada do dia e a que menos responde. Hoje ela lista; a referência
@@ -53,7 +53,7 @@ todos os dias. Nada depende dela.
 retirada e o nome de quem assinou. O que hoje exige abrir a ficha passa a ser
 lido de relance.
 
-### 2 · Estoque com foto
+### 2 · Estoque com foto  ✅ FEITO
 *Enhancement da tela que existe. Nenhum item novo.*
 
 Você foi direto: *"a aba de estoque não está legal"*. O cadastro de peça precisa
@@ -66,7 +66,7 @@ site tem fotos) e porque o estoque alimenta o orçamento, que vem depois.
 **O que muda:** peça ganha foto e ficha; a listagem vira catálogo; o movimento
 de estoque mostra de qual ordem saiu.
 
-### 3 · Clientes: ficha completa
+### 3 · Clientes: ficha completa  ✅ FEITO
 *Enhancement da tela que existe. Nenhum item novo.*
 
 A ficha do cliente hoje é cadastro. Precisa virar **retrato**: equipamentos
@@ -77,7 +77,7 @@ respondem pergunta em vez de listar tudo.
 Vem em terceiro porque o Financeiro já entrega o número de dívida por cliente
 (`maioresDevedores`), então metade do trabalho está feita.
 
-### 4 · Comercial: o funil de orçamentos
+### 4 · Comercial: o funil de orçamentos  ✅ FEITO
 *Vira aba dentro de Comercial, ao lado de Contatos do site.*
 
 Orçamento já existe — ele nasce dentro da ordem. O que falta é **vê-los juntos**:

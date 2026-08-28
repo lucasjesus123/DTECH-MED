@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirNivel, exigirAba } from '@/server/auth/guarda'
+import { formatarBRL } from '@/lib/dinheiro'
+import { listarFunil, motivosDeRecusa, resumoDoFunil } from '@/server/consultas/comercial'
 import { listarContatos } from '@/server/consultas/listas'
+import AbasComercial, { type AbaComercial } from './abas'
+import Funil from './funil'
 import Lista from './lista'
 import estilo from '../painel.module.css'
 
-export const metadata: Metadata = { title: 'Contatos do site', robots: { index: false } }
+export const metadata: Metadata = { title: 'Comercial', robots: { index: false } }
 export const dynamic = 'force-dynamic'
 
 /**
@@ -44,25 +48,61 @@ export const dynamic = 'force-dynamic'
  * em algum momento — e o telefone de quem procurou a empresa não é nosso para
  * jogar fora.
  */
-export default async function Contatos({
+export default async function Comercial({
   searchParams,
 }: {
-  searchParams: Promise<{ situacao?: string; busca?: string }>
+  searchParams: Promise<{
+    aba?: string
+    situacao?: string
+    busca?: string
+    fase?: string
+    dias?: string
+  }>
 }) {
   const { ctx, sessao } = await exigirNivel(Papel.ATENDENTE)
   await exigirAba('contatos')
   const q = await searchParams
-
-  const r = await listarContatos(ctx, { situacao: q.situacao, busca: q.busca })
+  const aba: AbaComercial = q.aba === 'orcamentos' ? 'orcamentos' : 'contatos'
 
   return (
     <>
       <div className={estilo.cab}>
         <div>
           <p className={estilo.grav}>{sessao.tenantNome ?? 'Empresa'}</p>
-          <h1 className={estilo.titulo}>Contatos do site</h1>
+          <h1 className={estilo.titulo}>Comercial</h1>
+          <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
+            O que ainda não virou serviço: quem chamou pelo site, e o que já foi orçado e espera
+            resposta.
+          </p>
         </div>
       </div>
+
+      <AbasComercial atual={aba} />
+
+      {aba === 'orcamentos' ? (
+        <PainelOrcamentos ctx={ctx} fase={q.fase ?? ''} busca={q.busca ?? ''} dias={q.dias} />
+      ) : (
+        <PainelContatos ctx={ctx} situacao={q.situacao} busca={q.busca} />
+      )}
+    </>
+  )
+}
+
+type Ctx = Awaited<ReturnType<typeof exigirNivel>>['ctx']
+
+async function PainelContatos({
+  ctx,
+  situacao,
+  busca,
+}: {
+  ctx: Ctx
+  situacao?: string
+  busca?: string
+}) {
+  const r = await listarContatos(ctx, { situacao, busca })
+
+  return (
+    <>
 
       <div className={estilo.resumo}>
         <Indicador
@@ -125,6 +165,111 @@ export default async function Contatos({
           virouOrdem: Boolean(l.ordemGeradaId),
         }))}
       />
+    </>
+  )
+}
+
+/**
+ * O FUNIL DE ORÇAMENTOS.
+ *
+ * Cinco números que respondem, juntos, se o comercial está indo bem: quanto
+ * espera um sim, quanto virou serviço, quanto foi recusado, quantos de cada
+ * cem viram sim, e em quantos dias o cliente costuma responder.
+ *
+ * A TAXA só conta o que foi RESPONDIDO. Incluir os que ainda esperam faria a
+ * taxa cair toda vez que a empresa mandasse mais orçamentos — o oposto do que
+ * ela deveria medir.
+ */
+async function PainelOrcamentos({
+  ctx,
+  fase,
+  busca,
+  dias,
+}: {
+  ctx: Ctx
+  fase: string
+  busca: string
+  dias?: string
+}) {
+  const janela = Number(dias) > 0 ? Number(dias) : 90
+  const [linhas, resumo, motivos] = await Promise.all([
+    listarFunil(ctx, { fase, busca, dias: janela }),
+    resumoDoFunil(ctx, janela),
+    motivosDeRecusa(ctx, janela),
+  ])
+
+  return (
+    <>
+      <div className={`${estilo.resumo} ${estilo.resumo5}`}>
+        <Indicador
+          rotulo="Esperando um sim"
+          valor={formatarBRL(resumo.esperandoCentavos)}
+          nota={
+            resumo.esperandoQuantos > 0
+              ? `${resumo.esperandoQuantos} ${resumo.esperandoQuantos === 1 ? 'proposta' : 'propostas'}`
+              : 'nenhuma proposta em aberto'
+          }
+          alerta={resumo.vencidosQuantos > 0}
+        />
+        <Indicador
+          rotulo="Passou da validade"
+          valor={String(resumo.vencidosQuantos)}
+          nota={
+            resumo.vencidosQuantos > 0
+              ? 'ainda em aberto, mas o prazo venceu'
+              : 'nenhuma proposta vencida'
+          }
+          alerta={resumo.vencidosQuantos > 0}
+        />
+        <Indicador
+          rotulo="Virou serviço"
+          valor={formatarBRL(resumo.aprovadoCentavos)}
+          nota={`${resumo.aprovadoQuantos} ${resumo.aprovadoQuantos === 1 ? 'aprovada' : 'aprovadas'}`}
+        />
+        <Indicador
+          rotulo="De cada 100, viram sim"
+          // Nulo e não zero quando ninguém respondeu: "0%" diria que a empresa
+          // não vende nada, quando a verdade é que não há o que medir ainda.
+          valor={resumo.taxaAprovacao != null ? `${resumo.taxaAprovacao}` : '—'}
+          nota={
+            resumo.taxaAprovacao != null
+              ? `${resumo.aprovadoQuantos} sim para ${resumo.reprovadoQuantos} não`
+              : 'nenhuma resposta ainda'
+          }
+        />
+        <Indicador
+          rotulo="O cliente responde em"
+          valor={
+            resumo.diasParaResposta != null
+              ? `${resumo.diasParaResposta} ${resumo.diasParaResposta === 1 ? 'dia' : 'dias'}`
+              : '—'
+          }
+          nota="mediana, não média"
+        />
+      </div>
+
+      {/* O motivo da recusa estava gravado em `motivoReprovacao` e NENHUMA tela
+          lia. É a informação que muda o negócio: "achou caro" dez vezes no mês
+          é recado sobre a tabela de preço; "demora" dez vezes é recado sobre a
+          oficina. */}
+      {motivos.length > 0 ? (
+        <div className={estilo.bloco}>
+          <p className={estilo.blocoTitulo}>Por que recusaram</p>
+          <div className={estilo.pares}>
+            {motivos.map((m) => (
+              <div key={m.motivo} className={estilo.par}>
+                <span className={estilo.parRot}>{m.motivo}</span>
+                <span className={estilo.parVal} style={{ fontWeight: 600 }}>
+                  {m.quantidade} {m.quantidade === 1 ? 'vez' : 'vezes'}
+                </span>
+                <span className={estilo.fraco}>{formatarBRL(m.totalCentavos)} que não vieram</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <Funil linhas={linhas} fase={fase} busca={busca} dias={janela} />
     </>
   )
 }

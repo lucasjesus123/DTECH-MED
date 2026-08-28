@@ -106,7 +106,12 @@ export const TELAS: readonly Tela[] = [
   // aplicativos de campo. Ver o comentário dos grupos, acima.
   { chave: 'rota',         rotulo: 'Rota',              grupo: 'O trabalho', href: '/painel/rota',         icone: 'rota',        piso: Papel.MOTORISTA },
 
-  { chave: 'contatos',     rotulo: 'Contatos do site',  grupo: 'Comercial',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
+  // A tela virou DUAS abas — contatos do site e o funil de orçamentos — e o
+  // rótulo acompanhou. A chave NÃO muda: ela está gravada na marcação de abas
+  // de cada pessoa, e renomeá-la tiraria o acesso de quem já tinha marcado.
+  // É para isso que a chave é curta e estável, e o rótulo é que é a palavra
+  // da tela.
+  { chave: 'contatos',     rotulo: 'Comercial',         grupo: 'Comercial',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
 
   { chave: 'clientes',     rotulo: 'Clientes',          grupo: 'Cadastros',  href: '/painel/clientes',     icone: 'clientes',    piso: Papel.ATENDENTE },
   { chave: 'equipamentos', rotulo: 'Equipamentos',      grupo: 'Cadastros',  href: '/painel/equipamentos', icone: 'equipamento', piso: Papel.MOTORISTA },

@@ -186,7 +186,7 @@ async function main() {
     for (let n = 0; n < angulos.length; n++) {
       const bytes = await imagemDemo(angulos[n]!, ['#2C1A47', '#1D1030', '#150B24'][n % 3]!)
       const arquivo = new File([new Uint8Array(bytes)], `${angulos[n]}.jpg`, { type: 'image/jpeg' })
-      const r = await guardarFoto({ tenantId: t.id, ordemId, arquivo })
+      const r = await guardarFoto({ tenantId: t.id, escopo: ordemId, arquivo })
       if (!r.ok) throw new Error(`foto de demonstração: ${r.motivo}`)
 
       await comEscopo(ctx, async (tx) => {
