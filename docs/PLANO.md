@@ -90,7 +90,7 @@ de menu.
 
 **Depende de:** nada novo. Lê o que já está gravado.
 
-### 5 · Calendário estratégico
+### 5 · Calendário estratégico  ✅ FEITO
 *O único item de menu novo, no grupo Hoje.*
 
 Junta numa grade de mês tudo que tem data e ainda vai acontecer:

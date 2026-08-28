@@ -4144,3 +4144,154 @@
   outline-offset: 2px;
   border-radius: 2px;
 }
+
+/* =========================================================================
+   CALENDÁRIO
+   =========================================================================
+   `<table>` e não grade de divs: um calendário É uma tabela — dias da semana
+   em colunas, semanas em linhas. O leitor de tela anuncia "sábado, 15" porque
+   o cabeçalho da coluna está ligado à célula; numa grade de divs ele leria só
+   "15", e a informação que importa some.
+   ========================================================================= */
+.calGrade {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+  /* Sete colunas de dia não cabem abaixo disso sem o texto do evento virar uma
+     letra por linha. Abaixo da largura mínima, o `.rolaX` de fora assume e a
+     grade rola dentro da própria caixa — a PÁGINA continua sem rolar de lado. */
+  min-width: 700px;
+}
+.calGrade th {
+  padding: 6px 4px;
+  font-family: var(--f-texto);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  text-align: left;
+}
+.calDia {
+  vertical-align: top;
+  height: 92px;
+  padding: 5px;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+}
+/* Os dias vizinhos que completam a semana. Apagados, e não escondidos: sem
+   eles a grade fica com buracos nas pontas e o olho perde a coluna do dia da
+   semana, que é justamente como se lê um calendário. */
+.calForaDoMes { opacity: 0.42; }
+.calHoje {
+  border-color: var(--vio);
+  box-shadow: inset 0 0 0 1px var(--vio);
+}
+.calNumero {
+  display: block;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt-2);
+  margin-bottom: 3px;
+}
+.calHoje .calNumero { color: var(--vio-claro); }
+
+/* O evento. Uma linha por compromisso, cortada com reticências: o dia tem
+   altura fixa, e um título longo empurrando os outros para fora esconderia
+   justamente o que ainda não foi lido. O texto inteiro fica no `title`. */
+.calEvento {
+  display: block;
+  margin-bottom: 2px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 10.5px;
+  line-height: 1.25;
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+.calEventoTitulo {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.calEventoValor {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* DUAS FAMÍLIAS, e não cinco cores.
+ *
+ * O que exige SAIR — rota, preventiva, contrato terminando — usa o violeta do
+ * trabalho; o que é dinheiro usa o âmbar. É o mesmo par validado nos gráficos
+ * do Financeiro, que separa também por luminosidade e não só por matiz.
+ *
+ * Cinco cores diferentes numa grade de trinta e um dias viram confete — e uma
+ * grade que parece confete não é lida, é olhada. */
+.calRua {
+  background: var(--vio-veu);
+  border-left-color: var(--vio);
+  color: var(--vio-claro);
+}
+.calRua:hover { background: var(--vio-veu-2); }
+.calDinheiro {
+  background: var(--espera-veu);
+  border-left-color: var(--espera);
+  color: var(--espera);
+}
+.calDinheiro:hover { filter: brightness(1.08); }
+
+/* Passou da data e continua em aberto. O risco embaixo é a segunda pista, além
+   da cor: quem não distingue vermelho ainda vê a linha. */
+.calAtrasado {
+  text-decoration: underline;
+  text-decoration-color: var(--alerta);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.calLegenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin-top: var(--s4);
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+}
+.calLegenda span { display: inline-flex; align-items: center; gap: 6px; }
+.calPonto {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.calPontoRua { background: var(--vio); }
+.calPontoDinheiro { background: var(--espera); }
+
+/* O "+N mais" de um dia cheio.
+ *
+ * Um dia com trinta e duas paradas esticava a linha inteira e o calendário
+ * deixava de mostrar o mês de uma olhada — que é a única coisa que ele faz
+ * melhor que uma lista. `<details>` guarda o resto sem rota nova e sem
+ * JavaScript, e o conteúdo continua alcançável pelo teclado e pelo leitor de
+ * tela, que é o que "esconder" costuma quebrar. */
+.calMais > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 2px 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--txt-3);
+  border-radius: 3px;
+}
+.calMais > summary::-webkit-details-marker { display: none; }
+.calMais > summary:hover { color: var(--vio-claro); background: var(--vio-veu); }
+.calMais > summary:focus-visible {
+  outline: 2px solid var(--vio);
+  outline-offset: 1px;
+}

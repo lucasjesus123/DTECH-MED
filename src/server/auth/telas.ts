@@ -99,6 +99,20 @@ export type Grupo =
 
 export const TELAS: readonly Tela[] = [
   { chave: 'painel',       rotulo: 'Painel do dia',     grupo: 'Hoje',       href: '/painel',              icone: 'mostrador',   piso: Papel.MOTORISTA },
+  // O ÚNICO item novo desta rodada de seis telas, e ele é item porque não é
+  // recorte de nenhuma outra: atravessa rota, preventiva, contas e contratos,
+  // e a pergunta que faz — "o que vem por aí" — não é feita de dentro de
+  // nenhuma delas. Ao lado do Painel do dia porque um mostra o agora e o outro
+  // mostra o depois.
+  //
+  // Piso MOTORISTA: ele precisa ver as paradas da semana para se organizar.
+  //
+  // O dinheiro NÃO some sozinho, e escrever que somia foi o meu primeiro erro
+  // aqui: `comEscopo` filtra por EMPRESA (é o RLS entre franquias) e não sabe
+  // nada sobre papel. Do jeito ingênuo, o motorista veria salário, aluguel e
+  // quanto cada cliente deve. O corte é explícito, na consulta, em
+  // `eventosDoMes(ctx, mes, { comDinheiro })`.
+  { chave: 'calendario',   rotulo: 'Calendário',        grupo: 'Hoje',       href: '/painel/calendario',   icone: 'preventiva',  piso: Papel.MOTORISTA },
 
   { chave: 'ordens',       rotulo: 'Ordens',            grupo: 'O trabalho', href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
   { chave: 'acompanhar',   rotulo: 'Acompanhar',        grupo: 'O trabalho', href: '/painel/acompanhar',   icone: 'trilha',      piso: Papel.MOTORISTA },
