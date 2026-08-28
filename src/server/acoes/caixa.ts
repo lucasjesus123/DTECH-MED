@@ -7,7 +7,7 @@ import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos, dividirParcelas, lerValorBR } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
-import { mesAtual, mesValido } from '@/server/consultas/caixa'
+import { janelaDoMes, mesAtual, mesValido } from '@/server/consultas/caixa'
 
 /**
  * CONTAS A PAGAR, A RECEBER E RECORRÊNCIAS — pela tela.
@@ -365,6 +365,7 @@ const schemaRecorrencia = z.object({
   contraparte: z.string().trim().max(140).optional().or(z.literal('')),
   valor: valorBR,
   diaVencimento: z.coerce.number().int().min(1, 'Dia entre 1 e 31.').max(31, 'Dia entre 1 e 31.'),
+  inicio: z.string().optional().or(z.literal('')),
   fim: z.string().optional().or(z.literal('')),
   observacoes: z.string().trim().max(500).optional().or(z.literal('')),
 })
@@ -386,6 +387,16 @@ export async function salvarRecorrencia(_anterior: Resposta, form: FormData): Pr
   const fim = v.fim ? instanteDoDia(v.fim) : null
   if (fim && Number.isNaN(fim.getTime())) return { ok: false, motivo: 'Data final inválida.' }
 
+  // Desde quando esta conta existe. Poder pôr no passado é o que permite a
+  // quem começa a usar o sistema em agosto lançar as contas de janeiro a
+  // julho — antes a recorrência sempre nascia começando hoje, e aqueles meses
+  // ficavam inalcançáveis sem que nada na tela explicasse por quê.
+  const inicio = v.inicio ? instanteDoDia(v.inicio) : new Date()
+  if (Number.isNaN(inicio.getTime())) return { ok: false, motivo: 'Data de início inválida.' }
+  if (fim && fim < inicio) {
+    return { ok: false, motivo: 'A data final não pode ser anterior à de início.' }
+  }
+
   const dados = {
     tipo: v.tipo as TipoLancamento,
     descricao: v.descricao,
@@ -394,6 +405,7 @@ export async function salvarRecorrencia(_anterior: Resposta, form: FormData): Pr
     contraparte: v.contraparte || null,
     valorCentavos: aCentavos(v.valor),
     diaVencimento: v.diaVencimento,
+    inicio,
     fim,
     observacoes: v.observacoes || null,
   }
@@ -514,16 +526,20 @@ export async function gerarContasDoMes(mesBruto?: string): Promise<Resposta> {
   }
 
   const [ano, m] = mes.split('-').map(Number) as [number, number]
-  const primeiroDoMes = new Date(`${mes}-01T12:00:00-03:00`)
+  const { inicio: primeiroDia, fim: primeiroDoProximo } = janelaDoMes(mes)
   const ultimoDia = new Date(Date.UTC(ano, m, 0)).getUTCDate()
 
   const feitas = await comEscopo(a.ctx, async (tx) => {
     const modelos = await tx.recorrencia.findMany({
       where: {
         ativo: true,
-        OR: [{ ultimoMesGerado: null }, { ultimoMesGerado: { lt: mes } }],
-        inicio: { lt: new Date(Date.UTC(ano, m, 1)) },
-        AND: [{ OR: [{ fim: null }, { fim: { gte: primeiroDoMes } }] }],
+        inicio: { lt: primeiroDoProximo },
+        OR: [{ fim: null }, { fim: { gte: primeiroDia } }],
+        // A pergunta que torna isto idempotente DE VERDADE: esta recorrência
+        // já tem conta com vencimento DENTRO deste mês? Ver o comentário de
+        // `pendentesDeGeracao`, que explica por que a marca d'água anterior
+        // tornava todo mês passado inalcançável para sempre.
+        gerados: { none: { vencimento: { gte: primeiroDia, lt: primeiroDoProximo } } },
       },
       take: 300,
       select: {
@@ -559,10 +575,15 @@ export async function gerarContasDoMes(mesBruto?: string): Promise<Resposta> {
       })),
     })
 
-    await tx.recorrencia.updateMany({
-      where: { id: { in: modelos.map((r) => r.id) } },
-      data: { ultimoMesGerado: mes },
-    })
+    // A marca d'água é só informação na tela ("última conta gerada"), e por
+    // isso SOBE, nunca desce: gerar julho depois de agosto não pode fazer a
+    // ficha dizer que a última conta gerada foi a de julho.
+    await tx.$executeRaw`
+      UPDATE recorrencias
+         SET "ultimoMesGerado" = ${mes}
+       WHERE id = ANY(${modelos.map((r) => r.id)}::text[])
+         AND ("ultimoMesGerado" IS NULL OR "ultimoMesGerado" < ${mes})
+    `
     return modelos.length
   })
 

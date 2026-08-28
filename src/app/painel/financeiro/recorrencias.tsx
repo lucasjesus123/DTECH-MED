@@ -23,6 +23,7 @@ export type Recorrencia = {
   valorCentavos: number
   diaVencimento: number
   ativo: boolean
+  inicio: string
   fim: string | null
   ultimoMesGerado: string | null
   observacoes: string | null
@@ -152,9 +153,14 @@ export default function Recorrencias({
             </div>
           </>
         ) : (
+          /* Esta frase já foi mentira. Enquanto a geração se guiava pelo
+             último mês gerado, ela aparecia em julho depois de agosto ter
+             rodado — afirmando que as contas de julho estavam lançadas com
+             julho zerado. Agora o que decide é a existência da conta no mês,
+             então a frase só aparece quando é verdade. */
           <p className={estilo.fraco}>
-            Tudo gerado. As recorrências ativas já lançaram a conta de {mesExtenso} — apertar de novo
-            não cria nada em dobro.
+            Todas as recorrências ativas já têm a conta de {mesExtenso} lançada. Apertar de novo não
+            criaria nada em dobro.
           </p>
         )}
       </div>
@@ -378,6 +384,24 @@ function Formulario({
           />
         </label>
 
+        {/* COMEÇA EM não existia, e a falta era invisível até se tentar usar.
+            A recorrência nascia começando hoje, então quem cadastrasse o
+            aluguel em agosto não conseguia lançar as contas de janeiro a
+            julho — o botão de gerar simplesmente não aparecia nesses meses, e
+            corretamente: para o sistema, o aluguel não existia lá.
+            Quem começa a usar o sistema no meio do ano precisa poder dizer
+            desde quando a conta existe. */}
+        <label className={estilo.rotulo}>
+          Começa em
+          <input
+            className={estilo.campo}
+            type="date"
+            name="inicio"
+            defaultValue={recorrencia?.inicio ? recorrencia.inicio.slice(0, 10) : hojeISO()}
+          />
+          <span className={estilo.fraco}>dá para pôr no passado e gerar os meses anteriores</span>
+        </label>
+
         <label className={estilo.rotulo}>
           Termina em
           <input
@@ -414,6 +438,16 @@ function Formulario({
       ) : null}
     </form>
   )
+}
+
+/** O dia de hoje em Lajeado, no formato que `<input type="date">` espera. */
+function hojeISO(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
 }
 
 function curto(iso: string): string {

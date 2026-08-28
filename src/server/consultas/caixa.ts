@@ -351,6 +351,22 @@ export async function listarRecorrencias(ctx: ContextoAcesso) {
  * É o número que justifica o botão "gerar as contas do mês" existir na tela em
  * vez de rodar escondido: quem aperta precisa saber o que vai acontecer antes
  * de apertar.
+ *
+ * =============================================================================
+ * A PERGUNTA É "JÁ TEM CONTA NESTE MÊS?", E NÃO "JÁ PASSEI POR AQUI?"
+ * =============================================================================
+ * A primeira versão comparava `ultimoMesGerado < mes`. Parecia idempotência e
+ * era uma marca d'água — ela só sabe olhar para frente. Gerado agosto, julho
+ * ficava inalcançável PARA SEMPRE, porque '2026-08' não é menor que '2026-07'.
+ *
+ * O estrago não era só a conta que faltava: a tela dizia "Tudo gerado. As
+ * recorrências ativas já lançaram a conta de Julho de 2026" com julho zerado.
+ * Uma tela de dinheiro afirmando que lançou o que não lançou é pior que uma
+ * que não faz nada.
+ *
+ * `NOT EXISTS` pergunta o que de fato importa. Apertar duas vezes no mesmo mês
+ * continua sem duplicar — e agora quem começa a usar o sistema em agosto
+ * consegue voltar e lançar julho.
  */
 export async function pendentesDeGeracao(ctx: ContextoAcesso, mes: string): Promise<number> {
   // As duas pontas do mês vêm PRONTAS do JavaScript, sem aritmética de data na
@@ -365,12 +381,17 @@ export async function pendentesDeGeracao(ctx: ContextoAcesso, mes: string): Prom
   const { inicio: primeiroDia, fim: primeiroDoProximo } = janelaDoMes(mes)
   return comEscopo(ctx, async (tx) => {
     const [r] = await tx.$queryRaw<Array<{ n: bigint }>>`
-      SELECT count(*) AS n FROM recorrencias
-       WHERE "tenantId" = ${ctx.tenantId}
-         AND ativo = true
-         AND ("ultimoMesGerado" IS NULL OR "ultimoMesGerado" < ${mes})
-         AND inicio < ${primeiroDoProximo}
-         AND (fim IS NULL OR fim >= ${primeiroDia})
+      SELECT count(*) AS n FROM recorrencias r
+       WHERE r."tenantId" = ${ctx.tenantId}
+         AND r.ativo = true
+         AND r.inicio < ${primeiroDoProximo}
+         AND (r.fim IS NULL OR r.fim >= ${primeiroDia})
+         AND NOT EXISTS (
+           SELECT 1 FROM lancamentos l
+            WHERE l."recorrenciaId" = r.id
+              AND l.vencimento >= ${primeiroDia}
+              AND l.vencimento <  ${primeiroDoProximo}
+         )
     `
     return Number(r?.n ?? 0)
   })

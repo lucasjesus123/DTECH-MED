@@ -277,6 +277,7 @@ async function PainelRecorrencias({
         valorCentavos: r.valorCentavos,
         diaVencimento: r.diaVencimento,
         ativo: r.ativo,
+        inicio: r.inicio.toISOString(),
         fim: r.fim?.toISOString() ?? null,
         ultimoMesGerado: r.ultimoMesGerado,
         observacoes: r.observacoes,

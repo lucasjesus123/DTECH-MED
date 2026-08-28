@@ -1279,9 +1279,16 @@ export type $RecorrenciaPayload<ExtArgs extends runtime.Types.Extensions.Interna
     inicio: Date
     fim: Date | null
     /**
-     * 'AAAA-MM' do último mês já gerado. Texto e não data: o que importa é a
-     * competência, e comparar texto de mês é exato — comparar data exige pensar
-     * em fuso toda vez.
+     * 'AAAA-MM' do mês mais recente já gerado. SÓ PARA MOSTRAR NA TELA.
+     * 
+     * Ele já foi o critério da geração, e estava errado: gerado agosto, julho
+     * ficava inalcançável para sempre, porque '2026-08' não é menor que
+     * '2026-07'. Quem começasse a usar o sistema em agosto nunca conseguiria
+     * lançar as contas de julho — e a tela ainda dizia "tudo gerado".
+     * 
+     * Quem decide agora é a existência da conta no mês. Este campo sobrou como
+     * informação ("última conta gerada: 2026-08"), e sobe só quando o mês
+     * gerado é mais recente que o que estava aqui.
      */
     ultimoMesGerado: string | null
     observacoes: string | null
