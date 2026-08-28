@@ -4338,3 +4338,178 @@
   outline: 2px solid var(--vio);
   outline-offset: 1px;
 }
+
+/* ===== Editor de modelo de documento =====================================
+   Três colunas de trabalho: a paleta de variáveis, o texto, e o papel.
+
+   A largura da paleta é FIXA (260px) e a do meio é que estica. Uma paleta que
+   cresce junto com a janela vira uma coluna de botões curtos boiando no vazio;
+   o que precisa de espaço é o texto do contrato. */
+.modeloGrade {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--s5);
+  align-items: start;
+  margin-top: var(--s4);
+}
+/* No celular a paleta vai para cima e vira uma faixa que rola de lado: ela é
+   consulta, e o texto é o trabalho. Inverter isso empurraria o campo de escrita
+   para baixo da dobra. */
+@media (max-width: 900px) {
+  .modeloGrade { grid-template-columns: minmax(0, 1fr); }
+}
+
+.modeloPaleta {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  /* Ela acompanha a rolagem: escrever um contrato de duas páginas sem a lista à
+     vista faria a pessoa subir e descer a cada variável. */
+  position: sticky;
+  top: var(--s4);
+}
+@media (max-width: 900px) {
+  .modeloPaleta { position: static; }
+}
+
+.modeloPaletaLista {
+  display: grid;
+  gap: var(--s4);
+  max-height: 46vh;
+  overflow-y: auto;
+  /* O respiro que evita o último botão colar na borda do recorte. */
+  padding-right: var(--s2);
+}
+.modeloPaletaGrupo {
+  font-size: var(--t-xs);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: var(--s2);
+}
+.modeloVariavel {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--vio-claro);
+  background: var(--vio-veu);
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  padding: 6px 9px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+.modeloVariavel:hover { background: var(--vio-veu-2); border-color: var(--vio); }
+
+.modeloCentro { display: grid; gap: var(--s4); min-width: 0; }
+
+.formLinha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--s4);
+}
+
+.checkLinha {
+  display: flex;
+  align-items: start;
+  gap: var(--s3);
+  font-size: var(--t-sm);
+  cursor: pointer;
+}
+.checkLinha input { margin-top: 3px; flex: none; }
+.checkLinha > span { display: grid; gap: 2px; }
+
+.modeloPreviaCab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+
+/* O PAPEL. Fundo claro nos dois temas de propósito: o documento vai ser
+   impresso ou lido em PDF, e pré-visualizar em fundo escuro esconde exatamente
+   o problema de contraste que aparece no papel. */
+.modeloPapel {
+  background: #FFFFFF;
+  color: #14071F;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: var(--s5);
+  max-height: 60vh;
+  overflow: auto;
+}
+.modeloPapelTexto {
+  font-family: var(--f-corpo, Georgia, 'Times New Roman', serif);
+  font-size: 13px;
+  line-height: 1.65;
+  /* `pre-wrap` e não `pre`: o texto do contrato quebra sozinho na largura do
+     papel, mas as quebras que a pessoa digitou continuam valendo. */
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+/* ===== Cartões de modelo ================================================= */
+.modeloCartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+.modeloCartao {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+}
+.modeloCartaoPadrao { border-color: var(--vio); box-shadow: 0 0 0 1px var(--vio-veu-2); }
+.modeloCartaoInativo { opacity: 1; border-style: dashed; background: var(--bg-1); }
+.modeloCartaoTopo { display: flex; align-items: start; justify-content: space-between; gap: var(--s3); }
+.modeloCartaoNome { font-weight: 600; font-size: var(--t-md); line-height: 1.25; }
+.modeloCartaoAcoes { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; }
+
+/* Ação secundária escrita como texto, não como botão.
+   Ela existe para as ações que NÃO são o caminho principal do cartão —
+   aposentar, excluir. Vesti-las de botão daria a elas o mesmo peso visual de
+   "Abrir", e a mais perigosa das três acabaria sendo a mais clicada por
+   engano. */
+.linkAcao, .linkPerigo {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: var(--t-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.linkAcao { color: var(--txt-2); }
+.linkAcao:hover { color: var(--txt); }
+/* O vermelho é só no hover: em repouso ela não grita, mas na hora de clicar a
+   cor confirma o que vai acontecer. */
+.linkPerigo { color: var(--txt-3); }
+.linkPerigo:hover { color: var(--alerta); }
+.linkAcao:disabled, .linkPerigo:disabled { opacity: .5; cursor: default; text-decoration: none; }
+
+/* Uma linha de lista com colunas que se acomodam. O número da O.S. tem largura
+   fixa para as linhas alinharem verticalmente — é por ele que o olho percorre
+   a lista. */
+.linhaSimples {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  padding: var(--s2) 0;
+  border-bottom: 1px solid var(--borda);
+  font-size: var(--t-sm);
+}
+.linhaSimples:last-child { border-bottom: none; }
+.linhaSimples > a { font-family: var(--f-mono); flex: none; min-width: 5ch; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { VARIAVEIS, marcadoresDe, renderizarModelo, valoresDeExemplo, variaveisPorGrupo } from './variaveis'
+import { VARIAVEIS, marcadoresDe, renderizarModelo, valoresDeExemplo, variaveisPorGrupo } from './variaveis-documento'
 
 /**
  * Estes testes existem porque um erro aqui sai IMPRESSO num documento que

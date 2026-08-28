@@ -169,6 +169,16 @@ export const TELAS: readonly Tela[] = [
   { chave: 'preventiva',   rotulo: 'Preventiva',        grupo: 'Retaguarda', href: '/painel/preventiva',   icone: 'preventiva',  piso: Papel.ATENDENTE },
   { chave: 'whatsapp',     rotulo: 'WhatsApp',          grupo: 'Retaguarda', href: '/painel/whatsapp',     icone: 'balao',       piso: Papel.GESTOR },
 
+  // O molde do contrato deixou de ser código e virou cadastro. Fica na
+  // Retaguarda, ao lado da Preventiva: não é trabalho do dia, é ajuste que se
+  // faz uma vez e se revisita quando a regra do negócio muda.
+  //
+  // Piso FINANCEIRO para VER — quem emite precisa poder conferir com que texto
+  // o documento vai sair. Editar é mais restrito (GESTOR para cima), e essa
+  // linha é desenhada na ação, não aqui: o molde é o que a empresa promete e
+  // cobra, e mudar isso é decisão de quem responde pelo negócio.
+  { chave: 'documentos',   rotulo: 'Modelos de documento', grupo: 'Retaguarda', href: '/painel/documentos', icone: 'registro', piso: Papel.FINANCEIRO },
+
   { chave: 'usuarios',     rotulo: 'Pessoas e acessos', grupo: 'Equipe',     href: '/painel/usuarios',     icone: 'clientes',    piso: Papel.ADMIN_EMPRESA },
   { chave: 'auditoria',    rotulo: 'Trilha',            grupo: 'Equipe',     href: '/painel/auditoria',    icone: 'registro',    piso: Papel.ADMIN_EMPRESA },
 ] as const
