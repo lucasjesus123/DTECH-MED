@@ -4078,3 +4078,69 @@
   align-items: center;
   gap: 6px;
 }
+
+/* =========================================================================
+   FOTO DE CATÁLOGO — peça e equipamento
+   =========================================================================
+   Ela IDENTIFICA, não prova. As fotos de ordem são muitas e existem para
+   provar o estado de um aparelho num momento; esta responde uma pergunta só,
+   "é este?", e por isso é uma, pequena, e trocável sem cerimônia.
+   ========================================================================= */
+.fotoCat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 62px;
+}
+.fotoCatImg {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md);
+  /* `cover` porque foto de oficina vem em qualquer proporção, e esticar
+     deforma justamente o que se está tentando reconhecer. */
+  object-fit: cover;
+  border: 1px solid var(--borda);
+  background: var(--sup-2);
+  display: block;
+}
+/* O vazio ocupa o MESMO espaço da foto. Sem isso, a coluna dança de altura
+   entre as linhas com e sem imagem, e uma tabela que dança é uma tabela em que
+   se perde a linha ao correr o olho. */
+.fotoCatVazia {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md);
+  border: 1px dashed var(--borda-viva);
+  background: var(--sup-2);
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  line-height: 1.1;
+  text-align: center;
+  color: var(--txt-3);
+}
+.fotoCatAcoes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* O rótulo é o botão: o controle nativo de arquivo não é estilizável e escreve
+   "Nenhum arquivo selecionado" ao lado, texto que sobra numa célula. O `input`
+   fica escondido atrás dele e continua alcançável pelo Tab. */
+.fotoCatBotao {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--vio-claro);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fotoCatBotao:hover { color: var(--vio); }
+/* O foco precisa aparecer no RÓTULO, porque o input que o recebe está
+   escondido. Sem isto, quem navega por teclado passa por aqui sem ver nada. */
+.fotoCatBotao:focus-within {
+  outline: 2px solid var(--vio);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

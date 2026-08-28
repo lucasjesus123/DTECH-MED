@@ -287,7 +287,7 @@ export async function anexarFotos(form: FormData): Promise<Resposta<{ total: num
   if (!existe) return { ok: false, motivo: 'Ordem não encontrada.' }
 
   for (const arquivo of arquivos.slice(0, 12)) {
-    const r = await guardarFoto({ tenantId: exigirEmpresa(a.ctx), ordemId, arquivo })
+    const r = await guardarFoto({ tenantId: exigirEmpresa(a.ctx), escopo: ordemId, arquivo })
     if (!r.ok) return { ok: false, motivo: r.motivo }
 
     await comEscopo(a.ctx, async (tx) => {

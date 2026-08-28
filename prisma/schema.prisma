@@ -484,6 +484,21 @@ model Equipamento {
   acessorios    String?
   observacoes   String?
 
+  /// A foto de CATÁLOGO: ela identifica, não prova.
+  ///
+  /// As fotos de ordem provam o estado de um aparelho num momento e por isso
+  /// são muitas, com categoria e autor. Esta responde uma pergunta só — "é
+  /// esta?" — e por isso é uma, e mora na própria linha: uma tabela para
+  /// guardar no máximo uma foto acrescentaria um JOIN em toda listagem para
+  /// buscar um dado que cabe aqui.
+  ///
+  /// A miniatura é coluna própria, e não derivada por convenção de nome:
+  /// convenção de nome quebra em silêncio, e um dia todas as miniaturas do
+  /// sistema somem sem um erro sequer.
+  fotoCaminho      String?
+  fotoCaminhoThumb String?
+  fotoHash         String?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
@@ -951,6 +966,21 @@ model Peca {
   localizacao String?
   fornecedor  String?
   ativo       Boolean @default(true)
+
+  /// A foto de CATÁLOGO: ela identifica, não prova.
+  ///
+  /// As fotos de ordem provam o estado de um aparelho num momento e por isso
+  /// são muitas, com categoria e autor. Esta responde uma pergunta só — "é
+  /// esta?" — e por isso é uma, e mora na própria linha: uma tabela para
+  /// guardar no máximo uma foto acrescentaria um JOIN em toda listagem para
+  /// buscar um dado que cabe aqui.
+  ///
+  /// A miniatura é coluna própria, e não derivada por convenção de nome:
+  /// convenção de nome quebra em silêncio, e um dia todas as miniaturas do
+  /// sistema somem sem um erro sequer.
+  fotoCaminho      String?
+  fotoCaminhoThumb String?
+  fotoHash         String?
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt

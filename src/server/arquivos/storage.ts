@@ -45,7 +45,22 @@ export type ResultadoUpload =
  */
 export async function guardarFoto(entrada: {
   tenantId: string
-  ordemId: string
+  /**
+   * Sob qual pasta da empresa a foto vai.
+   *
+   * Era `ordemId`, porque no começo só existia foto de ordem. Depois vieram a
+   * peça e o equipamento do catálogo, e a escolha era duplicar todo o
+   * tratamento de imagem — recusar o que não é imagem de verdade, aplicar a
+   * orientação do EXIF e então descartá-lo, reescrever o arquivo, gerar
+   * miniatura — ou generalizar o único parâmetro que muda. A duplicata daria
+   * dois lugares para corrigir a próxima falha de validação, e um deles ficaria
+   * para trás.
+   *
+   * Continua sendo um caminho que o SERVIDOR monta, nunca um que chega da
+   * requisição: `sanitizarPedaco` recusa `..` e barra, então nenhum id
+   * inventado escreve fora da pasta da empresa.
+   */
+  escopo: string
   arquivo: File
 }): Promise<ResultadoUpload> {
   const { arquivo } = entrada
@@ -74,22 +89,42 @@ export async function guardarFoto(entrada: {
     return { ok: false, motivo: 'Não foi possível ler as dimensões da imagem.' }
   }
 
-  // Lado maior em 1600px: acima disso não se ganha detalhe útil para provar o
-  // estado do equipamento, e o peso atrapalha quem está num 4G ruim.
-  const normalizada = await sharp(bruto)
-    .rotate() // aplica a orientação do EXIF antes de descartá-lo
-    .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 82, mozjpeg: true })
-    .toBuffer({ resolveWithObject: true })
+  // A DECODIFICAÇÃO TAMBÉM PODE FALHAR, e não só a leitura do cabeçalho.
+  //
+  // O `metadata()` acima lê o CABEÇALHO. Um arquivo pode ter cabeçalho válido e
+  // corpo quebrado — foto que o celular parou de enviar no meio, cartão de
+  // memória com defeito, transferência interrompida —, e aí quem estoura é o
+  // `resize`, com uma mensagem da biblioteca de imagem: "vipspng: libpng read
+  // error". Sem este `try`, esse erro sobe até a página e o técnico recebe uma
+  // tela de erro do servidor no lugar de um aviso, sem entender que o problema
+  // é a foto e que basta tirar outra.
+  //
+  // É o caso comum no campo, não o exótico: 4G ruim, envio interrompido.
+  let normalizada: { data: Buffer; info: { width: number; height: number } }
+  let thumb: Buffer
+  try {
+    // Lado maior em 1600px: acima disso não se ganha detalhe útil para provar o
+    // estado do equipamento, e o peso atrapalha quem está num 4G ruim.
+    normalizada = await sharp(bruto)
+      .rotate() // aplica a orientação do EXIF antes de descartá-lo
+      .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 82, mozjpeg: true })
+      .toBuffer({ resolveWithObject: true })
 
-  const thumb = await sharp(bruto)
-    .rotate()
-    .resize(320, 320, { fit: 'cover' })
-    .jpeg({ quality: 70 })
-    .toBuffer()
+    thumb = await sharp(bruto)
+      .rotate()
+      .resize(320, 320, { fit: 'cover' })
+      .jpeg({ quality: 70 })
+      .toBuffer()
+  } catch {
+    return {
+      ok: false,
+      motivo: 'A imagem chegou incompleta ou corrompida. Tire a foto de novo.',
+    }
+  }
 
   const hash = hashArquivo(normalizada.data)
-  const base = path.join(entrada.tenantId, entrada.ordemId, 'fotos')
+  const base = path.join(entrada.tenantId, sanitizarPedaco(entrada.escopo), 'fotos')
   const nome = `${hash.slice(0, 16)}.jpg`
   const nomeThumb = `t_${nome}`
 
@@ -261,6 +296,25 @@ export async function lerFotoDoSite(slot: string): Promise<Buffer | null> {
 export async function apagarFotoDoSite(slot: string): Promise<void> {
   if (!/^[a-z0-9]+$/.test(slot)) return
   await apagarArquivo(path.join(PASTA_SITE, `${slot}.jpg`))
+}
+
+/**
+ * Reduz um pedaço de caminho ao que não consegue sair da pasta.
+ *
+ * `seguro()` já barra a travessia no destino final, mas ele reclama tarde: o
+ * erro aparece na gravação, longe de quem montou o caminho. Aqui a limpeza
+ * acontece na origem, e o resultado é sempre um nome só — sem barra, sem `..`,
+ * sem nada que o sistema de arquivos leia como "suba um nível".
+ *
+ * O escopo é sempre um id que o servidor tem em mãos (a ordem, a peça, o
+ * equipamento), nunca texto vindo da requisição. Isto é cinto e suspensório,
+ * de propósito: no dia em que alguém passar um valor de formulário aqui por
+ * engano, o pior que acontece é uma pasta com nome esquisito.
+ */
+function sanitizarPedaco(bruto: string): string {
+  const limpo = bruto.replace(/[^a-zA-Z0-9_-]/g, '')
+  if (!limpo) throw new Error('Escopo de arquivo vazio depois da limpeza.')
+  return limpo
 }
 
 async function gravar(relativo: string, dados: Buffer): Promise<void> {

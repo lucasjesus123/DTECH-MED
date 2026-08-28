@@ -8,6 +8,7 @@ import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
+import { apagarArquivo, guardarFoto } from '@/server/arquivos/storage'
 import { movimentar } from '@/server/estoque/servico'
 
 /**
@@ -145,4 +146,136 @@ export async function lancarMovimento(_anterior: Resposta, form: FormData): Prom
   revalidatePath('/painel/estoque')
   revalidatePath('/painel')
   return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// A foto do catálogo
+// ---------------------------------------------------------------------------
+
+/**
+ * Põe (ou troca) a foto de identificação de uma peça ou de um equipamento.
+ *
+ * =============================================================================
+ * ELA IDENTIFICA, NÃO PROVA
+ * =============================================================================
+ * As fotos de ordem provam o estado de um aparelho num momento: são muitas, têm
+ * categoria, autor e hash, e nenhuma pode ser trocada depois — é isso que faz
+ * delas prova. Esta responde outra pergunta, uma só: **"é esta?"**.
+ *
+ * Por isso ela pode ser substituída à vontade e não vira evento na linha do
+ * tempo. Trocar a foto de uma peça porque a antiga estava tremida não é fato do
+ * negócio; é conserto de cadastro.
+ *
+ * A troca APAGA o arquivo anterior. Sem isso, cada correção deixaria um órfão no
+ * disco que nada mais referencia — e ninguém percebe até o disco encher.
+ */
+export async function salvarFotoDeCatalogo(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_MEXER.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não altera o catálogo.' }
+  }
+
+  const tipo = String(form.get('tipo') ?? '')
+  const id = String(form.get('id') ?? '')
+  const arquivo = form.get('arquivo')
+  if (tipo !== 'peca' && tipo !== 'equipamento') return { ok: false, motivo: 'Tipo desconhecido.' }
+  if (!id) return { ok: false, motivo: 'Escolha o item antes de enviar a foto.' }
+  if (!(arquivo instanceof File)) return { ok: false, motivo: 'Escolha uma imagem.' }
+
+  const tenantId = exigirEmpresa(a.ctx)
+
+  // A LINHA É LIDA ANTES DE GRAVAR O ARQUIVO, e dentro do escopo da empresa.
+  // Assim um id de outra franquia para aqui — em vez de gravar o arquivo, não
+  // achar a linha para atualizar, e deixar um arquivo órfão no disco de quem
+  // nem devia ter conseguido enviar.
+  // Os dois ramos selecionam AS MESMAS colunas de propósito: é só o que esta
+  // função usa, e assim os dois têm o mesmo formato. Trazer `nome` de um lado e
+  // `marca`/`modelo` do outro daria dois tipos diferentes num único `await`, e
+  // o TypeScript reprovaria — com razão, porque o código abaixo não saberia
+  // qual dos dois recebeu.
+  const atual = await comEscopo(a.ctx, (tx) =>
+    tipo === 'peca'
+      ? tx.peca.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } })
+      : tx.equipamento.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } }),
+  )
+  if (!atual) return { ok: false, motivo: 'Item não encontrado.' }
+
+  const r = await guardarFoto({ tenantId, escopo: `cat-${tipo}-${id}`, arquivo })
+  if (!r.ok) return r
+
+  // `updateMany` e não `update`: o retorno de `update` é a LINHA INTEIRA, e as
+  // duas tabelas têm colunas diferentes — os dois ramos do ternário viram tipos
+  // incompatíveis num único `await`. `updateMany` devolve só a contagem nos
+  // dois casos, que é o que interessa aqui. E o `where` continua passando pelo
+  // escopo da empresa, então ele não alcança linha de outra franquia.
+  const dados = { fotoCaminho: r.caminho, fotoCaminhoThumb: r.caminhoThumb, fotoHash: r.hash }
+  await comEscopo(a.ctx, (tx) =>
+    tipo === 'peca'
+      ? tx.peca.updateMany({ where: { id }, data: dados })
+      : tx.equipamento.updateMany({ where: { id }, data: dados }),
+  )
+
+  // Só depois de a linha apontar para o arquivo novo. Apagar antes deixaria a
+  // tela sem foto nenhuma na janela entre as duas operações.
+  await apagarAntiga(atual.fotoCaminho, atual.fotoCaminhoThumb, r.caminho, r.caminhoThumb)
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'catalogo.foto',
+    entidade: tipo,
+    entidadeId: id,
+    detalhes: { bytes: r.bytes },
+  })
+  revalidatePath('/painel/estoque')
+  revalidatePath('/painel/equipamentos')
+  return { ok: true }
+}
+
+/** Tira a foto do catálogo, e o arquivo junto. */
+export async function removerFotoDeCatalogo(tipo: string, id: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_MEXER.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não altera o catálogo.' }
+  }
+  if (tipo !== 'peca' && tipo !== 'equipamento') return { ok: false, motivo: 'Tipo desconhecido.' }
+
+  const atual = await comEscopo(a.ctx, (tx) =>
+    tipo === 'peca'
+      ? tx.peca.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } })
+      : tx.equipamento.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } }),
+  )
+  if (!atual) return { ok: false, motivo: 'Item não encontrado.' }
+  if (!atual.fotoCaminho) return { ok: true }
+
+  const zerar = { fotoCaminho: null, fotoCaminhoThumb: null, fotoHash: null }
+  await comEscopo(a.ctx, (tx) =>
+    tipo === 'peca'
+      ? tx.peca.updateMany({ where: { id }, data: zerar })
+      : tx.equipamento.updateMany({ where: { id }, data: zerar }),
+  )
+  await apagarAntiga(atual.fotoCaminho, atual.fotoCaminhoThumb, null, null)
+
+  await auditar(a.ctx, a.sessao, { acao: 'catalogo.foto_removida', entidade: tipo, entidadeId: id })
+  revalidatePath('/painel/estoque')
+  revalidatePath('/painel/equipamentos')
+  return { ok: true }
+}
+
+/**
+ * Apaga o arquivo que saiu de cena — desde que ele não seja o que entrou.
+ *
+ * Reenviar a MESMA imagem produz o mesmo hash e, portanto, o mesmo caminho.
+ * Sem esta comparação, a limpeza da "antiga" apagaria o arquivo que a linha
+ * acabou de passar a referenciar, e a peça ficaria com foto quebrada logo
+ * depois de alguém reenviar a foto certa.
+ */
+async function apagarAntiga(
+  caminho: string | null,
+  thumb: string | null,
+  novoCaminho: string | null,
+  novoThumb: string | null,
+): Promise<void> {
+  if (caminho && caminho !== novoCaminho) await apagarArquivo(caminho)
+  if (thumb && thumb !== novoThumb) await apagarArquivo(thumb)
 }

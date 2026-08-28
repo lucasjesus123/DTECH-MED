@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { exigirSessao, exigirAba } from '@/server/auth/guarda'
+import { Papel } from '@/generated/prisma/enums'
+import { exigirSessao, exigirAba, podeVer } from '@/server/auth/guarda'
 import { listarClientes, listarEquipamentos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import FotoCatalogo from '../foto-catalogo'
 import FormularioEquipamento from './formulario'
 import estilo from '../painel.module.css'
 
@@ -21,7 +23,12 @@ export default async function Equipamentos({
 }: {
   searchParams: Promise<{ busca?: string; novo?: string }>
 }) {
-  const { ctx } = await exigirSessao()
+  const { ctx, sessao } = await exigirSessao()
+  // Esta tela é aberta a qualquer papel, inclusive ao motorista — ele precisa
+  // reconhecer o aparelho que vai buscar. Mas CADASTRAR foto é do técnico para
+  // cima: é a mesma linha que `PODE_MEXER` do estoque desenha, e a foto do
+  // catálogo é cadastro como qualquer outro.
+  const podeMexer = podeVer(sessao.papel, Papel.TECNICO)
   // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
   await exigirAba('equipamentos')
   const q = await searchParams
@@ -73,6 +80,12 @@ export default async function Equipamentos({
           <table className={estilo.tabela}>
             <thead>
               <tr>
+                {/* A foto abre a linha: quem confere o aparelho que o cliente
+                    descreve por telefone reconhece a imagem antes de ler a
+                    marca. */}
+                <th>
+                  <span className={estilo.soLeitor}>Foto</span>
+                </th>
                 <th>Equipamento</th>
                 <th>Série</th>
                 <th>Cliente</th>
@@ -85,6 +98,15 @@ export default async function Equipamentos({
                 const ultima = e.ordens[0]
                 return (
                   <tr key={e.id}>
+                    <td>
+                      <FotoCatalogo
+                        tipo="equipamento"
+                        id={e.id}
+                        nome={`${e.marca} ${e.modelo}`}
+                        tem={Boolean(e.fotoCaminho)}
+                        podeMexer={podeMexer}
+                      />
+                    </td>
                     <td>
                       {/* O nome do aparelho abre o PRONTUÁRIO dele — toda a
                           vida da máquina, e não a última ordem. É a máquina que

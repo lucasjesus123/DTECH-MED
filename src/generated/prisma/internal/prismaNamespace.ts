@@ -3125,6 +3125,9 @@ export const EquipamentoScalarFieldEnum = {
   anoFabricacao: 'anoFabricacao',
   acessorios: 'acessorios',
   observacoes: 'observacoes',
+  fotoCaminho: 'fotoCaminho',
+  fotoCaminhoThumb: 'fotoCaminhoThumb',
+  fotoHash: 'fotoHash',
   criadoEm: 'criadoEm',
   atualizadoEm: 'atualizadoEm'
 } as const
@@ -3353,6 +3356,9 @@ export const PecaScalarFieldEnum = {
   localizacao: 'localizacao',
   fornecedor: 'fornecedor',
   ativo: 'ativo',
+  fotoCaminho: 'fotoCaminho',
+  fotoCaminhoThumb: 'fotoCaminhoThumb',
+  fotoHash: 'fotoHash',
   criadoEm: 'criadoEm',
   atualizadoEm: 'atualizadoEm'
 } as const

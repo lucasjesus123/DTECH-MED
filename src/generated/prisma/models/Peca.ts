@@ -60,6 +60,9 @@ export type PecaMinAggregateOutputType = {
   localizacao: string | null
   fornecedor: string | null
   ativo: boolean | null
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -82,6 +85,9 @@ export type PecaMaxAggregateOutputType = {
   localizacao: string | null
   fornecedor: string | null
   ativo: boolean | null
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -104,6 +110,9 @@ export type PecaCountAggregateOutputType = {
   localizacao: number
   fornecedor: number
   ativo: number
+  fotoCaminho: number
+  fotoCaminhoThumb: number
+  fotoHash: number
   criadoEm: number
   atualizadoEm: number
   _all: number
@@ -144,6 +153,9 @@ export type PecaMinAggregateInputType = {
   localizacao?: true
   fornecedor?: true
   ativo?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -166,6 +178,9 @@ export type PecaMaxAggregateInputType = {
   localizacao?: true
   fornecedor?: true
   ativo?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -188,6 +203,9 @@ export type PecaCountAggregateInputType = {
   localizacao?: true
   fornecedor?: true
   ativo?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
   _all?: true
@@ -297,6 +315,9 @@ export type PecaGroupByOutputType = {
   localizacao: string | null
   fornecedor: string | null
   ativo: boolean
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date
   atualizadoEm: Date
   _count: PecaCountAggregateOutputType | null
@@ -342,6 +363,9 @@ export type PecaWhereInput = {
   localizacao?: Prisma.StringNullableFilter<"Peca"> | string | null
   fornecedor?: Prisma.StringNullableFilter<"Peca"> | string | null
   ativo?: Prisma.BoolFilter<"Peca"> | boolean
+  fotoCaminho?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Peca"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -367,6 +391,9 @@ export type PecaOrderByWithRelationInput = {
   localizacao?: Prisma.SortOrderInput | Prisma.SortOrder
   fornecedor?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoHash?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -396,6 +423,9 @@ export type PecaWhereUniqueInput = Prisma.AtLeast<{
   localizacao?: Prisma.StringNullableFilter<"Peca"> | string | null
   fornecedor?: Prisma.StringNullableFilter<"Peca"> | string | null
   ativo?: Prisma.BoolFilter<"Peca"> | boolean
+  fotoCaminho?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Peca"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -421,6 +451,9 @@ export type PecaOrderByWithAggregationInput = {
   localizacao?: Prisma.SortOrderInput | Prisma.SortOrder
   fornecedor?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoHash?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   _count?: Prisma.PecaCountOrderByAggregateInput
@@ -451,6 +484,9 @@ export type PecaScalarWhereWithAggregatesInput = {
   localizacao?: Prisma.StringNullableWithAggregatesFilter<"Peca"> | string | null
   fornecedor?: Prisma.StringNullableWithAggregatesFilter<"Peca"> | string | null
   ativo?: Prisma.BoolWithAggregatesFilter<"Peca"> | boolean
+  fotoCaminho?: Prisma.StringNullableWithAggregatesFilter<"Peca"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableWithAggregatesFilter<"Peca"> | string | null
+  fotoHash?: Prisma.StringNullableWithAggregatesFilter<"Peca"> | string | null
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"Peca"> | Date | string
   atualizadoEm?: Prisma.DateTimeWithAggregatesFilter<"Peca"> | Date | string
 }
@@ -472,6 +508,9 @@ export type PecaCreateInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPecasInput
@@ -497,6 +536,9 @@ export type PecaUncheckedCreateInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutPecaInput
@@ -520,6 +562,9 @@ export type PecaUpdateInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPecasNestedInput
@@ -545,6 +590,9 @@ export type PecaUncheckedUpdateInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutPecaNestedInput
@@ -569,6 +617,9 @@ export type PecaCreateManyInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -590,6 +641,9 @@ export type PecaUpdateManyMutationInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,6 +666,9 @@ export type PecaUncheckedUpdateManyInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -654,6 +711,9 @@ export type PecaCountOrderByAggregateInput = {
   localizacao?: Prisma.SortOrder
   fornecedor?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -684,6 +744,9 @@ export type PecaMaxOrderByAggregateInput = {
   localizacao?: Prisma.SortOrder
   fornecedor?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -706,6 +769,9 @@ export type PecaMinOrderByAggregateInput = {
   localizacao?: Prisma.SortOrder
   fornecedor?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -812,6 +878,9 @@ export type PecaCreateWithoutTenantInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutPecaInput
@@ -835,6 +904,9 @@ export type PecaUncheckedCreateWithoutTenantInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutPecaInput
@@ -888,6 +960,9 @@ export type PecaScalarWhereInput = {
   localizacao?: Prisma.StringNullableFilter<"Peca"> | string | null
   fornecedor?: Prisma.StringNullableFilter<"Peca"> | string | null
   ativo?: Prisma.BoolFilter<"Peca"> | boolean
+  fotoCaminho?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Peca"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Peca"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Peca"> | Date | string
 }
@@ -909,6 +984,9 @@ export type PecaCreateWithoutItensOrcamentoInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPecasInput
@@ -933,6 +1011,9 @@ export type PecaUncheckedCreateWithoutItensOrcamentoInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutPecaInput
@@ -971,6 +1052,9 @@ export type PecaUpdateWithoutItensOrcamentoInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPecasNestedInput
@@ -995,6 +1079,9 @@ export type PecaUncheckedUpdateWithoutItensOrcamentoInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutPecaNestedInput
@@ -1017,6 +1104,9 @@ export type PecaCreateWithoutMovimentosInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPecasInput
@@ -1041,6 +1131,9 @@ export type PecaUncheckedCreateWithoutMovimentosInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   itensOrcamento?: Prisma.OrcamentoItemUncheckedCreateNestedManyWithoutPecaInput
@@ -1079,6 +1172,9 @@ export type PecaUpdateWithoutMovimentosInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPecasNestedInput
@@ -1103,6 +1199,9 @@ export type PecaUncheckedUpdateWithoutMovimentosInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   itensOrcamento?: Prisma.OrcamentoItemUncheckedUpdateManyWithoutPecaNestedInput
@@ -1125,6 +1224,9 @@ export type PecaCreateManyTenantInput = {
   localizacao?: string | null
   fornecedor?: string | null
   ativo?: boolean
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1146,6 +1248,9 @@ export type PecaUpdateWithoutTenantInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutPecaNestedInput
@@ -1169,6 +1274,9 @@ export type PecaUncheckedUpdateWithoutTenantInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutPecaNestedInput
@@ -1192,6 +1300,9 @@ export type PecaUncheckedUpdateManyWithoutTenantInput = {
   localizacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fornecedor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1254,6 +1365,9 @@ export type PecaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   localizacao?: boolean
   fornecedor?: boolean
   ativo?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1280,6 +1394,9 @@ export type PecaSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   localizacao?: boolean
   fornecedor?: boolean
   ativo?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1303,6 +1420,9 @@ export type PecaSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   localizacao?: boolean
   fornecedor?: boolean
   ativo?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1326,11 +1446,14 @@ export type PecaSelectScalar = {
   localizacao?: boolean
   fornecedor?: boolean
   ativo?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
 }
 
-export type PecaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "sku" | "nome" | "descricao" | "categoria" | "marca" | "aplicacao" | "unidade" | "custoMedioCentavos" | "precoVendaCentavos" | "saldo" | "saldoReservado" | "estoqueMinimo" | "localizacao" | "fornecedor" | "ativo" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["peca"]>
+export type PecaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "sku" | "nome" | "descricao" | "categoria" | "marca" | "aplicacao" | "unidade" | "custoMedioCentavos" | "precoVendaCentavos" | "saldo" | "saldoReservado" | "estoqueMinimo" | "localizacao" | "fornecedor" | "ativo" | "fotoCaminho" | "fotoCaminhoThumb" | "fotoHash" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["peca"]>
 export type PecaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   movimentos?: boolean | Prisma.Peca$movimentosArgs<ExtArgs>
@@ -1381,6 +1504,22 @@ export type $PecaPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     localizacao: string | null
     fornecedor: string | null
     ativo: boolean
+    /**
+     * A foto de CATÁLOGO: ela identifica, não prova.
+     * 
+     * As fotos de ordem provam o estado de um aparelho num momento e por isso
+     * são muitas, com categoria e autor. Esta responde uma pergunta só — "é
+     * esta?" — e por isso é uma, e mora na própria linha: uma tabela para
+     * guardar no máximo uma foto acrescentaria um JOIN em toda listagem para
+     * buscar um dado que cabe aqui.
+     * 
+     * A miniatura é coluna própria, e não derivada por convenção de nome:
+     * convenção de nome quebra em silêncio, e um dia todas as miniaturas do
+     * sistema somem sem um erro sequer.
+     */
+    fotoCaminho: string | null
+    fotoCaminhoThumb: string | null
+    fotoHash: string | null
     criadoEm: Date
     atualizadoEm: Date
   }, ExtArgs["result"]["peca"]>
@@ -1826,6 +1965,9 @@ export interface PecaFieldRefs {
   readonly localizacao: Prisma.FieldRef<"Peca", 'String'>
   readonly fornecedor: Prisma.FieldRef<"Peca", 'String'>
   readonly ativo: Prisma.FieldRef<"Peca", 'Boolean'>
+  readonly fotoCaminho: Prisma.FieldRef<"Peca", 'String'>
+  readonly fotoCaminhoThumb: Prisma.FieldRef<"Peca", 'String'>
+  readonly fotoHash: Prisma.FieldRef<"Peca", 'String'>
   readonly criadoEm: Prisma.FieldRef<"Peca", 'DateTime'>
   readonly atualizadoEm: Prisma.FieldRef<"Peca", 'DateTime'>
 }

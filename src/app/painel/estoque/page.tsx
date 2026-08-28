@@ -4,6 +4,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { listarPecas, ultimosMovimentos } from '@/server/consultas/listas'
+import FotoCatalogo from '../foto-catalogo'
 import Painel from './painel-estoque'
 import estilo from '../painel.module.css'
 
@@ -24,6 +25,12 @@ export default async function Estoque({
   searchParams: Promise<{ busca?: string; criticas?: string; peca?: string }>
 }) {
   const { ctx, sessao } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO)
+  // Quem chega aqui já passou pelo guarda acima, e os três papéis que ele
+  // aceita são exatamente os que mexem no catálogo. A constante existe para o
+  // componente de foto não precisar refazer a conta — e para o dia em que a
+  // lista do guarda mudar e alguém precisar ver, aqui, que a decisão está
+  // amarrada a ela.
+  const podeMexer = true
   // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
   await exigirAba('estoque')
   const q = await searchParams
@@ -97,6 +104,13 @@ export default async function Estoque({
           <table className={estilo.tabela}>
             <thead>
               <tr>
+                {/* A foto abre a linha porque é por ela que o olho encontra.
+                    Quem procura a peça na prateleira reconhece a imagem antes
+                    de ler o código — e o código existe justamente porque a
+                    peça não tinha imagem. */}
+                <th>
+                  <span className={estilo.soLeitor}>Foto</span>
+                </th>
                 <th>Código</th>
                 <th>Peça</th>
                 <th>Onde está</th>
@@ -116,6 +130,9 @@ export default async function Estoque({
             <tbody>
               {pecas.map((p) => (
                 <tr key={p.id}>
+                  <td>
+                    <FotoCatalogo tipo="peca" id={p.id} nome={p.nome} tem={p.temFoto} podeMexer={podeMexer} />
+                  </td>
                   <td className={estilo.num}>{p.sku}</td>
                   <td>
                     <span className={estilo.forte}>{p.nome}</span>

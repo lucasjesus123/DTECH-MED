@@ -48,6 +48,9 @@ export type EquipamentoMinAggregateOutputType = {
   anoFabricacao: number | null
   acessorios: string | null
   observacoes: string | null
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -65,6 +68,9 @@ export type EquipamentoMaxAggregateOutputType = {
   anoFabricacao: number | null
   acessorios: string | null
   observacoes: string | null
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -82,6 +88,9 @@ export type EquipamentoCountAggregateOutputType = {
   anoFabricacao: number
   acessorios: number
   observacoes: number
+  fotoCaminho: number
+  fotoCaminhoThumb: number
+  fotoHash: number
   criadoEm: number
   atualizadoEm: number
   _all: number
@@ -109,6 +118,9 @@ export type EquipamentoMinAggregateInputType = {
   anoFabricacao?: true
   acessorios?: true
   observacoes?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -126,6 +138,9 @@ export type EquipamentoMaxAggregateInputType = {
   anoFabricacao?: true
   acessorios?: true
   observacoes?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -143,6 +158,9 @@ export type EquipamentoCountAggregateInputType = {
   anoFabricacao?: true
   acessorios?: true
   observacoes?: true
+  fotoCaminho?: true
+  fotoCaminhoThumb?: true
+  fotoHash?: true
   criadoEm?: true
   atualizadoEm?: true
   _all?: true
@@ -247,6 +265,9 @@ export type EquipamentoGroupByOutputType = {
   anoFabricacao: number | null
   acessorios: string | null
   observacoes: string | null
+  fotoCaminho: string | null
+  fotoCaminhoThumb: string | null
+  fotoHash: string | null
   criadoEm: Date
   atualizadoEm: Date
   _count: EquipamentoCountAggregateOutputType | null
@@ -287,6 +308,9 @@ export type EquipamentoWhereInput = {
   anoFabricacao?: Prisma.IntNullableFilter<"Equipamento"> | number | null
   acessorios?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminho?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -308,6 +332,9 @@ export type EquipamentoOrderByWithRelationInput = {
   anoFabricacao?: Prisma.SortOrderInput | Prisma.SortOrder
   acessorios?: Prisma.SortOrderInput | Prisma.SortOrder
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoHash?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -332,6 +359,9 @@ export type EquipamentoWhereUniqueInput = Prisma.AtLeast<{
   anoFabricacao?: Prisma.IntNullableFilter<"Equipamento"> | number | null
   acessorios?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminho?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -353,6 +383,9 @@ export type EquipamentoOrderByWithAggregationInput = {
   anoFabricacao?: Prisma.SortOrderInput | Prisma.SortOrder
   acessorios?: Prisma.SortOrderInput | Prisma.SortOrder
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoHash?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   _count?: Prisma.EquipamentoCountOrderByAggregateInput
@@ -378,6 +411,9 @@ export type EquipamentoScalarWhereWithAggregatesInput = {
   anoFabricacao?: Prisma.IntNullableWithAggregatesFilter<"Equipamento"> | number | null
   acessorios?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
   observacoes?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
+  fotoCaminho?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
+  fotoHash?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeWithAggregatesFilter<"Equipamento"> | Date | string
 }
@@ -393,6 +429,9 @@ export type EquipamentoCreateInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
@@ -414,6 +453,9 @@ export type EquipamentoUncheckedCreateInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutEquipamentoInput
@@ -431,6 +473,9 @@ export type EquipamentoUpdateInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
@@ -452,6 +497,9 @@ export type EquipamentoUncheckedUpdateInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordens?: Prisma.OrdemUncheckedUpdateManyWithoutEquipamentoNestedInput
@@ -471,6 +519,9 @@ export type EquipamentoCreateManyInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -486,6 +537,9 @@ export type EquipamentoUpdateManyMutationInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -503,6 +557,9 @@ export type EquipamentoUncheckedUpdateManyInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -530,6 +587,9 @@ export type EquipamentoCountOrderByAggregateInput = {
   anoFabricacao?: Prisma.SortOrder
   acessorios?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -551,6 +611,9 @@ export type EquipamentoMaxOrderByAggregateInput = {
   anoFabricacao?: Prisma.SortOrder
   acessorios?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -568,6 +631,9 @@ export type EquipamentoMinOrderByAggregateInput = {
   anoFabricacao?: Prisma.SortOrder
   acessorios?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
+  fotoCaminho?: Prisma.SortOrder
+  fotoCaminhoThumb?: Prisma.SortOrder
+  fotoHash?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -712,6 +778,9 @@ export type EquipamentoCreateWithoutTenantInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   cliente: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
@@ -731,6 +800,9 @@ export type EquipamentoUncheckedCreateWithoutTenantInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutEquipamentoInput
@@ -779,6 +851,9 @@ export type EquipamentoScalarWhereInput = {
   anoFabricacao?: Prisma.IntNullableFilter<"Equipamento"> | number | null
   acessorios?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminho?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoCaminhoThumb?: Prisma.StringNullableFilter<"Equipamento"> | string | null
+  fotoHash?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
 }
@@ -794,6 +869,9 @@ export type EquipamentoCreateWithoutClienteInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
@@ -813,6 +891,9 @@ export type EquipamentoUncheckedCreateWithoutClienteInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutEquipamentoInput
@@ -856,6 +937,9 @@ export type EquipamentoCreateWithoutOrdensInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
@@ -876,6 +960,9 @@ export type EquipamentoUncheckedCreateWithoutOrdensInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutEquipamentoInput
@@ -908,6 +995,9 @@ export type EquipamentoUpdateWithoutOrdensInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
@@ -928,6 +1018,9 @@ export type EquipamentoUncheckedUpdateWithoutOrdensInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutEquipamentoNestedInput
@@ -944,6 +1037,9 @@ export type EquipamentoCreateWithoutContratosInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
@@ -964,6 +1060,9 @@ export type EquipamentoUncheckedCreateWithoutContratosInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutEquipamentoInput
@@ -996,6 +1095,9 @@ export type EquipamentoUpdateWithoutContratosInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
@@ -1016,6 +1118,9 @@ export type EquipamentoUncheckedUpdateWithoutContratosInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordens?: Prisma.OrdemUncheckedUpdateManyWithoutEquipamentoNestedInput
@@ -1033,6 +1138,9 @@ export type EquipamentoCreateManyTenantInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1048,6 +1156,9 @@ export type EquipamentoUpdateWithoutTenantInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutEquipamentosNestedInput
@@ -1067,6 +1178,9 @@ export type EquipamentoUncheckedUpdateWithoutTenantInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordens?: Prisma.OrdemUncheckedUpdateManyWithoutEquipamentoNestedInput
@@ -1085,6 +1199,9 @@ export type EquipamentoUncheckedUpdateManyWithoutTenantInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1101,6 +1218,9 @@ export type EquipamentoCreateManyClienteInput = {
   anoFabricacao?: number | null
   acessorios?: string | null
   observacoes?: string | null
+  fotoCaminho?: string | null
+  fotoCaminhoThumb?: string | null
+  fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1116,6 +1236,9 @@ export type EquipamentoUpdateWithoutClienteInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
@@ -1135,6 +1258,9 @@ export type EquipamentoUncheckedUpdateWithoutClienteInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordens?: Prisma.OrdemUncheckedUpdateManyWithoutEquipamentoNestedInput
@@ -1153,6 +1279,9 @@ export type EquipamentoUncheckedUpdateManyWithoutClienteInput = {
   anoFabricacao?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   acessorios?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoCaminhoThumb?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1210,6 +1339,9 @@ export type EquipamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   anoFabricacao?: boolean
   acessorios?: boolean
   observacoes?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1232,6 +1364,9 @@ export type EquipamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   anoFabricacao?: boolean
   acessorios?: boolean
   observacoes?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1251,6 +1386,9 @@ export type EquipamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   anoFabricacao?: boolean
   acessorios?: boolean
   observacoes?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1270,11 +1408,14 @@ export type EquipamentoSelectScalar = {
   anoFabricacao?: boolean
   acessorios?: boolean
   observacoes?: boolean
+  fotoCaminho?: boolean
+  fotoCaminhoThumb?: boolean
+  fotoHash?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
 }
 
-export type EquipamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "clienteId" | "marca" | "modelo" | "numeroSerie" | "patrimonio" | "categoria" | "voltagem" | "anoFabricacao" | "acessorios" | "observacoes" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["equipamento"]>
+export type EquipamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "clienteId" | "marca" | "modelo" | "numeroSerie" | "patrimonio" | "categoria" | "voltagem" | "anoFabricacao" | "acessorios" | "observacoes" | "fotoCaminho" | "fotoCaminhoThumb" | "fotoHash" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["equipamento"]>
 export type EquipamentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -1321,6 +1462,22 @@ export type $EquipamentoPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     acessorios: string | null
     observacoes: string | null
+    /**
+     * A foto de CATÁLOGO: ela identifica, não prova.
+     * 
+     * As fotos de ordem provam o estado de um aparelho num momento e por isso
+     * são muitas, com categoria e autor. Esta responde uma pergunta só — "é
+     * esta?" — e por isso é uma, e mora na própria linha: uma tabela para
+     * guardar no máximo uma foto acrescentaria um JOIN em toda listagem para
+     * buscar um dado que cabe aqui.
+     * 
+     * A miniatura é coluna própria, e não derivada por convenção de nome:
+     * convenção de nome quebra em silêncio, e um dia todas as miniaturas do
+     * sistema somem sem um erro sequer.
+     */
+    fotoCaminho: string | null
+    fotoCaminhoThumb: string | null
+    fotoHash: string | null
     criadoEm: Date
     atualizadoEm: Date
   }, ExtArgs["result"]["equipamento"]>
@@ -1762,6 +1919,9 @@ export interface EquipamentoFieldRefs {
   readonly anoFabricacao: Prisma.FieldRef<"Equipamento", 'Int'>
   readonly acessorios: Prisma.FieldRef<"Equipamento", 'String'>
   readonly observacoes: Prisma.FieldRef<"Equipamento", 'String'>
+  readonly fotoCaminho: Prisma.FieldRef<"Equipamento", 'String'>
+  readonly fotoCaminhoThumb: Prisma.FieldRef<"Equipamento", 'String'>
+  readonly fotoHash: Prisma.FieldRef<"Equipamento", 'String'>
   readonly criadoEm: Prisma.FieldRef<"Equipamento", 'DateTime'>
   readonly atualizadoEm: Prisma.FieldRef<"Equipamento", 'DateTime'>
 }

@@ -184,6 +184,10 @@ export async function listarEquipamentos(ctx: ContextoAcesso, busca?: string) {
         numeroSerie: true,
         categoria: true,
         acessorios: true,
+        // Só se TEM foto. O caminho é interno do acervo e não precisa
+        // atravessar até o navegador: a rota que serve a imagem consulta a
+        // linha de novo, dentro do escopo da empresa.
+        fotoCaminho: true,
         cliente: { select: { id: true, nome: true } },
         ordens: {
           orderBy: { abertaEm: 'desc' },
@@ -232,6 +236,10 @@ export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCritica
         estoqueMinimo: true,
         custoMedioCentavos: true,
         precoVendaCentavos: true,
+        // Só se TEM foto, não o caminho dela. O caminho é interno do acervo e
+        // não tem por que atravessar até o navegador: a imagem é servida por
+        // rota que consulta a linha de novo, dentro do escopo da empresa.
+        fotoCaminho: true,
       },
     }),
   )
@@ -247,6 +255,7 @@ export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCritica
       categoria: p.categoria,
       unidade: p.unidade,
       localizacao: p.localizacao,
+      temFoto: Boolean(p.fotoCaminho),
       saldo,
       reservado,
       // O que dá para prometer hoje. É este número que decide se a O.S. anda —
