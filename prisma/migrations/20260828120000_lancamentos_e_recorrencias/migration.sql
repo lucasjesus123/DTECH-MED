@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS public.lancamentos (
   "tipo"          "TipoLancamento" NOT NULL,
 
   "descricao"     text NOT NULL,
-  /// Texto livre com sugestões na tela, e não lista fechada: cada empresa
-  /// organiza o próprio plano de contas, e uma lista fixa vira "Outros" com
-  /// 80% dos lançamentos dentro.
+  -- Texto livre com sugestões na tela, e não lista fechada: cada empresa
+  -- organiza o próprio plano de contas, e uma lista fixa vira "Outros" com
+  -- 80% dos lançamentos dentro.
   "categoria"     text,
 
   -- A quem se paga, ou de quem se recebe.

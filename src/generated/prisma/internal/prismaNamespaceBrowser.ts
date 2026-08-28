@@ -77,6 +77,8 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
+  Lancamento: 'Lancamento',
+  Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
@@ -675,6 +677,55 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const LancamentoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  categoria: 'categoria',
+  clienteId: 'clienteId',
+  contraparte: 'contraparte',
+  valorCentavos: 'valorCentavos',
+  vencimento: 'vencimento',
+  pagoEm: 'pagoEm',
+  valorPagoCentavos: 'valorPagoCentavos',
+  forma: 'forma',
+  grupo: 'grupo',
+  parcela: 'parcela',
+  parcelas: 'parcelas',
+  recorrenciaId: 'recorrenciaId',
+  observacoes: 'observacoes',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type LancamentoScalarFieldEnum = (typeof LancamentoScalarFieldEnum)[keyof typeof LancamentoScalarFieldEnum]
+
+
+export const RecorrenciaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  categoria: 'categoria',
+  clienteId: 'clienteId',
+  contraparte: 'contraparte',
+  valorCentavos: 'valorCentavos',
+  diaVencimento: 'diaVencimento',
+  ativo: 'ativo',
+  inicio: 'inicio',
+  fim: 'fim',
+  ultimoMesGerado: 'ultimoMesGerado',
+  observacoes: 'observacoes',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type RecorrenciaScalarFieldEnum = (typeof RecorrenciaScalarFieldEnum)[keyof typeof RecorrenciaScalarFieldEnum]
 
 
 export const RecuperacaoSenhaScalarFieldEnum = {

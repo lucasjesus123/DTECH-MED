@@ -203,6 +203,39 @@ export type Lead = Prisma.LeadModel
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model Lancamento
+ * O dinheiro que NÃO nasce de uma ordem de serviço.
+ * 
+ * `faturas` é um para um com `ordens`, porque a cobrança é do reparo daquele
+ * equipamento. Isso responde "quanto o cliente me deve" e não responde nada
+ * sobre a empresa: aluguel, energia, contador, salário, a peça comprada no
+ * fornecedor, o recebimento avulso que não passou pela esteira.
+ * 
+ * São dois conceitos com ciclos de vida diferentes — a fatura nasce da esteira
+ * e morre conferida pela gestão; o lançamento nasce à mão ou de uma recorrência
+ * e morre pago. A TELA junta os dois; o BANCO os mantém separados.
+ * 
+ * PARCELAS SÃO LINHAS. Uma compra em 3x vira três registros com vencimentos
+ * diferentes, ligados por `grupo` — não uma linha com "parcelas = 3". O motivo
+ * é o mês: a segunda parcela vence em setembro e tem de aparecer no caixa de
+ * setembro. Uma linha só não consegue estar em três meses ao mesmo tempo.
+ */
+export type Lancamento = Prisma.LancamentoModel
+/**
+ * Model Recorrencia
+ * O que se repete todo mês: aluguel, energia, contador, o contrato de
+ * manutenção que o cliente paga mensalmente.
+ * 
+ * É um MODELO, não um lançamento. Não aparece no caixa: ele GERA a linha do
+ * mês, e a linha gerada é comum como qualquer outra — dá para corrigir o valor
+ * daquele mês (a conta de luz nunca vem igual) sem mexer no modelo.
+ * 
+ * `ultimoMesGerado` é o que torna a geração IDEMPOTENTE. Apertar "gerar agora"
+ * duas vezes no mesmo mês não pode criar a conta duas vezes — e é exatamente o
+ * que alguém faz quando a tela demora a responder.
+ */
+export type Recorrencia = Prisma.RecorrenciaModel
+/**
  * Model RecuperacaoSenha
  * Pedido de recuperação de senha.
  * 

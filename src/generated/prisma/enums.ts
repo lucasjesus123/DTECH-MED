@@ -245,3 +245,11 @@ export const OrigemLead = {
 } as const
 
 export type OrigemLead = (typeof OrigemLead)[keyof typeof OrigemLead]
+
+
+export const TipoLancamento = {
+  PAGAR: 'PAGAR',
+  RECEBER: 'RECEBER'
+} as const
+
+export type TipoLancamento = (typeof TipoLancamento)[keyof typeof TipoLancamento]

@@ -467,6 +467,39 @@
   gap: var(--s3);
   margin-bottom: var(--s5);
 }
+/* Cinco indicadores, cinco colunas.
+ *
+ * A grade padrão é de quatro, e o Financeiro tem cinco números — entrou, saiu,
+ * sobrou, e o vencido dos dois lados. Com quatro colunas o quinto cai sozinho
+ * numa segunda linha, ocupando um quarto da largura ao lado de um vazio de três
+ * quartos. Órfão de grade não é só feio: ele parece um número de outra
+ * categoria, quando é o par direto do que está ao lado dele.
+ *
+ * Os cinco são indivisíveis por definição: entrou − saiu = sobrou, e os dois
+ * vencidos são o mesmo atraso nas duas direções. Ou cabem todos na linha, ou a
+ * linha some junto. */
+/* Cinco colunas, e o número medido pelo PRÓPRIO CARTÃO.
+ *
+ * Duas tentativas falharam antes desta, e as duas pelo mesmo motivo. A
+ * primeira encolhia o número com `clamp(..., 1.9vw, ...)`: `vw` é a largura da
+ * JANELA, e o cartão vive depois da lateral de 232px, do respiro da página e
+ * dos vãos da grade — o tamanho calculado pela janela não cabe na caixa em que
+ * o número é desenhado. Em 1280px, "R$ 23.335,00" passava 22,8 pixels da
+ * borda. A segunda trocou a largura por um ponto de quebra fixo, e só mudou
+ * ONDE o transbordo acontecia.
+ *
+ * `cqi` é 1% da largura do contêiner — aqui, do cartão. É a única unidade que
+ * responde à pergunta certa: "quanto espaço este número tem, de fato". O
+ * cartão vira contêiner, e o corpo passa a acompanhar a coluna em qualquer
+ * largura de tela, com ou sem lateral aberta.
+ *
+ * O fator 10 saiu da medição, não do gosto: doze caracteres de
+ * "R$ 23.335,00" na fonte de display ocupam cerca de 0,58em cada, e 10cqi
+ * deixa folga até nos cartões mais estreitos que esta grade produz. */
+.resumo5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.resumo5 .indicador { container-type: inline-size; }
+.resumo5 .indValor { font-size: clamp(1rem, 10cqi, var(--t-2xl)); }
+
 .indicador {
   background: var(--carta);
   border: 1px solid var(--borda);
@@ -768,6 +801,9 @@
   .resumo {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  /* Três e dois: mantém "entrou · saiu · sobrou" juntos numa linha, que é a
+     conta que eles formam, e deixa os dois vencidos embaixo. */
+  .resumo5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 /**
  * No celular de verdade, um indicador por linha.
@@ -781,7 +817,8 @@
  * de lado custa a confiança de quem está usando o sistema em pé, na clínica.
  */
 @media (max-width: 460px) {
-  .resumo { grid-template-columns: 1fr; }
+  .resumo,
+  .resumo5 { grid-template-columns: 1fr; }
 }
 @media (max-width: 880px) {
   .app {
@@ -3676,4 +3713,306 @@
 @media (max-width: 720px) {
   .rotaBarra { flex-direction: column; align-items: stretch; }
   .rotaApps a { flex: 1; text-align: center; }
+}
+
+/* =========================================================================
+   FINANCEIRO — o caixa
+   =========================================================================
+   Contas a pagar, a receber, recorrências e os gráficos. As classes começam
+   com `caixa` e `graf` porque a tela de faturas de serviço continua sendo
+   outra coisa e não pode herdar nada disto por acidente.
+   ========================================================================= */
+
+/* O mês, na barra de abas. Fica ali e não dentro de cada aba porque vale para
+   as cinco: trocar de aba e voltar para julho sem perceber é o erro mais caro
+   que uma tela de dinheiro consegue causar. */
+.mesTroca {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.mesNome {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+  min-width: 11ch;
+  text-align: center;
+}
+.mesSeta {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md);
+  background: var(--sup);
+  color: var(--txt-2);
+  font-size: 17px;
+  line-height: 1;
+  text-decoration: none;
+  transition: border-color .15s, color .15s;
+}
+.mesSeta:hover { border-color: var(--vio-borda); color: var(--vio-claro); }
+
+/* A faixa acima da lista: as somas à esquerda, o botão de lançar à direita. */
+.caixaTopo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s4);
+}
+.caixaSomas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s6);
+}
+.caixaSomas > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.caixaSoma {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--txt);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- A lista de contas ------------------------------------------------ */
+/* Lista e não tabela: a descrição tem tamanho imprevisível ("Energia" ao lado
+   de "Parcela 3/12 do compressor do laboratório"), e numa tabela a linha mais
+   longa da página desalinha a leitura de todas as outras. */
+.caixaLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--borda);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.caixaItem {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s3) var(--s4);
+  background: var(--sup);
+}
+.caixaItem:hover { background: var(--vio-veu); }
+
+/* A conta vencida ganha um filete na borda, não um fundo colorido. Fundo
+   vermelho em metade das linhas transforma a lista num alarme constante — e
+   alarme constante é ruído que se aprende a ignorar. */
+.caixaItemVencido { box-shadow: inset 3px 0 0 var(--alerta); }
+.caixaItemFrio { opacity: .62; }
+
+.caixaQuando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+.caixaQuando strong {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+}
+.caixaQuando span { font-size: var(--t-xs); text-transform: lowercase; }
+
+.caixaMeio { min-width: 0; }
+.caixaDesc {
+  display: block;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+}
+.caixaDesc a { color: inherit; text-decoration: none; }
+.caixaDesc a:hover { color: var(--vio-claro); }
+.caixaDetalhe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin: 2px 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+.caixaCat {
+  padding: 1px 6px;
+  border: 1px solid var(--borda-viva);
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: .03em;
+}
+
+.caixaValor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+.caixaValor strong {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+}
+.caixaAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s2);
+}
+
+/* A baixa abre NA PRÓPRIA LINHA, sem janela flutuante: quem dá baixa está com
+   o extrato do banco do lado e vai lançar seis contas seguidas. Uma janela que
+   cobre a lista faz perder o lugar a cada conta — e o erro clássico da tela de
+   caixa é dar baixa na linha de cima. */
+.caixaBaixa { position: relative; }
+.caixaBaixa > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+.caixaBaixa > summary::-webkit-details-marker { display: none; }
+.caixaBaixaForm {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: var(--s3);
+  width: max(280px, 22rem);
+  padding: var(--s4);
+  background: var(--sup);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  box-shadow: 0 12px 32px rgb(0 0 0 / .18);
+}
+.caixaBaixaForm > button,
+.caixaBaixaForm > p { grid-column: 1 / -1; }
+
+.caixaForm { margin-bottom: var(--s5); }
+
+/* ----- Os gráficos ------------------------------------------------------ */
+.grafico {
+  width: 100%;
+  margin: var(--s2) 0 var(--s3);
+}
+.grafSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.grafGrade { stroke: var(--borda); stroke-width: 1; }
+/* Violeta entra, âmbar sai. O par separa por LUMINÂNCIA e não só por matiz —
+   é o que faz as barras continuarem distinguíveis em escala de cinza, no
+   papel e com sol na tela. Ver o comentário de `relatorios.tsx`. */
+.grafEntra { fill: var(--vio); }
+.grafSai { fill: var(--espera); }
+.grafRotulo {
+  fill: var(--txt-3);
+  font-family: var(--f-texto);
+  font-size: 11px;
+}
+/* Os valores da escala, no gutter da esquerda. Tabulares porque estão
+   empilhados um sobre o outro e precisam alinhar pela vírgula. */
+.grafEscala {
+  fill: var(--txt-3);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grafLegenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  margin: 0 0 var(--s3);
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+}
+.grafLegenda span { display: inline-flex; align-items: center; gap: 6px; }
+.grafPonto {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.grafPontoEntra { background: var(--vio); }
+.grafPontoSai { background: var(--espera); }
+
+/* Barras horizontais por categoria. Horizontal porque o rótulo é um nome
+   ("Peças e fornecedores"), e nome em barra vertical vira texto girado — que
+   ninguém lê de relance, que é o único motivo de existir um gráfico. */
+.grafBarras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.grafBarraItem {
+  display: grid;
+  grid-template-columns: minmax(90px, 9rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--t-xs);
+}
+.grafBarraNome {
+  color: var(--txt-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.grafBarraPista {
+  height: 10px;
+  background: var(--sup-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.grafBarraPista > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.grafBarraEntra { background: var(--vio); }
+.grafBarraSai { background: var(--espera); }
+.grafBarraValor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--txt);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  /* No celular a linha vira duas: data e descrição em cima, valor e ações
+     embaixo. Manter as quatro colunas espremeria a descrição a três palavras,
+     que é justamente o que identifica a conta. */
+  .caixaItem {
+    grid-template-columns: 48px minmax(0, 1fr);
+    row-gap: var(--s3);
+  }
+  .caixaValor {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .caixaAcoes { grid-column: 1 / -1; justify-content: flex-start; }
+  .caixaBaixaForm { right: auto; left: 0; width: min(92vw, 22rem); }
+  .caixaSomas { gap: var(--s4); }
+  .grafBarraItem { grid-template-columns: minmax(0, 1fr) auto; }
+  .grafBarraPista { grid-column: 1 / -1; }
 }

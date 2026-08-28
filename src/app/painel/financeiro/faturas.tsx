@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatarBRL } from '@/lib/dinheiro'
-import { conferirFatura, emitir, estornarPagamento, receber } from '@/server/acoes/financeiro'
+import { conferirFatura, estornarPagamento, receber } from '@/server/acoes/financeiro'
 import estilo from '../painel.module.css'
 
 /**
@@ -51,13 +51,6 @@ type Fatura = {
   pagamentos: Pagamento[]
 }
 
-type Pendente = {
-  ordemId: string
-  numero: number
-  cliente: string
-  equipamento: string
-  totalCentavos: number
-}
 
 type Linha = { forma: string; valor: number; parcelas: number; bandeira: string; autorizacao: string }
 
@@ -72,25 +65,26 @@ const FORMAS = [
 ] as const
 
 /**
- * Um componente só para as duas listas, e não um por bloco.
+ * A mensagem vive FORA da lista que ela confirma.
  *
- * O motivo é concreto e apareceu no teste de navegador: quando a emissão dava
- * certo, a ordem saía da lista de pendentes, o bloco inteiro desaparecia da
- * página — e levava junto a mensagem "Fatura emitida". Quem clicava via a linha
- * sumir sem confirmação nenhuma e ficava sem saber se tinha funcionado. O mesmo
- * acontecia ao quitar (a fatura saía do filtro "em aberto") e ao conferir.
+ * O motivo é concreto e apareceu no teste de navegador: ao quitar, a fatura saía
+ * do filtro "em aberto" e a linha desaparecia da página — levando junto a
+ * confirmação "Fatura quitada". Quem clicava via a linha sumir sem aviso nenhum
+ * e ficava sem saber se tinha funcionado. O mesmo ao conferir.
  *
- * Mantendo tudo sob um componente que NUNCA desmonta, a confirmação sobrevive
- * exatamente ao momento em que ela é necessária: o instante em que a coisa
- * confirmada sai da tela.
+ * Com o parágrafo da mensagem num componente que NUNCA desmonta, a confirmação
+ * sobrevive exatamente ao momento em que ela é necessária: o instante em que a
+ * coisa confirmada sai da tela.
+ *
+ * A fila de ordens esperando fatura MOROU aqui e saiu: ela bloqueia a esteira,
+ * então pertence ao topo da tela em todas as abas, não a esta. Ver
+ * `aguardando.tsx`.
  */
 export default function Faturas({
   faturas,
-  pendentes,
   podeConferir,
 }: {
   faturas: Fatura[]
-  pendentes: Pendente[]
   podeConferir: boolean
 }) {
   const [aberta, setAberta] = useState<string | null>(null)
@@ -110,53 +104,6 @@ export default function Faturas({
   return (
     <>
       {msg ? <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>{msg.texto}</p> : null}
-
-      {/* ----- Ordens liberadas, ainda sem fatura --------------------------- */}
-      {pendentes.length > 0 ? (
-        <div className={estilo.bloco}>
-          <p className={estilo.blocoTitulo}>Liberadas pela gestão, ainda sem fatura</p>
-          <div className={estilo.rolaX}>
-            <table className={estilo.tabela}>
-              <thead>
-                <tr>
-                  <th>O.S.</th>
-                  <th>Cliente</th>
-                  <th>Equipamento</th>
-                  <th className={estilo.dir}>Aprovado</th>
-                  {/* A coluna dos botões: rótulo invisível na tela, presente para
-                      quem navega a tabela por leitor de tela. Um `<th>` vazio faz a
-                      tabela inteira perder o cabeçalho. */}
-                  <th>
-                    <span className={estilo.soLeitor}>Ações</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendentes.map((p) => (
-                  <tr key={p.ordemId}>
-                    <td className={estilo.num}>
-                      <Link href={`/painel/ordens/${p.ordemId}`}>#{String(p.numero).padStart(4, '0')}</Link>
-                    </td>
-                    <td>{p.cliente}</td>
-                    <td>{p.equipamento}</td>
-                    <td className={`${estilo.num} ${estilo.dir} ${estilo.forte}`}>{formatarBRL(p.totalCentavos)}</td>
-                    <td className={estilo.dir}>
-                      <button
-                        type="button"
-                        className={estilo.btnSec}
-                        disabled={pendente}
-                        onClick={() => agir(() => emitir(p.ordemId))}
-                      >
-                        Emitir fatura
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
 
       {/* ----- Faturas ------------------------------------------------------ */}
       {faturas.length === 0 ? (

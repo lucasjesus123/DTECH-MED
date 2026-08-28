@@ -732,6 +732,40 @@ export type EnumPapelNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPapelNullableFilter<$PrismaModel>
 }
 
+export type EnumTipoLancamentoFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoLancamento | Prisma.EnumTipoLancamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel> | $Enums.TipoLancamento
+}
+
+export type EnumFormaPagamentoNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.FormaPagamento | Prisma.EnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel> | $Enums.FormaPagamento | null
+}
+
+export type EnumTipoLancamentoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoLancamento | Prisma.EnumTipoLancamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoLancamentoWithAggregatesFilter<$PrismaModel> | $Enums.TipoLancamento
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel>
+}
+
+export type EnumFormaPagamentoNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FormaPagamento | Prisma.EnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumFormaPagamentoNullableWithAggregatesFilter<$PrismaModel> | $Enums.FormaPagamento | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel>
+}
+
 export type FloatFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
@@ -1423,6 +1457,40 @@ export type NestedEnumPapelNullableWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPapelNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPapelNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumTipoLancamentoFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoLancamento | Prisma.EnumTipoLancamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel> | $Enums.TipoLancamento
+}
+
+export type NestedEnumFormaPagamentoNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.FormaPagamento | Prisma.EnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel> | $Enums.FormaPagamento | null
+}
+
+export type NestedEnumTipoLancamentoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoLancamento | Prisma.EnumTipoLancamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoLancamento[] | Prisma.ListEnumTipoLancamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoLancamentoWithAggregatesFilter<$PrismaModel> | $Enums.TipoLancamento
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTipoLancamentoFilter<$PrismaModel>
+}
+
+export type NestedEnumFormaPagamentoNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.FormaPagamento | Prisma.EnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  in?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.FormaPagamento[] | Prisma.ListEnumFormaPagamentoFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumFormaPagamentoNullableWithAggregatesFilter<$PrismaModel> | $Enums.FormaPagamento | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumFormaPagamentoNullableFilter<$PrismaModel>
 }
 
 export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {

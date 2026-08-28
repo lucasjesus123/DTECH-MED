@@ -24,6 +24,47 @@ export function aReais(centavos: number): number {
   return centavos / 100
 }
 
+/**
+ * Lê um valor como um brasileiro digita. Devolve `null` se não for número.
+ *
+ * ---------------------------------------------------------------------------
+ * O DEFEITO QUE ISTO CONSERTA
+ * ---------------------------------------------------------------------------
+ * `Number('842,37')` é `NaN`. E `842,37` é exatamente o que alguém digita num
+ * campo de dinheiro no Brasil — o teclado numérico do celular oferece vírgula,
+ * a calculadora mostra vírgula, o boleto vem com vírgula.
+ *
+ * O lançamento era recusado com "o valor precisa ser maior que zero" numa
+ * quantia que a pessoa acabara de escrever. Mensagem verdadeira do ponto de
+ * vista do código e completamente inútil de quem estava olhando: ela vê 842,37
+ * na tela e o sistema diz que não é maior que zero.
+ *
+ * ---------------------------------------------------------------------------
+ * COMO O PONTO É DESAMBIGUADO
+ * ---------------------------------------------------------------------------
+ * `1.200` é mil e duzentos para um brasileiro e é um vírgula dois para o
+ * `Number`. Adivinhar errado aqui multiplica ou divide a conta por mil.
+ *
+ * A regra é a que a própria escrita já carrega: **se existe vírgula, ela é o
+ * separador decimal e todo ponto é milhar.** Sem vírgula, o ponto é decimal —
+ * que é como o próprio sistema devolve valores nos campos preenchidos.
+ */
+export function lerValorBR(texto: string): number | null {
+  const limpo = texto.trim().replace(/\s|R\$/g, '')
+  if (!limpo) return null
+
+  const normalizado = limpo.includes(',')
+    ? limpo.replace(/\./g, '').replace(',', '.')
+    : limpo
+
+  // Recusa "12.34.56", "abc" e "1e9" — notação científica num campo de dinheiro
+  // é sempre engano de digitação, nunca intenção.
+  if (!/^-?\d+(\.\d+)?$/.test(normalizado)) return null
+
+  const n = Number(normalizado)
+  return Number.isFinite(n) ? n : null
+}
+
 export function formatarBRL(centavos: number): string {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',

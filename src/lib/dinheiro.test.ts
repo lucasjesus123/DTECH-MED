@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { aCentavos, aplicarBaixa, calcularTotal, dividirParcelas, formatarBRL, liquido } from './dinheiro'
+import {
+  aCentavos,
+  aplicarBaixa,
+  calcularTotal,
+  dividirParcelas,
+  formatarBRL,
+  lerValorBR,
+  liquido,
+} from './dinheiro'
 
 describe('conversão', () => {
   it('converte reais para centavos inteiros', () => {
@@ -122,5 +130,57 @@ describe('recebido líquido', () => {
     // A taxa é custo nosso, não some do que o cliente pagou — por isso vive
     // em coluna própria e só aparece no líquido.
     expect(liquido(184000, 5520)).toBe(178480)
+  })
+})
+
+describe('ler o valor como um brasileiro digita', () => {
+  it('aceita vírgula como decimal — o caso que quebrava o lançamento', () => {
+    // `Number('842,37')` é NaN, e o formulário recusava com "o valor precisa
+    // ser maior que zero" um número que a pessoa acabara de escrever na tela.
+    expect(lerValorBR('842,37')).toBe(842.37)
+    expect(lerValorBR('0,05')).toBe(0.05)
+  })
+
+  it('aceita ponto como decimal, que é como o próprio sistema preenche', () => {
+    expect(lerValorBR('842.37')).toBe(842.37)
+    expect(lerValorBR('1200')).toBe(1200)
+  })
+
+  it('havendo vírgula, todo ponto é milhar', () => {
+    // Esta é a regra que desambigua: adivinhar errado aqui multiplica ou
+    // divide a conta da empresa por mil.
+    expect(lerValorBR('1.200,50')).toBe(1200.5)
+    expect(lerValorBR('1.234.567,89')).toBe(1234567.89)
+  })
+
+  it('sem vírgula, o ponto é decimal', () => {
+    expect(lerValorBR('1.2')).toBe(1.2)
+  })
+
+  it('tolera espaço e o símbolo da moeda colados pelo copiar e colar', () => {
+    expect(lerValorBR(' R$ 4.200,00 ')).toBe(4200)
+  })
+
+  it('recusa o que não é número, em vez de virar NaN silencioso', () => {
+    expect(lerValorBR('')).toBeNull()
+    expect(lerValorBR('abc')).toBeNull()
+    expect(lerValorBR('12.34.56')).toBeNull()
+    // Notação científica num campo de dinheiro é sempre engano de digitação.
+    expect(lerValorBR('1e9')).toBeNull()
+  })
+
+  it('o que ele devolve, `aCentavos` fecha sem resíduo', () => {
+    expect(aCentavos(lerValorBR('1.250,00')!)).toBe(125000)
+    expect(aCentavos(lerValorBR('0,10')!)).toBe(10)
+  })
+})
+
+describe('parcelamento, do jeito que a tela mostra', () => {
+  it('1.000,00 em 3x soma exatamente 1.000,00', () => {
+    // A prévia do formulário promete "333,33 e 333,34 na última". Se a soma
+    // não fechasse, a conta ficaria devendo um centavo para sempre.
+    const p = dividirParcelas(aCentavos(lerValorBR('1.000,00')!), 3)
+    expect(p).toEqual([33333, 33333, 33334])
+    expect(p.reduce((s, n) => s + n, 0)).toBe(100000)
   })
 })

@@ -423,6 +423,8 @@ export const ModelName = {
   WhatsappInstance: 'WhatsappInstance',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
+  Lancamento: 'Lancamento',
+  Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
   Contador: 'Contador',
   ConteudoSite: 'ConteudoSite',
@@ -444,7 +446,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2372,6 +2374,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Lancamento: {
+      payload: Prisma.$LancamentoPayload<ExtArgs>
+      fields: Prisma.LancamentoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LancamentoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LancamentoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        findFirst: {
+          args: Prisma.LancamentoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LancamentoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        findMany: {
+          args: Prisma.LancamentoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>[]
+        }
+        create: {
+          args: Prisma.LancamentoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        createMany: {
+          args: Prisma.LancamentoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LancamentoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>[]
+        }
+        delete: {
+          args: Prisma.LancamentoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        update: {
+          args: Prisma.LancamentoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        deleteMany: {
+          args: Prisma.LancamentoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LancamentoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LancamentoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>[]
+        }
+        upsert: {
+          args: Prisma.LancamentoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LancamentoPayload>
+        }
+        aggregate: {
+          args: Prisma.LancamentoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLancamento>
+        }
+        groupBy: {
+          args: Prisma.LancamentoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LancamentoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LancamentoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LancamentoCountAggregateOutputType> | number
+        }
+      }
+    }
+    Recorrencia: {
+      payload: Prisma.$RecorrenciaPayload<ExtArgs>
+      fields: Prisma.RecorrenciaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecorrenciaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecorrenciaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        findFirst: {
+          args: Prisma.RecorrenciaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecorrenciaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        findMany: {
+          args: Prisma.RecorrenciaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>[]
+        }
+        create: {
+          args: Prisma.RecorrenciaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        createMany: {
+          args: Prisma.RecorrenciaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecorrenciaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>[]
+        }
+        delete: {
+          args: Prisma.RecorrenciaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        update: {
+          args: Prisma.RecorrenciaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecorrenciaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecorrenciaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecorrenciaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecorrenciaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecorrenciaPayload>
+        }
+        aggregate: {
+          args: Prisma.RecorrenciaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecorrencia>
+        }
+        groupBy: {
+          args: Prisma.RecorrenciaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecorrenciaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecorrenciaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecorrenciaCountAggregateOutputType> | number
+        }
+      }
+    }
     RecuperacaoSenha: {
       payload: Prisma.$RecuperacaoSenhaPayload<ExtArgs>
       fields: Prisma.RecuperacaoSenhaFieldRefs
@@ -3431,6 +3581,55 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const LancamentoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  categoria: 'categoria',
+  clienteId: 'clienteId',
+  contraparte: 'contraparte',
+  valorCentavos: 'valorCentavos',
+  vencimento: 'vencimento',
+  pagoEm: 'pagoEm',
+  valorPagoCentavos: 'valorPagoCentavos',
+  forma: 'forma',
+  grupo: 'grupo',
+  parcela: 'parcela',
+  parcelas: 'parcelas',
+  recorrenciaId: 'recorrenciaId',
+  observacoes: 'observacoes',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type LancamentoScalarFieldEnum = (typeof LancamentoScalarFieldEnum)[keyof typeof LancamentoScalarFieldEnum]
+
+
+export const RecorrenciaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  categoria: 'categoria',
+  clienteId: 'clienteId',
+  contraparte: 'contraparte',
+  valorCentavos: 'valorCentavos',
+  diaVencimento: 'diaVencimento',
+  ativo: 'ativo',
+  inicio: 'inicio',
+  fim: 'fim',
+  ultimoMesGerado: 'ultimoMesGerado',
+  observacoes: 'observacoes',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type RecorrenciaScalarFieldEnum = (typeof RecorrenciaScalarFieldEnum)[keyof typeof RecorrenciaScalarFieldEnum]
+
+
 export const RecuperacaoSenhaScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3930,6 +4129,20 @@ export type EnumStatusInstanciaWhatsFieldRefInput<$PrismaModel> = FieldRefInputT
 export type ListEnumStatusInstanciaWhatsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusInstanciaWhats[]'>
     
 
+
+/**
+ * Reference to a field of type 'TipoLancamento'
+ */
+export type EnumTipoLancamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoLancamento'>
+    
+
+
+/**
+ * Reference to a field of type 'TipoLancamento[]'
+ */
+export type ListEnumTipoLancamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoLancamento[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4107,6 +4320,8 @@ export type GlobalOmitConfig = {
   whatsappInstance?: Prisma.WhatsappInstanceOmit
   lead?: Prisma.LeadOmit
   auditLog?: Prisma.AuditLogOmit
+  lancamento?: Prisma.LancamentoOmit
+  recorrencia?: Prisma.RecorrenciaOmit
   recuperacaoSenha?: Prisma.RecuperacaoSenhaOmit
   contador?: Prisma.ContadorOmit
   conteudoSite?: Prisma.ConteudoSiteOmit
