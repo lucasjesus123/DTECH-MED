@@ -1,0 +1,34 @@
+-- =============================================================================
+-- CONTRATO DE PRESTAÇÃO E NOTA PROMISSÓRIA
+-- =============================================================================
+-- Dois tipos novos de documento. O sistema já sabia gerar oito, e nenhum dos
+-- oito é o que o setor de compras de um hospital pede antes de liberar a nota,
+-- nem o que se assina quando o cliente leva o aparelho e paga depois.
+--
+-- -----------------------------------------------------------------------------
+-- POR QUE NÃO SERVIA NENHUM DOS QUE JÁ EXISTIAM
+-- -----------------------------------------------------------------------------
+-- CONTRATO_MANUTENCAO é o contrato daquele CONSERTO: ele carrega as cláusulas
+-- de garantia do serviço executado, e nasce do orçamento aprovado. Serve para o
+-- cliente saber o que está autorizando.
+--
+-- CONTRATO_PRESTACAO é outra coisa: qualifica as duas partes com documento e
+-- endereço, define prazo de pagamento e foro, e é o instrumento que o
+-- departamento jurídico do cliente arquiva. Empurrar as duas coisas para o
+-- mesmo tipo faria uma delas mentir sobre o que é.
+--
+-- RECIBO_PAGAMENTO prova o que JÁ foi pago. A NOTA_PROMISSORIA é o oposto: é
+-- promessa do que SERÁ pago, com data e valor por extenso. Um é comprovante, o
+-- outro é título — e título vale por si, na mão de quem o tem.
+--
+-- -----------------------------------------------------------------------------
+-- ADICIONAR VALOR A UM ENUM É SEGURO; REMOVER NÃO É
+-- -----------------------------------------------------------------------------
+-- `ADD VALUE IF NOT EXISTS` não trava a tabela e não toca em nenhuma linha
+-- existente. É por isso que a migração de enum quase sempre é só acrescentar:
+-- remover um valor exigiria reescrever a coluna inteira e quebraria qualquer
+-- linha que ainda o usasse.
+-- =============================================================================
+
+ALTER TYPE "TipoDocumento" ADD VALUE IF NOT EXISTS 'CONTRATO_PRESTACAO';
+ALTER TYPE "TipoDocumento" ADD VALUE IF NOT EXISTS 'NOTA_PROMISSORIA';

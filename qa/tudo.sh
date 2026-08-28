@@ -109,7 +109,9 @@ node catalogo.mjs       >"$LOGS/cat.log" 2>&1; marcar $? "foto de peça e de equ
 node cliente.mjs        >"$LOGS/cli.log" 2>&1; marcar $? "a ficha do cliente: dinheiro, aparelhos, histórico e cadastro"
 node comercial.mjs      >"$LOGS/com.log" 2>&1; marcar $? "o funil de orçamentos: última versão, ordem da urgência, taxa"
 node calendario.mjs     >"$LOGS/cal.log" 2>&1; marcar $? "o calendário junta cinco fontes, e o motorista não vê dinheiro"
+node documentos.mjs     >"$LOGS/doc.log" 2>&1; marcar $? "contrato pelo total, promissória pelo saldo, e o técnico sem o botão"
 node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no teclado e no leitor de tela"
+node a11y.mjs           >"$LOGS/ax.log" 2>&1; marcar $? "acessibilidade (axe-core) em 21 telas, com o papel que usa cada uma"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

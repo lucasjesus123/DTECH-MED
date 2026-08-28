@@ -109,7 +109,7 @@ Ele atravessa cinco assuntos, e a pergunta que responde — *"o que vem por aí"
 não é feita de dentro de nenhuma delas. Fica em **Hoje**, ao lado do Painel do
 dia: um mostra o agora, o outro mostra o depois.
 
-### 6 · Gerador de contrato e nota promissória
+### 6 · Gerador de contrato e nota promissória  ✅ FEITO
 *Ação dentro de Clientes e de Ordens. Nenhum item novo.*
 
 O sistema já gera documento em PDF e já colhe assinatura pelo portal. Falta o
@@ -122,6 +122,20 @@ Vem por último porque é o que mais depende: precisa da ficha de cliente comple
 **Por que não é item de menu:** ninguém acorda querendo "abrir o gerador de
 contratos". A pessoa está na ficha de um cliente, ou numa ordem, e de lá emite o
 documento daquele cliente. Documento é ação sobre algo, não destino.
+
+**O que muda:** dois botões no bloco Documentos da ordem, do FINANCEIRO para
+cima. O valor nunca é digitado — vem da fatura, ou do orçamento aprovado quando
+ainda não há fatura. A promissória traz o valor por extenso, que é o que
+prevalece quando ele e o algarismo discordam.
+
+**A armadilha que este item tinha:** os dois documentos olham números
+DIFERENTES. O contrato vale o serviço combinado — o total, que não muda quando o
+cliente paga. A promissória é promessa do que ainda se deve — o saldo em aberto.
+A primeira versão conferia um e imprimia o outro: numa ordem já quitada a trava
+aprovava pelo total e saía uma nota promissória de R$ 0,00, com "ZERO REAL" por
+extenso no meio da folha — um título sem objeto, assinável. Hoje o número que a
+trava confere é o mesmo que o documento imprime, e `qa/documentos.mjs` emite nas
+duas situações para provar isso.
 
 ---
 
@@ -158,3 +172,23 @@ Nenhuma entra como pronta sem:
 O ponto 6 é o que separa "funciona" de "não quebrou nada". Foi ele que pegou a
 regressão em que a fila de faturamento sumiu atrás de uma aba e travou a esteira
 na etapa 14.
+
+---
+
+## As seis estão feitas. O que ficou anotado para depois
+
+**Três violações de acessibilidade no SITE.** Quando o `qa/a11y.mjs` passou a
+reprovar de verdade — ele imprimia e saía com código 0, então aparecia no
+relatório sem nunca ter reprovado nada —, ele achou três coisas sérias em `/`:
+o rótulo das estrelas de avaliação que o leitor de tela descarta, o contraste do
+botão da primeira dobra, e a tira que rola de lado sem receber foco de teclado.
+Ficaram anotadas no próprio arquivo e **não foram mexidas**: o site é outro
+escopo, com outra autorização. `node qa/a11y.mjs --com-site` mostra as três.
+
+**Duas pendências que não são de código**, e que só você pode fechar:
+
+1. A senha de `lucas@dtechmed.com.br` ainda é a de fábrica, e o repositório é
+   público — ou seja, ela está escrita num lugar que qualquer pessoa lê. Troque
+   em `/painel/trocar-senha`.
+2. Os dois tokens do GitHub colados na conversa continuam válidos. Revogue em
+   `github.com/settings/personal-access-tokens`.

@@ -5,6 +5,7 @@ import type { TipoDocumento } from '@/generated/prisma/enums'
 import { hashArquivo, novoToken } from '@/lib/cripto'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
+import { reaisPorExtenso } from '@/lib/extenso'
 import { env } from '@/lib/env'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 
@@ -33,6 +34,8 @@ const TITULO: Record<string, string> = {
   ORDEM_SERVICO: 'ORDEM DE SERVIÇO',
   RECIBO_PAGAMENTO: 'RECIBO DE PAGAMENTO',
   COMPROVANTE_ENTREGA: 'COMPROVANTE DE ENTREGA',
+  CONTRATO_PRESTACAO: 'CONTRATO DE PRESTAÇÃO DE SERVIÇO',
+  NOTA_PROMISSORIA: 'NOTA PROMISSÓRIA',
 }
 
 export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
@@ -175,6 +178,129 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         { align: 'justify', lineGap: 1.5 },
       )
     }
+  }
+
+  /* =========================================================================
+     CONTRATO DE PRESTAÇÃO DE SERVIÇO
+     =========================================================================
+     Diferente do CONTRATO_MANUTENCAO, que é o contrato daquele CONSERTO e
+     carrega as cláusulas de garantia. Este é o instrumento formal: qualifica as
+     duas partes com documento e endereço, define prazo de pagamento e foro, e é
+     o que o departamento de compras de um hospital arquiva antes de liberar a
+     nota.
+     ========================================================================= */
+  if (pedido.documento === 'CONTRATO_PRESTACAO') {
+    const valor = dados.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? 0
+
+    rotulo(doc, 'AS PARTES')
+    doc.fillColor(TINTA).fontSize(8.5).font('Helvetica').text(
+      `CONTRATADA: ${dados.tenant.razaoSocial ?? dados.tenant.nome}, inscrita no CNPJ sob o nº ` +
+        `${dados.tenant.cnpj ? formatarDoc(dados.tenant.cnpj) : '—'}, com sede em ` +
+        `${[dados.tenant.logradouro, dados.tenant.numero].filter(Boolean).join(', ') || '—'}, ` +
+        `${[dados.tenant.cidade, dados.tenant.uf].filter(Boolean).join('/') || '—'}.`,
+      { align: 'justify', lineGap: 1.5 },
+    )
+    doc.moveDown(0.5)
+    doc.text(
+      `CONTRATANTE: ${dados.cliente.razaoSocial ?? dados.cliente.nome}, inscrito no ` +
+        `${dados.cliente.tipo === 'PJ' ? 'CNPJ' : 'CPF'} sob o nº ${formatarDoc(dados.cliente.documento)}, ` +
+        `com endereço em ${[dados.cliente.logradouro, dados.cliente.numero].filter(Boolean).join(', ') || '—'}, ` +
+        `${[dados.cliente.cidade, dados.cliente.uf].filter(Boolean).join('/') || '—'}.`,
+      { align: 'justify', lineGap: 1.5 },
+    )
+
+    doc.moveDown(1)
+    rotulo(doc, 'OBJETO')
+    doc.fillColor(TINTA).fontSize(8.5).font('Helvetica').text(
+      `Prestação de serviço técnico especializado no equipamento ${dados.equipamento.marca} ` +
+        `${dados.equipamento.modelo}${dados.equipamento.numeroSerie ? `, série ${dados.equipamento.numeroSerie}` : ''}, ` +
+        `conforme a ordem de serviço nº ${String(dados.numero).padStart(5, '0')} e o orçamento aprovado pelo ` +
+        `CONTRATANTE, no valor de ${formatarBRL(valor)} (${reaisPorExtenso(valor)}).`,
+      { align: 'justify', lineGap: 1.5 },
+    )
+
+    doc.moveDown(1)
+    rotulo(doc, 'CLÁUSULAS')
+    doc.fillColor(TINTA).fontSize(8).font('Helvetica').text(
+      `1. PRAZO. A CONTRATADA executará o serviço em até ${orc?.prazoExecucaoDias ?? 7} dias úteis, ` +
+        `contados da aprovação do orçamento, salvo atraso de fornecedor de peça, comunicado ao CONTRATANTE.\n\n` +
+        `2. PAGAMENTO. O valor é devido na entrega do equipamento, salvo condição diversa combinada por escrito ` +
+        `entre as partes e registrada na ordem de serviço.\n\n` +
+        `3. GARANTIA. A CONTRATADA garante o serviço executado e as peças aplicadas por ` +
+        `${orc?.garantiaDias ?? 90} dias, contados da entrega. A garantia não cobre mau uso, oscilação da rede ` +
+        `elétrica, intervenção de terceiros nem desgaste natural.\n\n` +
+        `4. SERVIÇO ADICIONAL. Serviço não previsto, identificado durante a execução, será submetido a nova ` +
+        `aprovação do CONTRATANTE antes de ser realizado — nada é executado sem autorização.\n\n` +
+        `5. GUARDA DO EQUIPAMENTO. A CONTRATADA responde pelo equipamento enquanto ele estiver sob sua guarda, ` +
+        `documentada por fotografia na retirada e na entrega.\n\n` +
+        `6. FORO. Fica eleito o foro da comarca de ${dados.tenant.cidade ?? 'Lajeado'}/${dados.tenant.uf ?? 'RS'} ` +
+        `para dirimir dúvidas oriundas deste contrato.`,
+      { align: 'justify', lineGap: 2 },
+    )
+  }
+
+  /* =========================================================================
+     NOTA PROMISSÓRIA
+     =========================================================================
+     Um TÍTULO, e não um comprovante. O recibo prova o que já foi pago; esta é
+     promessa do que será — e o que a torna título é o valor POR EXTENSO sobre a
+     assinatura de quem emite.
+     ========================================================================= */
+  if (pedido.documento === 'NOTA_PROMISSORIA') {
+    const valor =
+      dados.fatura
+        ? dados.fatura.valorTotalCentavos +
+          dados.fatura.multaCentavos +
+          dados.fatura.jurosCentavos -
+          dados.fatura.valorPagoCentavos
+        : (orc?.totalCentavos ?? 0)
+    const vence = dados.fatura?.vencimento ?? null
+
+    doc.moveDown(0.5)
+    // O VALOR EM ALGARISMO, grande e no alto, como manda o formato do título.
+    doc
+      .fillColor(VIO)
+      .fontSize(22)
+      .font('Helvetica-Bold')
+      .text(formatarBRL(valor), { align: 'right' })
+    doc.moveDown(0.8)
+
+    doc.fillColor(TINTA).fontSize(9.5).font('Helvetica').text(
+      `Aos ${vence ? vence.toLocaleDateString('pt-BR') : '____/____/______'}, pagarei por esta única via de ` +
+        `NOTA PROMISSÓRIA a ${dados.tenant.razaoSocial ?? dados.tenant.nome}, ` +
+        `CNPJ ${dados.tenant.cnpj ? formatarDoc(dados.tenant.cnpj) : '—'}, ou à sua ordem, ` +
+        `a quantia de ${reaisPorExtenso(valor)}, em moeda corrente deste país.`,
+      { align: 'justify', lineGap: 3 },
+    )
+
+    doc.moveDown(0.9)
+    /**
+     * O EXTENSO REPETIDO, em destaque.
+     *
+     * Não é redundância: quando o algarismo e o extenso discordam, é o extenso
+     * que prevalece — a regra existe porque o algarismo é o que se altera com
+     * um traço de caneta. Deixá-lo escondido no meio do parágrafo enfraquece
+     * justamente a parte que defende o valor.
+     */
+    doc.fillColor(VIO).fontSize(10).font('Helvetica-Bold')
+    doc.text(reaisPorExtenso(valor).toUpperCase(), { align: 'center' })
+    doc.moveDown(0.8)
+
+    doc.fillColor(TINTA).fontSize(8.5).font('Helvetica').text(
+      `Emitente: ${dados.cliente.razaoSocial ?? dados.cliente.nome} · ` +
+        `${dados.cliente.tipo === 'PJ' ? 'CNPJ' : 'CPF'} ${formatarDoc(dados.cliente.documento)}\n` +
+        `Endereço: ${[dados.cliente.logradouro, dados.cliente.numero].filter(Boolean).join(', ') || '—'}, ` +
+        `${[dados.cliente.cidade, dados.cliente.uf].filter(Boolean).join('/') || '—'}\n` +
+        `Referente à ordem de serviço nº ${String(dados.numero).padStart(5, '0')}`,
+      { lineGap: 2 },
+    )
+
+    doc.moveDown(1.4)
+    // A linha de assinatura do EMITENTE. Sem ela a nota não é nada: título de
+    // crédito sem assinatura de quem promete pagar não obriga ninguém.
+    doc.moveTo(48, doc.y + 26).lineTo(320, doc.y + 26).strokeColor('#CFCBD9').lineWidth(1).stroke()
+    doc.y += 30
+    doc.fillColor(CINZA).fontSize(8).font('Helvetica').text('Assinatura do emitente')
   }
 
   if (pedido.documento === 'LAUDO_TECNICO') {

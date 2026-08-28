@@ -159,6 +159,23 @@ enum TipoDocumento {
   ORDEM_SERVICO
   RECIBO_PAGAMENTO
   COMPROVANTE_ENTREGA
+
+  /// O contrato de PRESTAÇÃO de serviço, e não o de manutenção preventiva.
+  ///
+  /// `CONTRATO_MANUTENCAO` é o contrato do conserto daquela ordem, com as
+  /// cláusulas de garantia. Este é o instrumento formal entre a empresa e o
+  /// cliente, com as partes qualificadas, foro e prazo de pagamento — o
+  /// documento que se pede quando o cliente é hospital ou órgão público e o
+  /// setor de compras exige contrato assinado antes de liberar a nota.
+  CONTRATO_PRESTACAO
+
+  /// A nota promissória: promessa de pagamento com data e valor.
+  ///
+  /// Ela existe para o caso em que o cliente leva o aparelho e paga depois.
+  /// Não é recibo (que prova o que JÁ foi pago) nem fatura (que é a cobrança):
+  /// é um título, e o que o torna título é a assinatura do emitente sobre o
+  /// valor por extenso.
+  NOTA_PROMISSORIA
 }
 
 /// Para onde foi a peça que saiu do aparelho.

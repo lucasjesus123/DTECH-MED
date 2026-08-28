@@ -21,6 +21,7 @@ import { montarTrilha } from '@/server/ordem/trilha'
 import { TrilhaDoEquipamento } from './trilha'
 import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
 import { pendenciaDe } from '@/server/estoque/pendencia'
+import EmitirDocumentos from './emitir'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -47,6 +48,11 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
   // tentar o id por sorte, a resposta é indistinguível de "não existe" — e é
   // exatamente essa indistinção que evita confirmar a existência do registro.
   if (!o) notFound()
+
+  // Contrato e nota promissória obrigam o cliente — um em contrato, outro em
+  // título. Assinar em nome da empresa não é trabalho de bancada nem de balcão,
+  // e a mesma linha é desenhada na ação do servidor: a tela esconder não basta.
+  const podeEmitir = podeVer(sessao.papel, Papel.FINANCEIRO)
 
   const [integridade, tecnicos, motoristas, pecas] = await Promise.all([
     verificarIntegridade(ctx, id),
@@ -496,7 +502,11 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
             </div>
           ) : null}
 
-          {o.documentos.length > 0 ? (
+          {/* O bloco de documentos aparece SEMPRE para quem emite, e não só
+              quando já existe algum: sem isso, o botão de emitir o contrato só
+              apareceria depois de já haver um documento — que é o contrário do
+              que se precisa. */}
+          {o.documentos.length > 0 || podeEmitir ? (
             <div className={estilo.bloco}>
               <p className={estilo.blocoTitulo}>Documentos</p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 'var(--s2)' }}>
@@ -515,6 +525,12 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
                   </li>
                 ))}
               </ul>
+              {o.documentos.length === 0 ? (
+                <p className={estilo.fraco}>
+                  Nenhum documento ainda. Os da esteira nascem sozinhos; os dois abaixo se pedem.
+                </p>
+              ) : null}
+              {podeEmitir ? <EmitirDocumentos ordemId={o.id} /> : null}
             </div>
           ) : null}
 

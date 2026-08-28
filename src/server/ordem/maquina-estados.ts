@@ -452,6 +452,8 @@ export const ROTULO_ETAPA: Record<EtapaOrdem, string> = {
  * contrato que acabou de assinar.
  */
 export const ROTULO_DOCUMENTO: Record<string, string> = {
+  CONTRATO_PRESTACAO: 'Contrato de prestação de serviço',
+  NOTA_PROMISSORIA: 'Nota promissória',
   ORDEM_RETIRADA: 'Ordem de retirada',
   COMPROVANTE_RETIRADA: 'Comprovante de retirada',
   LAUDO_TECNICO: 'Laudo técnico',

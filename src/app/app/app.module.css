@@ -49,7 +49,22 @@
   border-radius: var(--r-lg); overflow: hidden;
 }
 .paradaAgora { border-color: var(--vio); border-width: 2px; }
-.paradaFeita { opacity: .55; }
+/* A parada CONCLUÍDA fica quieta, e não apagada.
+ *
+ * Aqui havia `opacity: .55`. Ele apagava o cartão inteiro — e opacidade é o
+ * jeito mais silencioso de furar o piso de contraste, porque não muda nenhuma
+ * cor no código: o `--txt-3` continua sendo o token de 4,9:1 que o comentário
+ * do globals.css promete, mas o que chega no olho é 2,1:1. O axe encontrou 120
+ * elementos assim nesta tela.
+ *
+ * E o motorista PRECISA ler a parada que já fez: para conferir se foi no
+ * endereço certo, para ligar de volta, para dizer o número da OS quando a
+ * central pergunta. Apagá-la resolve o visual e cria o problema.
+ *
+ * O recuo agora é do FUNDO, que não tem texto em cima para arruinar, mais a
+ * palavra "Concluída" que o cartão já mostrava. A hierarquia continua; a
+ * legibilidade também. */
+.paradaFeita { background: var(--bg-1); border-style: dashed; }
 .paTopo, .paTopoDestaque {
   display: flex; justify-content: space-between; align-items: center;
   padding: var(--s3) var(--s4); font-weight: 600;

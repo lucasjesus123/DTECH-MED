@@ -73,8 +73,14 @@ dado — a forma mais confusa de falhar, porque parece defeito do produto.
 | `restantes.mjs` | as telas que o robô de varredura não alcança sozinho |
 | `caixa.mjs` | contas a pagar e a receber, parcelas, baixa, recorrências e gráficos |
 | `inicio.mjs` | recorrência retroativa: "começa em", e gerar um mês já passado |
+| `acompanhar.mjs` | o cartão diz onde o aparelho está, e mostra a prova |
+| `catalogo.mjs` | foto de peça e de equipamento: sobe, troca, sai, e não vaza para a outra franquia |
+| `cliente.mjs` | a ficha do cliente: dinheiro, aparelhos, histórico e cadastro |
+| `comercial.mjs` | o funil de orçamentos: só a última versão, a ordem da urgência, a taxa |
+| `calendario.mjs` | o calendário junta cinco fontes — e o motorista não vê dinheiro |
+| `documentos.mjs` | contrato pelo total, promissória pelo saldo em aberto, e o técnico sem o botão |
 | `fundo-caixa.mjs` | o caixa no celular, no teclado e no leitor de tela |
-| `a11y.mjs` | acessibilidade (axe-core) nas telas principais |
+| `a11y.mjs` | acessibilidade (axe-core) em 21 telas, cada uma com o papel que a usa |
 
 ## Como escrever um roteiro que não reprova sozinho
 
