@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { Papel } from '@/generated/prisma/enums'
 import { hashDocumento } from '@/lib/cripto'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
+import { anexarFotoDeCatalogo } from '@/server/acoes/estoque'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 
@@ -184,5 +185,28 @@ export async function salvarEquipamento(_anterior: Resposta, form: FormData): Pr
     entidadeId: r.id,
   })
   revalidatePath('/painel/equipamentos')
+
+  /**
+   * A FOTO ENTRA NO CADASTRO, E NÃO NUM SEGUNDO PASSO.
+   *
+   * Marca e modelo não bastam para reconhecer um aparelho: o mesmo modelo muda
+   * de cara entre gerações, e o cliente descreve o dele pela aparência, não
+   * pelo número de série.
+   *
+   * A trilha é gravada ANTES desta parte de propósito. Se a foto falhar, o
+   * cadastro continua feito e registrado — devolver erro faria a tela parecer
+   * que nada foi salvo, e a pessoa cadastraria o mesmo aparelho de novo.
+   */
+  const foto = form.get('foto')
+  if (foto instanceof File && foto.size > 0) {
+    const f = await anexarFotoDeCatalogo(a, 'equipamento', r.id, foto)
+    if (!f.ok) {
+      return {
+        ok: true,
+        mensagem: `${v.id ? 'Equipamento atualizado' : 'Equipamento cadastrado'}, mas a foto não subiu: ${f.motivo}`,
+      }
+    }
+  }
+
   return { ok: true, mensagem: v.id ? 'Equipamento atualizado.' : 'Equipamento cadastrado.' }
 }

@@ -4,10 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Prisma } from '@/generated/prisma/client'
 import { Papel, TipoMovimentoEstoque } from '@/generated/prisma/enums'
-import { comEscopo, exigirEmpresa } from '@/lib/db'
+import { comEscopo, exigirEmpresa, type ContextoAcesso } from '@/lib/db'
 import { aCentavos } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
-import { contextoDe, lerSessao } from '@/server/auth/sessao'
+import { contextoDe, lerSessao, type Sessao } from '@/server/auth/sessao'
 import { apagarArquivo, guardarFoto } from '@/server/arquivos/storage'
 import { movimentar } from '@/server/estoque/servico'
 
@@ -20,7 +20,15 @@ import { movimentar } from '@/server/estoque/servico'
  * alguém levou, ou se foi erro de digitação.
  */
 
-type Resposta = { ok: true } | { ok: false; motivo: string }
+/**
+ * `aviso` é o meio-termo que faltava: DEU CERTO, com uma ressalva.
+ *
+ * Ele existe por causa da foto no cadastro. Sem ele só havia "salvou" e "não
+ * salvou", e uma foto que falha teria de virar erro — o que faria a tela dizer
+ * que nada foi salvo numa peça que está cadastrada, e a pessoa cadastraria de
+ * novo.
+ */
+type Resposta = { ok: true; aviso?: string } | { ok: false; motivo: string }
 
 const PODE_MEXER: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO]
 
@@ -78,20 +86,50 @@ export async function salvarPeca(_anterior: Resposta, form: FormData): Promise<R
       // O custo médio é consequência das entradas — editá-lo pela tela faria o
       // relatório de margem mentir. Só entra no cadastro inicial.
       await tx.peca.update({ where: { id: v.id }, data: dados })
-    } else {
-      await tx.peca.create({
-        data: {
-          tenantId: exigirEmpresa(a.ctx),
-          ...dados,
-          custoMedioCentavos: aCentavos(v.custoMedio),
-        },
-      })
+      return { ok: true as const, id: v.id }
     }
-    return { ok: true as const }
+    const criada = await tx.peca.create({
+      data: {
+        tenantId: exigirEmpresa(a.ctx),
+        ...dados,
+        custoMedioCentavos: aCentavos(v.custoMedio),
+      },
+      select: { id: true },
+    })
+    return { ok: true as const, id: criada.id }
   })
   if (!r.ok) return r
 
-  await auditar(a.ctx, a.sessao, { acao: v.id ? 'peca.editada' : 'peca.criada', entidade: 'peca', entidadeId: v.id ?? v.sku })
+  /**
+   * A FOTO ENTRA NO CADASTRO, E NÃO NUM SEGUNDO PASSO.
+   *
+   * Ela precisa do id, então só pode rodar depois do create. E aqui está a
+   * regra que importa: SE A FOTO FALHAR, A PEÇA CONTINUA CADASTRADA.
+   *
+   * Devolver erro faria a tela parecer que nada foi salvo, e a pessoa
+   * cadastraria de novo — dois códigos iguais, ou o aviso de código repetido
+   * num item que ela acabou de criar sem saber. O trabalho de digitar a ficha
+   * inteira não pode ser perdido por causa de uma imagem tremida ou de um 4G
+   * que caiu no meio do envio.
+   *
+   * Então o retorno é `ok` com um aviso: a peça está lá, só a foto não subiu —
+   * e trocá-la depois é um clique no cartão.
+   */
+  const foto = form.get('foto')
+  if (foto instanceof File && foto.size > 0) {
+    const f = await anexarFotoDeCatalogo(a, 'peca', r.id, foto)
+    if (!f.ok) {
+      await auditar(a.ctx, a.sessao, {
+        acao: v.id ? 'peca.editada' : 'peca.criada',
+        entidade: 'peca',
+        entidadeId: r.id,
+      })
+      revalidatePath('/painel/estoque')
+      return { ok: true, aviso: `A peça foi cadastrada, mas a foto não subiu: ${f.motivo}` }
+    }
+  }
+
+  await auditar(a.ctx, a.sessao, { acao: v.id ? 'peca.editada' : 'peca.criada', entidade: 'peca', entidadeId: r.id })
   revalidatePath('/painel/estoque')
   return { ok: true }
 }
@@ -169,20 +207,28 @@ export async function lancarMovimento(_anterior: Resposta, form: FormData): Prom
  * A troca APAGA o arquivo anterior. Sem isso, cada correção deixaria um órfão no
  * disco que nada mais referencia — e ninguém percebe até o disco encher.
  */
-export async function salvarFotoDeCatalogo(_anterior: Resposta, form: FormData): Promise<Resposta> {
-  const a = await atorDaSessao()
-  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
-  if (!PODE_MEXER.includes(a.sessao.papel)) {
-    return { ok: false, motivo: 'Seu perfil não altera o catálogo.' }
-  }
-
-  const tipo = String(form.get('tipo') ?? '')
-  const id = String(form.get('id') ?? '')
-  const arquivo = form.get('arquivo')
-  if (tipo !== 'peca' && tipo !== 'equipamento') return { ok: false, motivo: 'Tipo desconhecido.' }
-  if (!id) return { ok: false, motivo: 'Escolha o item antes de enviar a foto.' }
-  if (!(arquivo instanceof File)) return { ok: false, motivo: 'Escolha uma imagem.' }
-
+/**
+ * GRAVA A FOTO DE UM ITEM QUE JÁ EXISTE.
+ *
+ * Extraída para ser chamada de DOIS lugares: a troca posterior, pelo cartão do
+ * catálogo, e o próprio CADASTRO — porque a foto tinha de esperar o item nascer
+ * para poder entrar, e "cadastre agora, fotografe depois" é um segundo passo que
+ * ninguém dá. O resultado era um catálogo de itens sem foto, que é o mesmo que
+ * catálogo nenhum: a foto é o que responde "é esta?".
+ *
+ * Ela precisa do `id` porque a foto pertence a uma linha. Por isso, no cadastro,
+ * ela roda DEPOIS do create — e o que acontece se ela falhar está escrito lá.
+ */
+export async function anexarFotoDeCatalogo(
+  // Só o que esta função usa: o escopo da empresa e quem está fazendo. Tipar
+  // pelo retorno inteiro de `atorDaSessao` amarrava a função a um formato que
+  // as outras telas não têm — e cadastros.ts, que também precisa dela, monta a
+  // sessão de um jeito ligeiramente diferente.
+  a: { ctx: ContextoAcesso; sessao: Sessao },
+  tipo: 'peca' | 'equipamento',
+  id: string,
+  arquivo: File,
+): Promise<Resposta> {
   const tenantId = exigirEmpresa(a.ctx)
 
   // A LINHA É LIDA ANTES DE GRAVAR O ARQUIVO, e dentro do escopo da empresa.
@@ -229,6 +275,22 @@ export async function salvarFotoDeCatalogo(_anterior: Resposta, form: FormData):
   revalidatePath('/painel/estoque')
   revalidatePath('/painel/equipamentos')
   return { ok: true }
+}
+
+/** A troca da foto pelo cartão do catálogo. Só confere e delega. */
+export async function salvarFotoDeCatalogo(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_MEXER.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não altera o catálogo.' }
+  }
+  const tipo = String(form.get('tipo') ?? '')
+  const id = String(form.get('id') ?? '')
+  const arquivo = form.get('arquivo')
+  if (tipo !== 'peca' && tipo !== 'equipamento') return { ok: false, motivo: 'Tipo desconhecido.' }
+  if (!id) return { ok: false, motivo: 'Escolha o item antes de enviar a foto.' }
+  if (!(arquivo instanceof File)) return { ok: false, motivo: 'Escolha uma imagem.' }
+  return anexarFotoDeCatalogo(a, tipo, id, arquivo)
 }
 
 /** Tira a foto do catálogo, e o arquivo junto. */

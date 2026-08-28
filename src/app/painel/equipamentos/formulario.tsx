@@ -77,6 +77,18 @@ export default function FormularioEquipamento({ clientes }: { clientes: Array<{ 
             <textarea className={estilo.area} name="observacoes" rows={2} />
           </label>
 
+          {/* A FOTO DO APARELHO, no cadastro.
+              Marca e modelo não bastam para reconhecer um aparelho na bancada:
+              o mesmo modelo muda de cara entre gerações, e o cliente descreve o
+              dele pela aparência, não pelo número de série. */}
+          <label className={estilo.rotulo}>
+            Foto do aparelho
+            <input className={estilo.campo} type="file" name="foto" accept="image/*" />
+            <span className={estilo.dica}>
+              Opcional. É ela que identifica o aparelho de relance — dá para trocar depois.
+            </span>
+          </label>
+
           <div className={estilo.acoesForm}>
             <button type="submit" className={estilo.btn} disabled={pendente}>
               {pendente ? 'Salvando…' : 'Cadastrar equipamento'}

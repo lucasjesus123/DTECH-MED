@@ -98,6 +98,20 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
             <input className={estilo.campo} name="aplicacao" placeholder="Modelos compatíveis" />
           </label>
 
+          {/* A FOTO ENTRA AQUI, no cadastro, e não num segundo passo.
+              Ela existia só depois do item nascer — e "cadastre agora,
+              fotografe depois" é um passo que ninguém dá. O resultado era um
+              catálogo sem foto, que é o mesmo que catálogo nenhum: a foto é o
+              que responde "é esta?" quando o técnico procura a peça na
+              prateleira. Se ela falhar, a peça continua cadastrada. */}
+          <label className={estilo.rotulo}>
+            Foto da peça
+            <input className={estilo.campo} type="file" name="foto" accept="image/*" />
+            <span className={estilo.dica}>
+              Opcional. É por ela que se acha a peça certa na prateleira — dá para trocar depois.
+            </span>
+          </label>
+
           <div className={estilo.acoesForm}>
             <button type="submit" className={estilo.btn} disabled={salvandoPeca}>
               {salvandoPeca ? 'Salvando…' : 'Cadastrar'}
