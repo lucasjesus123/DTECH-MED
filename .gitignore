@@ -61,3 +61,6 @@ qa/runs/
 qa/jornada/
 qa/telas/
 qa/*.png
+
+# A bateria grava print de cada execução — descartável, o roteiro é que versiona.
+qa/telas/

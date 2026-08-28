@@ -6,8 +6,12 @@
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 const { chromium } = pw
 
-const BASE = `${QA_BASE}`
-const PASTA = '/tmp/claude-0/-home-user-DTECH-MED/608e303f-77e1-5cfe-99aa-9e4adfb4cb84/scratchpad/telas'
+// O endereço do sistema em ensaio, e onde ficam os prints. Os dois vêm do
+// ambiente: o roteiro precisa rodar noutra porta e gravar noutra pasta sem
+// ninguém editar o arquivo. `qa/telas` está no .gitignore — print de execução
+// é descartável, o roteiro é que versiona.
+const BASE = process.env.QA_BASE || 'http://127.0.0.1:3111'
+const PASTA = process.env.QA_TELAS || new URL('./telas', import.meta.url).pathname
 
 let falhas = 0
 const ok = (t) => console.log(`  ✅ ${t}`)
@@ -17,10 +21,8 @@ const nao = (t) => { console.log(`  🔴 ${t}`); falhas++ }
 // duas execuções empilhadas fariam as somas do topo dobrarem — o que pareceria
 // defeito do produto e é defeito do teste.
 import { execFileSync } from 'node:child_process'
+import { mkdirSync } from 'node:fs'
 
-// O endereço do sistema em ensaio. Vem do ambiente para a bateria poder rodar
-// noutra porta sem editar dezesseis arquivos.
-const QA_BASE = process.env.QA_BASE || 'http://127.0.0.1:3111'
 
 // A senha das contas de ensaio. Vem do ambiente para não ficar escrita
 // num repositório público; o padrão é a que `npm run db:seed -- --demo`
@@ -29,6 +31,8 @@ const SENHA = process.env.QA_SENHA || 'Dtech' + '@2026'
 execFileSync('bash', ['-c',
   'set -a; . /var/tmp/pgdemo/env; set +a; psql "$DATABASE_URL" -q -c "select set_config(\'app.is_super_admin\',\'on\',false)" -c "delete from lancamentos" -c "delete from recorrencias"'],
   { stdio: 'inherit' })
+
+mkdirSync(PASTA, { recursive: true })
 
 const nav = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
 const ctx = await nav.newContext({ viewport: { width: 1440, height: 1100 } })

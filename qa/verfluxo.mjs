@@ -1,6 +1,6 @@
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 const { chromium } = pw
-const F = '/tmp/claude-0/-home-user-DTECH-MED/608e303f-77e1-5cfe-99aa-9e4adfb4cb84/scratchpad/fluxo.html'
+const F = process.env.QA_TELAS || new URL('./telas', import.meta.url).pathname
 const nav = await chromium.launch({ executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome' })
 for (const tema of ['light','dark']) {
   const ctx = await nav.newContext({ viewport:{width:1240,height:1000}, colorScheme: tema })
