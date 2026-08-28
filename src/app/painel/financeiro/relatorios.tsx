@@ -77,7 +77,10 @@ export default function Relatorios({
         </div>
 
         <div className={estilo.bloco}>
-          <p className={estilo.blocoTitulo}>De onde veio, fora as ordens</p>
+          {/* O par do bloco ao lado. "Fora as ordens" era enxuto demais: quem
+              lê precisa saber que este quadro conta o dinheiro que NÃO nasceu
+              de um conserto — contrato, locação, peça no balcão. */}
+          <p className={estilo.blocoTitulo}>De onde veio o dinheiro avulso</p>
           <Barras
             fatias={entradas}
             tom="entra"
