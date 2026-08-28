@@ -101,7 +101,7 @@ export async function agendar(_anterior: Resposta, form: FormData): Promise<Resp
   }
 
   await auditar(a.ctx, a.sessao, { acao: `agenda.${v.tipo.toLowerCase()}`, entidade: 'ordem', entidadeId: v.ordemId })
-  revalidatePath('/painel/agenda')
+  revalidatePath('/painel/rota')
   revalidatePath(`/painel/ordens/${v.ordemId}`)
   revalidatePath('/painel')
   return { ok: true }
@@ -144,7 +144,7 @@ export async function atribuirMotorista(agendamentoId: string, motoristaId: stri
   })
   if (!r.ok) return r
 
-  revalidatePath('/painel/agenda')
+  revalidatePath('/painel/rota')
   return { ok: true }
 }
 
@@ -165,6 +165,6 @@ export async function cancelarAgendamento(agendamentoId: string, motivo: string)
   })
 
   await auditar(a.ctx, a.sessao, { acao: 'agenda.cancelada', entidade: 'agendamento', entidadeId: agendamentoId })
-  revalidatePath('/painel/agenda')
+  revalidatePath('/painel/rota')
   return { ok: true }
 }

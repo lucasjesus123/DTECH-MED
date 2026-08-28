@@ -48,38 +48,77 @@ export type Tela = {
   /** O que vai gravado no banco. Curto e estável: ele sobrevive a renomeações. */
   chave: string
   rotulo: string
-  grupo: 'A esteira' | 'Cadastros' | 'Equipe' | 'Retaguarda'
+  grupo: Grupo
   href: string
   icone: NomeIcone
   /** O papel MÍNIMO. Abaixo dele, marcar a aba não adianta. */
   piso: Papel
 }
 
-export const TELAS: readonly Tela[] = [
-  { chave: 'painel',       rotulo: 'Painel do dia',     grupo: 'A esteira',  href: '/painel',              icone: 'mostrador',   piso: Papel.MOTORISTA },
-  { chave: 'acompanhar',   rotulo: 'Acompanhar',        grupo: 'A esteira',  href: '/painel/acompanhar',   icone: 'trilha',      piso: Papel.MOTORISTA },
-  { chave: 'ao-vivo',      rotulo: 'Ao vivo',           grupo: 'A esteira',  href: '/painel/ao-vivo',      icone: 'aoVivo',      piso: Papel.MOTORISTA },
-  { chave: 'ordens',       rotulo: 'Ordens',            grupo: 'A esteira',  href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
-  { chave: 'agenda',       rotulo: 'Agenda de rota',    grupo: 'A esteira',  href: '/painel/agenda',       icone: 'rota',        piso: Papel.MOTORISTA },
-  { chave: 'contatos',     rotulo: 'Contatos do site',  grupo: 'A esteira',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
+/**
+ * OS GRUPOS, NA ORDEM EM QUE O DIA ACONTECE.
+ *
+ * =============================================================================
+ * POR QUE ELES FORAM REDESENHADOS
+ * =============================================================================
+ * O menu tinha treze itens em quatro grupos, e a lista de pedidos somava mais
+ * sete telas. Vinte entradas numa coluna deixam de ser navegação e viram índice
+ * de manual: a pessoa não pergunta mais "onde eu clico", pergunta "em qual
+ * destes vinte estava aquilo".
+ *
+ * Pior que o tamanho era a SOBREPOSIÇÃO. Quatro entradas respondiam a mesma
+ * pergunta — "cadê o motorista e o que ele tem para hoje": Agenda de rota, Ao
+ * vivo, App do motorista e App do técnico.
+ *
+ * A regra do redesenho é uma frase:
+ *
+ *     ┌──────────────────────────────────────────────────────────────┐
+ *     │  O que responde à MESMA PERGUNTA vira ABA, não item de menu. │
+ *     └──────────────────────────────────────────────────────────────┘
+ *
+ * Os quatro viraram "Rota", com Planejada e Ao vivo em abas e os aplicativos
+ * como botões — porque aplicativo de campo não é outra aba do painel, é outra
+ * superfície, feita para o celular de quem está na rua.
+ *
+ * =============================================================================
+ * A ORDEM DOS GRUPOS É A ORDEM DO DIA
+ * =============================================================================
+ * "Hoje" é o que se abre de manhã. "O trabalho" é a esteira andando.
+ * "Comercial" é o que ainda não virou ordem. Cadastros alimentam tudo, Dinheiro
+ * fecha, Retaguarda sustenta, e Equipe é quem faz. Um menu ordenado por
+ * frequência de uso poupa uma decisão por clique, o dia inteiro.
+ */
+export type Grupo =
+  | 'Hoje'
+  | 'O trabalho'
+  | 'Comercial'
+  | 'Cadastros'
+  | 'Dinheiro'
+  | 'Retaguarda'
+  | 'Equipe'
 
-  // Os aplicativos de campo, vistos de dentro do painel. Existiam e não tinham
-  // como chegar neles: quem gerencia precisava saber o endereço de cor — e,
-  // sabendo, era recusado na porta. Agora entram em modo gestão, que mostra a
-  // rota e a bancada da empresa inteira e não oferece botão de ação nenhum.
-  { chave: 'app-motorista', rotulo: 'App do motorista', grupo: 'A esteira', href: '/app/motorista', icone: 'rota',        piso: Papel.GESTOR },
-  { chave: 'app-tecnico',   rotulo: 'App do técnico',   grupo: 'A esteira', href: '/app/tecnico',   icone: 'equipamento', piso: Papel.GESTOR },
+export const TELAS: readonly Tela[] = [
+  { chave: 'painel',       rotulo: 'Painel do dia',     grupo: 'Hoje',       href: '/painel',              icone: 'mostrador',   piso: Papel.MOTORISTA },
+
+  { chave: 'ordens',       rotulo: 'Ordens',            grupo: 'O trabalho', href: '/painel/ordens',       icone: 'ordens',      piso: Papel.MOTORISTA },
+  { chave: 'acompanhar',   rotulo: 'Acompanhar',        grupo: 'O trabalho', href: '/painel/acompanhar',   icone: 'trilha',      piso: Papel.MOTORISTA },
+  // Uma entrada onde havia quatro: a agenda, o mapa ao vivo e os dois
+  // aplicativos de campo. Ver o comentário dos grupos, acima.
+  { chave: 'rota',         rotulo: 'Rota',              grupo: 'O trabalho', href: '/painel/rota',         icone: 'rota',        piso: Papel.MOTORISTA },
+
+  { chave: 'contatos',     rotulo: 'Contatos do site',  grupo: 'Comercial',  href: '/painel/contatos',     icone: 'recado',      piso: Papel.ATENDENTE },
 
   { chave: 'clientes',     rotulo: 'Clientes',          grupo: 'Cadastros',  href: '/painel/clientes',     icone: 'clientes',    piso: Papel.ATENDENTE },
   { chave: 'equipamentos', rotulo: 'Equipamentos',      grupo: 'Cadastros',  href: '/painel/equipamentos', icone: 'equipamento', piso: Papel.MOTORISTA },
+  { chave: 'estoque',      rotulo: 'Estoque',           grupo: 'Cadastros',  href: '/painel/estoque',      icone: 'estoque',     piso: Papel.TECNICO },
+
+  { chave: 'financeiro',   rotulo: 'Financeiro',        grupo: 'Dinheiro',   href: '/painel/financeiro',   icone: 'financeiro',  piso: Papel.FINANCEIRO },
+
+  { chave: 'preventiva',   rotulo: 'Preventiva',        grupo: 'Retaguarda', href: '/painel/preventiva',   icone: 'preventiva',  piso: Papel.ATENDENTE },
+  { chave: 'whatsapp',     rotulo: 'WhatsApp',          grupo: 'Retaguarda', href: '/painel/whatsapp',     icone: 'balao',       piso: Papel.GESTOR },
 
   { chave: 'usuarios',     rotulo: 'Pessoas e acessos', grupo: 'Equipe',     href: '/painel/usuarios',     icone: 'clientes',    piso: Papel.ADMIN_EMPRESA },
   { chave: 'auditoria',    rotulo: 'Trilha',            grupo: 'Equipe',     href: '/painel/auditoria',    icone: 'registro',    piso: Papel.ADMIN_EMPRESA },
-
-  { chave: 'estoque',      rotulo: 'Estoque',           grupo: 'Retaguarda', href: '/painel/estoque',      icone: 'estoque',     piso: Papel.TECNICO },
-  { chave: 'preventiva',   rotulo: 'Preventiva',        grupo: 'Retaguarda', href: '/painel/preventiva',   icone: 'preventiva',  piso: Papel.ATENDENTE },
-  { chave: 'financeiro',   rotulo: 'Financeiro',        grupo: 'Retaguarda', href: '/painel/financeiro',   icone: 'financeiro',  piso: Papel.FINANCEIRO },
-  { chave: 'whatsapp',     rotulo: 'WhatsApp',          grupo: 'Retaguarda', href: '/painel/whatsapp',     icone: 'balao',       piso: Papel.GESTOR },
 ] as const
 
 const NIVEL: Record<Papel, number> = {
@@ -110,9 +149,12 @@ export function telasEfetivas(papel: Papel, marcadas: string[] | null | undefine
   const escolhidas = new Set(marcadas)
   const filtradas = doPapel.filter((t) => escolhidas.has(t.chave))
 
-  // Marcação que não sobrou nada — papel rebaixado depois de marcar, por
-  // exemplo — devolve o padrão. Um menu vazio é uma pessoa que abre o sistema e
-  // não tem para onde ir, e isso parece defeito, não permissão.
+  // Marcação que não sobrou nada devolve o padrão. Acontece em dois casos: papel
+  // rebaixado depois de marcar, e — desde o redesenho dos grupos — marcação
+  // feita com CHAVES QUE NÃO EXISTEM MAIS ('agenda', 'ao-vivo'). As duas viraram
+  // a aba 'rota'; quem tinha só elas marcadas cairia num menu vazio, que é uma
+  // pessoa abrindo o sistema sem ter para onde ir. Isso parece defeito, não
+  // permissão.
   return filtradas.length > 0 ? filtradas : doPapel
 }
 

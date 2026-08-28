@@ -3657,3 +3657,23 @@
   .zapOk .zapTxt { display: none; }
   .zapOk { padding: 0 8px; }
 }
+
+/* A barra da tela de Rota: as duas visões à esquerda, os aplicativos de campo à
+   direita. Separados de propósito — aba troca o que se olha, botão abre outra
+   superfície. Misturar os dois faria "App do motorista" parecer mais uma visão
+   desta tela, e ela é um aplicativo de celular. */
+.rotaBarra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+}
+.rotaApps { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.rotaApps a { text-decoration: none; }
+
+@media (max-width: 720px) {
+  .rotaBarra { flex-direction: column; align-items: stretch; }
+  .rotaApps a { flex: 1; text-align: center; }
+}

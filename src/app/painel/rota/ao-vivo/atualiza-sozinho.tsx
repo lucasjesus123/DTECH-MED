@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import estilo from '../painel.module.css'
+import estilo from '../../painel.module.css'
 
 /**
  * A tela do Ao vivo se atualizando sozinha, sem recarregar a página.
