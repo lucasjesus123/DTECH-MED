@@ -5,6 +5,7 @@ import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
 import Planilha from './planilha'
+import { formatarDocumento, formatarTelefone } from '@/lib/documentos'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Clientes', robots: { index: false } }
@@ -94,11 +95,17 @@ export default async function Clientes({
               {clientes.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <span className={estilo.forte}>{c.nome}</span>
+                    {/* O nome leva à FICHA. Até agora a lista era um beco: dava
+                        para ver que o cliente existe e não dava para abrir o
+                        que se sabe sobre ele. Quem procura um cliente numa
+                        lista está indo para algum lugar. */}
+                    <Link href={`/painel/clientes/${c.id}`} className={estilo.forte}>
+                      {c.nome}
+                    </Link>
                     {c.contatoNome ? <div className={estilo.fraco}>contato: {c.contatoNome}</div> : null}
                   </td>
-                  <td className={estilo.num}>{formatarDoc(c.documento)}</td>
-                  <td className={estilo.num}>{c.whatsapp ? telefone(c.whatsapp) : '—'}</td>
+                  <td className={estilo.num}>{formatarDocumento(c.documento)}</td>
+                  <td className={estilo.num}>{c.whatsapp ? formatarTelefone(c.whatsapp) : '—'}</td>
                   <td>
                     {c.cidade ?? '—'}
                     {c.uf ? `/${c.uf}` : ''}
@@ -121,15 +128,4 @@ export default async function Clientes({
 
 /** Documento formatado por extenso: aqui é tela de cadastro, e o operador
  *  precisa conferir o número inteiro contra o contrato que tem na mão. */
-function formatarDoc(d: string): string {
-  if (d.length === 11) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`
-  if (d.length === 14) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
-  return d
-}
 
-function telefone(t: string): string {
-  const d = t.replace(/\D/g, '').replace(/^55/, '')
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
-  return t
-}

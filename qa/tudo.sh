@@ -106,6 +106,7 @@ node caixa.mjs          >"$LOGS/x.log" 2>&1; marcar $? "o caixa: contas, parcela
 node inicio.mjs         >"$LOGS/y.log" 2>&1; marcar $? "recorrência retroativa: começa em, e gera mês passado"
 node acompanhar.mjs     >"$LOGS/ac.log" 2>&1; marcar $? "o cartão diz onde o aparelho está, e mostra a prova"
 node catalogo.mjs       >"$LOGS/cat.log" 2>&1; marcar $? "foto de peça e de equipamento: sobe, troca, sai, e não vaza"
+node cliente.mjs        >"$LOGS/cli.log" 2>&1; marcar $? "a ficha do cliente: dinheiro, aparelhos, histórico e cadastro"
 node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no teclado e no leitor de tela"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
