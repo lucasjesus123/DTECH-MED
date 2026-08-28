@@ -126,6 +126,14 @@ export default function Aguardando({ pendentes }: { pendentes: Pendente[] }) {
               que mudou. */}
           <p className={estilo.dica}>
             A fatura sai com o valor do orçamento aprovado, nunca digitado de novo.
+            {/* A consulta traz no máximo 30, as mais antigas primeiro. Um corte
+                silencioso numa fila faz a tela dizer "é só isso" quando não é —
+                e a ordem escondida é sempre a que alguém procura. Dizer o
+                limite custa uma frase e evita a busca por um item que a lista
+                simplesmente não estava mostrando. */}
+            {pendentes.length >= 30
+              ? ' Aparecem as 30 mais antigas; as demais entram conforme estas saem da fila.'
+              : ''}
           </p>
         </div>
       ) : null}
