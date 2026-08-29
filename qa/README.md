@@ -79,6 +79,8 @@ dado — a forma mais confusa de falhar, porque parece defeito do produto.
 | `comercial.mjs` | o funil de orçamentos: só a última versão, a ordem da urgência, a taxa |
 | `calendario.mjs` | o calendário junta cinco fontes — e o motorista não vê dinheiro |
 | `documentos.mjs` | contrato pelo total, promissória pelo saldo em aberto, e o técnico sem o botão |
+| `lancar.mjs` | as telas que só mostravam passam a receber: compromisso, conta pelo dia, contato à mão, e a aprovação do Financeiro |
+| `ler-pdf.mjs` | não é roteiro: extrai o texto de dentro de um PDF, para os testes conferirem o que está ESCRITO e não só que um arquivo saiu |
 | `fundo-caixa.mjs` | o caixa no celular, no teclado e no leitor de tela |
 | `a11y.mjs` | acessibilidade (axe-core) em 21 telas, cada uma com o papel que a usa |
 

@@ -54,7 +54,8 @@ psqlq() { psql -h "$PG_HOST" -p "$PG_PORTA" -U "$PG_USER" -d "$PG_BANCO" "$@"; }
 TABELAS="tenants, usuarios, sessoes, clientes, equipamentos, ordens, eventos_ordem, fotos,
  assinaturas, orcamentos, orcamento_itens, pecas, movimentos_estoque, faturas, pagamentos,
  agendamentos, documentos, outbox_jobs, mensagens_whatsapp, templates_mensagem,
- whatsapp_instances, leads, audit_logs, contadores, lancamentos, recorrencias"
+ whatsapp_instances, leads, audit_logs, contadores, lancamentos, recorrencias,
+ compromissos, modelos_documento"
 
 semear() {
   [ -x "$PG_SUBIR" ] || [ -f "$PG_SUBIR" ] && bash "$PG_SUBIR" >/dev/null 2>&1
@@ -130,6 +131,7 @@ node cliente.mjs        >"$LOGS/cli.log" 2>&1; marcar $? "a ficha do cliente: di
 node comercial.mjs      >"$LOGS/com.log" 2>&1; marcar $? "o funil de orçamentos: última versão, ordem da urgência, taxa"
 node calendario.mjs     >"$LOGS/cal.log" 2>&1; marcar $? "o calendário junta cinco fontes, e o motorista não vê dinheiro"
 node documentos.mjs     >"$LOGS/doc.log" 2>&1; marcar $? "contrato pelo total, promissória pelo saldo, e o técnico sem o botão"
+node lancar.mjs         >"$LOGS/lan.log" 2>&1; marcar $? "as telas que só mostravam passam a receber — e o motorista sem dinheiro"
 node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no teclado e no leitor de tela"
 node a11y.mjs           >"$LOGS/ax.log" 2>&1; marcar $? "acessibilidade (axe-core) em 21 telas, com o papel que usa cada uma"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
