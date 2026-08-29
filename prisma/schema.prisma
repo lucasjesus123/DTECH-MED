@@ -458,6 +458,44 @@ model Cliente {
   contatoNome     String?
   contatoTelefone String?
 
+  /// ONDE O MOTORISTA VAI BUSCAR — que nem sempre é o endereço do cadastro.
+  ///
+  /// A clínica tem sede num lugar e sala de procedimento noutro; o hospital
+  /// recebe pela doca dos fundos; o consultório manda buscar no galpão do
+  /// sócio. Nesses casos o endereço de cima é onde a NOTA vai.
+  ///
+  /// Endereço errado aqui não é dado errado no banco: é o motorista
+  /// atravessando a cidade e voltando de mãos vazias.
+  ///
+  /// A marca existe porque campo vazio é AMBÍGUO, e a ambiguidade cai em cima
+  /// do motorista: ninguém sabe se vazio quer dizer "é o mesmo endereço" ou
+  /// "ninguém perguntou ainda" — parecem iguais no banco e são opostos na rua.
+  coletaMesmoEndereco Boolean @default(true)
+  coletaCep           String?
+  coletaLogradouro    String?
+  coletaNumero        String?
+  coletaComplemento   String?
+  coletaBairro        String?
+  coletaCidade        String?
+  coletaUf            String?
+  /// O que o motorista precisa saber antes de sair e não cabe em endereço:
+  /// "só das 8h às 11h", "tocar no interfone 3", "entrar pela doca".
+  coletaObservacao    String?
+
+  /// QUEM RESPONDE PELO CLIENTE — diferente de `contatoNome`.
+  ///
+  /// `contatoNome` é quem atende o telefone. Representante é quem assina o
+  /// contrato, autoriza o orçamento e aparece na nota promissória: o sócio na
+  /// clínica, o comprador no hospital.
+  ///
+  /// Confundir os dois faz mandar o orçamento de oito mil para quem atende o
+  /// telefone, e esperar aprovação de quem não pode dar.
+  representanteNome     String?
+  representanteTelefone String?
+  representanteEmail    String?
+  /// "sócio-proprietário", "gerente de compras", "responsável técnica".
+  representanteVinculo  String?
+
   observacoes String?
   ativo       Boolean @default(true)
 

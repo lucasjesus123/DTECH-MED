@@ -4513,3 +4513,15 @@
 }
 .linhaSimples:last-child { border-bottom: none; }
 .linhaSimples > a { font-family: var(--f-mono); flex: none; min-width: 5ch; }
+
+/* Campo com um botão colado — o CEP e o "Buscar".
+   O botão fica DENTRO do rótulo, e não numa linha própria, porque ele age
+   sobre aquele campo: separado, viraria uma ação solta que a pessoa precisa
+   ligar mentalmente ao campo certo (e são dois CEPs nesta tela). */
+.campoComBotao {
+  display: flex;
+  gap: var(--s2);
+  align-items: stretch;
+}
+.campoComBotao > input { flex: 1 1 auto; min-width: 0; }
+.campoComBotao > button { flex: none; white-space: nowrap; }

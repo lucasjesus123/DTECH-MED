@@ -15,6 +15,8 @@ type Pendente = {
   cliente: string
   equipamento: string
   endereco: string
+  /** O que o cliente avisou sobre a coleta — vem do cadastro dele. */
+  observacoes?: string
   contatoNome: string
   contatoTelefone: string
 }
@@ -167,7 +169,13 @@ export default function Agendador({
 
             <label className={estilo.rotulo}>
               Recado para o motorista
-              <textarea className={estilo.area} name="observacoes" rows={2} placeholder="Levar carrinho, estacionar nos fundos…" />
+              <textarea
+                className={estilo.area}
+                name="observacoes"
+                rows={2}
+                defaultValue={p.observacoes ?? ''}
+                placeholder="Levar carrinho, estacionar nos fundos…"
+              />
             </label>
 
             <div className={estilo.acoesForm}>

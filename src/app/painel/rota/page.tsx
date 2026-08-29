@@ -6,6 +6,7 @@ import { agendaDoPeriodo, motoristasDaEmpresa, semAgendamento } from '@/server/c
 import Agendador from './agendador'
 import AbasDaRota from './abas'
 import AbasOS from '../os-abas'
+import { enderecoDaColeta } from '@/lib/endereco'
 import estilo from '../painel.module.css'
 import { amanha, diaLocal, hoje } from '@/lib/datas'
 
@@ -63,12 +64,22 @@ export default async function Agenda() {
             o.etapa === 'ORDEM_RETIRADA_GERADA' ? ('RETIRADA' as const) : ('ENTREGA' as const),
           cliente: o.cliente.nome,
           equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`,
-          endereco:
-            [o.cliente.logradouro, o.cliente.numero, o.cliente.bairro, o.cliente.cidade, o.cliente.uf]
-              .filter(Boolean)
-              .join(', ') || '',
+          // O ENDEREÇO DA COLETA, e não o do cadastro.
+          //
+          // São a mesma coisa na maioria dos clientes, e diferentes justamente
+          // nos que mais doem: a clínica com sala noutro endereço, o hospital
+          // que recebe pela doca dos fundos, o consultório que manda buscar no
+          // galpão do sócio. Nesses, o endereço do cadastro é onde vai a NOTA.
+          //
+          // O campo continua editável na hora de marcar — isto é só o que ele
+          // vem preenchido, e vir preenchido com o lugar errado é pior do que
+          // vir vazio: ninguém confere o que já parece certo.
+          endereco: enderecoDaColeta(o.cliente),
           contatoNome: o.cliente.contatoNome ?? '',
           contatoTelefone: o.cliente.telefone ?? '',
+          // O que o motorista precisa saber antes de sair. Ele vai junto para o
+          // campo de observações da parada, que o aplicativo dele mostra.
+          observacoes: o.cliente.coletaMesmoEndereco ? '' : (o.cliente.coletaObservacao ?? ''),
         }))}
         motoristas={motoristas}
       />

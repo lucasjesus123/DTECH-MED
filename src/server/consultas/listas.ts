@@ -512,7 +512,19 @@ export async function semAgendamento(ctx: ContextoAcesso) {
         numero: true,
         etapa: true,
         cliente: {
-          select: { nome: true, logradouro: true, numero: true, bairro: true, cidade: true, uf: true, contatoNome: true, telefone: true },
+          select: {
+            nome: true, logradouro: true, numero: true, bairro: true, cidade: true, uf: true,
+            contatoNome: true, telefone: true,
+            // O ENDEREÇO DE COLETA, quando ele é outro.
+            //
+            // Sem estes campos o agendamento sairia sempre com o endereço do
+            // CADASTRO — que é para onde vai a nota, e não necessariamente
+            // onde o aparelho está. O motorista atravessaria a cidade e
+            // voltaria de mãos vazias.
+            coletaMesmoEndereco: true, coletaLogradouro: true, coletaNumero: true,
+            coletaComplemento: true, coletaBairro: true, coletaCidade: true, coletaUf: true,
+            coletaObservacao: true,
+          },
         },
         equipamento: { select: { marca: true, modelo: true } },
       },

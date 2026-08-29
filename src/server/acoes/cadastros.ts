@@ -49,6 +49,25 @@ const schemaCliente = z.object({
   bairro: z.string().trim().nullish(),
   cidade: z.string().trim().nullish(),
   uf: z.string().trim().nullish(),
+
+  // A caixa marcada chega como 'on'; desmarcada não chega. Por isso o padrão é
+  // `false` aqui e a leitura abaixo é explícita — `undefined` significa
+  // "desmarcou", não "não mandou".
+  coletaMesmoEndereco: z.union([z.literal('on'), z.literal('true')]).optional(),
+  coletaCep: z.string().trim().nullish(),
+  coletaLogradouro: z.string().trim().nullish(),
+  coletaNumero: z.string().trim().nullish(),
+  coletaComplemento: z.string().trim().nullish(),
+  coletaBairro: z.string().trim().nullish(),
+  coletaCidade: z.string().trim().nullish(),
+  coletaUf: z.string().trim().nullish(),
+  coletaObservacao: z.string().trim().nullish(),
+
+  representanteNome: z.string().trim().nullish(),
+  representanteTelefone: z.string().trim().nullish(),
+  representanteEmail: z.string().trim().toLowerCase().email('E-mail do representante inválido.').nullish().or(z.literal('')),
+  representanteVinculo: z.string().trim().nullish(),
+
   observacoes: z.string().trim().nullish(),
 })
 
@@ -72,6 +91,7 @@ export async function salvarCliente(_anterior: Resposta, form: FormData): Promis
       return { ok: false as const, motivo: `Este CPF/CNPJ já está cadastrado para ${colide.nome}.` }
     }
 
+    const mesmoEndereco = v.coletaMesmoEndereco === 'on' || v.coletaMesmoEndereco === 'true'
     const dados = {
       nome: v.nome,
       razaoSocial: v.razaoSocial || null,
@@ -89,6 +109,35 @@ export async function salvarCliente(_anterior: Resposta, form: FormData): Promis
       bairro: v.bairro || null,
       cidade: v.cidade || null,
       uf: v.uf?.toUpperCase().slice(0, 2) || null,
+
+      /**
+       * A COLETA.
+       *
+       * A caixa DESMARCADA não chega no FormData — é assim que HTML funciona.
+       * Por isso a ausência é lida como "desmarcou", e não como "não informou":
+       * este formulário sempre manda a caixa, então ela só falta quando alguém
+       * a desmarcou de propósito.
+       *
+       * E quando é o mesmo endereço, os campos de coleta são ZERADOS. Sem isso,
+       * quem desmarcasse, digitasse outro endereço e voltasse a marcar deixaria
+       * um endereço fantasma gravado — invisível na tela, e lido pelo aplicativo
+       * do motorista no dia em que alguém desmarcar de novo.
+       */
+      coletaMesmoEndereco: mesmoEndereco,
+      coletaCep: mesmoEndereco ? null : v.coletaCep ? soDigitos(v.coletaCep) : null,
+      coletaLogradouro: mesmoEndereco ? null : v.coletaLogradouro || null,
+      coletaNumero: mesmoEndereco ? null : v.coletaNumero || null,
+      coletaComplemento: mesmoEndereco ? null : v.coletaComplemento || null,
+      coletaBairro: mesmoEndereco ? null : v.coletaBairro || null,
+      coletaCidade: mesmoEndereco ? null : v.coletaCidade || null,
+      coletaUf: mesmoEndereco ? null : v.coletaUf?.toUpperCase().slice(0, 2) || null,
+      coletaObservacao: mesmoEndereco ? null : v.coletaObservacao || null,
+
+      representanteNome: v.representanteNome || null,
+      representanteTelefone: v.representanteTelefone ? soDigitos(v.representanteTelefone) : null,
+      representanteEmail: v.representanteEmail || null,
+      representanteVinculo: v.representanteVinculo || null,
+
       observacoes: v.observacoes || null,
     }
 

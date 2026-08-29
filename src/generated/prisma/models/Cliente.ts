@@ -46,6 +46,19 @@ export type ClienteMinAggregateOutputType = {
   pontoReferencia: string | null
   contatoNome: string | null
   contatoTelefone: string | null
+  coletaMesmoEndereco: boolean | null
+  coletaCep: string | null
+  coletaLogradouro: string | null
+  coletaNumero: string | null
+  coletaComplemento: string | null
+  coletaBairro: string | null
+  coletaCidade: string | null
+  coletaUf: string | null
+  coletaObservacao: string | null
+  representanteNome: string | null
+  representanteTelefone: string | null
+  representanteEmail: string | null
+  representanteVinculo: string | null
   observacoes: string | null
   ativo: boolean | null
   criadoEm: Date | null
@@ -74,6 +87,19 @@ export type ClienteMaxAggregateOutputType = {
   pontoReferencia: string | null
   contatoNome: string | null
   contatoTelefone: string | null
+  coletaMesmoEndereco: boolean | null
+  coletaCep: string | null
+  coletaLogradouro: string | null
+  coletaNumero: string | null
+  coletaComplemento: string | null
+  coletaBairro: string | null
+  coletaCidade: string | null
+  coletaUf: string | null
+  coletaObservacao: string | null
+  representanteNome: string | null
+  representanteTelefone: string | null
+  representanteEmail: string | null
+  representanteVinculo: string | null
   observacoes: string | null
   ativo: boolean | null
   criadoEm: Date | null
@@ -102,6 +128,19 @@ export type ClienteCountAggregateOutputType = {
   pontoReferencia: number
   contatoNome: number
   contatoTelefone: number
+  coletaMesmoEndereco: number
+  coletaCep: number
+  coletaLogradouro: number
+  coletaNumero: number
+  coletaComplemento: number
+  coletaBairro: number
+  coletaCidade: number
+  coletaUf: number
+  coletaObservacao: number
+  representanteNome: number
+  representanteTelefone: number
+  representanteEmail: number
+  representanteVinculo: number
   observacoes: number
   ativo: number
   criadoEm: number
@@ -132,6 +171,19 @@ export type ClienteMinAggregateInputType = {
   pontoReferencia?: true
   contatoNome?: true
   contatoTelefone?: true
+  coletaMesmoEndereco?: true
+  coletaCep?: true
+  coletaLogradouro?: true
+  coletaNumero?: true
+  coletaComplemento?: true
+  coletaBairro?: true
+  coletaCidade?: true
+  coletaUf?: true
+  coletaObservacao?: true
+  representanteNome?: true
+  representanteTelefone?: true
+  representanteEmail?: true
+  representanteVinculo?: true
   observacoes?: true
   ativo?: true
   criadoEm?: true
@@ -160,6 +212,19 @@ export type ClienteMaxAggregateInputType = {
   pontoReferencia?: true
   contatoNome?: true
   contatoTelefone?: true
+  coletaMesmoEndereco?: true
+  coletaCep?: true
+  coletaLogradouro?: true
+  coletaNumero?: true
+  coletaComplemento?: true
+  coletaBairro?: true
+  coletaCidade?: true
+  coletaUf?: true
+  coletaObservacao?: true
+  representanteNome?: true
+  representanteTelefone?: true
+  representanteEmail?: true
+  representanteVinculo?: true
   observacoes?: true
   ativo?: true
   criadoEm?: true
@@ -188,6 +253,19 @@ export type ClienteCountAggregateInputType = {
   pontoReferencia?: true
   contatoNome?: true
   contatoTelefone?: true
+  coletaMesmoEndereco?: true
+  coletaCep?: true
+  coletaLogradouro?: true
+  coletaNumero?: true
+  coletaComplemento?: true
+  coletaBairro?: true
+  coletaCidade?: true
+  coletaUf?: true
+  coletaObservacao?: true
+  representanteNome?: true
+  representanteTelefone?: true
+  representanteEmail?: true
+  representanteVinculo?: true
   observacoes?: true
   ativo?: true
   criadoEm?: true
@@ -289,6 +367,19 @@ export type ClienteGroupByOutputType = {
   pontoReferencia: string | null
   contatoNome: string | null
   contatoTelefone: string | null
+  coletaMesmoEndereco: boolean
+  coletaCep: string | null
+  coletaLogradouro: string | null
+  coletaNumero: string | null
+  coletaComplemento: string | null
+  coletaBairro: string | null
+  coletaCidade: string | null
+  coletaUf: string | null
+  coletaObservacao: string | null
+  representanteNome: string | null
+  representanteTelefone: string | null
+  representanteEmail: string | null
+  representanteVinculo: string | null
   observacoes: string | null
   ativo: boolean
   criadoEm: Date
@@ -338,6 +429,19 @@ export type ClienteWhereInput = {
   pontoReferencia?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaMesmoEndereco?: Prisma.BoolFilter<"Cliente"> | boolean
+  coletaCep?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaLogradouro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaNumero?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaComplemento?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaBairro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaCidade?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaUf?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaObservacao?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteEmail?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteVinculo?: Prisma.StringNullableFilter<"Cliente"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Cliente"> | string | null
   ativo?: Prisma.BoolFilter<"Cliente"> | boolean
   criadoEm?: Prisma.DateTimeFilter<"Cliente"> | Date | string
@@ -373,6 +477,19 @@ export type ClienteOrderByWithRelationInput = {
   pontoReferencia?: Prisma.SortOrderInput | Prisma.SortOrder
   contatoNome?: Prisma.SortOrderInput | Prisma.SortOrder
   contatoTelefone?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaMesmoEndereco?: Prisma.SortOrder
+  coletaCep?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaLogradouro?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaNumero?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaComplemento?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaBairro?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaCidade?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaUf?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaObservacao?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteTelefone?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteVinculo?: Prisma.SortOrderInput | Prisma.SortOrder
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -412,6 +529,19 @@ export type ClienteWhereUniqueInput = Prisma.AtLeast<{
   pontoReferencia?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaMesmoEndereco?: Prisma.BoolFilter<"Cliente"> | boolean
+  coletaCep?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaLogradouro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaNumero?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaComplemento?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaBairro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaCidade?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaUf?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaObservacao?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteEmail?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteVinculo?: Prisma.StringNullableFilter<"Cliente"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Cliente"> | string | null
   ativo?: Prisma.BoolFilter<"Cliente"> | boolean
   criadoEm?: Prisma.DateTimeFilter<"Cliente"> | Date | string
@@ -447,6 +577,19 @@ export type ClienteOrderByWithAggregationInput = {
   pontoReferencia?: Prisma.SortOrderInput | Prisma.SortOrder
   contatoNome?: Prisma.SortOrderInput | Prisma.SortOrder
   contatoTelefone?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaMesmoEndereco?: Prisma.SortOrder
+  coletaCep?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaLogradouro?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaNumero?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaComplemento?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaBairro?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaCidade?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaUf?: Prisma.SortOrderInput | Prisma.SortOrder
+  coletaObservacao?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteTelefone?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  representanteVinculo?: Prisma.SortOrderInput | Prisma.SortOrder
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -481,6 +624,19 @@ export type ClienteScalarWhereWithAggregatesInput = {
   pontoReferencia?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
   contatoNome?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
   contatoTelefone?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaMesmoEndereco?: Prisma.BoolWithAggregatesFilter<"Cliente"> | boolean
+  coletaCep?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaLogradouro?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaNumero?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaComplemento?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaBairro?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaCidade?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaUf?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  coletaObservacao?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  representanteNome?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  representanteTelefone?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  representanteEmail?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
+  representanteVinculo?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
   observacoes?: Prisma.StringNullableWithAggregatesFilter<"Cliente"> | string | null
   ativo?: Prisma.BoolWithAggregatesFilter<"Cliente"> | boolean
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"Cliente"> | Date | string
@@ -508,6 +664,19 @@ export type ClienteCreateInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -543,6 +712,19 @@ export type ClienteUncheckedCreateInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -576,6 +758,19 @@ export type ClienteUpdateInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -611,6 +806,19 @@ export type ClienteUncheckedUpdateInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -645,6 +853,19 @@ export type ClienteCreateManyInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -672,6 +893,19 @@ export type ClienteUpdateManyMutationInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -700,6 +934,19 @@ export type ClienteUncheckedUpdateManyInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -743,6 +990,19 @@ export type ClienteCountOrderByAggregateInput = {
   pontoReferencia?: Prisma.SortOrder
   contatoNome?: Prisma.SortOrder
   contatoTelefone?: Prisma.SortOrder
+  coletaMesmoEndereco?: Prisma.SortOrder
+  coletaCep?: Prisma.SortOrder
+  coletaLogradouro?: Prisma.SortOrder
+  coletaNumero?: Prisma.SortOrder
+  coletaComplemento?: Prisma.SortOrder
+  coletaBairro?: Prisma.SortOrder
+  coletaCidade?: Prisma.SortOrder
+  coletaUf?: Prisma.SortOrder
+  coletaObservacao?: Prisma.SortOrder
+  representanteNome?: Prisma.SortOrder
+  representanteTelefone?: Prisma.SortOrder
+  representanteEmail?: Prisma.SortOrder
+  representanteVinculo?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -771,6 +1031,19 @@ export type ClienteMaxOrderByAggregateInput = {
   pontoReferencia?: Prisma.SortOrder
   contatoNome?: Prisma.SortOrder
   contatoTelefone?: Prisma.SortOrder
+  coletaMesmoEndereco?: Prisma.SortOrder
+  coletaCep?: Prisma.SortOrder
+  coletaLogradouro?: Prisma.SortOrder
+  coletaNumero?: Prisma.SortOrder
+  coletaComplemento?: Prisma.SortOrder
+  coletaBairro?: Prisma.SortOrder
+  coletaCidade?: Prisma.SortOrder
+  coletaUf?: Prisma.SortOrder
+  coletaObservacao?: Prisma.SortOrder
+  representanteNome?: Prisma.SortOrder
+  representanteTelefone?: Prisma.SortOrder
+  representanteEmail?: Prisma.SortOrder
+  representanteVinculo?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -799,6 +1072,19 @@ export type ClienteMinOrderByAggregateInput = {
   pontoReferencia?: Prisma.SortOrder
   contatoNome?: Prisma.SortOrder
   contatoTelefone?: Prisma.SortOrder
+  coletaMesmoEndereco?: Prisma.SortOrder
+  coletaCep?: Prisma.SortOrder
+  coletaLogradouro?: Prisma.SortOrder
+  coletaNumero?: Prisma.SortOrder
+  coletaComplemento?: Prisma.SortOrder
+  coletaBairro?: Prisma.SortOrder
+  coletaCidade?: Prisma.SortOrder
+  coletaUf?: Prisma.SortOrder
+  coletaObservacao?: Prisma.SortOrder
+  representanteNome?: Prisma.SortOrder
+  representanteTelefone?: Prisma.SortOrder
+  representanteEmail?: Prisma.SortOrder
+  representanteVinculo?: Prisma.SortOrder
   observacoes?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -970,6 +1256,19 @@ export type ClienteCreateWithoutTenantInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1003,6 +1302,19 @@ export type ClienteUncheckedCreateWithoutTenantInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1066,6 +1378,19 @@ export type ClienteScalarWhereInput = {
   pontoReferencia?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
   contatoTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaMesmoEndereco?: Prisma.BoolFilter<"Cliente"> | boolean
+  coletaCep?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaLogradouro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaNumero?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaComplemento?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaBairro?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaCidade?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaUf?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  coletaObservacao?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteNome?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteTelefone?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteEmail?: Prisma.StringNullableFilter<"Cliente"> | string | null
+  representanteVinculo?: Prisma.StringNullableFilter<"Cliente"> | string | null
   observacoes?: Prisma.StringNullableFilter<"Cliente"> | string | null
   ativo?: Prisma.BoolFilter<"Cliente"> | boolean
   criadoEm?: Prisma.DateTimeFilter<"Cliente"> | Date | string
@@ -1093,6 +1418,19 @@ export type ClienteCreateWithoutEquipamentosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1127,6 +1465,19 @@ export type ClienteUncheckedCreateWithoutEquipamentosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1175,6 +1526,19 @@ export type ClienteUpdateWithoutEquipamentosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1209,6 +1573,19 @@ export type ClienteUncheckedUpdateWithoutEquipamentosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1241,6 +1618,19 @@ export type ClienteCreateWithoutOrdensInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1275,6 +1665,19 @@ export type ClienteUncheckedCreateWithoutOrdensInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1323,6 +1726,19 @@ export type ClienteUpdateWithoutOrdensInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1357,6 +1773,19 @@ export type ClienteUncheckedUpdateWithoutOrdensInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1389,6 +1818,19 @@ export type ClienteCreateWithoutContratosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1423,6 +1865,19 @@ export type ClienteUncheckedCreateWithoutContratosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1471,6 +1926,19 @@ export type ClienteUpdateWithoutContratosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1505,6 +1973,19 @@ export type ClienteUncheckedUpdateWithoutContratosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1537,6 +2018,19 @@ export type ClienteCreateWithoutFaturasInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1571,6 +2065,19 @@ export type ClienteUncheckedCreateWithoutFaturasInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1619,6 +2126,19 @@ export type ClienteUpdateWithoutFaturasInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1653,6 +2173,19 @@ export type ClienteUncheckedUpdateWithoutFaturasInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1685,6 +2218,19 @@ export type ClienteCreateWithoutLancamentosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1719,6 +2265,19 @@ export type ClienteUncheckedCreateWithoutLancamentosInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1767,6 +2326,19 @@ export type ClienteUpdateWithoutLancamentosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1801,6 +2373,19 @@ export type ClienteUncheckedUpdateWithoutLancamentosInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1833,6 +2418,19 @@ export type ClienteCreateWithoutRecorrenciasInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1867,6 +2465,19 @@ export type ClienteUncheckedCreateWithoutRecorrenciasInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -1915,6 +2526,19 @@ export type ClienteUpdateWithoutRecorrenciasInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1949,6 +2573,19 @@ export type ClienteUncheckedUpdateWithoutRecorrenciasInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1981,6 +2618,19 @@ export type ClienteCreateManyTenantInput = {
   pontoReferencia?: string | null
   contatoNome?: string | null
   contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
   observacoes?: string | null
   ativo?: boolean
   criadoEm?: Date | string
@@ -2008,6 +2658,19 @@ export type ClienteUpdateWithoutTenantInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2041,6 +2704,19 @@ export type ClienteUncheckedUpdateWithoutTenantInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2074,6 +2750,19 @@ export type ClienteUncheckedUpdateManyWithoutTenantInput = {
   pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2178,6 +2867,19 @@ export type ClienteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   pontoReferencia?: boolean
   contatoNome?: boolean
   contatoTelefone?: boolean
+  coletaMesmoEndereco?: boolean
+  coletaCep?: boolean
+  coletaLogradouro?: boolean
+  coletaNumero?: boolean
+  coletaComplemento?: boolean
+  coletaBairro?: boolean
+  coletaCidade?: boolean
+  coletaUf?: boolean
+  coletaObservacao?: boolean
+  representanteNome?: boolean
+  representanteTelefone?: boolean
+  representanteEmail?: boolean
+  representanteVinculo?: boolean
   observacoes?: boolean
   ativo?: boolean
   criadoEm?: boolean
@@ -2214,6 +2916,19 @@ export type ClienteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pontoReferencia?: boolean
   contatoNome?: boolean
   contatoTelefone?: boolean
+  coletaMesmoEndereco?: boolean
+  coletaCep?: boolean
+  coletaLogradouro?: boolean
+  coletaNumero?: boolean
+  coletaComplemento?: boolean
+  coletaBairro?: boolean
+  coletaCidade?: boolean
+  coletaUf?: boolean
+  coletaObservacao?: boolean
+  representanteNome?: boolean
+  representanteTelefone?: boolean
+  representanteEmail?: boolean
+  representanteVinculo?: boolean
   observacoes?: boolean
   ativo?: boolean
   criadoEm?: boolean
@@ -2243,6 +2958,19 @@ export type ClienteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   pontoReferencia?: boolean
   contatoNome?: boolean
   contatoTelefone?: boolean
+  coletaMesmoEndereco?: boolean
+  coletaCep?: boolean
+  coletaLogradouro?: boolean
+  coletaNumero?: boolean
+  coletaComplemento?: boolean
+  coletaBairro?: boolean
+  coletaCidade?: boolean
+  coletaUf?: boolean
+  coletaObservacao?: boolean
+  representanteNome?: boolean
+  representanteTelefone?: boolean
+  representanteEmail?: boolean
+  representanteVinculo?: boolean
   observacoes?: boolean
   ativo?: boolean
   criadoEm?: boolean
@@ -2272,13 +3000,26 @@ export type ClienteSelectScalar = {
   pontoReferencia?: boolean
   contatoNome?: boolean
   contatoTelefone?: boolean
+  coletaMesmoEndereco?: boolean
+  coletaCep?: boolean
+  coletaLogradouro?: boolean
+  coletaNumero?: boolean
+  coletaComplemento?: boolean
+  coletaBairro?: boolean
+  coletaCidade?: boolean
+  coletaUf?: boolean
+  coletaObservacao?: boolean
+  representanteNome?: boolean
+  representanteTelefone?: boolean
+  representanteEmail?: boolean
+  representanteVinculo?: boolean
   observacoes?: boolean
   ativo?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
 }
 
-export type ClienteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "tipo" | "nome" | "razaoSocial" | "documento" | "documentoHash" | "inscricaoEstadual" | "email" | "telefone" | "whatsapp" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "pontoReferencia" | "contatoNome" | "contatoTelefone" | "observacoes" | "ativo" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["cliente"]>
+export type ClienteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "tipo" | "nome" | "razaoSocial" | "documento" | "documentoHash" | "inscricaoEstadual" | "email" | "telefone" | "whatsapp" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "pontoReferencia" | "contatoNome" | "contatoTelefone" | "coletaMesmoEndereco" | "coletaCep" | "coletaLogradouro" | "coletaNumero" | "coletaComplemento" | "coletaBairro" | "coletaCidade" | "coletaUf" | "coletaObservacao" | "representanteNome" | "representanteTelefone" | "representanteEmail" | "representanteVinculo" | "observacoes" | "ativo" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["cliente"]>
 export type ClienteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   equipamentos?: boolean | Prisma.Cliente$equipamentosArgs<ExtArgs>
@@ -2351,6 +3092,50 @@ export type $ClientePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     contatoNome: string | null
     contatoTelefone: string | null
+    /**
+     * ONDE O MOTORISTA VAI BUSCAR — que nem sempre é o endereço do cadastro.
+     * 
+     * A clínica tem sede num lugar e sala de procedimento noutro; o hospital
+     * recebe pela doca dos fundos; o consultório manda buscar no galpão do
+     * sócio. Nesses casos o endereço de cima é onde a NOTA vai.
+     * 
+     * Endereço errado aqui não é dado errado no banco: é o motorista
+     * atravessando a cidade e voltando de mãos vazias.
+     * 
+     * A marca existe porque campo vazio é AMBÍGUO, e a ambiguidade cai em cima
+     * do motorista: ninguém sabe se vazio quer dizer "é o mesmo endereço" ou
+     * "ninguém perguntou ainda" — parecem iguais no banco e são opostos na rua.
+     */
+    coletaMesmoEndereco: boolean
+    coletaCep: string | null
+    coletaLogradouro: string | null
+    coletaNumero: string | null
+    coletaComplemento: string | null
+    coletaBairro: string | null
+    coletaCidade: string | null
+    coletaUf: string | null
+    /**
+     * O que o motorista precisa saber antes de sair e não cabe em endereço:
+     * "só das 8h às 11h", "tocar no interfone 3", "entrar pela doca".
+     */
+    coletaObservacao: string | null
+    /**
+     * QUEM RESPONDE PELO CLIENTE — diferente de `contatoNome`.
+     * 
+     * `contatoNome` é quem atende o telefone. Representante é quem assina o
+     * contrato, autoriza o orçamento e aparece na nota promissória: o sócio na
+     * clínica, o comprador no hospital.
+     * 
+     * Confundir os dois faz mandar o orçamento de oito mil para quem atende o
+     * telefone, e esperar aprovação de quem não pode dar.
+     */
+    representanteNome: string | null
+    representanteTelefone: string | null
+    representanteEmail: string | null
+    /**
+     * "sócio-proprietário", "gerente de compras", "responsável técnica".
+     */
+    representanteVinculo: string | null
     observacoes: string | null
     ativo: boolean
     criadoEm: Date
@@ -2806,6 +3591,19 @@ export interface ClienteFieldRefs {
   readonly pontoReferencia: Prisma.FieldRef<"Cliente", 'String'>
   readonly contatoNome: Prisma.FieldRef<"Cliente", 'String'>
   readonly contatoTelefone: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaMesmoEndereco: Prisma.FieldRef<"Cliente", 'Boolean'>
+  readonly coletaCep: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaLogradouro: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaNumero: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaComplemento: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaBairro: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaCidade: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaUf: Prisma.FieldRef<"Cliente", 'String'>
+  readonly coletaObservacao: Prisma.FieldRef<"Cliente", 'String'>
+  readonly representanteNome: Prisma.FieldRef<"Cliente", 'String'>
+  readonly representanteTelefone: Prisma.FieldRef<"Cliente", 'String'>
+  readonly representanteEmail: Prisma.FieldRef<"Cliente", 'String'>
+  readonly representanteVinculo: Prisma.FieldRef<"Cliente", 'String'>
   readonly observacoes: Prisma.FieldRef<"Cliente", 'String'>
   readonly ativo: Prisma.FieldRef<"Cliente", 'Boolean'>
   readonly criadoEm: Prisma.FieldRef<"Cliente", 'DateTime'>
