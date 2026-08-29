@@ -113,6 +113,35 @@ const p2b = await p.getByText('Compressor do laboratório (2/3)').count()
 p2b > 0 ? ok(`parcela 2/3 caiu em ${prox}`) : nao(`parcela 2/3 não apareceu em ${prox}`)
 
 // ---------------------------------------------------------------------------
+/**
+ * A APROVAÇÃO ENTROU NO MEIO, E ESTE ROTEIRO COBRAVA A REGRA ANTIGA.
+ *
+ * Antes, quem lançava dava baixa no minuto seguinte. Agora não: a conta nasce
+ * esperando aprovação, e a baixa é recusada até um administrador liberar.
+ *
+ * Este bloco falhou na bateria exatamente por isso — e a falha estava CERTA. O
+ * roteiro dizia "a conta paga continua entre as abertas" porque ela não tinha
+ * sido paga: tinha sido recusada, corretamente, por falta de aprovação.
+ *
+ * A conferência de que a recusa acontece está em `lancar.mjs`, que é o roteiro
+ * daquela regra. Aqui o passo existe só para o caixa poder seguir testando o
+ * que ele testa: baixa, filtro de pagas, e o total do mês.
+ *
+ * O `lucas@` é ADMIN, então ele mesmo aprova — e a tela avisa que está
+ * aprovando a própria conta, com a trilha guardando os dois nomes.
+ */
+console.log('\n4b) Aprovar antes de poder baixar — quem lança não aprova')
+await p.goto(`${BASE}/painel/financeiro?aba=aprovar`, { waitUntil: 'networkidle' })
+await p.waitForTimeout(700)
+const paraAprovar = p.locator('li').filter({ hasText: 'Energia elétrica da oficina' }).first()
+if (await paraAprovar.count()) {
+  await paraAprovar.getByRole('button', { name: 'Aprovar' }).click()
+  await p.waitForTimeout(2200)
+  ok('a conta foi aprovada, e só então pode receber baixa')
+} else {
+  nao('a conta lançada não apareceu na fila de aprovação')
+}
+
 console.log('\n5) Dar baixa na conta de energia')
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
 const linhaEnergia = p.locator('li').filter({ hasText: 'Energia elétrica da oficina' }).first()
