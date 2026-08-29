@@ -5,6 +5,8 @@ import type { TipoDocumento } from '@/generated/prisma/enums'
 import { hashArquivo, novoToken } from '@/lib/cripto'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
+import { renderizarModelo } from '@/lib/variaveis-documento'
+import { valoresDaOrdem } from './valores'
 import { reaisPorExtenso } from '@/lib/extenso'
 import { env } from '@/lib/env'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
@@ -181,6 +183,63 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   }
 
   /* =========================================================================
+     O MODELO DA EMPRESA, QUANDO EXISTE UM
+     =========================================================================
+     Aqui é onde o molde escrito na tela toma o lugar do texto embutido abaixo.
+
+     A ORDEM IMPORTA: o modelo é procurado ANTES dos blocos fixos, e quando ele
+     existe os blocos são pulados. O contrário — imprimir os dois — sairia com o
+     texto duplicado, e é o tipo de erro que só se percebe no papel.
+
+     E QUANDO NÃO HÁ MODELO, NADA MUDA. `modeloPadrao` devolvendo `null` é o
+     caminho normal de quem nunca abriu a tela de modelos, e é isso que faz esta
+     mudança não quebrar o sistema de ninguém: o texto embutido continua sendo
+     impresso exatamente como antes.
+
+     O cabeçalho, o rodapé e os blocos de cliente e equipamento continuam vindo
+     do sistema em qualquer caso — eles são a identidade do documento, não o
+     conteúdo dele. O modelo escreve o CORPO.
+     ========================================================================= */
+  const podeTerModelo =
+    pedido.documento === 'CONTRATO_PRESTACAO' ||
+    pedido.documento === 'NOTA_PROMISSORIA' ||
+    pedido.documento === 'ORDEM_SERVICO'
+
+  let usouModelo = false
+  if (podeTerModelo) {
+    const modelo = await comEscopo(ctx, (tx) =>
+      tx.modeloDocumento.findFirst({
+        where: { tipo: pedido.documento, padrao: true, ativo: true },
+        select: { nome: true, corpo: true },
+      }),
+    )
+    if (modelo) {
+      usouModelo = true
+      const valores = valoresDaOrdem(dados, formatarDoc)
+      const { texto } = renderizarModelo(modelo.corpo, valores)
+
+      doc.fillColor(TINTA).fontSize(9).font('Helvetica').text(texto, {
+        align: 'justify',
+        lineGap: 2,
+      })
+      doc.moveDown(1.4)
+
+      // A linha de assinatura vem do sistema, e não do modelo, de propósito:
+      // ela é o que faz o papel valer, e depender de alguém lembrar de escrevê-la
+      // no texto produziria mais cedo ou mais tarde um contrato sem onde assinar.
+      const y = doc.y + 26
+      doc.moveTo(120, y).lineTo(475, y).strokeColor(CINZA).lineWidth(0.8).stroke()
+      doc.moveDown(2.4)
+      doc
+        .fillColor(CINZA)
+        .fontSize(8)
+        .font('Helvetica')
+        .text(dados.cliente.nome, { align: 'center' })
+      doc.text(formatarDoc(dados.cliente.documento), { align: 'center' })
+    }
+  }
+
+  /* =========================================================================
      CONTRATO DE PRESTAÇÃO DE SERVIÇO
      =========================================================================
      Diferente do CONTRATO_MANUTENCAO, que é o contrato daquele CONSERTO e
@@ -189,7 +248,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
      o que o departamento de compras de um hospital arquiva antes de liberar a
      nota.
      ========================================================================= */
-  if (pedido.documento === 'CONTRATO_PRESTACAO') {
+  if (pedido.documento === 'CONTRATO_PRESTACAO' && !usouModelo) {
     const valor = dados.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? 0
 
     rotulo(doc, 'AS PARTES')
@@ -246,7 +305,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
      promessa do que será — e o que a torna título é o valor POR EXTENSO sobre a
      assinatura de quem emite.
      ========================================================================= */
-  if (pedido.documento === 'NOTA_PROMISSORIA') {
+  if (pedido.documento === 'NOTA_PROMISSORIA' && !usouModelo) {
     const valor =
       dados.fatura
         ? dados.fatura.valorTotalCentavos +

@@ -2,6 +2,7 @@
 // orçamento aprovado, e não são emitidos por quem não deve.
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 import { execFileSync } from 'node:child_process'
+import { textoDoPdf } from './ler-pdf.mjs'
 const { chromium } = pw
 const QA_BASE = process.env.QA_BASE || 'http://127.0.0.1:3111'
 const SENHA = process.env.QA_SENHA || 'Dtech' + '@2026'
@@ -76,6 +77,7 @@ if (!ordemId) {
 }
 // O CONTRATO usa o total; a NOTA usa o saldo em aberto. São números diferentes
 // de propósito: um contrato quitado continua valendo o que valia.
+const nomeDoCliente = sql(`select c.nome from clientes c join ordens o on o."clienteId"=c.id where o.id='${ordemId}'`)
 const totalEsperado = sql(`
   select coalesce((select "valorTotalCentavos" from faturas where "ordemId" = '${ordemId}'),
                   (select "totalCentavos" from orcamentos where "ordemId" = '${ordemId}'
@@ -128,6 +130,22 @@ hash && hash.length === 64 ? ok('o SHA-256 do conteúdo ficou gravado') : nao(`h
 // inteiro, e não cortado no meio da gravação.
 corpo.subarray(0, 5).toString() === '%PDF-' ? ok('começa com %PDF-') : nao('não é um PDF válido no começo')
 corpo.subarray(-1024).includes('%%EOF') ? ok('termina com %%EOF — arquivo completo') : nao('o PDF está truncado')
+
+// O QUE ESTÁ ESCRITO DENTRO, e não só que um arquivo saiu.
+//
+// "responde 200 e tem 9 KB" prova que existe um PDF. Um contrato gerado com o
+// valor de outra ordem tem exatamente o mesmo tamanho e o mesmo cabeçalho.
+const dentro = textoDoPdf(corpo).replace(/\s+/g, '')
+const semEspaco = (x) => String(x).replace(/\s+/g, '')
+dentro.length > 200
+  ? ok(`o texto do PDF foi lido (${dentro.length} caracteres)`)
+  : nao(`não consegui ler o texto do PDF (${dentro.length} caracteres) — sem isto as conferências abaixo não valem`)
+dentro.includes(semEspaco(nomeDoCliente))
+  ? ok('o nome do cliente está impresso no documento')
+  : nao('o nome do cliente NÃO aparece no PDF')
+!dentro.includes('{{')
+  ? ok('nenhum marcador cru sobrou no papel')
+  : nao('sobrou {{marcador}} impresso no documento')
 
 console.log('\n3) O valor por extenso está DENTRO do PDF')
 // O texto do PDF é comprimido; a prova aqui é o valor em algarismo no título e
