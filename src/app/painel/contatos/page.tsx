@@ -5,6 +5,7 @@ import { formatarBRL } from '@/lib/dinheiro'
 import { listarFunil, motivosDeRecusa, resumoDoFunil } from '@/server/consultas/comercial'
 import { listarContatos } from '@/server/consultas/listas'
 import AbasComercial, { type AbaComercial } from './abas'
+import RegistrarContato from './registrar'
 import Funil from './funil'
 import Lista from './lista'
 import estilo from '../painel.module.css'
@@ -78,6 +79,11 @@ export default async function Comercial({
       </div>
 
       <AbasComercial atual={aba} />
+
+      {/* Anotar contato só faz sentido na aba de CONTATOS. Na de orçamentos
+          seria um botão fora de assunto, e botão fora de assunto é o que faz a
+          pessoa parar de ler os botões. */}
+      {aba === 'contatos' ? <RegistrarContato /> : null}
 
       {aba === 'orcamentos' ? (
         <PainelOrcamentos ctx={ctx} fase={q.fase ?? ''} busca={q.busca ?? ''} dias={q.dias} />

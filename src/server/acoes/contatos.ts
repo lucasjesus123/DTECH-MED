@@ -138,3 +138,79 @@ export async function restaurarContato(id: string): Promise<Resposta> {
   revalidatePath('/painel')
   return { ok: true, mensagem: 'Contato de volta na lista de quem aguarda resposta.' }
 }
+
+/**
+ * REGISTRAR UM CONTATO À MÃO.
+ *
+ * =============================================================================
+ * POR QUE ISTO FALTAVA
+ * =============================================================================
+ * A tela Comercial só mostrava quem preencheu o FORMULÁRIO DO SITE. Só que a
+ * maioria dos contatos de uma assistência não chega por formulário: chega pelo
+ * WhatsApp, pelo telefone, por indicação de outra clínica, ou pela pessoa que
+ * apareceu na porta com o aparelho no colo.
+ *
+ * Sem este registro, esses contatos existiam só na cabeça de quem atendeu — e
+ * o funil da tela mentia: "3 aguardando resposta" quando havia doze. Um funil
+ * que só conta uma das portas não é um funil, é o relatório de uma porta.
+ *
+ * =============================================================================
+ * A ORIGEM É OBRIGATÓRIA, E NÃO TEM PADRÃO
+ * =============================================================================
+ * O enum já previa WHATSAPP, TELEFONE, INDICACAO e PRESENCIAL desde sempre —
+ * era a tela que não deixava usar. Deixar cair em SITE por omissão poluiria a
+ * única resposta que esta tela dá bem: "de onde vem o nosso trabalho".
+ *
+ * INDICACAO em especial: saber que metade dos clientes vem de indicação muda o
+ * que a empresa faz com o dinheiro de anúncio.
+ */
+const schemaManual = z.object({
+  nome: z.string().trim().min(2, 'Escreva o nome de quem chamou.').max(120),
+  telefone: z.string().trim().min(8, 'Sem telefone não dá para retornar o contato.').max(30),
+  origem: z.enum(['WHATSAPP', 'TELEFONE', 'INDICACAO', 'PRESENCIAL', 'OUTRO'], {
+    message: 'Diga por onde este contato chegou.',
+  }),
+  empresa: z.string().trim().max(140).optional(),
+  cidade: z.string().trim().max(80).optional(),
+  equipamento: z.string().trim().max(140).optional(),
+  mensagem: z.string().trim().max(2000).optional(),
+})
+
+export async function registrarContato(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await quemPode()
+
+  const d = schemaManual.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const criado = await comEscopo(a.ctx, (tx) =>
+    tx.lead.create({
+      data: {
+        tenantId: a.sessao.tenantId!,
+        nome: v.nome,
+        telefone: v.telefone.replace(/\D/g, ''),
+        empresa: v.empresa || null,
+        cidade: v.cidade || null,
+        equipamento: v.equipamento || null,
+        // Quem anotou fica na mensagem porque `Lead` não tem autor: ele nasceu
+        // para o formulário público, onde não existe quem. Guardar o nome aqui
+        // responde "com quem essa pessoa falou?" sem uma coluna nova numa
+        // tabela que o site inteiro escreve.
+        mensagem: [v.mensagem, `— anotado por ${a.sessao.nome}`].filter(Boolean).join('\n\n'),
+        origem: v.origem,
+        status: 'novo',
+      },
+      select: { id: true },
+    }),
+  )
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'contato.registrado',
+    entidade: 'lead',
+    entidadeId: criado.id,
+    detalhes: { nome: v.nome, origem: v.origem },
+  })
+  revalidatePath('/painel/contatos')
+  revalidatePath('/painel')
+  return { ok: true, mensagem: 'Contato registrado. Ele entra na fila como qualquer um do site.' }
+}
