@@ -388,6 +388,7 @@ model User {
   movimentos            MovimentoEstoque[]
   pagamentos            Pagamento[]
   compromissos          Compromisso[]      @relation("ResponsavelCompromisso")
+  lancamentosAprovados  Lancamento[]       @relation("AprovadorLancamento")
   auditoria             AuditLog[]
   recuperacoes          RecuperacaoSenha[]
 
@@ -1457,9 +1458,24 @@ model Lancamento {
   autorId   String?
   autorNome String?
 
+  /// A APROVAÇÃO — quem lança não é quem aprova.
+  ///
+  /// Sem ela, uma conta a pagar inventada percorre o sistema inteiro sem passar
+  /// por outro par de olhos e some no meio de duzentas verdadeiras. O que exige
+  /// aprovação é a BAIXA, não o lançamento: é na baixa que o dinheiro sai.
+  ///
+  /// Três colunas e não um booleano: `aprovado = true` responde "está
+  /// aprovado?" e emudece na pergunta que sempre vem depois — "quem liberou, e
+  /// quando?". O nome vai junto porque o id some se a pessoa deixar a empresa.
+  aprovadoEm      DateTime?
+  aprovadoPorId   String?
+  aprovadoPor     User?     @relation("AprovadorLancamento", fields: [aprovadoPorId], references: [id], onDelete: SetNull)
+  aprovadoPorNome String?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
+  @@index([tenantId, aprovadoEm])
   @@index([tenantId, tipo, vencimento])
   @@index([tenantId, pagoEm, vencimento])
   @@index([tenantId, grupo])

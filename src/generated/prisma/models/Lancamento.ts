@@ -74,6 +74,9 @@ export type LancamentoMinAggregateOutputType = {
   observacoes: string | null
   autorId: string | null
   autorNome: string | null
+  aprovadoEm: Date | null
+  aprovadoPorId: string | null
+  aprovadoPorNome: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -98,6 +101,9 @@ export type LancamentoMaxAggregateOutputType = {
   observacoes: string | null
   autorId: string | null
   autorNome: string | null
+  aprovadoEm: Date | null
+  aprovadoPorId: string | null
+  aprovadoPorNome: string | null
   criadoEm: Date | null
   atualizadoEm: Date | null
 }
@@ -122,6 +128,9 @@ export type LancamentoCountAggregateOutputType = {
   observacoes: number
   autorId: number
   autorNome: number
+  aprovadoEm: number
+  aprovadoPorId: number
+  aprovadoPorNome: number
   criadoEm: number
   atualizadoEm: number
   _all: number
@@ -162,6 +171,9 @@ export type LancamentoMinAggregateInputType = {
   observacoes?: true
   autorId?: true
   autorNome?: true
+  aprovadoEm?: true
+  aprovadoPorId?: true
+  aprovadoPorNome?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -186,6 +198,9 @@ export type LancamentoMaxAggregateInputType = {
   observacoes?: true
   autorId?: true
   autorNome?: true
+  aprovadoEm?: true
+  aprovadoPorId?: true
+  aprovadoPorNome?: true
   criadoEm?: true
   atualizadoEm?: true
 }
@@ -210,6 +225,9 @@ export type LancamentoCountAggregateInputType = {
   observacoes?: true
   autorId?: true
   autorNome?: true
+  aprovadoEm?: true
+  aprovadoPorId?: true
+  aprovadoPorNome?: true
   criadoEm?: true
   atualizadoEm?: true
   _all?: true
@@ -321,6 +339,9 @@ export type LancamentoGroupByOutputType = {
   observacoes: string | null
   autorId: string | null
   autorNome: string | null
+  aprovadoEm: Date | null
+  aprovadoPorId: string | null
+  aprovadoPorNome: string | null
   criadoEm: Date
   atualizadoEm: Date
   _count: LancamentoCountAggregateOutputType | null
@@ -368,11 +389,15 @@ export type LancamentoWhereInput = {
   observacoes?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoEm?: Prisma.DateTimeNullableFilter<"Lancamento"> | Date | string | null
+  aprovadoPorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoPorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   recorrencia?: Prisma.XOR<Prisma.RecorrenciaNullableScalarRelationFilter, Prisma.RecorrenciaWhereInput> | null
+  aprovadoPor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type LancamentoOrderByWithRelationInput = {
@@ -395,11 +420,15 @@ export type LancamentoOrderByWithRelationInput = {
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
   autorId?: Prisma.SortOrderInput | Prisma.SortOrder
   autorNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoPorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   cliente?: Prisma.ClienteOrderByWithRelationInput
   recorrencia?: Prisma.RecorrenciaOrderByWithRelationInput
+  aprovadoPor?: Prisma.UserOrderByWithRelationInput
 }
 
 export type LancamentoWhereUniqueInput = Prisma.AtLeast<{
@@ -425,11 +454,15 @@ export type LancamentoWhereUniqueInput = Prisma.AtLeast<{
   observacoes?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoEm?: Prisma.DateTimeNullableFilter<"Lancamento"> | Date | string | null
+  aprovadoPorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoPorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   recorrencia?: Prisma.XOR<Prisma.RecorrenciaNullableScalarRelationFilter, Prisma.RecorrenciaWhereInput> | null
+  aprovadoPor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type LancamentoOrderByWithAggregationInput = {
@@ -452,6 +485,9 @@ export type LancamentoOrderByWithAggregationInput = {
   observacoes?: Prisma.SortOrderInput | Prisma.SortOrder
   autorId?: Prisma.SortOrderInput | Prisma.SortOrder
   autorNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoPorId?: Prisma.SortOrderInput | Prisma.SortOrder
+  aprovadoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   _count?: Prisma.LancamentoCountOrderByAggregateInput
@@ -484,6 +520,9 @@ export type LancamentoScalarWhereWithAggregatesInput = {
   observacoes?: Prisma.StringNullableWithAggregatesFilter<"Lancamento"> | string | null
   autorId?: Prisma.StringNullableWithAggregatesFilter<"Lancamento"> | string | null
   autorNome?: Prisma.StringNullableWithAggregatesFilter<"Lancamento"> | string | null
+  aprovadoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Lancamento"> | Date | string | null
+  aprovadoPorId?: Prisma.StringNullableWithAggregatesFilter<"Lancamento"> | string | null
+  aprovadoPorNome?: Prisma.StringNullableWithAggregatesFilter<"Lancamento"> | string | null
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"Lancamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeWithAggregatesFilter<"Lancamento"> | Date | string
 }
@@ -505,11 +544,14 @@ export type LancamentoCreateInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutLancamentosInput
   cliente?: Prisma.ClienteCreateNestedOneWithoutLancamentosInput
   recorrencia?: Prisma.RecorrenciaCreateNestedOneWithoutGeradosInput
+  aprovadoPor?: Prisma.UserCreateNestedOneWithoutLancamentosAprovadosInput
 }
 
 export type LancamentoUncheckedCreateInput = {
@@ -532,6 +574,9 @@ export type LancamentoUncheckedCreateInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -553,11 +598,14 @@ export type LancamentoUpdateInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutLancamentosNestedInput
   cliente?: Prisma.ClienteUpdateOneWithoutLancamentosNestedInput
   recorrencia?: Prisma.RecorrenciaUpdateOneWithoutGeradosNestedInput
+  aprovadoPor?: Prisma.UserUpdateOneWithoutLancamentosAprovadosNestedInput
 }
 
 export type LancamentoUncheckedUpdateInput = {
@@ -580,6 +628,9 @@ export type LancamentoUncheckedUpdateInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -604,6 +655,9 @@ export type LancamentoCreateManyInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -625,6 +679,8 @@ export type LancamentoUpdateManyMutationInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -649,6 +705,9 @@ export type LancamentoUncheckedUpdateManyInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -683,6 +742,9 @@ export type LancamentoCountOrderByAggregateInput = {
   observacoes?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
+  aprovadoEm?: Prisma.SortOrder
+  aprovadoPorId?: Prisma.SortOrder
+  aprovadoPorNome?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -714,6 +776,9 @@ export type LancamentoMaxOrderByAggregateInput = {
   observacoes?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
+  aprovadoEm?: Prisma.SortOrder
+  aprovadoPorId?: Prisma.SortOrder
+  aprovadoPorNome?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -738,6 +803,9 @@ export type LancamentoMinOrderByAggregateInput = {
   observacoes?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
+  aprovadoEm?: Prisma.SortOrder
+  aprovadoPorId?: Prisma.SortOrder
+  aprovadoPorNome?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
@@ -788,6 +856,48 @@ export type LancamentoUncheckedUpdateManyWithoutTenantNestedInput = {
   connect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
   update?: Prisma.LancamentoUpdateWithWhereUniqueWithoutTenantInput | Prisma.LancamentoUpdateWithWhereUniqueWithoutTenantInput[]
   updateMany?: Prisma.LancamentoUpdateManyWithWhereWithoutTenantInput | Prisma.LancamentoUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.LancamentoScalarWhereInput | Prisma.LancamentoScalarWhereInput[]
+}
+
+export type LancamentoCreateNestedManyWithoutAprovadoPorInput = {
+  create?: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput> | Prisma.LancamentoCreateWithoutAprovadoPorInput[] | Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput[]
+  connectOrCreate?: Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput | Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput[]
+  createMany?: Prisma.LancamentoCreateManyAprovadoPorInputEnvelope
+  connect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+}
+
+export type LancamentoUncheckedCreateNestedManyWithoutAprovadoPorInput = {
+  create?: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput> | Prisma.LancamentoCreateWithoutAprovadoPorInput[] | Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput[]
+  connectOrCreate?: Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput | Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput[]
+  createMany?: Prisma.LancamentoCreateManyAprovadoPorInputEnvelope
+  connect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+}
+
+export type LancamentoUpdateManyWithoutAprovadoPorNestedInput = {
+  create?: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput> | Prisma.LancamentoCreateWithoutAprovadoPorInput[] | Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput[]
+  connectOrCreate?: Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput | Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput[]
+  upsert?: Prisma.LancamentoUpsertWithWhereUniqueWithoutAprovadoPorInput | Prisma.LancamentoUpsertWithWhereUniqueWithoutAprovadoPorInput[]
+  createMany?: Prisma.LancamentoCreateManyAprovadoPorInputEnvelope
+  set?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  disconnect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  delete?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  connect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  update?: Prisma.LancamentoUpdateWithWhereUniqueWithoutAprovadoPorInput | Prisma.LancamentoUpdateWithWhereUniqueWithoutAprovadoPorInput[]
+  updateMany?: Prisma.LancamentoUpdateManyWithWhereWithoutAprovadoPorInput | Prisma.LancamentoUpdateManyWithWhereWithoutAprovadoPorInput[]
+  deleteMany?: Prisma.LancamentoScalarWhereInput | Prisma.LancamentoScalarWhereInput[]
+}
+
+export type LancamentoUncheckedUpdateManyWithoutAprovadoPorNestedInput = {
+  create?: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput> | Prisma.LancamentoCreateWithoutAprovadoPorInput[] | Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput[]
+  connectOrCreate?: Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput | Prisma.LancamentoCreateOrConnectWithoutAprovadoPorInput[]
+  upsert?: Prisma.LancamentoUpsertWithWhereUniqueWithoutAprovadoPorInput | Prisma.LancamentoUpsertWithWhereUniqueWithoutAprovadoPorInput[]
+  createMany?: Prisma.LancamentoCreateManyAprovadoPorInputEnvelope
+  set?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  disconnect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  delete?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  connect?: Prisma.LancamentoWhereUniqueInput | Prisma.LancamentoWhereUniqueInput[]
+  update?: Prisma.LancamentoUpdateWithWhereUniqueWithoutAprovadoPorInput | Prisma.LancamentoUpdateWithWhereUniqueWithoutAprovadoPorInput[]
+  updateMany?: Prisma.LancamentoUpdateManyWithWhereWithoutAprovadoPorInput | Prisma.LancamentoUpdateManyWithWhereWithoutAprovadoPorInput[]
   deleteMany?: Prisma.LancamentoScalarWhereInput | Prisma.LancamentoScalarWhereInput[]
 }
 
@@ -900,10 +1010,13 @@ export type LancamentoCreateWithoutTenantInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   cliente?: Prisma.ClienteCreateNestedOneWithoutLancamentosInput
   recorrencia?: Prisma.RecorrenciaCreateNestedOneWithoutGeradosInput
+  aprovadoPor?: Prisma.UserCreateNestedOneWithoutLancamentosAprovadosInput
 }
 
 export type LancamentoUncheckedCreateWithoutTenantInput = {
@@ -925,6 +1038,9 @@ export type LancamentoUncheckedCreateWithoutTenantInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -978,8 +1094,89 @@ export type LancamentoScalarWhereInput = {
   observacoes?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoEm?: Prisma.DateTimeNullableFilter<"Lancamento"> | Date | string | null
+  aprovadoPorId?: Prisma.StringNullableFilter<"Lancamento"> | string | null
+  aprovadoPorNome?: Prisma.StringNullableFilter<"Lancamento"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Lancamento"> | Date | string
+}
+
+export type LancamentoCreateWithoutAprovadoPorInput = {
+  id?: string
+  tipo: $Enums.TipoLancamento
+  descricao: string
+  categoria?: string | null
+  contraparte?: string | null
+  valorCentavos: number
+  vencimento: Date | string
+  pagoEm?: Date | string | null
+  valorPagoCentavos?: number
+  forma?: $Enums.FormaPagamento | null
+  grupo?: string | null
+  parcela?: number
+  parcelas?: number
+  observacoes?: string | null
+  autorId?: string | null
+  autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutLancamentosInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutLancamentosInput
+  recorrencia?: Prisma.RecorrenciaCreateNestedOneWithoutGeradosInput
+}
+
+export type LancamentoUncheckedCreateWithoutAprovadoPorInput = {
+  id?: string
+  tenantId: string
+  tipo: $Enums.TipoLancamento
+  descricao: string
+  categoria?: string | null
+  clienteId?: string | null
+  contraparte?: string | null
+  valorCentavos: number
+  vencimento: Date | string
+  pagoEm?: Date | string | null
+  valorPagoCentavos?: number
+  forma?: $Enums.FormaPagamento | null
+  grupo?: string | null
+  parcela?: number
+  parcelas?: number
+  recorrenciaId?: string | null
+  observacoes?: string | null
+  autorId?: string | null
+  autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+}
+
+export type LancamentoCreateOrConnectWithoutAprovadoPorInput = {
+  where: Prisma.LancamentoWhereUniqueInput
+  create: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput>
+}
+
+export type LancamentoCreateManyAprovadoPorInputEnvelope = {
+  data: Prisma.LancamentoCreateManyAprovadoPorInput | Prisma.LancamentoCreateManyAprovadoPorInput[]
+  skipDuplicates?: boolean
+}
+
+export type LancamentoUpsertWithWhereUniqueWithoutAprovadoPorInput = {
+  where: Prisma.LancamentoWhereUniqueInput
+  update: Prisma.XOR<Prisma.LancamentoUpdateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedUpdateWithoutAprovadoPorInput>
+  create: Prisma.XOR<Prisma.LancamentoCreateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedCreateWithoutAprovadoPorInput>
+}
+
+export type LancamentoUpdateWithWhereUniqueWithoutAprovadoPorInput = {
+  where: Prisma.LancamentoWhereUniqueInput
+  data: Prisma.XOR<Prisma.LancamentoUpdateWithoutAprovadoPorInput, Prisma.LancamentoUncheckedUpdateWithoutAprovadoPorInput>
+}
+
+export type LancamentoUpdateManyWithWhereWithoutAprovadoPorInput = {
+  where: Prisma.LancamentoScalarWhereInput
+  data: Prisma.XOR<Prisma.LancamentoUpdateManyMutationInput, Prisma.LancamentoUncheckedUpdateManyWithoutAprovadoPorInput>
 }
 
 export type LancamentoCreateWithoutClienteInput = {
@@ -999,10 +1196,13 @@ export type LancamentoCreateWithoutClienteInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutLancamentosInput
   recorrencia?: Prisma.RecorrenciaCreateNestedOneWithoutGeradosInput
+  aprovadoPor?: Prisma.UserCreateNestedOneWithoutLancamentosAprovadosInput
 }
 
 export type LancamentoUncheckedCreateWithoutClienteInput = {
@@ -1024,6 +1224,9 @@ export type LancamentoUncheckedCreateWithoutClienteInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1071,10 +1274,13 @@ export type LancamentoCreateWithoutRecorrenciaInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutLancamentosInput
   cliente?: Prisma.ClienteCreateNestedOneWithoutLancamentosInput
+  aprovadoPor?: Prisma.UserCreateNestedOneWithoutLancamentosAprovadosInput
 }
 
 export type LancamentoUncheckedCreateWithoutRecorrenciaInput = {
@@ -1096,6 +1302,9 @@ export type LancamentoUncheckedCreateWithoutRecorrenciaInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1145,6 +1354,9 @@ export type LancamentoCreateManyTenantInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1166,10 +1378,13 @@ export type LancamentoUpdateWithoutTenantInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cliente?: Prisma.ClienteUpdateOneWithoutLancamentosNestedInput
   recorrencia?: Prisma.RecorrenciaUpdateOneWithoutGeradosNestedInput
+  aprovadoPor?: Prisma.UserUpdateOneWithoutLancamentosAprovadosNestedInput
 }
 
 export type LancamentoUncheckedUpdateWithoutTenantInput = {
@@ -1191,6 +1406,9 @@ export type LancamentoUncheckedUpdateWithoutTenantInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1214,6 +1432,113 @@ export type LancamentoUncheckedUpdateManyWithoutTenantInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LancamentoCreateManyAprovadoPorInput = {
+  id?: string
+  tenantId: string
+  tipo: $Enums.TipoLancamento
+  descricao: string
+  categoria?: string | null
+  clienteId?: string | null
+  contraparte?: string | null
+  valorCentavos: number
+  vencimento: Date | string
+  pagoEm?: Date | string | null
+  valorPagoCentavos?: number
+  forma?: $Enums.FormaPagamento | null
+  grupo?: string | null
+  parcela?: number
+  parcelas?: number
+  recorrenciaId?: string | null
+  observacoes?: string | null
+  autorId?: string | null
+  autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorNome?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+}
+
+export type LancamentoUpdateWithoutAprovadoPorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoLancamentoFieldUpdateOperationsInput | $Enums.TipoLancamento
+  descricao?: Prisma.StringFieldUpdateOperationsInput | string
+  categoria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contraparte?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  vencimento?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pagoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  valorPagoCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  forma?: Prisma.NullableEnumFormaPagamentoFieldUpdateOperationsInput | $Enums.FormaPagamento | null
+  grupo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parcela?: Prisma.IntFieldUpdateOperationsInput | number
+  parcelas?: Prisma.IntFieldUpdateOperationsInput | number
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutLancamentosNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutLancamentosNestedInput
+  recorrencia?: Prisma.RecorrenciaUpdateOneWithoutGeradosNestedInput
+}
+
+export type LancamentoUncheckedUpdateWithoutAprovadoPorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoLancamentoFieldUpdateOperationsInput | $Enums.TipoLancamento
+  descricao?: Prisma.StringFieldUpdateOperationsInput | string
+  categoria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contraparte?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  vencimento?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pagoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  valorPagoCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  forma?: Prisma.NullableEnumFormaPagamentoFieldUpdateOperationsInput | $Enums.FormaPagamento | null
+  grupo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parcela?: Prisma.IntFieldUpdateOperationsInput | number
+  parcelas?: Prisma.IntFieldUpdateOperationsInput | number
+  recorrenciaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LancamentoUncheckedUpdateManyWithoutAprovadoPorInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoLancamentoFieldUpdateOperationsInput | $Enums.TipoLancamento
+  descricao?: Prisma.StringFieldUpdateOperationsInput | string
+  categoria?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contraparte?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  vencimento?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pagoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  valorPagoCentavos?: Prisma.IntFieldUpdateOperationsInput | number
+  forma?: Prisma.NullableEnumFormaPagamentoFieldUpdateOperationsInput | $Enums.FormaPagamento | null
+  grupo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parcela?: Prisma.IntFieldUpdateOperationsInput | number
+  parcelas?: Prisma.IntFieldUpdateOperationsInput | number
+  recorrenciaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1237,6 +1562,9 @@ export type LancamentoCreateManyClienteInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1258,10 +1586,13 @@ export type LancamentoUpdateWithoutClienteInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutLancamentosNestedInput
   recorrencia?: Prisma.RecorrenciaUpdateOneWithoutGeradosNestedInput
+  aprovadoPor?: Prisma.UserUpdateOneWithoutLancamentosAprovadosNestedInput
 }
 
 export type LancamentoUncheckedUpdateWithoutClienteInput = {
@@ -1283,6 +1614,9 @@ export type LancamentoUncheckedUpdateWithoutClienteInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1306,6 +1640,9 @@ export type LancamentoUncheckedUpdateManyWithoutClienteInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1329,6 +1666,9 @@ export type LancamentoCreateManyRecorrenciaInput = {
   observacoes?: string | null
   autorId?: string | null
   autorNome?: string | null
+  aprovadoEm?: Date | string | null
+  aprovadoPorId?: string | null
+  aprovadoPorNome?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
 }
@@ -1350,10 +1690,13 @@ export type LancamentoUpdateWithoutRecorrenciaInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutLancamentosNestedInput
   cliente?: Prisma.ClienteUpdateOneWithoutLancamentosNestedInput
+  aprovadoPor?: Prisma.UserUpdateOneWithoutLancamentosAprovadosNestedInput
 }
 
 export type LancamentoUncheckedUpdateWithoutRecorrenciaInput = {
@@ -1375,6 +1718,9 @@ export type LancamentoUncheckedUpdateWithoutRecorrenciaInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1398,6 +1744,9 @@ export type LancamentoUncheckedUpdateManyWithoutRecorrenciaInput = {
   observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aprovadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1424,11 +1773,15 @@ export type LancamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   observacoes?: boolean
   autorId?: boolean
   autorNome?: boolean
+  aprovadoEm?: boolean
+  aprovadoPorId?: boolean
+  aprovadoPorNome?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }, ExtArgs["result"]["lancamento"]>
 
 export type LancamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1451,11 +1804,15 @@ export type LancamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   observacoes?: boolean
   autorId?: boolean
   autorNome?: boolean
+  aprovadoEm?: boolean
+  aprovadoPorId?: boolean
+  aprovadoPorNome?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }, ExtArgs["result"]["lancamento"]>
 
 export type LancamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1478,11 +1835,15 @@ export type LancamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   observacoes?: boolean
   autorId?: boolean
   autorNome?: boolean
+  aprovadoEm?: boolean
+  aprovadoPorId?: boolean
+  aprovadoPorNome?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }, ExtArgs["result"]["lancamento"]>
 
 export type LancamentoSelectScalar = {
@@ -1505,25 +1866,31 @@ export type LancamentoSelectScalar = {
   observacoes?: boolean
   autorId?: boolean
   autorNome?: boolean
+  aprovadoEm?: boolean
+  aprovadoPorId?: boolean
+  aprovadoPorNome?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
 }
 
-export type LancamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "tipo" | "descricao" | "categoria" | "clienteId" | "contraparte" | "valorCentavos" | "vencimento" | "pagoEm" | "valorPagoCentavos" | "forma" | "grupo" | "parcela" | "parcelas" | "recorrenciaId" | "observacoes" | "autorId" | "autorNome" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["lancamento"]>
+export type LancamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "tipo" | "descricao" | "categoria" | "clienteId" | "contraparte" | "valorCentavos" | "vencimento" | "pagoEm" | "valorPagoCentavos" | "forma" | "grupo" | "parcela" | "parcelas" | "recorrenciaId" | "observacoes" | "autorId" | "autorNome" | "aprovadoEm" | "aprovadoPorId" | "aprovadoPorNome" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["lancamento"]>
 export type LancamentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }
 export type LancamentoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }
 export type LancamentoIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.Lancamento$clienteArgs<ExtArgs>
   recorrencia?: boolean | Prisma.Lancamento$recorrenciaArgs<ExtArgs>
+  aprovadoPor?: boolean | Prisma.Lancamento$aprovadoPorArgs<ExtArgs>
 }
 
 export type $LancamentoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1532,6 +1899,7 @@ export type $LancamentoPayload<ExtArgs extends runtime.Types.Extensions.Internal
     tenant: Prisma.$TenantPayload<ExtArgs>
     cliente: Prisma.$ClientePayload<ExtArgs> | null
     recorrencia: Prisma.$RecorrenciaPayload<ExtArgs> | null
+    aprovadoPor: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1567,6 +1935,20 @@ export type $LancamentoPayload<ExtArgs extends runtime.Types.Extensions.Internal
     observacoes: string | null
     autorId: string | null
     autorNome: string | null
+    /**
+     * A APROVAÇÃO — quem lança não é quem aprova.
+     * 
+     * Sem ela, uma conta a pagar inventada percorre o sistema inteiro sem passar
+     * por outro par de olhos e some no meio de duzentas verdadeiras. O que exige
+     * aprovação é a BAIXA, não o lançamento: é na baixa que o dinheiro sai.
+     * 
+     * Três colunas e não um booleano: `aprovado = true` responde "está
+     * aprovado?" e emudece na pergunta que sempre vem depois — "quem liberou, e
+     * quando?". O nome vai junto porque o id some se a pessoa deixar a empresa.
+     */
+    aprovadoEm: Date | null
+    aprovadoPorId: string | null
+    aprovadoPorNome: string | null
     criadoEm: Date
     atualizadoEm: Date
   }, ExtArgs["result"]["lancamento"]>
@@ -1966,6 +2348,7 @@ export interface Prisma__LancamentoClient<T, Null = never, ExtArgs extends runti
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   cliente<T extends Prisma.Lancamento$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lancamento$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   recorrencia<T extends Prisma.Lancamento$recorrenciaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lancamento$recorrenciaArgs<ExtArgs>>): Prisma.Prisma__RecorrenciaClient<runtime.Types.Result.GetResult<Prisma.$RecorrenciaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  aprovadoPor<T extends Prisma.Lancamento$aprovadoPorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lancamento$aprovadoPorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2014,6 +2397,9 @@ export interface LancamentoFieldRefs {
   readonly observacoes: Prisma.FieldRef<"Lancamento", 'String'>
   readonly autorId: Prisma.FieldRef<"Lancamento", 'String'>
   readonly autorNome: Prisma.FieldRef<"Lancamento", 'String'>
+  readonly aprovadoEm: Prisma.FieldRef<"Lancamento", 'DateTime'>
+  readonly aprovadoPorId: Prisma.FieldRef<"Lancamento", 'String'>
+  readonly aprovadoPorNome: Prisma.FieldRef<"Lancamento", 'String'>
   readonly criadoEm: Prisma.FieldRef<"Lancamento", 'DateTime'>
   readonly atualizadoEm: Prisma.FieldRef<"Lancamento", 'DateTime'>
 }
@@ -2452,6 +2838,25 @@ export type Lancamento$recorrenciaArgs<ExtArgs extends runtime.Types.Extensions.
    */
   include?: Prisma.RecorrenciaInclude<ExtArgs> | null
   where?: Prisma.RecorrenciaWhereInput
+}
+
+/**
+ * Lancamento.aprovadoPor
+ */
+export type Lancamento$aprovadoPorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

@@ -557,3 +557,57 @@ export async function maioresDevedores(ctx: ContextoAcesso, quantos = 8) {
     }))
   })
 }
+
+/**
+ * A FILA DE APROVAÇÃO — o que espera o segundo par de olhos.
+ *
+ * =============================================================================
+ * SEM RECORTE DE MÊS, E ISSO É DE PROPÓSITO
+ * =============================================================================
+ * Todas as outras consultas desta tela são do mês, porque a pergunta delas é
+ * "como está agosto". Esta pergunta é outra: "o que está parado esperando
+ * alguém". Uma conta lançada em julho e nunca aprovada continua parada em
+ * agosto — e some da tela se a consulta filtrar por mês.
+ *
+ * O tipo de erro que isso evitaria descobrir: uma conta a pagar que ninguém
+ * aprovou, vencendo, invisível porque o mês na barra já virou.
+ */
+export async function esperandoAprovacao(ctx: ContextoAcesso) {
+  return comEscopo(ctx, (tx) =>
+    tx.lancamento.findMany({
+      where: { aprovadoEm: null },
+      orderBy: [{ vencimento: 'asc' }],
+      select: {
+        id: true, tipo: true, descricao: true, categoria: true, contraparte: true,
+        valorCentavos: true, vencimento: true, autorNome: true, criadoEm: true,
+        cliente: { select: { nome: true } },
+      },
+    }),
+  )
+}
+
+/** Quantas esperam — o número no rótulo da aba. */
+export async function quantasEsperandoAprovacao(ctx: ContextoAcesso): Promise<number> {
+  return comEscopo(ctx, (tx) => tx.lancamento.count({ where: { aprovadoEm: null } }))
+}
+
+/**
+ * A FILA DA BAIXA — aprovado, ainda não pago.
+ *
+ * Também sem recorte de mês, e pelo mesmo motivo: conta vencida em julho que
+ * ninguém pagou continua sendo trabalho de hoje. Ela vem primeiro na ordem,
+ * porque atrasada é a que custa juro.
+ */
+export async function prontasParaBaixa(ctx: ContextoAcesso) {
+  return comEscopo(ctx, (tx) =>
+    tx.lancamento.findMany({
+      where: { pagoEm: null, aprovadoEm: { not: null } },
+      orderBy: [{ vencimento: 'asc' }],
+      select: {
+        id: true, tipo: true, descricao: true, categoria: true, contraparte: true,
+        valorCentavos: true, vencimento: true, aprovadoPorNome: true, aprovadoEm: true,
+        cliente: { select: { nome: true } },
+      },
+    }),
+  )
+}

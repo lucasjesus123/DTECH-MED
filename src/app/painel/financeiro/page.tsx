@@ -17,8 +17,12 @@ import {
   panoramaDoMes,
   pendentesDeGeracao,
   porCategoria,
+  esperandoAprovacao,
+  prontasParaBaixa,
+  quantasEsperandoAprovacao,
 } from '@/server/consultas/caixa'
 import AbasDoCaixa, { type AbaCaixa } from './abas'
+import FilaDeAprovacao from './aprovar'
 import Aguardando from './aguardando'
 import Contas from './contas'
 import Faturas from './faturas'
@@ -29,7 +33,7 @@ import estilo from '../painel.module.css'
 export const metadata: Metadata = { title: 'Financeiro', robots: { index: false } }
 export const dynamic = 'force-dynamic'
 
-const ABAS: AbaCaixa[] = ['faturas', 'receber', 'pagar', 'recorrencias', 'relatorios']
+const ABAS: AbaCaixa[] = ['faturas', 'receber', 'pagar', 'aprovar', 'baixa', 'recorrencias', 'relatorios']
 
 /**
  * FINANCEIRO — o caixa inteiro numa tela.
@@ -91,8 +95,15 @@ export default async function Financeiro({
   const mes = mesValido(q.mes)
   const mesExtenso = mesPorExtenso(mes)
   const podeApagar = podeVer(sessao.papel, Papel.GESTOR)
+  // Quem aprova é o mesmo piso de quem apaga: GESTOR para cima. A trava de
+  // verdade está na ação — esconder a aba impede o clique, não a requisição.
+  const podeAprovar = podeVer(sessao.papel, Papel.GESTOR)
 
-  const [panorama, aFaturar] = await Promise.all([panoramaDoMes(ctx, mes), aguardandoFatura(ctx)])
+  const [panorama, aFaturar, esperando] = await Promise.all([
+    panoramaDoMes(ctx, mes),
+    aguardandoFatura(ctx),
+    quantasEsperandoAprovacao(ctx),
+  ])
 
   return (
     <>
@@ -162,9 +173,20 @@ export default async function Financeiro({
         }))}
       />
 
-      <AbasDoCaixa atual={aba} mes={mes} />
+      <AbasDoCaixa atual={aba} mes={mes} podeAprovar={podeAprovar} esperando={esperando} />
 
-      {aba === 'receber' || aba === 'pagar' ? (
+      {aba === 'aprovar' ? (
+        podeAprovar ? (
+          <PainelAprovar ctx={ctx} meuNome={sessao.nome} />
+        ) : (
+          <div className={estilo.vazio}>
+            Seu perfil não aprova conta. Quem lança não aprova — é o que impede uma conta inventada
+            de percorrer o sistema sem passar por outro par de olhos.
+          </div>
+        )
+      ) : aba === 'baixa' ? (
+        <PainelBaixa ctx={ctx} />
+      ) : aba === 'receber' || aba === 'pagar' ? (
         <PainelContas
           ctx={ctx}
           tipo={aba === 'pagar' ? 'PAGAR' : 'RECEBER'}
@@ -472,5 +494,71 @@ function Indicador({
       </strong>
       <span className={estilo.indNota}>{nota}</span>
     </div>
+  )
+}
+
+
+/**
+ * A FILA DE APROVAÇÃO — o que espera o segundo par de olhos.
+ *
+ * Sem recorte de mês, de propósito: uma conta lançada em julho e nunca aprovada
+ * continua parada em agosto. Filtrar por mês a esconderia justamente quando ela
+ * já está atrasada.
+ */
+async function PainelAprovar({ ctx, meuNome }: { ctx: Ctx; meuNome: string }) {
+  const contas = await esperandoAprovacao(ctx)
+  return <FilaDeAprovacao contas={contas} meuNome={meuNome} />
+}
+
+/**
+ * A FILA DA BAIXA — aprovado, ainda não pago.
+ *
+ * É a lista de "o que eu pago hoje", e ela responde uma pergunta que as abas
+ * A pagar e A receber não respondem: o que já passou pelo controle e está
+ * liberado. Também sem recorte de mês — conta vencida em julho que ninguém
+ * pagou continua sendo trabalho de hoje.
+ */
+async function PainelBaixa({ ctx }: { ctx: Ctx }) {
+  const contas = await prontasParaBaixa(ctx)
+  if (contas.length === 0) {
+    return (
+      <div className={estilo.vazio}>
+        Nada aprovado esperando baixa. O que foi lançado e ainda não passou pela aprovação aparece na
+        aba Aprovar.
+      </div>
+    )
+  }
+  const hoje = new Date()
+  const total = contas.reduce((s, c) => s + c.valorCentavos, 0)
+  return (
+    <>
+      <p className={estilo.texto} style={{ marginBottom: 'var(--s3)' }}>
+        {contas.length} conta{contas.length > 1 ? 's' : ''} aprovada{contas.length > 1 ? 's' : ''} esperando
+        baixa · {formatarBRL(total)}. A baixa em si é dada na aba A pagar ou A receber, na linha da
+        conta.
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 'var(--s2)' }}>
+        {contas.map((c) => {
+          const atrasada = c.vencimento < hoje
+          return (
+            <li key={c.id} className={estilo.linhaSimples}>
+              <span className={atrasada ? estilo.tagAlerta : estilo.tag}>
+                {c.vencimento.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' })}
+              </span>
+              <span>{c.descricao}</span>
+              <span className={estilo.dica}>
+                {c.tipo === 'PAGAR' ? 'a pagar' : 'a receber'}
+                {c.contraparte ? ` · ${c.contraparte}` : ''}
+                {c.cliente ? ` · ${c.cliente.nome}` : ''}
+              </span>
+              <strong>{formatarBRL(c.valorCentavos)}</strong>
+              <span className={estilo.dica}>
+                {c.aprovadoPorNome ? `liberada por ${c.aprovadoPorNome}` : 'liberada'}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </>
   )
 }

@@ -37,6 +37,19 @@ type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
 const PODE_LANCAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.FINANCEIRO]
 const PODE_APAGAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
 
+/**
+ * QUEM APROVA — e por que é uma lista mais curta que a de quem lança.
+ *
+ * Segregação de função só existe se as duas listas forem DIFERENTES. Se quem
+ * aprova fosse a mesma gente que lança, o passo a mais seria só um clique a
+ * mais para a mesma pessoa — teatro de controle, que é pior que controle
+ * nenhum: dá a sensação de que alguém conferiu.
+ *
+ * Por isso o FINANCEIRO lança e NÃO aprova. Ele registra a obrigação; quem
+ * responde pelo dinheiro é que libera a saída.
+ */
+const PODE_APROVAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
+
 async function ator() {
   const sessao = await lerSessao()
   if (!sessao) return null
@@ -250,10 +263,22 @@ export async function baixarConta(_anterior: Resposta, form: FormData): Promise<
   const r = await comEscopo(a.ctx, async (tx) => {
     const conta = await tx.lancamento.findFirst({
       where: { id: v.id },
-      select: { id: true, tipo: true, descricao: true, valorCentavos: true, pagoEm: true },
+      select: { id: true, tipo: true, descricao: true, valorCentavos: true, pagoEm: true, aprovadoEm: true },
     })
     if (!conta) return { ok: false as const, motivo: 'Conta não encontrada.' }
     if (conta.pagoEm) return { ok: false as const, motivo: 'Esta conta já estava baixada.' }
+
+    // A TRAVA DA SEGREGAÇÃO DE FUNÇÃO.
+    //
+    // Ela está AQUI, na ação, e não só no botão da tela. Esconder o botão
+    // impede o clique; não impede a requisição. E é justamente numa trava de
+    // dinheiro que a diferença entre "não mostrar" e "não deixar" importa.
+    if (!conta.aprovadoEm) {
+      return {
+        ok: false as const,
+        motivo: 'Esta conta ainda não foi aprovada. Um administrador precisa liberá-la antes da baixa.',
+      }
+    }
 
     // Vazio = pagou o previsto, que é o caso comum. Preenchido, passa pelo
     // mesmo leitor de vírgula do lançamento.
@@ -602,4 +627,115 @@ export async function gerarContasDoMes(mesBruto?: string): Promise<Resposta> {
     ok: true,
     mensagem: feitas === 1 ? '1 conta gerada.' : `${feitas} contas geradas para este mês.`,
   }
+}
+
+/**
+ * APROVAR UMA CONTA — o segundo par de olhos antes de o dinheiro sair.
+ *
+ * =============================================================================
+ * POR QUE APROVAR A BAIXA, E NÃO O LANÇAMENTO
+ * =============================================================================
+ * Lançar é registrar que existe uma obrigação; isso quem trabalha com as notas
+ * faz o dia inteiro, e exigir aprovação aí só criaria fila para um fato que já
+ * aconteceu — a conta de luz chegou, ela existe, aprovar não muda isso.
+ *
+ * O momento que importa é a BAIXA: é nela que o dinheiro efetivamente sai ou é
+ * dado por recebido. É lá que um segundo par de olhos vale alguma coisa.
+ *
+ * =============================================================================
+ * APROVAR É IRREVERSÍVEL? NÃO — MAS DESFAZER DEIXA RASTRO
+ * =============================================================================
+ * `desaprovar` existe porque aprovar por engano é comum e o certo é poder
+ * corrigir. O que ele NÃO faz é desaprovar conta já baixada: o dinheiro já
+ * saiu, e apagar a aprovação de um pagamento feito criaria uma linha que diz
+ * que ninguém liberou o que já foi pago. Para desfazer um pagamento existe
+ * `desfazerBaixa`, que é outra coisa e já registra o próprio rastro.
+ */
+export async function aprovarConta(id: string): Promise<Resposta> {
+  const a = await ator()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_APROVAR.includes(a.sessao.papel)) {
+    return {
+      ok: false,
+      motivo: 'Seu perfil não aprova conta. Quem lança não aprova — peça a um administrador.',
+    }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const c = await tx.lancamento.findFirst({
+      where: { id },
+      select: { id: true, descricao: true, valorCentavos: true, aprovadoEm: true, autorId: true },
+    })
+    if (!c) return { ok: false as const, motivo: 'Conta não encontrada.' }
+    if (c.aprovadoEm) return { ok: false as const, motivo: 'Esta conta já estava aprovada.' }
+
+    await tx.lancamento.updateMany({
+      where: { id },
+      data: {
+        aprovadoEm: new Date(),
+        aprovadoPorId: a.sessao.userId,
+        aprovadoPorNome: a.sessao.nome,
+      },
+    })
+    return { ok: true as const, descricao: c.descricao, valor: c.valorCentavos, autorId: c.autorId }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'caixa.aprovada',
+    entidade: 'lancamento',
+    entidadeId: id,
+    detalhes: {
+      descricao: r.descricao,
+      valorCentavos: r.valor,
+      // Guardado de propósito: "quem lançou e quem aprovou eram a mesma pessoa?"
+      // é a pergunta que uma auditoria faz primeiro, e ela precisa ser
+      // respondível sem cruzar duas tabelas.
+      lancadoPor: r.autorId,
+      mesmaPessoa: r.autorId != null && r.autorId === a.sessao.userId,
+    },
+  })
+  revalidatePath('/painel/financeiro')
+  return { ok: true, mensagem: 'Conta aprovada. Agora ela pode receber baixa.' }
+}
+
+/** Tira a aprovação de uma conta que ainda NÃO foi baixada. */
+export async function desaprovarConta(id: string): Promise<Resposta> {
+  const a = await ator()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_APROVAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não aprova nem desaprova conta.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const c = await tx.lancamento.findFirst({
+      where: { id },
+      select: { id: true, descricao: true, pagoEm: true, aprovadoEm: true },
+    })
+    if (!c) return { ok: false as const, motivo: 'Conta não encontrada.' }
+    if (!c.aprovadoEm) return { ok: false as const, motivo: 'Esta conta não estava aprovada.' }
+    if (c.pagoEm) {
+      return {
+        ok: false as const,
+        motivo:
+          'Esta conta já foi baixada — o dinheiro saiu. Para desfazer, use "Desfazer baixa"; tirar a aprovação deixaria um pagamento sem quem o liberou.',
+      }
+    }
+
+    await tx.lancamento.updateMany({
+      where: { id },
+      data: { aprovadoEm: null, aprovadoPorId: null, aprovadoPorNome: null },
+    })
+    return { ok: true as const, descricao: c.descricao }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'caixa.desaprovada',
+    entidade: 'lancamento',
+    entidadeId: id,
+    detalhes: { descricao: r.descricao },
+  })
+  revalidatePath('/painel/financeiro')
+  return { ok: true, mensagem: 'Aprovação retirada.' }
 }

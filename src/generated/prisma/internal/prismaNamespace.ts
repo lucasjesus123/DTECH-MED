@@ -3757,6 +3757,9 @@ export const LancamentoScalarFieldEnum = {
   observacoes: 'observacoes',
   autorId: 'autorId',
   autorNome: 'autorNome',
+  aprovadoEm: 'aprovadoEm',
+  aprovadoPorId: 'aprovadoPorId',
+  aprovadoPorNome: 'aprovadoPorNome',
   criadoEm: 'criadoEm',
   atualizadoEm: 'atualizadoEm'
 } as const

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import estilo from '../painel.module.css'
 import { mesPorExtenso, mesVizinho } from '@/server/consultas/caixa'
 
-export type AbaCaixa = 'receber' | 'pagar' | 'faturas' | 'recorrencias' | 'relatorios'
+export type AbaCaixa = 'receber' | 'pagar' | 'aprovar' | 'baixa' | 'faturas' | 'recorrencias' | 'relatorios'
 
 /**
  * A BARRA DO FINANCEIRO — cinco perguntas sobre dinheiro, uma tela.
@@ -27,7 +27,18 @@ export type AbaCaixa = 'receber' | 'pagar' | 'faturas' | 'recorrencias' | 'relat
  * As setas carregam a aba atual e a aba carrega o mês atual: qualquer caminho
  * pela tela preserva as duas escolhas.
  */
-export default function AbasDoCaixa({ atual, mes }: { atual: AbaCaixa; mes: string }) {
+export default function AbasDoCaixa({
+  atual,
+  mes,
+  podeAprovar,
+  esperando,
+}: {
+  atual: AbaCaixa
+  mes: string
+  podeAprovar: boolean
+  /** Quantas contas esperam aprovação — o número que vai no rótulo da aba. */
+  esperando: number
+}) {
   const href = (aba: AbaCaixa) => `/painel/financeiro?aba=${aba}&mes=${mes}`
 
   /**
@@ -43,10 +54,23 @@ export default function AbasDoCaixa({ atual, mes }: { atual: AbaCaixa; mes: stri
    * em lote uma vez por dia. Faturas são o dinheiro do CLIENTE, e chegam uma a
    * uma, o dia inteiro. O que chega o dia inteiro fica na porta.
    */
+  /**
+   * APROVAR e DAR BAIXA são duas abas, e não uma, porque são duas PESSOAS.
+   *
+   * Aprovar é do administrador: o segundo par de olhos antes de o dinheiro
+   * sair. Dar baixa é de quem opera o caixa. Juntar as duas numa tela só faria
+   * a mesma pessoa fazer os dois passos em sequência — que é exatamente o
+   * controle que a separação existe para impedir.
+   *
+   * A aba "Aprovar" só aparece para quem aprova. Mostrá-la a quem não pode
+   * seria oferecer uma porta trancada, todo dia.
+   */
   const abas: Array<[AbaCaixa, string]> = [
     ['faturas', 'Faturas de serviço'],
     ['receber', 'A receber'],
     ['pagar', 'A pagar'],
+    ...(podeAprovar ? ([['aprovar', esperando ? `Aprovar (${esperando})` : 'Aprovar']] as Array<[AbaCaixa, string]>) : []),
+    ['baixa', 'Dar baixa'],
     ['recorrencias', 'Recorrências'],
     ['relatorios', 'Relatórios'],
   ]
