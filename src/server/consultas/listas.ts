@@ -112,6 +112,25 @@ export async function tecnicosDaEmpresa(ctx: ContextoAcesso) {
   )
 }
 
+/**
+ * TODA A EQUIPE ATIVA — para escolher quem vai a um compromisso.
+ *
+ * Sem filtro de papel de propósito: o compromisso da agenda pode ser de
+ * qualquer um. "Reunião com o contador" é da gestora; "levar o aparelho no
+ * fornecedor" é do motorista; "treinamento no forno novo" é do técnico.
+ * Filtrar por papel aqui obrigaria a lista a ser reescrita a cada tipo novo de
+ * compromisso que a empresa inventar.
+ */
+export async function pessoasDaEmpresa(ctx: ContextoAcesso) {
+  return comEscopo(ctx, (tx) =>
+    tx.user.findMany({
+      where: { ativo: true },
+      orderBy: { nome: 'asc' },
+      select: { id: true, nome: true },
+    }),
+  )
+}
+
 export async function motoristasDaEmpresa(ctx: ContextoAcesso) {
   return comEscopo(ctx, (tx) =>
     tx.user.findMany({

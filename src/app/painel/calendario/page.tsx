@@ -5,6 +5,8 @@ import { formatarBRL } from '@/lib/dinheiro'
 import { exigirNivel, exigirAba, podeVer } from '@/server/auth/guarda'
 import { mesPorExtenso, mesValido, mesVizinho } from '@/server/consultas/caixa'
 import { eventosDoMes, gradeDoMes, type Evento, type TipoEvento } from '@/server/consultas/calendario'
+import { pessoasDaEmpresa } from '@/server/consultas/listas'
+import LancarNoDia from './lancar'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Calendário', robots: { index: false } }
@@ -44,7 +46,7 @@ export const dynamic = 'force-dynamic'
 export default async function Calendario({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; so?: string }>
+  searchParams: Promise<{ mes?: string; so?: string; dia?: string }>
 }) {
   const { ctx, sessao } = await exigirNivel(Papel.MOTORISTA)
   await exigirAba('calendario')
@@ -62,7 +64,24 @@ export default async function Calendario({
     ? (q.so as TipoEvento)
     : null
 
-  const todos = await eventosDoMes(ctx, mes, { comDinheiro })
+  /**
+   * O DIA CLICADO.
+   *
+   * Ele vem pela URL, e não por estado de componente, para que o painel de
+   * lançar sobreviva a um recarregar e possa ser mandado por mensagem: "abre
+   * este link e marca a visita aí". Uma tela de agenda que perde o dia ao
+   * atualizar obriga a pessoa a caçar o dia de novo toda vez.
+   */
+  const diaAberto = /^\d{4}-\d{2}-\d{2}$/.test(q.dia ?? '') && (q.dia ?? '').startsWith(mes)
+    ? q.dia!
+    : null
+
+  const [todos, pessoas] = await Promise.all([
+    eventosDoMes(ctx, mes, { comDinheiro }),
+    // Só quando há dia aberto: a lista da equipe não é usada na grade, e
+    // buscá-la sempre seria uma consulta por carregamento de tela para nada.
+    diaAberto ? pessoasDaEmpresa(ctx) : Promise.resolve([]),
+  ])
   const eventos = so ? todos.filter((e) => e.tipo === so) : todos
   const semanas = gradeDoMes(mes)
 
@@ -212,10 +231,19 @@ export default async function Calendario({
                         .filter(Boolean)
                         .join(' ')}
                     >
-                      <span className={estilo.calNumero}>
+                      {/* O NÚMERO DO DIA VIRA O BOTÃO DE MARCAR.
+                          Sem um botão a mais na célula: a grade tem 42 células,
+                          e um "+" em cada uma seria 42 alvos disputando atenção
+                          com o conteúdo. O número já é o lugar onde o olho vai
+                          quando a pessoa escolhe um dia. */}
+                      <Link
+                        href={`/painel/calendario?mes=${mes}${so ? `&so=${so}` : ''}&dia=${d.dia}`}
+                        className={estilo.calNumero}
+                        aria-label={`Marcar algo no dia ${Number(d.dia.slice(8))}`}
+                      >
                         {Number(d.dia.slice(8))}
                         {ehHoje ? <span className={estilo.soLeitor}> (hoje)</span> : null}
-                      </span>
+                      </Link>
                       {doDia.slice(0, NO_DIA).map((e) => (
                         <Compromisso key={e.id} e={e} />
                       ))}
@@ -242,6 +270,16 @@ export default async function Calendario({
           </tbody>
         </table>
       </div>
+
+      {diaAberto ? (
+        <LancarNoDia
+          dia={diaAberto}
+          mes={mes}
+          pessoas={pessoas}
+          comDinheiro={comDinheiro}
+          podeMarcarParada={podeVer(sessao.papel, Papel.ATENDENTE)}
+        />
+      ) : null}
 
       {eventos.length === 0 ? (
         <p className={estilo.vazio}>
@@ -310,6 +348,12 @@ const FILTROS: Array<{ chave: TipoEvento; rotulo: string }> = [
  * grade que parece confete não é lida, é olhada.
  */
 const COR: Record<TipoEvento, string> = {
+  // O COMPROMISSO ganha a TERCEIRA cor, e é a única exceção à regra das duas
+  // famílias — porque ele é de outra natureza: as outras cinco o sistema
+  // descobriu sozinho, esta uma pessoa escreveu. Distinguir "o que eu marquei"
+  // de "o que caiu na minha agenda" é a diferença que faz alguém confiar na
+  // grade.
+  compromisso: estilo.calNota!,
   parada: estilo.calRua!,
   preventiva: estilo.calRua!,
   contrato: estilo.calRua!,

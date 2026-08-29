@@ -4525,3 +4525,34 @@
 }
 .campoComBotao > input { flex: 1 1 auto; min-width: 0; }
 .campoComBotao > button { flex: none; white-space: nowrap; }
+
+/* O COMPROMISSO na grade — a terceira cor, e a única exceção às duas famílias.
+   As outras cinco fontes o sistema descobriu sozinho; esta uma pessoa
+   escreveu. Distinguir "o que eu marquei" de "o que caiu na minha agenda" é a
+   diferença que faz alguém confiar na grade e voltar nela.
+
+   O azul (--acao) é o token que já existe para "isto é ação de alguém", e ele
+   não colide com o violeta do trabalho nem com o âmbar do dinheiro. */
+.calNota {
+  background: var(--acao-veu, rgba(59, 130, 246, .12));
+  border-left-color: var(--acao);
+  color: var(--acao);
+}
+.calNota:hover { background: var(--acao-veu-2, rgba(59, 130, 246, .2)); }
+
+/* O número do dia virou o botão de marcar. Ele precisa PARECER clicável sem
+   virar mais um elemento gritando na grade de 42 células — por isso o sinal
+   aparece só no hover e no foco, e em repouso ele continua sendo o número
+   discreto que sempre foi. */
+a.calNumero {
+  text-decoration: none;
+  border-radius: var(--r-sm, 6px);
+  padding: 1px 4px;
+  margin-left: -4px;
+  width: fit-content;
+  transition: background 160ms var(--ease), color 160ms var(--ease);
+}
+a.calNumero:hover, a.calNumero:focus-visible {
+  background: var(--vio-veu-2);
+  color: var(--vio-claro);
+}

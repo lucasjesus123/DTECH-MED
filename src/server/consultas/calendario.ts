@@ -43,7 +43,7 @@ import { janelaDoMes } from '@/server/consultas/caixa'
  * trivial.
  */
 
-export type TipoEvento = 'parada' | 'preventiva' | 'pagar' | 'receber' | 'contrato'
+export type TipoEvento = 'parada' | 'preventiva' | 'pagar' | 'receber' | 'contrato' | 'compromisso'
 
 export type Evento = {
   id: string
@@ -109,7 +109,7 @@ export async function eventosDoMes(
   const { comDinheiro } = opcoes
 
   return comEscopo(ctx, async (tx) => {
-    const [paradas, preventivas, contas, faturas, contratos] = await Promise.all([
+    const [paradas, preventivas, contas, faturas, contratos, compromissos] = await Promise.all([
       // `previstoPara` É O DIA DA PARADA, e é obrigatório. `janelaInicio` é
       // OPCIONAL — ela guarda a faixa de horário combinada com o cliente
       // ("entre 14h e 17h"), e a maior parte das paradas não tem nenhuma.
@@ -212,6 +212,25 @@ export async function eventosDoMes(
           equipamento: { select: { marca: true, modelo: true } },
         },
       }),
+
+      // Os COMPROMISSOS do mês. Note a ausência de qualquer coisa sobre papel:
+      // eles são da EMPRESA, e todo mundo do painel vê a agenda da equipe. Era
+      // uma agenda privada por pessoa que responderia "o que EU tenho hoje" e
+      // perderia a pergunta que o Calendário existe para responder.
+      tx.compromisso.findMany({
+        where: { dia: { gte: inicio, lt: fim } },
+        orderBy: [{ dia: 'asc' }, { hora: 'asc' }],
+        take: 200,
+        select: {
+          id: true,
+          titulo: true,
+          dia: true,
+          hora: true,
+          observacao: true,
+          concluido: true,
+          responsavel: { select: { nome: true } },
+        },
+      }),
     ])
 
     const eventos: Evento[] = []
@@ -279,6 +298,30 @@ export async function eventosDoMes(
       })
     }
 
+    /**
+     * OS COMPROMISSOS — a sexta fonte, e a única que nasce aqui.
+     *
+     * As outras cinco são consequência: a parada vem de uma ordem, a preventiva
+     * de um contrato, o vencimento de um lançamento. Esta é a que a pessoa
+     * escreve direto no dia — e sem ela o Calendário só espelhava outras telas.
+     *
+     * `dia` já é uma coluna `date`: nada de fuso aqui, o dia é o dia.
+     */
+    for (const k of compromissos) {
+      eventos.push({
+        id: `cp-${k.id}`,
+        tipo: 'compromisso',
+        dia: k.dia.toISOString().slice(0, 10),
+        titulo: k.hora ? `${k.hora} · ${k.titulo}` : k.titulo,
+        detalhe: [k.responsavel?.nome, k.observacao].filter(Boolean).join(' · ') || null,
+        href: `/painel/calendario?mes=${mes}&dia=${k.dia.toISOString().slice(0, 10)}`,
+        valorCentavos: null,
+        // Compromisso vencido e não concluído é o que ninguém fez — e é isso que
+        // a agenda precisa gritar. Concluído nunca é atraso, mesmo se passou.
+        atrasado: !k.concluido && k.dia.toISOString().slice(0, 10) < diaDe(agora),
+      })
+    }
+
     for (const k of contratos) {
       eventos.push({
         id: `ct-${k.id}`,
@@ -306,7 +349,14 @@ export async function eventosDoMes(
  * parada das 8h aparecer depois da conta de luz.
  */
 function ordem(t: TipoEvento): number {
-  return { parada: 0, preventiva: 1, contrato: 2, receber: 3, pagar: 4 }[t]
+  // O COMPROMISSO vem PRIMEIRO dentro do dia, e não é ordem alfabética.
+  //
+  // Ele é a única fonte que uma pessoa escreveu à mão para aquele dia — as
+  // outras cinco são consequência de outra coisa. Quem anotou "visitar a
+  // clínica antes de orçar" no dia 12 escreveu justamente porque não queria
+  // esquecer, e enterrá-lo abaixo de quatro vencimentos desfaz o motivo de ele
+  // existir.
+  return { compromisso: 0, parada: 1, preventiva: 2, contrato: 3, receber: 4, pagar: 5 }[t]
 }
 
 /**
