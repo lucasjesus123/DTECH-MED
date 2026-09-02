@@ -4942,3 +4942,102 @@ a.calNumero:hover, a.calNumero:focus-visible {
   color: var(--txt);
 }
 .dinValor::placeholder { color: var(--txt-3); }
+
+/* ==========================================================================
+   O ESCURO DO SISTEMA — levantado do quase-preto
+   --------------------------------------------------------------------------
+   A queixa era direta: "o sistema completo muito escuro no modo escuro". Ela
+   estava certa, e o print mostrava onde dói — os rótulos dos checkboxes de
+   "Pessoas e acessos", cinza sobre um fundo praticamente preto.
+
+   ESTE BLOCO SÓ ALCANÇA O SISTEMA, E ISSO É DELIBERADO.
+   Os tokens nascem em `globals.css`, que o site e o painel dividem. Mexer lá
+   clarearia a home que o cliente vê — e a home não estava em discussão. O
+   `layout.tsx` do painel já resolve isso desde sempre: o tema vive no
+   invólucro (`.app[data-tema]`), não no `<html>`, "para a escolha de quem
+   trabalha no sistema não vazar para a home". Este bloco se pendura ali.
+
+   Por isso os valores são LITERAIS e não `light-dark()`: o seletor só existe
+   quando o tema é escuro, então não há segundo valor a declarar — e não se
+   cria a "segunda lista de quarenta cores" contra a qual o globals.css avisa.
+
+   O QUE MUDOU, E POR QUÊ CADA UM
+   --------------------------------------------------------------------------
+   SUPERFÍCIES  #08040F era preto com um sopro de violeta. A luminância do
+                fundo triplica (0,0017 → 0,0040) e passa a ser uma cor —
+                ardósia-ameixa — em vez de ausência de cor. O cartão descola
+                do fundo (1,068 → 1,108) sem precisar de sombra mais forte.
+
+   TEXTO FRACO  `--txt-3` era o piso, 4,54:1, e é justamente o token dos
+                rótulos do print. Vai a 6,24:1 sobre o cartão. Era aqui o
+                problema de verdade — não na saturação, na leitura.
+
+   VIOLETA      `--vio-claro` (link, aba ativa, número em destaque) sobe de
+                6,98:1 para 8,47:1 e fica mais luminoso. O `--vio` do FUNDO
+                dos botões NÃO sobe: branco sobre #8B5CF6 já dá 4,23:1, e
+                clarear para #9B6EFF derrubaria para 3,46:1. Botão mais bonito
+                e menos legível é troca ruim.
+
+   BORDAS       `--borda-viva` é o contorno de campo de formulário, e contorno
+                de controle tem piso de 3:1. Estava em 1,54:1 — reprovava.
+                Vai a 3,38:1 e passa.
+
+   Todos os números acima foram medidos, não estimados. O roteiro `a11y.mjs`
+   da bateria é quem confere de novo a cada mudança.
+   ========================================================================== */
+.app[data-tema='escuro'] {
+  --bg:         #0F0A1C;
+  --bg-1:       #171029;
+  --sup:        #1C1433;
+  --sup-2:      #251A42;
+  --borda:      #463170;
+  --borda-viva: #7E5AB8;
+
+  --vio-claro:  #C0A6FF;
+  --brilho:     rgba(155, 110, 255, .46);
+  --neon:       rgba(192, 166, 255, .95);
+  --neon-veu:   rgba(155, 110, 255, .62);
+
+  --txt:        #F7F4FF;
+  --txt-2:      #CFC2E8;
+  --txt-3:      #A093C4;
+
+  --vio-veu:      rgba(155, 110, 255, .12);
+  --vio-veu-2:    rgba(155, 110, 255, .20);
+  --vio-borda:    rgba(155, 110, 255, .34);
+
+  --mesa:       #0F0A1C;
+  --selo-neutro: #241A3E;
+
+  /* A lateral acompanha o resto: mantida quase preta ao lado de uma área de
+     trabalho mais clara, ela viraria um vão escuro em vez de uma moldura. */
+  --casca:       #150E28;
+  --casca-2:     #23193F;
+  --casca-linha: #34234F;
+  --casca-txt:   #F3EFFF;
+  --casca-txt-2: #B7A9D6;
+}
+
+/* --------------------------------------------------------------------------
+   E A OPACIDADE QUE APAGAVA O RÓTULO
+   --------------------------------------------------------------------------
+   `.abaOpcaoBloqueada` juntava `color: var(--txt-3)` com `opacity: .55`. É a
+   MESMA armadilha já corrigida em `.paradaFeita` no aplicativo de campo, e o
+   comentário de lá vale inteiro aqui: opacidade não é um jeito de dizer
+   "menos importante", é um jeito de dizer "menos legível". Ela multiplica o
+   contraste do texto E o da borda E o do ícone, todos de uma vez, e nenhum
+   token consegue compensar porque o estrago acontece depois de tudo pintado.
+
+   Com `--txt-3` no piso, 0,55 de opacidade levava aqueles rótulos para perto
+   de 1,9:1 — o que aparece no print como cinza ilegível sobre preto.
+
+   O estado "fora do alcance do seu perfil" volta a ser dito por FORMA: fundo
+   recuado e contorno tracejado, que continuam legíveis e ainda dizem melhor
+   "isto está desativado" do que um texto apagado.
+   -------------------------------------------------------------------------- */
+.abaOpcaoBloqueada {
+  background: var(--bg-1);
+  border-style: dashed;
+  border-color: var(--borda);
+  opacity: 1;
+}
