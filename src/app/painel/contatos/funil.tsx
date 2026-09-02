@@ -141,16 +141,33 @@ export default function Funil({
                 ) : null}
               </div>
 
+              {/* CHEGAR NO ORÇAMENTO, e não "na ordem".
+                  Antes toda linha levava ao topo da ficha, e a pessoa rolava
+                  atrás do bloco de orçamento numa página longa. O funil existe
+                  para trabalhar orçamento; o destino tem que ser o orçamento.
+
+                  A âncora `#orcamento` é o que faz a diferença entre um atalho
+                  e um link — sem ela, os dois botões abaixo abrem exatamente a
+                  mesma coisa que antes. */}
               <div className={estilo.caixaAcoes}>
+                <Link href={`/painel/ordens/${l.ordemId}#orcamento`} className={estilo.btnSec}>
+                  {l.status === 'RASCUNHO' ? 'Continuar orçamento' : 'Abrir orçamento'}
+                </Link>
                 {l.status === 'ENVIADO' ? (
-                  <Link href={`/painel/ordens/${l.ordemId}`} className={estilo.btnSec}>
+                  <Link href={`/painel/ordens/${l.ordemId}#orcamento`} className={estilo.linkAcao}>
                     Cobrar resposta
                   </Link>
-                ) : (
-                  <Link href={`/painel/ordens/${l.ordemId}`} className={estilo.fraco}>
-                    ver a ordem
+                ) : null}
+                {l.status === 'RECUSADO' ? (
+                  // Recusado não é fim: a versão nova nasce do mesmo lugar, e
+                  // é o caso em que a pessoa mais precisa voltar rápido.
+                  <Link href={`/painel/ordens/${l.ordemId}#orcamento`} className={estilo.linkAcao}>
+                    Refazer com outro valor
                   </Link>
-                )}
+                ) : null}
+                <Link href={`/painel/ordens/${l.ordemId}`} className={estilo.fraco}>
+                  ver a ordem inteira
+                </Link>
               </div>
             </li>
           ))}

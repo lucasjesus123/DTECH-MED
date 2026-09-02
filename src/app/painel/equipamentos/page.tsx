@@ -76,65 +76,79 @@ export default async function Equipamentos({
           quando uma ordem de retirada é aberta.
         </p>
       ) : (
-        <div className={`${estilo.quadro} ${estilo.rolaX}`}>
-          <table className={estilo.tabela}>
-            <thead>
-              <tr>
-                {/* A foto abre a linha: quem confere o aparelho que o cliente
-                    descreve por telefone reconhece a imagem antes de ler a
-                    marca. */}
-                <th>
-                  <span className={estilo.soLeitor}>Foto</span>
-                </th>
-                <th>Equipamento</th>
-                <th>Série</th>
-                <th>Cliente</th>
-                <th>Última passagem</th>
-                <th className={estilo.dir}>Visitas</th>
-              </tr>
-            </thead>
-            <tbody>
-              {equipamentos.map((e) => {
-                const ultima = e.ordens[0]
-                return (
-                  <tr key={e.id}>
-                    <td>
-                      <FotoCatalogo
-                        tipo="equipamento"
-                        id={e.id}
-                        nome={`${e.marca} ${e.modelo}`}
-                        tem={Boolean(e.fotoCaminho)}
-                        podeMexer={podeMexer}
-                      />
-                    </td>
-                    <td>
-                      {/* O nome do aparelho abre o PRONTUÁRIO dele — toda a
-                          vida da máquina, e não a última ordem. É a máquina que
-                          carrega o histórico: o cliente troca de dono, a
-                          autoclave continua a mesma. */}
-                      <Link href={`/painel/equipamentos/${e.id}`} className={estilo.forte}>
-                        {e.marca} {e.modelo}
-                      </Link>
-                      {e.categoria ? <div className={estilo.fraco}>{e.categoria}</div> : null}
-                    </td>
-                    <td className={estilo.num}>{e.numeroSerie ?? <span className={estilo.fraco}>sem série</span>}</td>
-                    <td>{e.cliente.nome}</td>
-                    <td>
-                      {ultima ? (
-                        <>
-                          <Link href={`/painel/ordens/${ultima.id}`}>#{String(ultima.numero).padStart(4, '0')}</Link>
-                          <div className={estilo.fraco}>{ROTULO_ETAPA[ultima.etapa]}</div>
-                        </>
-                      ) : (
-                        <span className={estilo.fraco}>nunca veio</span>
-                      )}
-                    </td>
-                    <td className={`${estilo.num} ${estilo.dir}`}>{e._count.ordens}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+        <div className={estilo.catalogoGrade}>
+          {/* =====================================================================
+            O CATÁLOGO, e não a tabela
+            =====================================================================
+            A tabela punha a foto numa coluna de 52 px, ao lado de marca, série,
+            cliente e contagem de visitas. Ou seja: tratava a imagem como mais
+            um campo.
+
+            Só que reconhecer aparelho não é ler campo. O mesmo modelo muda de
+            cara entre gerações, o cliente descreve o dele pela aparência, e
+            quem procura na tela está tentando responder UMA pergunta: "é este?".
+            Numa tabela essa resposta chega em sexto lugar.
+
+            Aqui a foto é o assunto do cartão, grande o bastante para valer. O
+            resto do dado continua todo lá — o que mudou foi a ordem de leitura,
+            e ela agora é a ordem em que a pessoa realmente procura.
+            ===================================================================== */}
+          {equipamentos.map((e) => {
+            const ultima = e.ordens[0]
+            return (
+              <article key={e.id} className={estilo.catalogoCartao}>
+                <FotoCatalogo
+                  tipo="equipamento"
+                  id={e.id}
+                  nome={`${e.marca} ${e.modelo}`}
+                  tem={Boolean(e.fotoCaminho)}
+                  podeMexer={podeMexer}
+                  grande
+                />
+
+                <div className={estilo.catalogoCorpo}>
+                  {/* O nome abre o PRONTUÁRIO do aparelho — toda a vida da
+                      máquina, e não a última ordem. É a máquina que carrega o
+                      histórico: o cliente troca de dono, a autoclave continua a
+                      mesma. */}
+                  <Link href={`/painel/equipamentos/${e.id}`} className={estilo.catalogoNome}>
+                    {e.marca} {e.modelo}
+                  </Link>
+
+                  <p className={estilo.dica}>
+                    {e.numeroSerie ? `nº ${e.numeroSerie}` : 'sem número de série'}
+                    {e.categoria ? ` · ${e.categoria}` : ''}
+                  </p>
+
+                  <p className={estilo.catalogoDono}>{e.cliente.nome}</p>
+
+                  <p className={estilo.dica}>
+                    {ultima ? (
+                      <>
+                        última:{' '}
+                        <Link href={`/painel/ordens/${ultima.id}`}>
+                          #{String(ultima.numero).padStart(4, '0')}
+                        </Link>{' '}
+                        · {ROTULO_ETAPA[ultima.etapa]}
+                      </>
+                    ) : (
+                      'nunca veio para conserto'
+                    )}
+                  </p>
+
+                  {/* O número de passagens é o que separa o aparelho problema do
+                      aparelho normal — e era uma coluna que ninguém somava. */}
+                  <p className={estilo.dica}>
+                    {e._count.ordens === 0
+                      ? 'nenhuma passagem'
+                      : e._count.ordens === 1
+                        ? '1 passagem pela oficina'
+                        : `${e._count.ordens} passagens pela oficina`}
+                  </p>
+                </div>
+              </article>
+            )
+          })}
         </div>
       )}
     </>

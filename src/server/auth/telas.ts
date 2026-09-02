@@ -180,7 +180,20 @@ export const TELAS: readonly Tela[] = [
   { chave: 'documentos',   rotulo: 'Modelos de documento', grupo: 'Retaguarda', href: '/painel/documentos', icone: 'registro', piso: Papel.FINANCEIRO },
 
   { chave: 'usuarios',     rotulo: 'Pessoas e acessos', grupo: 'Equipe',     href: '/painel/usuarios',     icone: 'clientes',    piso: Papel.ADMIN_EMPRESA },
-  { chave: 'auditoria',    rotulo: 'Trilha',            grupo: 'Equipe',     href: '/painel/auditoria',    icone: 'registro',    piso: Papel.ADMIN_EMPRESA },
+  // "TRILHA" ERA O PROBLEMA, e não só o lugar dela no menu.
+  //
+  // A reclamação foi "está muito escondida mesmo" — e veio logo depois da
+  // pergunta "me explica o que é essa trilha". As duas coisas são a mesma: um
+  // rótulo que não diz o que a tela faz É esconder a tela, mesmo em cima do
+  // menu. Ninguém clica no que não sabe o que é.
+  //
+  // "Quem fez o quê" diz. E ela subiu de Equipe (último grupo) para Retaguarda,
+  // que é onde moram as telas de sustentação — perto da Preventiva e do
+  // WhatsApp, e não no fim de tudo.
+  //
+  // A CHAVE continua `auditoria`: ela guarda a permissão de quem já marcou, e
+  // renomeá-la tiraria o acesso dessas pessoas.
+  { chave: 'auditoria',    rotulo: 'Quem fez o quê',    grupo: 'Retaguarda', href: '/painel/auditoria',    icone: 'registro',    piso: Papel.ADMIN_EMPRESA },
 ] as const
 
 const NIVEL: Record<Papel, number> = {

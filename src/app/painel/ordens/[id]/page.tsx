@@ -275,6 +275,11 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           />
 
           {/* --- Orçamento ------------------------------------------------ */}
+          {/* A ÂNCORA existe para o funil do Comercial cair AQUI, e não no topo
+              da ficha. Sem ela, "editar orçamento" abria uma página longa e
+              deixava a pessoa rolando à procura do bloco — que é o mesmo que
+              não ter o atalho. */}
+          <div id="orcamento" style={{ scrollMarginTop: 'var(--s5)' }} />
           <Orcamento
             ordemId={o.id}
             etapa={o.etapa}

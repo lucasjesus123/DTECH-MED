@@ -116,7 +116,7 @@ export default async function LayoutPainel({ children }: { children: React.React
       itens: [
         { href: '/painel/empresas', rotulo: 'Empresas', icone: 'empresas' },
         { href: '/painel/usuarios', rotulo: 'Pessoas da rede', icone: 'clientes' },
-        { href: '/painel/auditoria', rotulo: 'Trilha', icone: 'registro' },
+        { href: '/painel/auditoria', rotulo: 'Quem fez o quê', icone: 'registro' },
         { href: '/painel/plataforma-whatsapp', rotulo: 'WhatsApp da rede', icone: 'balao' },
         { href: '/painel/site', rotulo: 'Site', icone: 'site' },
       ],

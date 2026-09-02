@@ -4556,3 +4556,51 @@ a.calNumero:hover, a.calNumero:focus-visible {
   background: var(--vio-veu-2);
   color: var(--vio-claro);
 }
+
+/* ===== Catálogo de equipamentos ==========================================
+   A tabela tratava a foto como mais um campo, numa coluna de 52 px ao lado de
+   marca, série, cliente e contagem. Só que reconhecer aparelho não é ler campo:
+   quem procura na tela está respondendo "é este?", e nessa pergunta a imagem
+   vem primeiro.
+
+   O cartão inverte a ordem de leitura sem perder nenhum dado — tudo que estava
+   na tabela continua aqui, embaixo da foto. */
+.catalogoGrade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+.catalogoCartao {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  transition: border-color 240ms var(--ease);
+}
+.catalogoCartao:hover { border-color: var(--borda-viva); }
+.catalogoCorpo { display: grid; gap: 3px; min-width: 0; }
+.catalogoNome {
+  font-weight: 600;
+  font-size: var(--t-md);
+  line-height: 1.25;
+  text-decoration: none;
+  color: var(--txt);
+}
+.catalogoNome:hover { color: var(--vio-claro); }
+/* O dono em destaque médio: é o segundo dado que a pessoa procura depois de
+   reconhecer o aparelho — "de quem é este?". */
+.catalogoDono { font-size: var(--t-sm); color: var(--txt-2); margin-top: 2px; }
+
+/* A foto em tamanho de catálogo. `aspect-ratio` e não altura fixa: assim todos
+   os cartões da grade ficam com a mesma altura de imagem sem depender de a foto
+   vir no mesmo formato — e foto de oficina vem em qualquer formato. */
+.fotoCatGrande { min-width: 0; }
+.fotoCatGrande .fotoCatImg,
+.fotoCatGrande .fotoCatVazia {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}

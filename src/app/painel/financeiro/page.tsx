@@ -23,6 +23,7 @@ import {
 } from '@/server/consultas/caixa'
 import AbasDoCaixa, { type AbaCaixa } from './abas'
 import FilaDeAprovacao from './aprovar'
+import FilaDeBaixa from './baixa'
 import Aguardando from './aguardando'
 import Contas from './contas'
 import Faturas from './faturas'
@@ -511,54 +512,41 @@ async function PainelAprovar({ ctx, meuNome }: { ctx: Ctx; meuNome: string }) {
 }
 
 /**
- * A FILA DA BAIXA — aprovado, ainda não pago.
+ * A FILA DA BAIXA — aprovado, ainda não pago, e a baixa é dada AQUI.
  *
- * É a lista de "o que eu pago hoje", e ela responde uma pergunta que as abas
- * A pagar e A receber não respondem: o que já passou pelo controle e está
- * liberado. Também sem recorte de mês — conta vencida em julho que ninguém
- * pagou continua sendo trabalho de hoje.
+ * A primeira versão só listava e mandava a pessoa para a aba A pagar. Uma tela
+ * chamada "Dar baixa" que não dá baixa é pior do que não existir: quem a abre
+ * está com a mão no dinheiro naquele momento, e trocar de aba para reencontrar
+ * a mesma conta numa lista maior desfaz o motivo dela existir.
+ *
+ * Sem recorte de mês, de propósito: conta vencida em julho que ninguém pagou
+ * continua sendo trabalho de hoje.
  */
 async function PainelBaixa({ ctx }: { ctx: Ctx }) {
   const contas = await prontasParaBaixa(ctx)
-  if (contas.length === 0) {
-    return (
-      <div className={estilo.vazio}>
-        Nada aprovado esperando baixa. O que foi lançado e ainda não passou pela aprovação aparece na
-        aba Aprovar.
-      </div>
-    )
-  }
-  const hoje = new Date()
-  const total = contas.reduce((s, c) => s + c.valorCentavos, 0)
   return (
-    <>
-      <p className={estilo.texto} style={{ marginBottom: 'var(--s3)' }}>
-        {contas.length} conta{contas.length > 1 ? 's' : ''} aprovada{contas.length > 1 ? 's' : ''} esperando
-        baixa · {formatarBRL(total)}. A baixa em si é dada na aba A pagar ou A receber, na linha da
-        conta.
-      </p>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 'var(--s2)' }}>
-        {contas.map((c) => {
-          const atrasada = c.vencimento < hoje
-          return (
-            <li key={c.id} className={estilo.linhaSimples}>
-              <span className={atrasada ? estilo.tagAlerta : estilo.tag}>
-                {c.vencimento.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' })}
-              </span>
-              <span>{c.descricao}</span>
-              <span className={estilo.dica}>
-                {c.tipo === 'PAGAR' ? 'a pagar' : 'a receber'}
-                {c.contraparte ? ` · ${c.contraparte}` : ''}
-                {c.cliente ? ` · ${c.cliente.nome}` : ''}
-              </span>
-              <strong>{formatarBRL(c.valorCentavos)}</strong>
-              <span className={estilo.dica}>
-                {c.aprovadoPorNome ? `liberada por ${c.aprovadoPorNome}` : 'liberada'}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-    </>
+    <FilaDeBaixa
+      // O mesmo formato da aba de contas: datas viram texto ISO aqui, no
+      // servidor, porque componente cliente não recebe `Date`.
+      contas={contas.map((c) => ({
+        id: c.id,
+        tipo: c.tipo,
+        descricao: c.descricao,
+        categoria: c.categoria,
+        contraparte: c.contraparte,
+        clienteNome: c.cliente?.nome ?? null,
+        valorCentavos: c.valorCentavos,
+        valorPagoCentavos: c.valorPagoCentavos,
+        vencimento: c.vencimento.toISOString(),
+        pagoEm: c.pagoEm?.toISOString() ?? null,
+        forma: c.forma,
+        grupo: c.grupo,
+        parcela: c.parcela,
+        parcelas: c.parcelas,
+        daRecorrencia: Boolean(c.recorrenciaId),
+        observacoes: c.observacoes,
+        aprovadoPorNome: c.aprovadoPorNome,
+      }))}
+    />
   )
 }

@@ -44,6 +44,7 @@ export default function FotoCatalogo({
   nome,
   tem,
   podeMexer,
+  grande = false,
 }: {
   tipo: 'peca' | 'equipamento'
   id: string
@@ -51,6 +52,15 @@ export default function FotoCatalogo({
   nome: string
   tem: boolean
   podeMexer: boolean
+  /**
+   * O tamanho de CATÁLOGO, para quando a foto é o assunto e não uma coluna.
+   *
+   * Na tabela ela era um quadrado de 52 px ao lado de cinco campos — ou seja,
+   * mais um dado. No catálogo ela é o que responde "é este?", e 52 px não
+   * respondem: o mesmo modelo muda de cara entre gerações, e é justamente
+   * essa diferença que some quando a imagem é pequena.
+   */
+  grande?: boolean
 }) {
   const [estado, acao, enviando] = useActionState(salvarFotoDeCatalogo, inicial)
   const [pendente, iniciar] = useTransition()
@@ -73,7 +83,7 @@ export default function FotoCatalogo({
   const src = `/api/catalogo/${tipo}/${id}?t=1`
 
   return (
-    <div className={estilo.fotoCat}>
+    <div className={grande ? `${estilo.fotoCat} ${estilo.fotoCatGrande}` : estilo.fotoCat}>
       {tem ? (
         /* eslint-disable-next-line @next/next/no-img-element -- a rota já
            entrega a miniatura pronta e exige sessão; passar por `next/image`

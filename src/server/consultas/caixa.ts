@@ -603,9 +603,16 @@ export async function prontasParaBaixa(ctx: ContextoAcesso) {
     tx.lancamento.findMany({
       where: { pagoEm: null, aprovadoEm: { not: null } },
       orderBy: [{ vencimento: 'asc' }],
+      // Os MESMOS campos que a aba de contas traz, porque a fila da baixa usa o
+      // MESMO formulário. Trazer menos obrigaria a inventar um formulário
+      // parecido aqui — e duas telas que dão baixa de jeitos ligeiramente
+      // diferentes é o começo de um problema chato, num lugar onde o erro é
+      // dinheiro.
       select: {
         id: true, tipo: true, descricao: true, categoria: true, contraparte: true,
-        valorCentavos: true, vencimento: true, aprovadoPorNome: true, aprovadoEm: true,
+        valorCentavos: true, valorPagoCentavos: true, vencimento: true, pagoEm: true,
+        forma: true, grupo: true, parcela: true, parcelas: true, recorrenciaId: true,
+        observacoes: true, aprovadoPorNome: true, aprovadoEm: true,
         cliente: { select: { nome: true } },
       },
     }),

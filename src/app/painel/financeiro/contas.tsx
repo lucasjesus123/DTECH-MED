@@ -322,8 +322,15 @@ function Linha({
   )
 }
 
-/** A baixa: valor, forma e data. Tudo já preenchido com o caso comum. */
-function FormularioBaixa({ conta, palavras }: { conta: Conta; palavras: Palavras }) {
+/**
+ * A baixa: valor, forma e data. Tudo já preenchido com o caso comum.
+ *
+ * EXPORTADO porque a aba "Dar baixa" usa o MESMO formulário. Duplicá-lo lá
+ * criaria duas telas que dão baixa de jeitos ligeiramente diferentes — e a que
+ * for corrigida primeiro deixaria a outra errada, num lugar onde o erro é
+ * dinheiro.
+ */
+export function FormularioBaixa({ conta, palavras }: { conta: Conta; palavras: Palavras }) {
   const [estado, acao, pendente] = useActionState(baixarConta, { ok: true } as
     | { ok: true; mensagem?: string }
     | { ok: false; motivo: string })
@@ -537,7 +544,7 @@ function FormularioConta({
 // O vocabulário das duas direções
 // ---------------------------------------------------------------------------
 
-type Palavras = {
+export type Palavras = {
   somaAberto: string
   somaPago: string
   botaoLancar: string
@@ -560,7 +567,16 @@ type Palavras = {
   sugestoes: string[]
 }
 
-const PALAVRAS: { pagar: Palavras; receber: Palavras } = {
+/**
+ * EXPORTADA porque a aba "Dar baixa" mostra contas dos DOIS tipos na mesma
+ * lista, e cada linha precisa das palavras do tipo dela — "Dar baixa" numa
+ * conta a pagar, "Registrar recebimento" numa a receber.
+ *
+ * Recriar a tabela lá seria duas listas de palavras para manter em dia, e a
+ * segunda envelheceria calada: alguém corrige um rótulo aqui e a outra tela
+ * continua dizendo a frase antiga.
+ */
+export const PALAVRAS: { pagar: Palavras; receber: Palavras } = {
   pagar: {
     somaAberto: 'A pagar em aberto',
     somaPago: 'Já pago',

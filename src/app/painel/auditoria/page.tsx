@@ -5,7 +5,7 @@ import { FAMILIAS, PERIODOS, lerTrilha } from '@/server/consultas/auditoria'
 import { PAPEL_ROTULO, quando, rotuloAcao } from './rotulos'
 import estilo from '../painel.module.css'
 
-export const metadata: Metadata = { title: 'Trilha', robots: { index: false } }
+export const metadata: Metadata = { title: 'Quem fez o quê', robots: { index: false } }
 export const dynamic = 'force-dynamic'
 
 /**
@@ -67,7 +67,17 @@ export default async function PaginaAuditoria({
       <div className={estilo.cab}>
         <div>
           <p className={estilo.grav}>{mostrarEmpresa ? 'Plataforma' : (sessao.tenantNome ?? 'Empresa')}</p>
-          <h1 className={estilo.titulo}>Trilha</h1>
+          <h1 className={estilo.titulo}>Quem fez o quê</h1>
+          {/* A TELA SE EXPLICA, porque ela não se explicava.
+              A pergunta "me explica o que é essa trilha" foi feita por quem
+              usa o sistema todo dia. Uma tela de conferência que precisa de
+              explicação de fora é uma tela que ninguém abre — e esta é
+              justamente a que responde as perguntas difíceis. */}
+          <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
+            O registro de tudo que mudou no sistema: quem fez, o quê, quando e em qual ficha. É aqui
+            que se responde &ldquo;quem apagou isso?&rdquo;, &ldquo;alguém tentou entrar onde não
+            devia?&rdquo; e &ldquo;o cliente aprovou mesmo o orçamento?&rdquo;.
+          </p>
         </div>
       </div>
 
