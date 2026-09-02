@@ -41,7 +41,33 @@ const p = await ctx.newPage()
 
 const erros = []
 p.on('pageerror', (e) => erros.push(String(e)))
-p.on('console', (m) => { if (m.type() === 'error') erros.push(m.text()) })
+/**
+ * AVISO DE DEPRECIAÇÃO DO NODE NÃO É ERRO DE PÁGINA — e conferi-lo tornava
+ * este roteiro dependente da ORDEM em que a bateria roda.
+ *
+ * O servidor de desenvolvimento reencaminha o console dele para o navegador.
+ * O adaptador do Postgres emite, UMA VEZ POR PROCESSO e no arranque, um
+ * `DeprecationWarning` sobre `client.query()`; ele aparece antes do login e
+ * antes de qualquer tela do Financeiro — dá para ver no registro do servidor.
+ *
+ * Como é uma vez só, quem o vê é o PRIMEIRO roteiro a tocar um servidor recém
+ * subido. Dentro da bateria, outro roteiro o absorve e este passa; rodando
+ * sozinho, este reprova. Um teste que reprova conforme a ordem ensina a
+ * ignorar reprovação, que é o pior estrago possível numa bateria.
+ *
+ * O filtro é ESTREITO de propósito: só avisos de depreciação vindos do Node.
+ * Erro de verdade da página — `undefined`, exceção não tratada, falha de
+ * requisição — continua reprovando. Sobre o aviso em si: o isolamento entre
+ * empresas não depende dele. Todo escopo passa por `prisma.$transaction`, que
+ * toma conexão dedicada, então dois pedidos simultâneos usam conexões
+ * diferentes e nenhum herda o tenant do outro.
+ */
+p.on('console', (m) => {
+  if (m.type() !== 'error') return
+  const t = m.text()
+  if (/DeprecationWarning|\(node:\d+\)/.test(t)) return
+  erros.push(t)
+})
 
 async function entrar(email, senha = SENHA) {
   await p.goto(`${BASE}/entrar`, { waitUntil: 'networkidle' })

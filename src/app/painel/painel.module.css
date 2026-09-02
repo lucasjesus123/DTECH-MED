@@ -5041,3 +5041,64 @@ a.calNumero:hover, a.calNumero:focus-visible {
   border-color: var(--borda);
   opacity: 1;
 }
+
+/* ==========================================================================
+   NO CELULAR, A TABELA DE CONTAS DEIXA DE SER TABELA
+   --------------------------------------------------------------------------
+   A bateria pegou o estrago exato: com 390px de largura, o popover da baixa
+   abria de 237 a 589 — fora da tela. Não era o popover que estava errado.
+
+   A tabela rola de lado no celular, e a coluna de AÇÕES é a última. Para
+   alcançar o botão de dar baixa era preciso arrastar a tabela até o fim; e
+   como o popover é `position: absolute` ancorado naquela coluna, ele nascia
+   fora da janela. A pessoa simplesmente não conseguia baixar uma conta pelo
+   telefone.
+
+   Reposicionar o popover trataria o sintoma. A causa é a tabela: quatro
+   colunas servem para VARRER com o olho, e num telefone não existe largura
+   para varrer — rolar de lado para achar o botão já é ruim, com popover ou
+   sem. Então abaixo de 720px cada linha vira um bloco empilhado de largura
+   inteira: some a rolagem lateral, some a ancoragem fora da tela, e o popover
+   passa a caber por construção em vez de por ajuste fino.
+
+   O cabeçalho da tabela sai junto: sem colunas, ele viraria uma fileira de
+   rótulos soltos que não encabeçam nada.
+   ========================================================================== */
+@media (max-width: 720px) {
+  .tabelaCaixa thead { display: none; }
+  .tabelaCaixa,
+  .tabelaCaixa tbody,
+  .tabelaCaixa tr,
+  .tabelaCaixa td {
+    display: block;
+    width: 100%;
+  }
+  .tabelaCaixa tr {
+    margin-bottom: var(--s3);
+    padding: var(--s3);
+    border: 1px solid var(--borda);
+    border-radius: var(--r-lg);
+    background: var(--sup);
+  }
+  .tabelaCaixa td {
+    padding: 3px 0;
+    border-bottom: 0;
+  }
+  /* Alinhar valor e ações à direita só faz sentido ao lado de outras colunas.
+     Empilhados, eles voltam a começar onde todo o resto começa. */
+  .tabelaCaixa .colDir { text-align: left; }
+  .tabelaCaixa .caixaQuem { max-width: 100%; }
+  /* O filete do vencido passa para a linha inteira: empilhada, a "primeira
+     célula" é o bloco de cima, e a marca ficaria só nele. */
+  .tabelaCaixa .linhaVencida td:first-child { box-shadow: none; }
+  .tabelaCaixa tr.linhaVencida { box-shadow: inset 3px 0 0 var(--alerta); }
+
+  /* E o popover deixa de flutuar: empilhado, ele abre no fluxo, de largura
+     inteira, empurrando o que vem abaixo. Não tem como sair da tela. */
+  .caixaBaixaForm {
+    position: static;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+  .caixaAcoes { flex-wrap: wrap; }
+}
