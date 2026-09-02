@@ -295,6 +295,12 @@ export async function listarContas(ctx: ContextoAcesso, f: FiltroContas) {
         recorrenciaId: true,
         observacoes: true,
         autorNome: true,
+        // A tela precisa dos dois para decidir o que mostrar na linha: a
+        // etiqueta "Conferir" quando ainda não passou pela aprovação, e o aviso
+        // da janela de edição, que diz quem liberou antes de a alteração
+        // derrubar a liberação.
+        aprovadoEm: true,
+        aprovadoPorNome: true,
       },
     }),
   )
@@ -612,8 +618,381 @@ export async function prontasParaBaixa(ctx: ContextoAcesso) {
         id: true, tipo: true, descricao: true, categoria: true, contraparte: true,
         valorCentavos: true, valorPagoCentavos: true, vencimento: true, pagoEm: true,
         forma: true, grupo: true, parcela: true, parcelas: true, recorrenciaId: true,
-        observacoes: true, aprovadoPorNome: true, aprovadoEm: true,
+        observacoes: true, aprovadoPorNome: true, aprovadoEm: true, clienteId: true,
         cliente: { select: { nome: true } },
+      },
+    }),
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Os quatro números que fecham a conta
+// ---------------------------------------------------------------------------
+
+export type ResumoDoMes = {
+  /** Pago + pendente + atrasado. Os três, sempre — a igualdade é garantida. */
+  totalCentavos: number
+  pagoCentavos: number
+  pendenteCentavos: number
+  /** TODO o vencido em aberto, de qualquer mês. Ver o comentário abaixo. */
+  atrasadoCentavos: number
+  /**
+   * O que de fato entrou/saiu nessas contas pagas — pode diferir de
+   * `pagoCentavos` por desconto, juro ou pagamento a menor.
+   */
+  liquidadoCentavos: number
+  quantas: number
+  quantasPagas: number
+  quantasPendentes: number
+  quantasAtrasadas: number
+  /** Quanto do atrasado veio de meses ANTERIORES — para a nota do cartão. */
+  arrastadoCentavos: number
+  quantasArrastadas: number
+}
+
+/**
+ * OS QUATRO CARTÕES — e por que eles TÊM de fechar.
+ *
+ * =============================================================================
+ * TOTAL = PAGO + PENDENTE + ATRASADO
+ * =============================================================================
+ * Essa igualdade não é enfeite: é o que faz os quatro números serem uma leitura
+ * e não quatro fatos soltos. Quem bate o olho consegue conferir a conta de
+ * cabeça, e no dia em que ela não fechar a pessoa vai perceber — que é
+ * exatamente o comportamento que se quer de uma tela de dinheiro.
+ *
+ * Por isso os quatro usam `valorCentavos`, o PREVISTO, inclusive nas pagas. Se
+ * "pago" usasse `valorPagoCentavos`, um desconto de R$ 30 faria a soma das três
+ * partes dar menos que o total, e a tela passaria a ter um buraco que ninguém
+ * consegue explicar sem abrir o banco. O que efetivamente passou pelo caixa vem
+ * em `liquidadoCentavos`, e a tela mostra a diferença quando ela existe — que é
+ * informação, e não um furo.
+ *
+ * =============================================================================
+ * ISTO É COMPETÊNCIA, NÃO CAIXA — E A TELA PRECISA DIZER ISSO
+ * =============================================================================
+ * O recorte é o VENCIMENTO. Uma conta de agosto paga em setembro conta no mês
+ * de AGOSTO aqui, e no caixa de SETEMBRO lá em cima ("saiu no mês"). Os dois
+ * números estão certos e respondem perguntas diferentes: este diz o que o mês
+ * DEVIA, aquele diz o que a conta bancária viu.
+ *
+ * Confundir os dois é o erro clássico de tela de financeiro, então a tela
+ * escreve a distinção em vez de deixar quem lê descobrir sozinho.
+ *
+ * =============================================================================
+ * ATRASADO NÃO RESPEITA O MÊS — E A PRIMEIRA VERSÃO DISTO ESTAVA ERRADA
+ * =============================================================================
+ * Eu prendi o atrasado à janela do mês, para os quatro números fecharem. A tela
+ * denunciou na primeira olhada: o cartão dizia **R$ 0,00 de atrasado** e a
+ * lista, dois centímetros abaixo, mostrava duas contas marcadas ATRASADO. Uma
+ * conta que venceu em julho e ninguém pagou está atrasada HOJE, não em julho —
+ * é o que `panoramaDoMes` já dizia por escrito e o que o filtro "Em aberto" da
+ * lista já fazia. O cartão era a única peça da tela discordando das outras.
+ *
+ * Agora `atrasado` é TODO o vencido em aberto, de qualquer mês, e o total passa
+ * a ser definido como a soma dos três. É por isso que a igualdade continua
+ * valendo sem mentir: ela não é imposta ao mundo, ela DESCREVE o que está na
+ * mão de quem olha — o que este mês já resolveu, o que ele ainda vai encarar, e
+ * o que ficou para trás e continua cobrando.
+ *
+ * `arrastadoCentavos` diz quanto desse atraso não nasceu neste mês. Vai na nota
+ * do cartão, porque dívida velha e dívida do mês pedem cobranças diferentes.
+ */
+export async function resumoDoMes(
+  ctx: ContextoAcesso,
+  mes: string,
+  tipo: 'PAGAR' | 'RECEBER',
+): Promise<ResumoDoMes> {
+  const { inicio, fim } = janelaDoMes(mes)
+
+  return comEscopo(ctx, async (tx) => {
+    // Uma consulta só, com os três recortes em FILTER. Note que PAGO e PENDENTE
+    // olham a janela do mês, e ATRASADO ignora a janela de propósito: são
+    // condições diferentes sobre a mesma tabela, e separá-las em três idas ao
+    // banco só multiplicaria o custo do mesmo trabalho.
+    const [r] = await tx.$queryRaw<
+      Array<{
+        pago: bigint
+        liquidado: bigint
+        pendente: bigint
+        atrasado: bigint
+        arrastado: bigint
+        npagas: bigint
+        npendentes: bigint
+        natrasadas: bigint
+        narrastadas: bigint
+      }>
+    >`
+      SELECT
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE "pagoEm" IS NOT NULL
+            AND vencimento >= ${inicio} AND vencimento < ${fim}), 0)          AS pago,
+        coalesce(sum("valorPagoCentavos") FILTER (
+          WHERE "pagoEm" IS NOT NULL
+            AND vencimento >= ${inicio} AND vencimento < ${fim}), 0)          AS liquidado,
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE "pagoEm" IS NULL AND vencimento >= now()
+            AND vencimento >= ${inicio} AND vencimento < ${fim}), 0)          AS pendente,
+
+        -- Sem recorte de mês: uma conta de julho que ninguém pagou está
+        -- atrasada HOJE. Prendê-la ao mês em que venceu esconderia a dívida
+        -- mais velha, que é sempre a pior — e faria o cartão contradizer a
+        -- lista logo abaixo, na mesma tela.
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE "pagoEm" IS NULL AND vencimento < now()), 0)                  AS atrasado,
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE "pagoEm" IS NULL AND vencimento < ${inicio}), 0)              AS arrastado,
+
+        count(*) FILTER (
+          WHERE "pagoEm" IS NOT NULL
+            AND vencimento >= ${inicio} AND vencimento < ${fim})              AS npagas,
+        count(*) FILTER (
+          WHERE "pagoEm" IS NULL AND vencimento >= now()
+            AND vencimento >= ${inicio} AND vencimento < ${fim})              AS npendentes,
+        count(*) FILTER (WHERE "pagoEm" IS NULL AND vencimento < now())       AS natrasadas,
+        count(*) FILTER (WHERE "pagoEm" IS NULL AND vencimento < ${inicio})   AS narrastadas
+      FROM lancamentos
+       WHERE "tenantId" = ${ctx.tenantId}
+         AND tipo = ${tipo}::"TipoLancamento"
+    `
+
+    const pago = Number(r?.pago ?? 0)
+    const pendente = Number(r?.pendente ?? 0)
+    const atrasado = Number(r?.atrasado ?? 0)
+
+    return {
+      // O total é DEFINIDO como a soma. Ele não é lido do banco por outra
+      // conta que pudesse divergir dos três — é a mesma aritmética que a
+      // pessoa faz de cabeça olhando os cartões, e por isso não tem como não
+      // fechar.
+      totalCentavos: pago + pendente + atrasado,
+      pagoCentavos: pago,
+      pendenteCentavos: pendente,
+      atrasadoCentavos: atrasado,
+      liquidadoCentavos: Number(r?.liquidado ?? 0),
+      quantas:
+        Number(r?.npagas ?? 0) + Number(r?.npendentes ?? 0) + Number(r?.natrasadas ?? 0),
+      quantasPagas: Number(r?.npagas ?? 0),
+      quantasPendentes: Number(r?.npendentes ?? 0),
+      quantasAtrasadas: Number(r?.natrasadas ?? 0),
+      arrastadoCentavos: Number(r?.arrastado ?? 0),
+      quantasArrastadas: Number(r?.narrastadas ?? 0),
+    }
+  })
+}
+
+// ---------------------------------------------------------------------------
+// A leitura do mês — o que a tela sabe e não estava dizendo
+// ---------------------------------------------------------------------------
+
+export type LeituraDoMes = {
+  /** Se TUDO que vence no mês for pago: quanto o mês fecha. */
+  projetadoCentavos: number
+  receberDoMesCentavos: number
+  pagarDoMesCentavos: number
+  /** O que vence de hoje até daqui a sete dias, ainda em aberto. */
+  receber7Centavos: number
+  pagar7Centavos: number
+  receber7Quantas: number
+  pagar7Quantas: number
+  /** O caixa REALIZADO do mês anterior, para a comparação. */
+  entrouAnteriorCentavos: number
+  saiuAnteriorCentavos: number
+}
+
+/**
+ * O QUE A TELA SABIA E NÃO DIZIA.
+ *
+ * =============================================================================
+ * "COMO O MÊS FECHA" É UMA PERGUNTA DIFERENTE DE "COMO O MÊS ESTÁ"
+ * =============================================================================
+ * O painel de cima responde o realizado: entrou, saiu, sobrou. É o extrato, e
+ * no dia 3 ele diz quase nada — dois dias de movimento não contam um mês.
+ *
+ * A pergunta que se faz no dia 3 é outra: *se tudo que vence este mês for pago,
+ * eu fecho no azul?* Ela se responde com o previsto, e o sistema tinha todos os
+ * números para respondê-la sem nunca ter feito a conta. Fazer essa conta na
+ * cabeça, olhando duas abas, é exatamente o tipo de trabalho que a tela existe
+ * para poupar — e é onde o erro humano custa caro.
+ *
+ * O projetado é COMPETÊNCIA pura: receber do mês menos pagar do mês. Não mistura
+ * com o realizado, porque somar os dois contaria duas vezes tudo que já foi pago
+ * dentro do próprio mês.
+ *
+ * =============================================================================
+ * OS PRÓXIMOS SETE DIAS ATRAVESSAM A VIRADA DO MÊS
+ * =============================================================================
+ * De propósito. No dia 28, o que aperta o caixa é o aluguel do dia 5 — e ele
+ * não está no mês da tela. Uma janela que parasse no dia 31 esconderia
+ * justamente a semana que importa, todo fim de mês.
+ */
+export async function leituraDoMes(ctx: ContextoAcesso, mes: string): Promise<LeituraDoMes> {
+  const { inicio, fim } = janelaDoMes(mes)
+  const anterior = janelaDoMes(mesVizinho(mes, -1))
+  const agora = new Date()
+  const daquiA7 = new Date(agora.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+  return comEscopo(ctx, async (tx) => {
+    const [r] = await tx.$queryRaw<
+      Array<{
+        recmes: bigint
+        pagmes: bigint
+        rec7: bigint
+        pag7: bigint
+        nrec7: bigint
+        npag7: bigint
+        entant: bigint
+        saiant: bigint
+      }>
+    >`
+      SELECT
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE tipo = 'RECEBER' AND vencimento >= ${inicio} AND vencimento < ${fim}), 0) AS recmes,
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE tipo = 'PAGAR'   AND vencimento >= ${inicio} AND vencimento < ${fim}), 0) AS pagmes,
+
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE tipo = 'RECEBER' AND "pagoEm" IS NULL
+            AND vencimento >= ${agora} AND vencimento < ${daquiA7}), 0)                   AS rec7,
+        coalesce(sum("valorCentavos") FILTER (
+          WHERE tipo = 'PAGAR'   AND "pagoEm" IS NULL
+            AND vencimento >= ${agora} AND vencimento < ${daquiA7}), 0)                   AS pag7,
+        count(*) FILTER (
+          WHERE tipo = 'RECEBER' AND "pagoEm" IS NULL
+            AND vencimento >= ${agora} AND vencimento < ${daquiA7})                       AS nrec7,
+        count(*) FILTER (
+          WHERE tipo = 'PAGAR'   AND "pagoEm" IS NULL
+            AND vencimento >= ${agora} AND vencimento < ${daquiA7})                       AS npag7,
+
+        coalesce(sum("valorPagoCentavos") FILTER (
+          WHERE tipo = 'RECEBER'
+            AND "pagoEm" >= ${anterior.inicio} AND "pagoEm" < ${anterior.fim}), 0)        AS entant,
+        coalesce(sum("valorPagoCentavos") FILTER (
+          WHERE tipo = 'PAGAR'
+            AND "pagoEm" >= ${anterior.inicio} AND "pagoEm" < ${anterior.fim}), 0)        AS saiant
+      FROM lancamentos WHERE "tenantId" = ${ctx.tenantId}
+    `
+
+    // A fatura de serviço também é dinheiro que entrou no mês anterior. Deixá-la
+    // de fora faria a comparação dizer "setembro melhor que agosto" só porque
+    // agosto foi contado pela metade.
+    const [servAnterior] = await tx.$queryRaw<Array<{ total: bigint }>>`
+      SELECT coalesce(sum("valorCentavos"), 0) AS total
+        FROM pagamentos
+       WHERE "tenantId" = ${ctx.tenantId}
+         AND "estornadoEm" IS NULL
+         AND "recebidoEm" >= ${anterior.inicio} AND "recebidoEm" < ${anterior.fim}
+    `
+
+    const receber = Number(r?.recmes ?? 0)
+    const pagar = Number(r?.pagmes ?? 0)
+    return {
+      projetadoCentavos: receber - pagar,
+      receberDoMesCentavos: receber,
+      pagarDoMesCentavos: pagar,
+      receber7Centavos: Number(r?.rec7 ?? 0),
+      pagar7Centavos: Number(r?.pag7 ?? 0),
+      receber7Quantas: Number(r?.nrec7 ?? 0),
+      pagar7Quantas: Number(r?.npag7 ?? 0),
+      entrouAnteriorCentavos: Number(r?.entant ?? 0) + Number(servAnterior?.total ?? 0),
+      saiuAnteriorCentavos: Number(r?.saiant ?? 0),
+    }
+  })
+}
+
+export type FaixaDeIdade = { faixa: string; totalCentavos: number; quantidade: number }
+
+/**
+ * A IDADE DA DÍVIDA — há quanto tempo cada real está em aberto.
+ *
+ * "R$ 18 mil a receber" e "R$ 18 mil a receber, sendo R$ 11 mil parados há mais
+ * de noventa dias" são duas empresas diferentes. O segundo número muda o que se
+ * faz na segunda-feira: dívida de noventa dias não se cobra por WhatsApp, e a
+ * de sete dias não se manda para protesto.
+ *
+ * Junta as duas dívidas do mesmo tipo — fatura de serviço e lançamento avulso —
+ * porque para quem cobra elas são a mesma coisa: dinheiro do cliente que não
+ * chegou. Ver `maioresDevedores`, que faz a mesma junção por outro eixo.
+ */
+export async function idadeDaDivida(ctx: ContextoAcesso): Promise<FaixaDeIdade[]> {
+  return comEscopo(ctx, async (tx) => {
+    const linhas = await tx.$queryRaw<Array<{ faixa: string; ordem: number; total: bigint; n: bigint }>>`
+      SELECT faixa, ordem, sum(aberto) AS total, count(*) AS n FROM (
+        SELECT
+          CASE
+            WHEN venc >= now()                             THEN 'A vencer'
+            WHEN venc >= now() - interval '30 days'        THEN 'Até 30 dias'
+            WHEN venc >= now() - interval '60 days'        THEN 'De 31 a 60 dias'
+            WHEN venc >= now() - interval '90 days'        THEN 'De 61 a 90 dias'
+            ELSE                                                'Mais de 90 dias'
+          END AS faixa,
+          CASE
+            WHEN venc >= now()                             THEN 0
+            WHEN venc >= now() - interval '30 days'        THEN 1
+            WHEN venc >= now() - interval '60 days'        THEN 2
+            WHEN venc >= now() - interval '90 days'        THEN 3
+            ELSE                                                4
+          END AS ordem,
+          aberto
+        FROM (
+          SELECT ("valorTotalCentavos" + "multaCentavos" + "jurosCentavos" - "valorPagoCentavos")
+                   AS aberto,
+                 vencimento AS venc
+            FROM faturas
+           WHERE "tenantId" = ${ctx.tenantId} AND status IN ('ABERTA', 'PARCIAL')
+             AND vencimento IS NOT NULL
+          UNION ALL
+          SELECT "valorCentavos" AS aberto, vencimento AS venc
+            FROM lancamentos
+           WHERE "tenantId" = ${ctx.tenantId} AND tipo = 'RECEBER' AND "pagoEm" IS NULL
+        ) d
+        WHERE d.aberto > 0
+      ) f
+      GROUP BY faixa, ordem
+      ORDER BY ordem
+    `
+    return linhas.map((l) => ({
+      faixa: l.faixa,
+      totalCentavos: Number(l.total),
+      quantidade: Number(l.n),
+    }))
+  })
+}
+
+// ---------------------------------------------------------------------------
+// O histórico do dinheiro
+// ---------------------------------------------------------------------------
+
+/**
+ * A TRILHA, RECORTADA NO DINHEIRO.
+ *
+ * A Trilha inteira existe em `/painel/quem-fez-o-que` e mostra tudo — entrada
+ * em empresa, troca de senha, etapa de ordem. Quem está no Financeiro tentando
+ * descobrir quem baixou uma conta de oito mil não quer navegar por aquilo: quer
+ * as linhas de dinheiro, aqui, sem trocar de tela.
+ *
+ * O filtro é por PREFIXO da ação (`caixa.` e `financeiro.`), e não por uma
+ * lista de ações escritas à mão. Ação nova de dinheiro aparece aqui no dia em
+ * que é escrita — o contrário disso é um histórico com buracos, e buraco em
+ * histórico de dinheiro é o mesmo que não ter histórico.
+ */
+export async function historicoDoCaixa(ctx: ContextoAcesso, quantas = 80) {
+  const n = Math.max(1, Math.min(200, Math.trunc(quantas)))
+  return comEscopo(ctx, (tx) =>
+    tx.auditLog.findMany({
+      where: { OR: [{ acao: { startsWith: 'caixa.' } }, { acao: { startsWith: 'financeiro.' } }] },
+      orderBy: { criadoEm: 'desc' },
+      take: n,
+      select: {
+        id: true,
+        acao: true,
+        entidade: true,
+        entidadeId: true,
+        detalhes: true,
+        userNome: true,
+        userPapel: true,
+        negado: true,
+        criadoEm: true,
       },
     }),
   )

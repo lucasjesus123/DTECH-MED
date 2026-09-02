@@ -72,6 +72,7 @@ dado — a forma mais confusa de falhar, porque parece defeito do produto.
 | `busca500.mjs` | nenhuma combinação de busca derruba a tela |
 | `restantes.mjs` | as telas que o robô de varredura não alcança sozinho |
 | `caixa.mjs` | contas a pagar e a receber, parcelas, baixa, recorrências e gráficos |
+| `financeiro.mjs` | os quatro cartões fecham a conta, e editar o valor de uma conta aprovada derruba a aprovação |
 | `inicio.mjs` | recorrência retroativa: "começa em", e gerar um mês já passado |
 | `acompanhar.mjs` | o cartão diz onde o aparelho está, e mostra a prova |
 | `catalogo.mjs` | foto de peça e de equipamento: sobe, troca, sai, e não vaza para a outra franquia |

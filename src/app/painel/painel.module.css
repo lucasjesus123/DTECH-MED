@@ -4604,3 +4604,341 @@ a.calNumero:hover, a.calNumero:focus-visible {
   height: auto;
   aspect-ratio: 4 / 3;
 }
+
+/* =========================================================================
+   O FINANCEIRO NO PADRÃO NOVO
+   ========================================================================= */
+
+/* ----- As ações do topo -------------------------------------------------- */
+.acoesTopo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+
+/* ----- Os quatro cartões ------------------------------------------------- */
+.cartoesBloco { margin-bottom: var(--s4); }
+.cartoesCab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+.cartoesTitulo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  color: var(--txt);
+}
+.resumo4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.resumo4 .indicador { container-type: inline-size; }
+.resumo4 .indValor { font-size: clamp(1rem, 12cqi, var(--t-2xl)); }
+
+/* Os três tons dos cartões. `--sinal` e `--espera` já carregam o significado
+   em todo o sistema; repeti-los aqui não inventa vocabulário novo. */
+.indOk { color: var(--sinal); }
+.indEspera { color: var(--espera); }
+
+/* ----- A leitura do mês -------------------------------------------------- */
+.leitura {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-bottom: var(--s4);
+  background: var(--borda);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.leituraBloco {
+  padding: var(--s3) var(--s4);
+  background: var(--sup);
+}
+.leituraTitulo {
+  margin: 0 0 4px;
+  font-family: var(--f-texto);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.leituraLinha {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+.leituraLinha strong { font-variant-numeric: tabular-nums; color: var(--txt); }
+.leituraNota {
+  margin: 4px 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+@media (max-width: 900px) {
+  .leitura { grid-template-columns: 1fr; }
+  .resumo4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ----- O atalho do mês corrente ------------------------------------------ */
+.mesHoje {
+  margin-left: var(--s2);
+  padding: 3px 10px;
+  border: 1px solid var(--borda-viva);
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-2);
+  text-decoration: none;
+}
+.mesHoje:hover { border-color: var(--vio-borda); color: var(--vio-claro); }
+
+/* ----- A tabela de contas ------------------------------------------------ */
+/* Antes isto era LISTA, e o comentário do CSS defendia a escolha: descrição de
+   tamanho imprevisível ("Energia" ao lado de "Parcela 3/12 do compressor do
+   laboratório") desalinha uma tabela inteira. O argumento estava certo; a
+   conclusão é que faltava LIMITAR a coluna, não abandonar a tabela.
+   `max-width` mais reticências resolvem o desalinho, e a tabela entrega o que a
+   lista não dava: STATUS sempre na mesma coluna, legível na vertical. Numa
+   lista o selo flutuava junto do valor, e "quais destas estão atrasadas" exigia
+   percorrer linha a linha. */
+.tabelaCaixa td { vertical-align: middle; }
+.colDir { text-align: right; }
+.tabelaCaixa .colDir { white-space: nowrap; }
+
+/* O filete na borda, e não fundo colorido: fundo vermelho em metade das linhas
+   transforma a lista num alarme constante — e alarme constante é ruído que se
+   aprende a ignorar. */
+.linhaVencida td:first-child { box-shadow: inset 3px 0 0 var(--alerta); }
+
+.caixaQuem { display: flex; flex-direction: column; gap: 2px; max-width: 32rem; }
+.caixaQuemNome {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.caixaParcela {
+  flex: none;
+  padding: 1px 7px;
+  background: var(--vio-veu-2);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--vio-claro);
+}
+.caixaRef {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.caixaChips { display: flex; flex-wrap: wrap; gap: 4px; }
+.caixaCatEspera {
+  background: var(--espera-veu);
+  border-color: var(--espera-borda);
+  color: var(--espera);
+}
+.caixaCifra {
+  display: block;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+}
+
+/* Ícone de ação: alvo de 32px, que é o mínimo confortável para dedo, mesmo com
+   o desenho de 15px dentro. */
+.iconeAcao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-md, 8px);
+  color: var(--txt-2);
+  cursor: pointer;
+}
+.iconeAcao:hover:not(:disabled) { border-color: var(--vio-borda); color: var(--vio-claro); }
+.iconeAcao:disabled { opacity: .5; cursor: not-allowed; }
+.iconePerigo:hover:not(:disabled) { border-color: var(--alerta-borda); color: var(--alerta); }
+
+/* =========================================================================
+   A JANELA (dialog) — nova conta e edição
+   ========================================================================= */
+.janela {
+  /* Sem espaçamento próprio: o clique no fundo escuro chega com o alvo sendo o
+     próprio <dialog>, e com folga aqui a borda interna fecharia a janela por
+     engano no meio do formulário. A folga toda vive no .janelaCorpo. */
+  padding: 0;
+  width: min(34rem, calc(100vw - var(--s5)));
+  max-height: calc(100vh - var(--s6));
+  background: var(--sup);
+  color: var(--txt);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-3);
+  overflow: auto;
+}
+.janela::backdrop { background: rgb(0 0 0 / .55); }
+.janelaCorpo { padding: var(--s5); }
+.janelaCab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.janelaTitulo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--txt);
+}
+.janelaFechar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: var(--t-lg);
+  line-height: 1;
+  color: var(--txt-3);
+  cursor: pointer;
+}
+.janelaFechar:hover { color: var(--txt); }
+
+.janelaForm { display: grid; gap: var(--s3); }
+.janelaGrade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+}
+@media (max-width: 520px) { .janelaGrade { grid-template-columns: 1fr; } }
+
+/* O tracejado agrupa "parcelas" com "valor informado é". Os dois só fazem
+   sentido juntos: escolher 12x sem dizer se o número digitado é o total ou o
+   de cada parcela é a ambiguidade que este bloco existe para desfazer. */
+.janelaTracejado {
+  padding: var(--s3);
+  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r-lg);
+}
+.janelaPrevia {
+  margin: 0;
+  padding: var(--s3);
+  background: var(--vio-veu);
+  border-radius: var(--r-lg);
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+.janelaPrevia strong { color: var(--txt); font-variant-numeric: tabular-nums; }
+.janelaMais > summary {
+  cursor: pointer;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--vio-claro);
+}
+.janelaMais > div { margin-top: var(--s3); }
+.janelaAcoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+
+/* ----- Os avisos da janela de edição ------------------------------------- */
+/* Cinza enquanto o aviso é informativo, âmbar no instante em que ele passa a
+   valer. Um aviso que já nasce gritando é um aviso que se aprende a fechar sem
+   ler; este só grita quando o valor ou o vencimento mudam de fato. */
+.avisoCaixa,
+.avisoCaixaForte {
+  margin: 0;
+  padding: var(--s3);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--txt-2);
+}
+.avisoCaixa strong { color: var(--txt); }
+.avisoCaixaForte {
+  background: var(--espera-veu);
+  border-color: var(--espera-borda);
+  color: var(--txt);
+}
+.avisoCaixaForte strong { color: var(--espera); }
+
+/* ----- O campo de dinheiro ----------------------------------------------- */
+/* Grande, e no alto. Numa janela de lançamento o valor é a única coisa que a
+   pessoa está pensando quando abre; tudo o mais ela preenche por obrigação.
+   Pôr o valor como o sexto campo de uma grade é fazer a informação mais
+   importante da tela parecer a menos. */
+.dinCampo {
+  position: relative;
+  padding: var(--s3) var(--s4);
+  background: var(--bg-1);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+}
+.dinCampo:focus-within { border-color: var(--vio); }
+.dinRotulo {
+  display: block;
+  font-family: var(--f-texto);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.dinMoeda {
+  position: absolute;
+  top: var(--s3);
+  right: var(--s4);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  color: var(--txt-3);
+}
+.dinLinha {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  margin-top: 4px;
+}
+.dinCifrao {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--txt-3);
+}
+.dinValor {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--txt);
+}
+.dinValor::placeholder { color: var(--txt-3); }

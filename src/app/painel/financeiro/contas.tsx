@@ -1,21 +1,21 @@
 'use client'
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react'
+import { useActionState, useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { formatarBRL, lerValorBR } from '@/lib/dinheiro'
-import {
-  baixarConta,
-  desfazerBaixa,
-  excluirConta,
-  lancarConta,
-} from '@/server/acoes/caixa'
+import { formatarBRL } from '@/lib/dinheiro'
+import { baixarConta, desfazerBaixa, excluirConta } from '@/server/acoes/caixa'
+import EditarConta, { type ContaParaEditar } from './editar-conta'
+import type { ClienteBreve } from './nova-conta'
 import estilo from '../painel.module.css'
+
+export type { ClienteBreve }
 
 export type Conta = {
   id: string
   descricao: string
   categoria: string | null
   contraparte: string | null
+  clienteId: string | null
   clienteNome: string | null
   valorCentavos: number
   valorPagoCentavos: number
@@ -27,9 +27,9 @@ export type Conta = {
   parcelas: number
   daRecorrencia: boolean
   observacoes: string | null
+  aprovadoEm: string | null
+  aprovadoPorNome: string | null
 }
-
-export type ClienteBreve = { id: string; nome: string }
 
 const FORMAS: Array<[string, string]> = [
   ['PIX', 'Pix'],
@@ -48,24 +48,36 @@ const FORMAS: Array<[string, string]> = [
  * POR QUE UM COMPONENTE SÓ PARA AS DUAS
  * =============================================================================
  * Tudo o que se faz com uma se faz com a outra: lançar, parcelar, dar baixa,
- * desfazer, apagar, filtrar por mês. Duplicar isto em dois arquivos criaria
- * duas telas que começam iguais e divergem na primeira correção feita só de um
- * lado — e o lado esquecido é sempre o que alguém usa no fechamento do mês.
+ * desfazer, editar, apagar, filtrar por mês. Duplicar isto em dois arquivos
+ * criaria duas telas que começam iguais e divergem na primeira correção feita
+ * só de um lado — e o lado esquecido é sempre o que alguém usa no fechamento.
  *
  * O que muda entre elas é VOCABULÁRIO, não comportamento: "pagar" e "receber",
- * "fornecedor" e "cliente". Isso vira uma tabela de palavras no topo do
- * componente, onde dá para ler as duas versões lado a lado.
+ * "fornecedor" e "cliente". Isso vira uma tabela de palavras no fim do arquivo,
+ * onde dá para ler as duas versões lado a lado.
  *
  * =============================================================================
- * A BAIXA ABRE NA PRÓPRIA LINHA
+ * VIROU TABELA, E ANTES ERA LISTA DE PROPÓSITO
  * =============================================================================
- * Sem janela flutuante. Quem dá baixa está com o extrato do banco aberto do
- * lado e vai lançar seis contas seguidas; uma janela que cobre a lista faz
- * perder o lugar a cada conta, e o erro clássico da tela de caixa é dar baixa
- * na linha de cima.
+ * O comentário antigo do CSS dizia, com razão, que descrição de tamanho
+ * imprevisível ("Energia" ao lado de "Parcela 3/12 do compressor do
+ * laboratório") desalinha uma tabela inteira. O que resolve isso não é voltar
+ * para lista: é a coluna da esquerda ter largura própria e a descrição cortar
+ * com reticências, em vez de empurrar as outras três colunas.
  *
- * O valor já vem preenchido com o previsto, porque pagar o previsto é o caso
- * comum — e a data vem com hoje. Quem só confere e confirma faz dois cliques.
+ * A tabela ganha o que a lista não dava: STATUS numa coluna só, sempre no mesmo
+ * lugar. Numa lista, o selo flutuava junto do valor e a leitura vertical de
+ * "quais destas estão atrasadas" exigia percorrer linha a linha.
+ *
+ * =============================================================================
+ * A BAIXA ABRE NA PRÓPRIA LINHA — E A EDIÇÃO, NUMA JANELA
+ * =============================================================================
+ * Não é inconsistência, são dois trabalhos diferentes. Quem dá baixa está com o
+ * extrato do banco aberto do lado e vai lançar seis contas seguidas; uma janela
+ * que cobre a lista faz perder o lugar a cada conta, e o erro clássico da tela
+ * de caixa é dar baixa na linha de cima. Editar é o oposto: acontece uma vez,
+ * exige atenção, e tem avisos que precisam ser lidos antes de salvar — é
+ * exatamente o caso em que cobrir o resto da tela ajuda.
  */
 export default function Contas({
   tipo,
@@ -87,8 +99,8 @@ export default function Contas({
   podeApagar: boolean
 }) {
   const p = tipo === 'PAGAR' ? PALAVRAS.pagar : PALAVRAS.receber
-  const [abrirForm, setAbrirForm] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
+  const [editando, setEditando] = useState<ContaParaEditar | null>(null)
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
@@ -101,67 +113,21 @@ export default function Contas({
     })
   }
 
-  const emAberto = contas.filter((c) => !c.pagoEm)
-  const totalAberto = emAberto.reduce((s, c) => s + c.valorCentavos, 0)
-  const totalPago = contas.filter((c) => c.pagoEm).reduce((s, c) => s + c.valorPagoCentavos, 0)
-
   return (
     <>
-      <div className={estilo.caixaTopo}>
-        <div className={estilo.caixaSomas}>
-          <span>
-            <span className={estilo.grav}>{p.somaAberto}</span>
-            <strong className={estilo.caixaSoma}>{formatarBRL(totalAberto)}</strong>
-            <span className={estilo.fraco}>
-              {emAberto.length} {emAberto.length === 1 ? 'conta' : 'contas'}
-            </span>
-          </span>
-          <span>
-            <span className={estilo.grav}>{p.somaPago}</span>
-            <strong className={estilo.caixaSoma}>{formatarBRL(totalPago)}</strong>
-            <span className={estilo.fraco}>neste mês</span>
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className={estilo.btnPrimario}
-          onClick={() => setAbrirForm((v) => !v)}
-          aria-expanded={abrirForm}
-        >
-          {abrirForm ? 'Fechar' : p.botaoLancar}
-        </button>
-      </div>
-
       {msg ? (
         <p className={msg.ok ? estilo.sucesso : estilo.erro} role={msg.ok ? 'status' : 'alert'}>
           {msg.texto}
         </p>
       ) : null}
 
-      {abrirForm ? (
-        <FormularioConta
-          tipo={tipo}
-          mes={mes}
-          palavras={p}
-          categorias={categorias}
-          clientes={clientes}
-          aoSalvar={() => {
-            setAbrirForm(false)
-            router.refresh()
-          }}
-        />
-      ) : null}
-
       <form method="get" className={estilo.filtros}>
         <input type="hidden" name="aba" value={tipo === 'PAGAR' ? 'pagar' : 'receber'} />
         <input type="hidden" name="mes" value={mes} />
         <div className={estilo.busca}>
-          {/* O campo GUARDA o que foi buscado.
-              Sem isto ele voltava vazio depois de filtrar, e a pessoa ficava
-              com uma lista curta e nenhuma pista do porquê — o filtro seguia
-              ativo, invisível. Todas as outras buscas do painel devolvem o
-              termo (ordens, faturas, clientes); esta destoava. */}
+          {/* O campo GUARDA o que foi buscado. Sem isto ele voltava vazio depois
+              de filtrar, e a pessoa ficava com uma lista curta e nenhuma pista
+              do porquê — o filtro seguia ativo, invisível. */}
           <input
             className={estilo.campo}
             type="search"
@@ -185,25 +151,71 @@ export default function Contas({
       {contas.length === 0 ? (
         <p className={estilo.vazio}>{p.vazio}</p>
       ) : (
-        <ul className={estilo.caixaLista}>
-          {contas.map((c) => (
-            <Linha
-              key={c.id}
-              conta={c}
-              palavras={p}
-              podeApagar={podeApagar}
-              pendente={pendente}
-              agir={agir}
-            />
-          ))}
-        </ul>
+        <div className={estilo.rolaX}>
+          <table className={`${estilo.tabela} ${estilo.tabelaCaixa}`}>
+            <thead>
+              <tr>
+                <th scope="col">{p.colunaQuem}</th>
+                <th scope="col">Status</th>
+                <th scope="col" className={estilo.colDir}>
+                  Valor
+                </th>
+                <th scope="col" className={estilo.colDir}>
+                  Ações
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {contas.map((c) => (
+                <Linha
+                  key={c.id}
+                  conta={c}
+                  palavras={p}
+                  podeApagar={podeApagar}
+                  pendente={pendente}
+                  agir={agir}
+                  aoEditar={() => setEditando(paraEdicao(c))}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+
+      {/* O `key` faz a janela remontar a cada linha aberta, e é o que garante
+          que os campos nasçam com os valores DESTA conta. Ver o comentário do
+          inicializador em `editar-conta.tsx`. */}
+      <EditarConta
+        key={editando?.id ?? 'nenhuma'}
+        conta={editando}
+        aoFechar={() => setEditando(null)}
+        clientes={clientes}
+        categorias={categorias}
+      />
 
       <p className={estilo.dica} style={{ marginTop: 'var(--s5)' }}>
         {p.rodape}
       </p>
     </>
   )
+}
+
+/** O recorte que a janela de edição precisa — nem mais, nem menos. */
+function paraEdicao(c: Conta): ContaParaEditar {
+  return {
+    id: c.id,
+    descricao: c.descricao,
+    categoria: c.categoria,
+    contraparte: c.contraparte,
+    clienteId: c.clienteId,
+    valorCentavos: c.valorCentavos,
+    vencimento: c.vencimento,
+    observacoes: c.observacoes,
+    parcela: c.parcela,
+    parcelas: c.parcelas,
+    daRecorrencia: c.daRecorrencia,
+    aprovadoPorNome: c.aprovadoPorNome,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -216,109 +228,164 @@ function Linha({
   podeApagar,
   pendente,
   agir,
+  aoEditar,
 }: {
   conta: Conta
   palavras: Palavras
   podeApagar: boolean
   pendente: boolean
   agir: (fn: () => Promise<{ ok: true; mensagem?: string } | { ok: false; motivo: string }>) => void
+  aoEditar: () => void
 }) {
   const pago = Boolean(conta.pagoEm)
   const vencida = !pago && new Date(conta.vencimento) < new Date()
+  const semAprovacao = !pago && !conta.aprovadoEm
   const quem = conta.clienteNome ?? conta.contraparte
 
+  /**
+   * A ORDEM DA PÍLULA — do fato mais consequente para o menos.
+   *
+   * Pago encerra o assunto. Atrasado é o que custa juro hoje. "Sem aprovação"
+   * explica por que uma conta parada continua parada, e por isso vem como
+   * etiqueta ao lado, e não no lugar de "atrasado": as duas coisas acontecem
+   * juntas o tempo todo, e trocar uma pela outra esconderia a urgência ou
+   * esconderia o motivo.
+   */
+  const status = pago
+    ? { texto: palavras.selo, classe: estilo.tagOk }
+    : vencida
+      ? { texto: 'atrasado', classe: estilo.tagAlerta }
+      : { texto: 'pendente', classe: estilo.tagEspera }
+
   return (
-    <li className={vencida ? `${estilo.caixaItem} ${estilo.caixaItemVencido}` : estilo.caixaItem}>
-      <div className={estilo.caixaQuando}>
-        <strong>{dia(conta.vencimento)}</strong>
-        <span className={estilo.fraco}>{mesCurto(conta.vencimento)}</span>
-      </div>
-
-      <div className={estilo.caixaMeio}>
-        <strong className={estilo.caixaDesc}>{conta.descricao}</strong>
-        <p className={estilo.caixaDetalhe}>
-          {quem ? <span>{quem}</span> : null}
-          {conta.categoria ? <span className={estilo.caixaCat}>{conta.categoria}</span> : null}
-          {conta.daRecorrencia ? <span className={estilo.caixaCat}>recorrente</span> : null}
-          {!quem && !conta.categoria && !conta.daRecorrencia ? (
-            <span className={estilo.fraco}>sem categoria</span>
-          ) : null}
-        </p>
-        {conta.observacoes ? <p className={estilo.fraco}>{conta.observacoes}</p> : null}
-      </div>
-
-      <div className={estilo.caixaValor}>
-        <strong>{formatarBRL(conta.valorCentavos)}</strong>
-        {pago ? (
-          <span className={`${estilo.tag} ${estilo.tagOk}`}>
-            {palavras.selo} {curto(conta.pagoEm!)}
+    <tr className={vencida ? estilo.linhaVencida : undefined}>
+      <td>
+        <div className={estilo.caixaQuem}>
+          <strong className={estilo.caixaQuemNome}>
+            {quem ?? conta.descricao}
+            {conta.parcelas > 1 ? (
+              <span className={estilo.caixaParcela}>
+                {conta.parcela}/{conta.parcelas}
+              </span>
+            ) : null}
+          </strong>
+          <span className={estilo.caixaRef}>
+            {quem ? `${conta.descricao} · ` : ''}
+            {pago ? `${palavras.selo} ${curto(conta.pagoEm!)}` : `Venc. ${longo(conta.vencimento)}`}
           </span>
-        ) : vencida ? (
-          <span className={`${estilo.tag} ${estilo.tagAlerta}`}>venceu {curto(conta.vencimento)}</span>
-        ) : (
-          <span className={`${estilo.tag} ${estilo.tagEspera}`}>em aberto</span>
-        )}
-        {/* Divergência entre previsto e pago tem que ficar VISÍVEL: é desconto,
-            juros ou pagamento a menor, e é a informação que alguém procura no
-            mês seguinte quando a conta não bate. */}
+          <span className={estilo.caixaChips}>
+            {conta.categoria ? <span className={estilo.caixaCat}>{conta.categoria}</span> : null}
+            {conta.daRecorrencia ? <span className={estilo.caixaCat}>recorrente</span> : null}
+            {semAprovacao ? (
+              <span className={`${estilo.caixaCat} ${estilo.caixaCatEspera}`}>aguarda aprovação</span>
+            ) : null}
+          </span>
+        </div>
+      </td>
+
+      <td>
+        <span className={`${estilo.tag} ${status.classe}`}>{status.texto}</span>
+      </td>
+
+      <td className={estilo.colDir}>
+        <strong className={estilo.caixaCifra}>{formatarBRL(conta.valorCentavos)}</strong>
+        {/* Divergência entre previsto e pago fica VISÍVEL: é desconto, juros ou
+            pagamento a menor, e é a informação que alguém procura no mês
+            seguinte quando a conta não bate. */}
         {pago && conta.valorPagoCentavos !== conta.valorCentavos ? (
           <span className={estilo.fraco}>pago {formatarBRL(conta.valorPagoCentavos)}</span>
         ) : null}
-      </div>
+      </td>
 
-      <div className={estilo.caixaAcoes}>
-        {pago ? (
-          <button
-            type="button"
-            className={estilo.btnSec}
-            disabled={pendente}
-            onClick={() => agir(() => desfazerBaixa(conta.id))}
-          >
-            Desfazer baixa
-          </button>
-        ) : (
-          <details className={estilo.caixaBaixa}>
-            <summary className={estilo.btnPrimario}>{palavras.botaoBaixa}</summary>
-            <FormularioBaixa conta={conta} palavras={palavras} />
-          </details>
-        )}
-
-        {podeApagar && !pago ? (
-          <>
+      <td className={estilo.colDir}>
+        <div className={estilo.caixaAcoes}>
+          {pago ? (
             <button
               type="button"
-              className={estilo.acaoRara}
+              className={estilo.btnSec}
               disabled={pendente}
-              onClick={() => {
-                if (confirm(`Apagar "${conta.descricao}"? Isso não deixa rastro na lista.`)) {
-                  agir(() => excluirConta(conta.id, false))
-                }
-              }}
+              onClick={() => agir(() => desfazerBaixa(conta.id))}
             >
-              Apagar
+              Desfazer baixa
             </button>
-            {conta.grupo ? (
+          ) : (
+            <>
+              <details className={estilo.caixaBaixa}>
+                <summary className={estilo.btnPrimario}>{palavras.botaoBaixa}</summary>
+                <FormularioBaixa conta={conta} palavras={palavras} />
+              </details>
+
               <button
                 type="button"
-                className={estilo.acaoRara}
-                disabled={pendente}
-                onClick={() => {
-                  if (
-                    confirm(
-                      'Apagar TODAS as parcelas ainda em aberto deste lançamento? As já pagas continuam no caixa.',
-                    )
-                  ) {
-                    agir(() => excluirConta(conta.id, true))
-                  }
-                }}
+                className={estilo.iconeAcao}
+                onClick={aoEditar}
+                title="Editar lançamento"
+                aria-label={`Editar ${conta.descricao}`}
               >
-                Apagar as parcelas
+                {/* Ícone COM rótulo acessível. Um lápis sozinho não é lido por
+                    ninguém que use leitor de tela, e "botão" é tudo o que se
+                    ouviria numa linha com três deles. */}
+                <LapisIcone />
               </button>
-            ) : null}
-          </>
-        ) : null}
-      </div>
-    </li>
+
+              {podeApagar ? (
+                <>
+                  <button
+                    type="button"
+                    className={`${estilo.iconeAcao} ${estilo.iconePerigo}`}
+                    disabled={pendente}
+                    title="Excluir lançamento"
+                    aria-label={`Excluir ${conta.descricao}`}
+                    onClick={() => {
+                      if (confirm(`Apagar "${conta.descricao}"? Isso não deixa rastro na lista.`)) {
+                        agir(() => excluirConta(conta.id, false))
+                      }
+                    }}
+                  >
+                    <LixeiraIcone />
+                  </button>
+                  {conta.grupo ? (
+                    <button
+                      type="button"
+                      className={estilo.acaoRara}
+                      disabled={pendente}
+                      onClick={() => {
+                        if (
+                          confirm(
+                            'Apagar TODAS as parcelas ainda em aberto deste lançamento? As já pagas continuam no caixa.',
+                          )
+                        ) {
+                          agir(() => excluirConta(conta.id, true))
+                        }
+                      }}
+                    >
+                      Apagar as parcelas
+                    </button>
+                  ) : null}
+                </>
+              ) : null}
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  )
+}
+
+function LapisIcone() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M12 20h9" strokeLinecap="round" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function LixeiraIcone() {
+  return (
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
@@ -384,193 +451,25 @@ export function FormularioBaixa({ conta, palavras }: { conta: Conta; palavras: P
 }
 
 // ---------------------------------------------------------------------------
-// Lançar
-// ---------------------------------------------------------------------------
-
-function FormularioConta({
-  tipo,
-  mes,
-  palavras,
-  categorias,
-  clientes,
-  aoSalvar,
-}: {
-  tipo: 'PAGAR' | 'RECEBER'
-  mes: string
-  palavras: Palavras
-  categorias: string[]
-  clientes: ClienteBreve[]
-  aoSalvar: () => void
-}) {
-  const [estado, acao, pendente] = useActionState(lancarConta, { ok: true } as
-    | { ok: true; mensagem?: string }
-    | { ok: false; motivo: string })
-  const [parcelas, setParcelas] = useState(1)
-  const [valor, setValor] = useState('')
-  const jaAvisou = useRef(false)
-
-  useEffect(() => {
-    if (estado.ok && estado.mensagem && !jaAvisou.current) {
-      jaAvisou.current = true
-      aoSalvar()
-    }
-  }, [estado, aoSalvar])
-
-  // O mesmo leitor de vírgula do servidor, para a prévia não discordar do que
-  // vai ser gravado. Duas leituras diferentes do mesmo campo é como uma prévia
-  // passa a mentir.
-  const centavos = Math.round((lerValorBR(valor) ?? 0) * 100)
-
-  return (
-    <form action={acao} className={`${estilo.bloco} ${estilo.caixaForm}`}>
-      <p className={estilo.blocoTitulo}>{palavras.tituloForm}</p>
-      <input type="hidden" name="tipo" value={tipo} />
-      <input type="hidden" name="mes" value={mes} />
-
-      <div className={estilo.form}>
-        <label className={estilo.rotulo}>
-          Do que se trata
-          <input
-            className={estilo.campo}
-            name="descricao"
-            required
-            maxLength={140}
-            placeholder={palavras.placeholderDesc}
-          />
-        </label>
-
-        <label className={estilo.rotulo}>
-          Categoria
-          {/* Lista aberta com sugestões, e não `select`: cada empresa organiza o
-              próprio plano de contas, e lista fechada vira "Outros" com 80% dos
-              lançamentos dentro. */}
-          <input className={estilo.campo} name="categoria" list="cat-caixa" maxLength={60} placeholder={palavras.placeholderCat} />
-          <datalist id="cat-caixa">
-            {categorias.map((c) => (
-              <option key={c} value={c} />
-            ))}
-            {palavras.sugestoes.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
-        </label>
-
-        <label className={estilo.rotulo}>
-          {palavras.rotuloCliente}
-          <select className={estilo.selecao} name="clienteId" defaultValue="">
-            <option value="">— {palavras.semCliente} —</option>
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className={estilo.rotulo}>
-          {palavras.rotuloContraparte}
-          <input
-            className={estilo.campo}
-            name="contraparte"
-            maxLength={140}
-            placeholder={palavras.placeholderContraparte}
-          />
-        </label>
-
-        <label className={estilo.rotulo}>
-          Valor {parcelas > 1 ? 'total' : ''} (R$)
-          <input
-            className={estilo.campo}
-            name="valor"
-            inputMode="decimal"
-            required
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
-            placeholder="0,00"
-          />
-        </label>
-
-        <label className={estilo.rotulo}>
-          {parcelas > 1 ? 'Vencimento da 1ª parcela' : 'Vencimento'}
-          <input className={estilo.campo} type="date" name="vencimento" required defaultValue={hojeISO()} />
-        </label>
-
-        <label className={estilo.rotulo}>
-          Parcelas
-          <input
-            className={estilo.campo}
-            type="number"
-            name="parcelas"
-            min={1}
-            max={60}
-            value={parcelas}
-            onChange={(e) => setParcelas(Math.max(1, Number(e.target.value) || 1))}
-          />
-        </label>
-
-        <label className={estilo.rotulo} style={{ gridColumn: '1 / -1' }}>
-          Observação
-          <input className={estilo.campo} name="observacoes" maxLength={500} placeholder="opcional" />
-        </label>
-      </div>
-
-      {/* O parcelamento mostrado ANTES de salvar. Sem isto, a pessoa descobre
-          como o sistema dividiu depois que as linhas já existem — e a diferença
-          de um centavo na última parcela vira desconfiança. */}
-      {parcelas > 1 && centavos > 0 ? (
-        <p className={estilo.dica} role="status">
-          Vai virar {parcelas} contas de {formatarBRL(Math.floor(centavos / parcelas))}, com{' '}
-          {formatarBRL(centavos - Math.floor(centavos / parcelas) * (parcelas - 1))} na última — uma
-          por mês, para cada uma cair no caixa do mês dela.
-        </p>
-      ) : null}
-
-      <div className={estilo.acoesForm}>
-        <button type="submit" className={estilo.btnPrimario} disabled={pendente}>
-          {pendente ? 'Salvando…' : palavras.botaoSalvar}
-        </button>
-      </div>
-
-      {!estado.ok ? (
-        <p className={estilo.erro} role="alert">
-          {estado.motivo}
-        </p>
-      ) : null}
-    </form>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // O vocabulário das duas direções
 // ---------------------------------------------------------------------------
 
 export type Palavras = {
-  somaAberto: string
-  somaPago: string
-  botaoLancar: string
   botaoBaixa: string
-  botaoSalvar: string
-  tituloForm: string
   selo: string
   filtroPagas: string
   vazio: string
   rodape: string
-  rotuloCliente: string
-  semCliente: string
-  rotuloContraparte: string
-  placeholderDesc: string
-  placeholderCat: string
-  placeholderContraparte: string
+  colunaQuem: string
   placeholderBusca: string
   baixaValor: string
   baixaData: string
-  sugestoes: string[]
 }
 
 /**
  * EXPORTADA porque a aba "Dar baixa" mostra contas dos DOIS tipos na mesma
- * lista, e cada linha precisa das palavras do tipo dela — "Dar baixa" numa
- * conta a pagar, "Registrar recebimento" numa a receber.
+ * lista, e cada linha precisa das palavras do tipo dela — "Pagar" numa conta a
+ * pagar, "Receber" numa a receber.
  *
  * Recriar a tabela lá seria duas listas de palavras para manter em dia, e a
  * segunda envelheceria calada: alguém corrige um rótulo aqui e a outra tela
@@ -578,72 +477,29 @@ export type Palavras = {
  */
 export const PALAVRAS: { pagar: Palavras; receber: Palavras } = {
   pagar: {
-    somaAberto: 'A pagar em aberto',
-    somaPago: 'Já pago',
-    botaoLancar: 'Lançar conta a pagar',
     botaoBaixa: 'Pagar',
-    botaoSalvar: 'Lançar a pagar',
-    tituloForm: 'Nova conta a pagar',
     selo: 'pago',
     filtroPagas: 'Pagas no mês',
     vazio: 'Nenhuma conta a pagar com esse filtro. Boa notícia, se o mês já estiver lançado.',
     rodape:
       'Ao pagar, a conta sai desta lista de abertas e vai para o filtro "Pagas no mês" — ela não é apagada. "Tudo do mês" mostra as duas juntas, que é a visão do fechamento.',
-    rotuloCliente: 'É de um cliente da carteira?',
-    semCliente: 'não é cliente',
-    rotuloContraparte: 'Para quem se paga',
-    placeholderDesc: 'Aluguel da oficina, energia, contador…',
-    placeholderCat: 'Ex.: Instalações',
-    placeholderContraparte: 'Fornecedor, prefeitura, contador…',
+    colunaQuem: 'Fornecedor / referência',
     placeholderBusca: 'Descrição, fornecedor ou categoria',
     baixaValor: 'pago (R$)',
     baixaData: 'Saiu em',
-    sugestoes: [
-      'Instalações',
-      'Energia e água',
-      'Telefonia e internet',
-      'Impostos',
-      'Salários',
-      'Contador',
-      'Peças e fornecedores',
-      'Combustível',
-      'Veículo',
-      'Marketing',
-      'Software',
-      'Manutenção',
-    ],
   },
   receber: {
-    somaAberto: 'A receber em aberto',
-    somaPago: 'Já recebido',
-    botaoLancar: 'Lançar a receber',
     botaoBaixa: 'Receber',
-    botaoSalvar: 'Lançar a receber',
-    tituloForm: 'Novo valor a receber',
     selo: 'recebido',
     filtroPagas: 'Recebidas no mês',
     vazio:
       'Nada avulso a receber com esse filtro. A cobrança dos consertos fica na aba Faturas de serviço.',
     rodape:
       'Aqui fica o que NÃO nasceu de uma ordem: contrato mensal, locação, venda de peça no balcão. A cobrança do conserto continua na aba de faturas — e as duas somam no mesmo número lá em cima.',
-    rotuloCliente: 'De qual cliente',
-    semCliente: 'não está na carteira',
-    rotuloContraparte: 'Ou de quem, por escrito',
-    placeholderDesc: 'Contrato mensal, locação, venda de peça…',
-    placeholderCat: 'Ex.: Contrato de manutenção',
-    placeholderContraparte: 'Quem paga, se não estiver na carteira',
+    colunaQuem: 'Cliente / referência',
     placeholderBusca: 'Descrição, cliente ou categoria',
     baixaValor: 'recebido (R$)',
     baixaData: 'Entrou em',
-    sugestoes: [
-      'Contrato de manutenção',
-      'Locação de equipamento',
-      'Venda de peça',
-      'Treinamento',
-      'Instalação',
-      'Frete',
-      'Outros serviços',
-    ],
   },
 }
 
@@ -658,18 +514,15 @@ function hojeISO(): string {
   }).format(new Date())
 }
 
-function dia(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })
-}
-
-function mesCurto(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' }).replace('.', '')
-}
-
 function curto(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     day: '2-digit',
     month: '2-digit',
   })
+}
+
+/** 15/09/2026 — com o ano, porque conta atrasada de ano passado existe. */
+function longo(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 }

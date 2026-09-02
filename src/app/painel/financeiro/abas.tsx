@@ -1,8 +1,16 @@
 import Link from 'next/link'
 import estilo from '../painel.module.css'
-import { mesPorExtenso, mesVizinho } from '@/server/consultas/caixa'
+import { mesAtual, mesPorExtenso, mesVizinho } from '@/server/consultas/caixa'
 
-export type AbaCaixa = 'receber' | 'pagar' | 'aprovar' | 'baixa' | 'faturas' | 'recorrencias' | 'relatorios'
+export type AbaCaixa =
+  | 'receber'
+  | 'pagar'
+  | 'aprovar'
+  | 'baixa'
+  | 'faturas'
+  | 'recorrencias'
+  | 'relatorios'
+  | 'historico'
 
 /**
  * A BARRA DO FINANCEIRO — cinco perguntas sobre dinheiro, uma tela.
@@ -73,7 +81,13 @@ export default function AbasDoCaixa({
     ['baixa', 'Dar baixa'],
     ['recorrencias', 'Recorrências'],
     ['relatorios', 'Relatórios'],
+    ['historico', 'Histórico'],
   ]
+
+  // "Hoje" só aparece quando há para onde voltar. Um atalho que leva ao lugar
+  // onde já se está é ruído — e, pior, faz duvidar de que a tela saiba em que
+  // mês está.
+  const hoje = mesAtual()
 
   return (
     <div className={estilo.rotaBarra}>
@@ -110,6 +124,11 @@ export default function AbasDoCaixa({
         >
           ›
         </Link>
+        {mes !== hoje ? (
+          <Link href={`/painel/financeiro?aba=${atual}&mes=${hoje}`} className={estilo.mesHoje}>
+            Hoje
+          </Link>
+        ) : null}
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Papel, type FormaPagamento, type TipoLancamento } from '@/generated/prisma/enums'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
-import { aCentavos, dividirParcelas, lerValorBR } from '@/lib/dinheiro'
+import { aCentavos, dividirParcelas, formatarBRL, lerValorBR } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { janelaDoMes, mesAtual, mesValido } from '@/server/consultas/caixa'
@@ -146,6 +146,20 @@ const schemaConta = z.object({
   valor: valorBR,
   vencimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Informe a data de vencimento.'),
   parcelas: z.coerce.number().int().min(1).max(60).default(1),
+  /**
+   * O QUE O NÚMERO DIGITADO QUER DIZER — e por que perguntar não é firula.
+   *
+   * "12x de 500" e "6.000 em 12x" são a mesma frase dita de dois jeitos, e as
+   * duas são digitadas do mesmo modo: alguém escreve 500 e escolhe 12 parcelas.
+   * Quando o sistema assume "total" sem perguntar, esse lançamento vira doze
+   * parcelas de R$ 41,67 — e o erro não grita: sai uma lista plausível, com
+   * doze linhas e um valor pequeno, que só é descoberta no mês em que o cliente
+   * paga 500 e o sistema diz que ele pagou a mais.
+   *
+   * O padrão continua sendo TOTAL, que é o caso mais comum e o comportamento
+   * que já existia — nenhum lançamento antigo muda de sentido.
+   */
+  modoValor: z.enum(['total', 'parcela']).default('total'),
   observacoes: z.string().trim().max(500).optional().or(z.literal('')),
   /** Para onde voltar depois de salvar — a aba e o mês que estavam abertos. */
   mes: z.string().optional(),
@@ -180,8 +194,15 @@ export async function lancarConta(_anterior: Resposta, form: FormData): Promise<
   const base = instanteDoDia(v.vencimento)
   if (Number.isNaN(base.getTime())) return { ok: false, motivo: 'Data de vencimento inválida.' }
 
-  const total = aCentavos(v.valor)
-  const fatias = dividirParcelas(total, v.parcelas)
+  // "Total (dividir)" divide o que foi digitado; "de cada parcela" multiplica.
+  // No modo parcela não há sobra para distribuir — doze de 500 são doze de 500,
+  // e passar 6000 por `dividirParcelas` devolveria exatamente o mesmo, só que
+  // com o centavo de resto caindo na última linha sem motivo.
+  const total = v.modoValor === 'parcela' ? aCentavos(v.valor) * v.parcelas : aCentavos(v.valor)
+  const fatias =
+    v.modoValor === 'parcela'
+      ? Array.from({ length: v.parcelas }, () => aCentavos(v.valor))
+      : dividirParcelas(total, v.parcelas)
   // O grupo só existe quando há irmãs. Marcar uma parcela única com um grupo
   // faria a tela oferecer "apagar as 1 parcelas", que é uma frase sem sentido.
   const grupo = v.parcelas > 1 ? `g_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}` : null
@@ -219,7 +240,10 @@ export async function lancarConta(_anterior: Resposta, form: FormData): Promise<
     ok: true,
     mensagem:
       v.parcelas > 1
-        ? `Lançado em ${v.parcelas} parcelas, uma em cada mês.`
+        ? // O TOTAL é dito de volta, sempre. Quem escolheu "valor de cada
+          // parcela" digitou 500 e precisa ver 6.000 escrito para saber que o
+          // sistema entendeu a mesma coisa que ele quis dizer.
+          `Lançado em ${v.parcelas} parcelas de ${formatarBRL(fatias[0] ?? 0)} — ${formatarBRL(total)} no total, uma por mês.`
         : v.tipo === 'PAGAR'
           ? 'Conta a pagar lançada.'
           : 'Conta a receber lançada.',
@@ -738,4 +762,152 @@ export async function desaprovarConta(id: string): Promise<Resposta> {
   })
   revalidatePath('/painel/financeiro')
   return { ok: true, mensagem: 'Aprovação retirada.' }
+}
+
+// ---------------------------------------------------------------------------
+// Editar
+// ---------------------------------------------------------------------------
+
+const schemaEdicao = z.object({
+  id: z.string().min(1),
+  descricao: z.string().trim().min(2, 'Escreva do que se trata.').max(140),
+  categoria: z.string().trim().max(60).optional().or(z.literal('')),
+  clienteId: z.string().trim().optional().or(z.literal('')),
+  contraparte: z.string().trim().max(140).optional().or(z.literal('')),
+  valor: valorBR,
+  vencimento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Informe a data de vencimento.'),
+  observacoes: z.string().trim().max(500).optional().or(z.literal('')),
+})
+
+/**
+ * EDITAR UMA CONTA — e por que ela pode perder a aprovação no caminho.
+ *
+ * =============================================================================
+ * O BURACO QUE ISTO FECHA
+ * =============================================================================
+ * Até aqui não havia edição. Corrigir um valor digitado errado era APAGAR e
+ * relançar — o que perde o autor, perde a data do lançamento e, quando a conta
+ * era parcelada, obrigava a refazer as doze linhas. Na prática ninguém faz isso:
+ * deixa a conta errada e ajusta na baixa, que é como um erro de digitação vira
+ * um número que não bate no fechamento.
+ *
+ * =============================================================================
+ * A TRAVA QUE JUSTIFICA ESTA FUNÇÃO EXISTIR COM CUIDADO
+ * =============================================================================
+ * Editar depois de aprovado é um caminho para contornar a aprovação inteira:
+ * lança R$ 10, pede aprovação (ninguém olha duas vezes um lançamento de dez
+ * reais), edita para R$ 10.000 e dá baixa. A conta sai com carimbo de aprovada,
+ * e a trilha mostra um administrador liberando um valor que ele nunca viu.
+ *
+ * Por isso mexer no VALOR ou no VENCIMENTO de uma conta já aprovada DERRUBA a
+ * aprovação: ela volta para a fila e precisa ser liberada de novo, agora com o
+ * número que vale. Mexer no resto — descrição, categoria, quem é a contraparte,
+ * observação — não derruba, porque não muda quanto sai nem quando.
+ *
+ * A tela avisa antes; a ação recusa depois. As duas coisas, porque esconder o
+ * botão impede o clique e não impede a requisição.
+ *
+ * =============================================================================
+ * CONTA PAGA NÃO SE EDITA
+ * =============================================================================
+ * O dinheiro já saiu. Alterar o previsto de uma conta baixada faria o relatório
+ * do mês fechado mudar sozinho meses depois — e o mês fechado com o contador é
+ * a coisa que menos pode mudar sozinha. Para corrigir, desfaz-se a baixa
+ * (que deixa rastro), edita-se, e baixa-se de novo.
+ */
+export async function editarConta(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await ator()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_LANCAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não edita conta.' }
+  }
+
+  const d = schemaEdicao.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const novoVencimento = instanteDoDia(v.vencimento)
+  if (Number.isNaN(novoVencimento.getTime())) {
+    return { ok: false, motivo: 'Data de vencimento inválida.' }
+  }
+  const novoValor = aCentavos(v.valor)
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const antes = await tx.lancamento.findFirst({
+      where: { id: v.id },
+      select: {
+        id: true, tipo: true, descricao: true, valorCentavos: true, vencimento: true,
+        pagoEm: true, aprovadoEm: true, aprovadoPorNome: true,
+      },
+    })
+    if (!antes) return { ok: false as const, motivo: 'Conta não encontrada.' }
+    if (antes.pagoEm) {
+      return {
+        ok: false as const,
+        motivo:
+          'Esta conta já foi baixada — o dinheiro passou pelo caixa. Desfaça a baixa antes de editar, para que a correção fique registrada em vez de reescrever um mês fechado.',
+      }
+    }
+
+    const mudouValor = antes.valorCentavos !== novoValor
+    // Comparação por instante, não por objeto: dois `Date` do mesmo dia são
+    // diferentes como referência e iguais como data.
+    const mudouVencimento = antes.vencimento.getTime() !== novoVencimento.getTime()
+    const derrubaAprovacao = Boolean(antes.aprovadoEm) && (mudouValor || mudouVencimento)
+
+    await tx.lancamento.update({
+      where: { id: antes.id },
+      data: {
+        descricao: v.descricao,
+        categoria: v.categoria || null,
+        clienteId: v.clienteId || null,
+        contraparte: v.contraparte || null,
+        valorCentavos: novoValor,
+        vencimento: novoVencimento,
+        observacoes: v.observacoes || null,
+        ...(derrubaAprovacao
+          ? { aprovadoEm: null, aprovadoPorId: null, aprovadoPorNome: null }
+          : {}),
+      },
+    })
+
+    return {
+      ok: true as const,
+      tipo: antes.tipo,
+      derrubaAprovacao,
+      mudouValor,
+      mudouVencimento,
+      antes: {
+        descricao: antes.descricao,
+        valorCentavos: antes.valorCentavos,
+        vencimento: antes.vencimento.toISOString(),
+        aprovadaPor: antes.aprovadoPorNome,
+      },
+    }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: r.derrubaAprovacao ? 'caixa.conta_editada_perdeu_aprovacao' : 'caixa.conta_editada',
+    entidade: 'lancamento',
+    entidadeId: v.id,
+    detalhes: {
+      // O ANTES vai junto. Uma trilha que só guarda o depois responde "quem
+      // mexeu" e não responde "mexeu no quê", que é a pergunta seguinte e a
+      // única que resolve uma discussão sobre dinheiro.
+      antes: r.antes,
+      depois: { descricao: v.descricao, valorCentavos: novoValor, vencimento: v.vencimento },
+      mudouValor: r.mudouValor,
+      mudouVencimento: r.mudouVencimento,
+      aprovacaoDerrubada: r.derrubaAprovacao,
+    },
+  })
+
+  repintar()
+  return {
+    ok: true,
+    mensagem: r.derrubaAprovacao
+      ? 'Conta alterada. Como o valor ou o vencimento mudaram, a aprovação caiu: ela voltou para a fila e precisa ser liberada de novo antes da baixa.'
+      : 'Conta alterada.',
+  }
 }

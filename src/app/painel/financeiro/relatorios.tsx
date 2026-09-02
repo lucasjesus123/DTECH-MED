@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { formatarBRL } from '@/lib/dinheiro'
-import type { FatiaCategoria, MesDoFluxo } from '@/server/consultas/caixa'
+import type { FaixaDeIdade, FatiaCategoria, MesDoFluxo } from '@/server/consultas/caixa'
 import estilo from '../painel.module.css'
 
 /**
@@ -45,6 +45,7 @@ export default function Relatorios({
   entradas,
   formas,
   devedores,
+  idade,
   mesExtenso,
 }: {
   fluxo: MesDoFluxo[]
@@ -52,6 +53,7 @@ export default function Relatorios({
   entradas: FatiaCategoria[]
   formas: Array<{ forma: string; totalCentavos: number; quantidade: number }>
   devedores: Array<{ id: string; nome: string; totalCentavos: number; vencidoCentavos: number }>
+  idade: FaixaDeIdade[]
   mesExtenso: string
 }) {
   const temFluxo = fluxo.some((m) => m.entrouCentavos > 0 || m.saiuCentavos > 0)
@@ -68,6 +70,22 @@ export default function Relatorios({
             fatura for baixada ou a primeira conta for paga.
           </p>
         )}
+      </div>
+
+      {/* =====================================================================
+          A IDADE DA DÍVIDA
+          =====================================================================
+          "R$ 18 mil a receber" e "R$ 18 mil a receber, sendo R$ 11 mil parados
+          há mais de noventa dias" são duas empresas diferentes. O segundo
+          número muda o que se faz na segunda-feira: dívida de noventa dias não
+          se cobra por WhatsApp, e a de sete dias não se manda para protesto.
+
+          O total daqui é MAIOR que o "a receber" de um mês só, de propósito:
+          são todas as dívidas em aberto, de qualquer mês. Cobrança não tem
+          competência mensal. */}
+      <div className={estilo.bloco}>
+        <p className={estilo.blocoTitulo}>Há quanto tempo o dinheiro está lá fora</p>
+        <IdadeDaDivida faixas={idade} />
       </div>
 
       <div className={estilo.duasColunas}>
@@ -324,6 +342,61 @@ function Barras({
         )
       })}
     </ul>
+  )
+}
+
+/**
+ * A IDADE DA DÍVIDA, em faixas.
+ *
+ * A ordem vem da consulta e é cronológica — "A vencer" primeiro, "Mais de 90
+ * dias" por último — e não por tamanho. Ordenar por valor faria a leitura
+ * mudar de forma toda semana, e o que se quer aqui é justamente enxergar o
+ * dinheiro DESCENDO a lista com o tempo.
+ *
+ * A faixa "Mais de 90 dias" é a única marcada em vermelho. Colorir as cinco
+ * transformaria a lista num alarme constante, e alarme constante é ruído que se
+ * aprende a ignorar — a mesma razão pela qual a linha vencida da tabela leva um
+ * filete e não um fundo.
+ */
+function IdadeDaDivida({ faixas }: { faixas: FaixaDeIdade[] }) {
+  if (faixas.length === 0) {
+    return <p className={estilo.vazio}>Ninguém devendo. Nenhuma fatura nem cobrança em aberto.</p>
+  }
+
+  const total = faixas.reduce((s, f) => s + f.totalCentavos, 0)
+  const maior = Math.max(...faixas.map((f) => f.totalCentavos), 1)
+  const velha = faixas.find((f) => f.faixa === 'Mais de 90 dias')
+
+  return (
+    <>
+      <ul className={estilo.grafBarras}>
+        {faixas.map((f) => (
+          <li key={f.faixa} className={estilo.grafBarraItem}>
+            <span className={estilo.grafBarraNome}>{f.faixa}</span>
+            <span className={estilo.grafBarraPista}>
+              <span
+                className={f.faixa === 'Mais de 90 dias' ? estilo.grafBarraSai : estilo.grafBarraEntra}
+                style={{ width: `${Math.max(2, (f.totalCentavos / maior) * 100)}%` }}
+              />
+            </span>
+            <span className={estilo.grafBarraValor}>
+              {formatarBRL(f.totalCentavos)}
+              <span className={estilo.fraco}>
+                {' '}
+                {Math.round((f.totalCentavos / total) * 100)}% · {f.quantidade}
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className={estilo.dica}>
+        {formatarBRL(total)} em aberto, somando fatura de serviço e cobrança avulsa — de qualquer
+        mês, porque cobrança não tem competência mensal.
+        {velha && velha.totalCentavos > 0
+          ? ` ${formatarBRL(velha.totalCentavos)} está parado há mais de noventa dias: é o que raramente volta sozinho.`
+          : ''}
+      </p>
+    </>
   )
 }
 

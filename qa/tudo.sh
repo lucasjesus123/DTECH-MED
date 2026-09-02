@@ -124,6 +124,7 @@ node portal-chutes.mjs  >"$LOGS/p.log" 2>&1; marcar $? "o portal freia chute de 
 node busca500.mjs       >"$LOGS/b.log" 2>&1; marcar $? "buscar por CPF não derruba tela · 15 combinações"
 node restantes.mjs      >"$LOGS/r.log" 2>&1; marcar $? "telas fora do alcance do robô · 7 conferências"
 node caixa.mjs          >"$LOGS/x.log" 2>&1; marcar $? "o caixa: contas, parcelas, recorrências e gráficos"
+node financeiro.mjs     >"$LOGS/fin.log" 2>&1; marcar $? "os quatro cartões fecham, e editar derruba a aprovação"
 node inicio.mjs         >"$LOGS/y.log" 2>&1; marcar $? "recorrência retroativa: começa em, e gera mês passado"
 node acompanhar.mjs     >"$LOGS/ac.log" 2>&1; marcar $? "o cartão diz onde o aparelho está, e mostra a prova"
 node catalogo.mjs       >"$LOGS/cat.log" 2>&1; marcar $? "foto de peça e de equipamento: sobe, troca, sai, e não vaza"

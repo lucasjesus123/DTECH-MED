@@ -9,24 +9,33 @@ import {
   categoriasUsadas,
   fluxoDosMeses,
   formasDoMes,
+  historicoDoCaixa,
+  idadeDaDivida,
+  leituraDoMes,
   listarContas,
   listarRecorrencias,
   maioresDevedores,
   mesPorExtenso,
   mesValido,
+  mesVizinho,
   panoramaDoMes,
   pendentesDeGeracao,
   porCategoria,
   esperandoAprovacao,
   prontasParaBaixa,
   quantasEsperandoAprovacao,
+  resumoDoMes,
 } from '@/server/consultas/caixa'
 import AbasDoCaixa, { type AbaCaixa } from './abas'
+import AcoesDoTopo from './acoes-topo'
 import FilaDeAprovacao from './aprovar'
 import FilaDeBaixa from './baixa'
 import Aguardando from './aguardando'
+import QuatroCartoes from './cartoes'
 import Contas from './contas'
 import Faturas from './faturas'
+import Historico from './historico'
+import Leitura from './leitura'
 import Recorrencias from './recorrencias'
 import Relatorios from './relatorios'
 import estilo from '../painel.module.css'
@@ -34,7 +43,16 @@ import estilo from '../painel.module.css'
 export const metadata: Metadata = { title: 'Financeiro', robots: { index: false } }
 export const dynamic = 'force-dynamic'
 
-const ABAS: AbaCaixa[] = ['faturas', 'receber', 'pagar', 'aprovar', 'baixa', 'recorrencias', 'relatorios']
+const ABAS: AbaCaixa[] = [
+  'faturas',
+  'receber',
+  'pagar',
+  'aprovar',
+  'baixa',
+  'recorrencias',
+  'relatorios',
+  'historico',
+]
 
 /**
  * FINANCEIRO — o caixa inteiro numa tela.
@@ -51,27 +69,36 @@ const ABAS: AbaCaixa[] = ['faturas', 'receber', 'pagar', 'aprovar', 'baixa', 're
  * R$ 38 mil que saíram.
  *
  * =============================================================================
- * OS CINCO NÚMEROS DO TOPO VALEM PARA AS CINCO ABAS
+ * O TOPO EM TRÊS CAMADAS, DA PERGUNTA MAIS CURTA PARA A MAIS LONGA
  * =============================================================================
- * Eles ficam ACIMA da barra de abas de propósito: são a resposta curta, e quem
- * abre o Financeiro pela manhã quer só isso. As abas são o detalhe de quem
- * precisou olhar mais fundo.
+ * Ele fica ACIMA da barra de abas de propósito: é a resposta curta, e quem abre
+ * o Financeiro pela manhã quer só isso. As abas são o detalhe de quem precisou
+ * olhar mais fundo.
  *
- * A separação entre eles é a distinção que a tela inteira defende:
+ *   OS QUATRO CARTÕES  o que o mês DEVE, por vencimento, numa direção de cada
+ *                      vez. Total = pago + pendente + atrasado: os quatro
+ *                      fecham, e é isso que permite conferir de cabeça.
+ *   A LEITURA          o caixa realizado, o fechamento projetado e os próximos
+ *                      sete dias. As três contas que alguém fazia na mão.
+ *   AGUARDANDO FATURA  o que trava a esteira hoje.
  *
- *   ENTROU / SAIU / SOBROU — realizado. Tem data de pagamento. Não muda mais.
- *   A RECEBER / A PAGAR    — previsto. Tem vencimento. Muda todo dia.
+ * A distinção que a tela inteira defende, e que os dois primeiros blocos
+ * separam em vez de misturar:
  *
- * "Entrou" soma as DUAS origens do dinheiro: a baixa de fatura de serviço e o
- * recebimento avulso. É isso que faz o número ser uma resposta, e não um pedaço
- * de resposta.
+ *   COMPETÊNCIA (os cartões)  recorte pelo VENCIMENTO. O que o mês deve.
+ *   CAIXA       (a leitura)   recorte pelo PAGAMENTO. O que o banco viu.
+ *
+ * Uma conta de agosto paga em setembro está nos dois, em meses diferentes, e os
+ * dois estão certos. Somá-los num número só produziria um "faturamento" que não
+ * bate com o banco nem com o previsto.
  *
  * =============================================================================
  * VENCIDO NÃO RESPEITA O MÊS DA TELA
  * =============================================================================
  * Uma conta de março que ninguém pagou continua sendo problema em agosto. Se o
  * atraso só aparecesse dentro do mês em que venceu, a dívida mais velha — que é
- * a pior — seria a mais escondida.
+ * a pior — seria a mais escondida. Por isso o cartão de atrasado diz, na nota,
+ * quanto vem arrastado de meses anteriores.
  */
 export default async function Financeiro({
   searchParams,
@@ -99,12 +126,29 @@ export default async function Financeiro({
   // Quem aprova é o mesmo piso de quem apaga: GESTOR para cima. A trava de
   // verdade está na ação — esconder a aba impede o clique, não a requisição.
   const podeAprovar = podeVer(sessao.papel, Papel.GESTOR)
+  const podeLancar = podeVer(sessao.papel, Papel.FINANCEIRO)
 
-  const [panorama, aFaturar, esperando] = await Promise.all([
-    panoramaDoMes(ctx, mes),
-    aguardandoFatura(ctx),
-    quantasEsperandoAprovacao(ctx),
-  ])
+  /**
+   * A DIREÇÃO EM FOCO.
+   *
+   * Os quatro cartões falam de uma direção de cada vez — misturar entrada e
+   * saída num "total do mês" produziria um número que não quer dizer nada. A
+   * direção segue a aba quando a aba é uma das duas; nas outras, começa em "a
+   * receber", que é a pergunta mais frequente de quem abre o Financeiro.
+   */
+  const tipoFoco: 'PAGAR' | 'RECEBER' = aba === 'pagar' ? 'PAGAR' : 'RECEBER'
+
+  const [panorama, aFaturar, esperando, resumo, leitura, aGerar, categorias, clientes] =
+    await Promise.all([
+      panoramaDoMes(ctx, mes),
+      aguardandoFatura(ctx),
+      quantasEsperandoAprovacao(ctx),
+      resumoDoMes(ctx, mes, tipoFoco),
+      leituraDoMes(ctx, mes),
+      pendentesDeGeracao(ctx, mes),
+      categoriasUsadas(ctx, tipoFoco),
+      clientesParaEscolher(ctx),
+    ])
 
   return (
     <>
@@ -113,50 +157,28 @@ export default async function Financeiro({
           <p className={estilo.grav}>Dinheiro</p>
           <h1 className={estilo.titulo}>Financeiro</h1>
         </div>
+        {/* As três ações valem para todas as abas, e por isso moram aqui em
+            cima. "Nova conta" estava duplicada dentro de A pagar e A receber, e
+            "Processar agora" estava escondido dentro de Recorrências — o
+            primeiro trabalho de todo dia 1º, atrás de dois cliques. */}
+        <AcoesDoTopo
+          mes={mes}
+          tipoInicial={tipoFoco}
+          categorias={categorias}
+          clientes={clientes}
+          pendentesDeGeracao={aGerar}
+          podeLancar={podeLancar}
+        />
       </div>
 
-      <div className={`${estilo.resumo} ${estilo.resumo5}`}>
-        <Indicador
-          rotulo="Entrou no mês"
-          valor={formatarBRL(panorama.entrouCentavos)}
-          nota={
-            panorama.entrouDeAvulso > 0
-              ? `${formatarBRL(panorama.entrouDeServico)} de serviço · ${formatarBRL(panorama.entrouDeAvulso)} avulso`
-              : 'serviços e recebimentos avulsos'
-          }
-        />
-        <Indicador
-          rotulo="Saiu no mês"
-          valor={formatarBRL(panorama.saiuCentavos)}
-          nota="contas já pagas"
-        />
-        <Indicador
-          rotulo="Sobrou"
-          valor={formatarBRL(panorama.sobrouCentavos)}
-          nota={panorama.sobrouCentavos < 0 ? 'saiu mais do que entrou' : 'o que o mês deixou'}
-          alerta={panorama.sobrouCentavos < 0}
-        />
-        <Indicador
-          rotulo="A receber vencido"
-          valor={formatarBRL(panorama.receberVencidoCentavos)}
-          nota={
-            panorama.receberVencidas > 0
-              ? `${panorama.receberVencidas} ${panorama.receberVencidas === 1 ? 'cobrança atrasada' : 'cobranças atrasadas'}`
-              : 'ninguém devendo em atraso'
-          }
-          alerta={panorama.receberVencidoCentavos > 0}
-        />
-        <Indicador
-          rotulo="A pagar vencido"
-          valor={formatarBRL(panorama.pagarVencidoCentavos)}
-          nota={
-            panorama.pagarVencidas > 0
-              ? `${panorama.pagarVencidas} ${panorama.pagarVencidas === 1 ? 'conta atrasada' : 'contas atrasadas'}`
-              : 'nada atrasado'
-          }
-          alerta={panorama.pagarVencidoCentavos > 0}
-        />
-      </div>
+      <QuatroCartoes resumo={resumo} tipo={tipoFoco} mes={mes} mesExtenso={mesExtenso} />
+
+      <Leitura
+        panorama={panorama}
+        leitura={leitura}
+        mesExtenso={mesExtenso}
+        mesAnteriorExtenso={mesPorExtenso(mesVizinho(mes, -1))}
+      />
 
       {/* ACIMA das abas, e por isso presente nas cinco.
           Uma ordem liberada pela gestão e ainda sem fatura trava o aparelho de
@@ -200,6 +222,8 @@ export default async function Financeiro({
         <PainelRecorrencias ctx={ctx} mes={mes} mesExtenso={mesExtenso} podeApagar={podeApagar} />
       ) : aba === 'relatorios' ? (
         <PainelRelatorios ctx={ctx} mes={mes} mesExtenso={mesExtenso} />
+      ) : aba === 'historico' ? (
+        <PainelHistorico ctx={ctx} />
       ) : (
         <PainelFaturas ctx={ctx} sessao={sessao} status={q.status} busca={q.busca} mes={mes} />
       )}
@@ -249,6 +273,7 @@ async function PainelContas({
         descricao: c.descricao,
         categoria: c.categoria,
         contraparte: c.contraparte,
+        clienteId: c.clienteId,
         clienteNome: c.cliente?.nome ?? null,
         valorCentavos: c.valorCentavos,
         valorPagoCentavos: c.valorPagoCentavos,
@@ -260,6 +285,8 @@ async function PainelContas({
         parcelas: c.parcelas,
         daRecorrencia: Boolean(c.recorrenciaId),
         observacoes: c.observacoes,
+        aprovadoEm: c.aprovadoEm?.toISOString() ?? null,
+        aprovadoPorNome: c.aprovadoPorNome,
       }))}
     />
   )
@@ -318,12 +345,13 @@ async function PainelRelatorios({
   mes: string
   mesExtenso: string
 }) {
-  const [fluxo, saidas, entradas, formas, devedores] = await Promise.all([
+  const [fluxo, saidas, entradas, formas, devedores, idade] = await Promise.all([
     fluxoDosMeses(ctx, 6),
     porCategoria(ctx, 'PAGAR', mes),
     porCategoria(ctx, 'RECEBER', mes),
     formasDoMes(ctx, mes),
     maioresDevedores(ctx, 8),
+    idadeDaDivida(ctx),
   ])
 
   return (
@@ -333,6 +361,7 @@ async function PainelRelatorios({
       entradas={entradas}
       formas={formas}
       devedores={devedores}
+      idade={idade}
       mesExtenso={mesExtenso}
     />
   )
@@ -476,29 +505,6 @@ async function clientesParaEscolher(ctx: Ctx) {
   )
 }
 
-function Indicador({
-  rotulo,
-  valor,
-  nota,
-  alerta,
-}: {
-  rotulo: string
-  valor: string
-  nota: string
-  alerta?: boolean
-}) {
-  return (
-    <div className={estilo.indicador}>
-      <span className={estilo.grav}>{rotulo}</span>
-      <strong className={[estilo.indValor, alerta ? estilo.indAlerta : ''].filter(Boolean).join(' ')}>
-        {valor}
-      </strong>
-      <span className={estilo.indNota}>{nota}</span>
-    </div>
-  )
-}
-
-
 /**
  * A FILA DE APROVAÇÃO — o que espera o segundo par de olhos.
  *
@@ -534,6 +540,7 @@ async function PainelBaixa({ ctx }: { ctx: Ctx }) {
         descricao: c.descricao,
         categoria: c.categoria,
         contraparte: c.contraparte,
+        clienteId: c.clienteId,
         clienteNome: c.cliente?.nome ?? null,
         valorCentavos: c.valorCentavos,
         valorPagoCentavos: c.valorPagoCentavos,
@@ -545,7 +552,33 @@ async function PainelBaixa({ ctx }: { ctx: Ctx }) {
         parcelas: c.parcelas,
         daRecorrencia: Boolean(c.recorrenciaId),
         observacoes: c.observacoes,
+        aprovadoEm: c.aprovadoEm?.toISOString() ?? null,
         aprovadoPorNome: c.aprovadoPorNome,
+      }))}
+    />
+  )
+}
+
+/**
+ * O HISTÓRICO — a trilha do dinheiro, sem sair do Financeiro.
+ *
+ * Sem recorte de mês, de propósito: uma conta editada em julho continua sendo o
+ * que explica o número de setembro, e filtrá-la por mês esconderia justamente a
+ * linha que responde à pergunta.
+ */
+async function PainelHistorico({ ctx }: { ctx: Ctx }) {
+  const linhas = await historicoDoCaixa(ctx, 80)
+  return (
+    <Historico
+      linhas={linhas.map((l) => ({
+        id: l.id,
+        acao: l.acao,
+        entidadeId: l.entidadeId,
+        detalhes: l.detalhes,
+        userNome: l.userNome,
+        userPapel: l.userPapel,
+        negado: l.negado,
+        criadoEm: l.criadoEm.toISOString(),
       }))}
     />
   )
