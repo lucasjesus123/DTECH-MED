@@ -88,7 +88,8 @@ const abasF = await f.locator('nav[aria-label="Visões do financeiro"] a').allIn
 !abasF.some((t) => /Aprovar/.test(t)) ? ok('o financeiro NÃO vê a aba Aprovar') : nao('o financeiro vê a aba Aprovar')
 abasF.some((t) => /Dar baixa/.test(t)) ? ok('mas vê a aba Dar baixa') : nao('sem a aba Dar baixa')
 
-const linha = f.locator('li').filter({ hasText: 'QA-contador do mês' }).first()
+// A lista de contas virou TABELA: a linha é `tr`, não mais `li`.
+const linha = f.locator('tr').filter({ hasText: 'QA-contador do mês' }).first()
 if (await linha.count()) {
   await linha.getByRole('group').locator('summary').click()
   await f.waitForTimeout(400)

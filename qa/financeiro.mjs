@@ -81,7 +81,9 @@ exec(`insert into lancamentos (id,"tenantId",tipo,descricao,categoria,contrapart
   ('qa-paga','${tenant}','PAGAR','QA-paga','QA','Fornecedor QA',20000,20000,
     date_trunc('month',now())+interval '2 days',now(),1,1,'${autor}','Lucas Jesus',now(),'Lucas Jesus',now()),
   ('qa-velha','${tenant}','PAGAR','QA-velha de dois meses','QA','Fornecedor QA',70000,0,
-    date_trunc('month',now())-interval '55 days',null,1,1,'${autor}','Lucas Jesus',now(),'Lucas Jesus',now())`)
+    date_trunc('month',now())-interval '55 days',null,1,1,'${autor}','Lucas Jesus',now(),'Lucas Jesus',now()),
+  ('qa-parc','${tenant}','RECEBER','QA-locação (3/3)','QA','Cliente QA',73333,0,
+    date_trunc('month',now())+interval '14 days',null,3,3,'${autor}','Lucas Jesus',now(),'Lucas Jesus',now())`)
 
 const p = await entrar('lucas@dtechmed.com.br')
 
@@ -124,12 +126,16 @@ const corpo = await tabela.locator('tbody').innerText()
 ;/atrasado/i.test(corpo) ? ok('a pílula ATRASADO aparece na linha') : nao('nenhuma linha marcada atrasado')
 ;/venc\./i.test(corpo) ? ok('a linha de referência traz o vencimento') : nao('a referência não traz "Venc."')
 
+// A conta parcelada é criada por ESTE roteiro, lá em cima. A primeira versão
+// contava com uma parcelada vinda da semeadura, e reprovou na bateria por não
+// haver nenhuma — o acoplamento pela ORDEM de execução que o README proíbe, e
+// que aqui aparecia como "não achei o contador" acusando a tela.
 await p.goto(`${QA_BASE}/painel/financeiro?aba=receber&mes=${mes}`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(800)
-const corpoRec = await p.locator('table').first().locator('tbody').innerText()
-;/\b\d+\/\d+\b/.test(corpoRec)
+const linhaParc = p.locator('tr').filter({ hasText: 'QA-locação' }).first()
+;(await linhaParc.count()) > 0 && /\b3\/3\b/.test(await linhaParc.innerText())
   ? ok('o contador de parcela (3/3) está na linha')
-  : nao('não achei o contador de parcela na tabela de a receber')
+  : nao('não achei o contador de parcela na linha da conta parcelada')
 
 console.log('\n4) "VALOR INFORMADO É: DE CADA PARCELA" MULTIPLICA, NÃO DIVIDE')
 // O erro que isto impede não grita: sai uma lista plausível, com o número certo

@@ -44,9 +44,14 @@ console.log('\n1) Acessibilidade com os FORMULÁRIOS ABERTOS')
 const p = await entrar(1440)
 
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-await p.getByRole('button', { name: 'Lançar conta a pagar' }).click()
-await p.waitForTimeout(400)
-await acusar(p, 'formulário de lançar')
+// A janela de lançar é um `<dialog>` de verdade — e é justamente por isso que
+// ela precisa passar pelo axe: `showModal()` torna o resto da página inerte,
+// prende o foco e escurece o fundo, e um erro de rótulo aqui dentro fica com a
+// pessoa sem saída até fechar.
+await abrirNovaConta(p, { descricao: 'QA acessibilidade', valor: '10,00' })
+await acusar(p, 'janela de lançar conta')
+await p.keyboard.press('Escape')
+await p.waitForTimeout(300)
 
 await p.goto(`${BASE}/painel/financeiro?aba=recorrencias`, { waitUntil: 'networkidle' })
 await p.getByRole('button', { name: 'Nova recorrência' }).click()
@@ -56,14 +61,10 @@ await acusar(p, 'formulário de recorrência')
 console.log('\n2) O popover da baixa: abre, tem foco e não sai da tela')
 // Cria uma conta para ter em que dar baixa.
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-await p.getByRole('button', { name: 'Lançar conta a pagar' }).click()
-await p.fill('input[name=descricao]', 'Conta de teste do popover')
-await p.fill('input[name=valor]', '199,90')
-await p.fill('input[name=vencimento]', new Date().toISOString().slice(0, 10))
-await p.getByRole('button', { name: 'Lançar a pagar' }).click()
-await p.waitForTimeout(2000)
+await lancarConta(p, { descricao: 'Conta de teste do popover', valor: '199,90' })
 
-const linha = p.locator('li').filter({ hasText: 'Conta de teste do popover' }).first()
+// A lista virou TABELA: a linha é `tr`, não mais `li`.
+const linha = p.locator('tr').filter({ hasText: 'Conta de teste do popover' }).first()
 await linha.getByRole('group').locator('summary').click()
 await p.waitForTimeout(400)
 await acusar(p, 'popover da baixa')
@@ -105,8 +106,7 @@ if (await lm.count()) {
 
 // O formulário de lançar, no celular.
 await m.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-await m.getByRole('button', { name: 'Lançar conta a pagar' }).click()
-await m.waitForTimeout(500)
+await abrirNovaConta(m, { descricao: 'QA celular', valor: '10,00' })
 const rolaF = await m.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)
 rolaF ? nao('o formulário de lançar faz a página rolar de lado no celular') : ok('o formulário de lançar cabe no celular')
 

@@ -64,8 +64,7 @@ export default function NovaConta({
   const jaFechou = useRef(false)
 
   /**
-   * O ESTADO DESTA JANELA MORRE COM ELA — e quem garante isso é o `key` de
-   * quem a chama, não um efeito aqui dentro.
+   * O ESTADO DESTA JANELA MORRE COM ELA — por estrutura, não por lembrança.
    *
    * Ela precisa nascer limpa a cada abertura: com o tipo da aba em que a pessoa
    * está, sem o valor que ela digitou e desistiu, sem o parcelamento da conta
@@ -74,9 +73,10 @@ export default function NovaConta({
    * proíbe, com razão: cada `setState` ali provoca uma segunda renderização em
    * cascata, e a janela pisca com o estado velho antes de corrigir.
    *
-   * `AcoesDoTopo` troca o `key` ao abrir. O React desmonta e remonta, e todo
-   * `useState` daqui volta a rodar o inicializador. Zero efeitos, zero cascata,
-   * e o estado limpo é consequência da estrutura em vez de ser lembrança.
+   * `AcoesDoTopo` só a MONTA quando abre (e a desmonta ao fechar), pelos
+   * motivos escritos lá. Como consequência, todo `useState` daqui roda o
+   * inicializador a cada abertura: zero efeitos, zero cascata, estado limpo de
+   * graça.
    */
   useEffect(() => {
     if (estado.ok && estado.mensagem && !jaFechou.current) {

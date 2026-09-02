@@ -101,20 +101,35 @@ export default function AcoesDoTopo({
         </p>
       ) : null}
 
-      {/* O `key` é o que faz a janela nascer limpa a cada abertura: trocá-lo
-          desmonta e remonta, e todo estado dela volta ao inicializador. A
-          alternativa — sincronizar em `useEffect` — provoca renderização em
-          cascata e faz a janela piscar com o estado velho. Ver o comentário
-          em `nova-conta.tsx`. */}
-      <NovaConta
-        key={abrir ? 'aberta' : 'fechada'}
-        aberta={abrir}
-        aoFechar={() => setAbrir(false)}
-        mes={mes}
-        tipoInicial={tipoInicial}
-        categorias={categorias}
-        clientes={clientes}
-      />
+      {/* =====================================================================
+          A JANELA SÓ EXISTE QUANDO ESTÁ ABERTA
+          =====================================================================
+          A primeira versão a deixava montada o tempo todo, fechada. Um
+          `<dialog>` fechado é `display: none` — invisível para quem olha e para
+          o leitor de tela —, então parecia inofensivo. Não era: os campos dela
+          continuavam no DOM, e os nomes são os mesmos de outros formulários da
+          tela (`descricao`, `valor`, `vencimento`, `categoria`).
+
+          Como ela mora no CABEÇALHO, esses campos invisíveis passaram a ser os
+          PRIMEIROS da página. O formulário de recorrência, logo abaixo, ficou
+          com os campos dele em segundo lugar — e qualquer busca por nome, do
+          preenchimento automático do navegador ao roteiro da bateria, passou a
+          escrever num campo que ninguém vê. A bateria pegou exatamente isso.
+
+          Montar só quando abre resolve na raiz, e de quebra dá o estado limpo
+          de graça: o `useState` roda o inicializador a cada abertura, sem
+          precisar do `key` que estava aqui e sem `useEffect` sincronizando
+          estado — que é o que provocaria renderização em cascata. */}
+      {abrir ? (
+        <NovaConta
+          aberta
+          aoFechar={() => setAbrir(false)}
+          mes={mes}
+          tipoInicial={tipoInicial}
+          categorias={categorias}
+          clientes={clientes}
+        />
+      ) : null}
     </>
   )
 }

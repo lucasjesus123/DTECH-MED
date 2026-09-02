@@ -21,6 +21,7 @@ const nao = (t) => { console.log(`  🔴 ${t}`); falhas++ }
 // duas execuções empilhadas fariam as somas do topo dobrarem — o que pareceria
 // defeito do produto e é defeito do teste.
 import { execFileSync } from 'node:child_process'
+import { abrirNovaConta, lancarConta, hojeISO } from './lancar-conta.mjs'
 import { mkdirSync } from 'node:fs'
 
 
@@ -59,23 +60,53 @@ for (const nome of ['A receber', 'A pagar', 'Faturas de serviço', 'Recorrência
   const n = await p.getByRole('link', { name: nome, exact: true }).count()
   n === 1 ? ok(`aba "${nome}"`) : nao(`aba "${nome}" apareceu ${n}x`)
 }
-for (const ind of ['Entrou no mês', 'Saiu no mês', 'Sobrou', 'A receber vencido', 'A pagar vencido']) {
-  ;(await p.getByText(ind, { exact: true }).count()) > 0 ? ok(`indicador "${ind}"`) : nao(`sem indicador "${ind}"`)
+// OS CINCO INDICADORES VIRARAM QUATRO CARTÕES E UMA FAIXA DE LEITURA.
+//
+// Antes o topo trazia ENTROU / SAIU / SOBROU / A RECEBER VENCIDO / A PAGAR
+// VENCIDO — cinco rótulos, cinco perguntas diferentes, nenhuma relação entre
+// os números. Nada se perdeu na troca, e vale escrever ONDE cada um foi parar,
+// porque é isso que este bloco confere:
+//
+//   entrou · saiu · sobrou   → a faixa "O caixa de <mês>", em texto corrido.
+//   a receber vencido        → o cartão ATRASADO, na aba A receber.
+//   a pagar vencido          → o cartão ATRASADO, na aba A pagar.
+//
+// A conferência mudou de forma junto: em vez de procurar rótulo, ela confere a
+// IGUALDADE dos quatro cartões. Um rótulo presente prova que alguém escreveu
+// uma palavra na tela; a soma fechando prova que os números querem dizer
+// alguma coisa.
+for (const rotulo of ['Total do mês', 'Pendente', 'Atrasado']) {
+  ;(await p.getByText(rotulo, { exact: true }).count()) > 0
+    ? ok(`cartão "${rotulo}"`) : nao(`sem o cartão "${rotulo}"`)
 }
+const secao = await p.locator('section[aria-label*="receber" i]').first().innerText()
+const cent = (t) => { const m = /R\$\s*([\d.]+,\d{2})/.exec(t); return m ? Math.round(Number(m[1].replace(/\./g,'').replace(',','.'))*100) : null }
+const vTotal = cent(/total do m[êe]s[\s\S]*?(R\$[\d.,\s]+)/i.exec(secao)?.[1] ?? '')
+const vPago = cent(/recebido[\s\S]*?(R\$[\d.,\s]+)/i.exec(secao)?.[1] ?? '')
+const vPend = cent(/pendente[\s\S]*?(R\$[\d.,\s]+)/i.exec(secao)?.[1] ?? '')
+const vAtr = cent(/atrasado[\s\S]*?(R\$[\d.,\s]+)/i.exec(secao)?.[1] ?? '')
+vTotal !== null && vTotal === vPago + vPend + vAtr
+  ? ok(`os quatro cartões fecham: ${vTotal} = ${vPago} + ${vPend} + ${vAtr}`)
+  : nao(`os quatro cartões NÃO fecham: ${vTotal} ≠ ${vPago} + ${vPend} + ${vAtr}`)
+
+// E o caixa realizado, que era "Entrou/Saiu/Sobrou", continua na tela.
+const leitura = await p.locator('section[aria-label^="Leitura"]').innerText().catch(() => '')
+;/entrou/i.test(leitura) && /saiu/i.test(leitura) && /sobrou/i.test(leitura)
+  ? ok('a faixa de leitura traz entrou, saiu e sobrou')
+  : nao(`a faixa de leitura perdeu o caixa realizado: "${leitura.slice(0, 120)}"`)
 await p.screenshot({ path: `${PASTA}/caixa-1-receber.png` })
 
 // ---------------------------------------------------------------------------
 console.log('\n2) Lançar uma conta a pagar simples')
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-await p.getByRole('button', { name: 'Lançar conta a pagar' }).click()
-await p.fill('input[name=descricao]', 'Energia elétrica da oficina')
-await p.fill('input[name=categoria]', 'Energia e água')
-await p.fill('input[name=contraparte]', 'RGE Sul')
-await p.fill('input[name=valor]', '842,37')
-const hoje = new Date().toISOString().slice(0, 10)
-await p.fill('input[name=vencimento]', hoje)
-await p.getByRole('button', { name: 'Lançar a pagar' }).click()
-await p.waitForTimeout(1800)
+const hoje = hojeISO()
+// Lançar saiu de dentro da aba e virou "+ Nova conta" no cabeçalho, numa
+// janela. A sequência mora em `lancar-conta.mjs`, para os cinco roteiros que
+// lançam conta não guardarem cinco cópias dela.
+await lancarConta(p, {
+  tipo: 'PAGAR', descricao: 'Energia elétrica da oficina', valor: '842,37',
+  vencimento: hoje, categoria: 'Energia e água', contraparte: 'RGE Sul',
+})
 
 const temEnergia = await p.getByText('Energia elétrica da oficina').count()
 temEnergia > 0 ? ok('a conta apareceu na lista') : nao('a conta não apareceu na lista')
@@ -84,19 +115,20 @@ temValor > 0 ? ok('o valor bateu (R$ 842,37)') : nao('o valor não apareceu como
 
 // ---------------------------------------------------------------------------
 console.log('\n3) Lançar parcelado em 3x e conferir que viram 3 linhas')
-await p.getByRole('button', { name: 'Lançar conta a pagar' }).click()
-await p.fill('input[name=descricao]', 'Compressor do laboratório')
-await p.fill('input[name=valor]', '1000,00')
-await p.fill('input[name=vencimento]', hoje)
-await p.fill('input[name=parcelas]', '3')
-await p.waitForTimeout(400)
+await abrirNovaConta(p, {
+  tipo: 'PAGAR', descricao: 'Compressor do laboratório', valor: '1000,00',
+  vencimento: hoje, parcelas: 3, modoValor: 'total',
+})
 
-// A prévia tem que dizer o centavo da última parcela ANTES de salvar.
-const previa = await p.locator('[role=status]').first().innerText().catch(() => '')
+// A prévia tem que dizer o centavo da última parcela ANTES de salvar. Ela é
+// lida DENTRO da janela: `[role=status]` sozinho pegaria a mensagem de sucesso
+// da tela atrás.
+const previa = await p.locator('dialog[open] [role=status]').first().innerText().catch(() => '')
 ;/333,34/.test(previa) ? ok(`prévia mostra o centavo da última: "${previa.slice(0, 90)}…"`) : nao(`prévia sem o ajuste de centavo: "${previa}"`)
 
-await p.getByRole('button', { name: 'Lançar a pagar' }).click()
-await p.waitForTimeout(1800)
+await p.locator('dialog[open]').getByRole('button', { name: 'Salvar' }).click()
+await p.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 20000 })
+await p.waitForTimeout(1200)
 
 // A 1/3 vence hoje; as outras nos meses seguintes — então só ela está no mês.
 const p1 = await p.getByText('Compressor do laboratório (1/3)').count()
@@ -224,7 +256,7 @@ await f.getByRole('button', { name: /entrar/i }).click()
 await f.waitForURL((u) => !u.pathname.startsWith('/entrar'), { timeout: 20000 })
 await f.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
 
-;(await f.getByRole('button', { name: 'Lançar conta a pagar' }).count()) > 0
+;(await f.getByRole('button', { name: '+ Nova conta' }).count()) > 0
   ? ok('o financeiro consegue lançar')
   : nao('o financeiro não vê o botão de lançar')
 const apagar = await f.getByRole('button', { name: 'Apagar', exact: true }).count()

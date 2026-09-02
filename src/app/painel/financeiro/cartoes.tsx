@@ -30,23 +30,36 @@ import estilo from '../painel.module.css'
  * descobrir sozinho.
  *
  * =============================================================================
- * O SELETOR TAMBÉM NAVEGA
+ * O SELETOR TAMBÉM NAVEGA — E SÓ APARECE ONDE NÃO DUPLICA
  * =============================================================================
  * Trocar de direção leva à ABA daquela direção, e não só troca os números.
  * Quem quis ver "quanto tenho a pagar em setembro" quase sempre quer ver a
  * lista logo em seguida; um seletor que muda quatro números e deixa a pessoa
  * onde estava cobraria um segundo clique para a mesma intenção.
+ *
+ * Mas nas abas "A receber" e "A pagar" a barra logo abaixo JÁ é esse seletor.
+ * A primeira versão mostrava os dois, e a tela ficou com dois links "A receber"
+ * apontando para o mesmo lugar — a bateria pegou isso contando os rótulos. Não
+ * é só feio: para quem usa leitor de tela, dois links de mesmo nome e mesmo
+ * destino é a lista de links do documento dizendo a mesma coisa duas vezes.
+ *
+ * Então ele só aparece onde a barra não responde: Faturas, Aprovar, Dar baixa,
+ * Recorrências, Relatórios e Histórico — as abas em que os cartões falam de uma
+ * direção que nada mais na tela deixa escolher.
  */
 export default function QuatroCartoes({
   resumo,
   tipo,
   mes,
   mesExtenso,
+  comTroca,
 }: {
   resumo: ResumoDoMes
   tipo: 'PAGAR' | 'RECEBER'
   mes: string
   mesExtenso: string
+  /** Falso quando a aba aberta já É a direção — aí a barra de abas troca. */
+  comTroca: boolean
 }) {
   const p = tipo === 'PAGAR' ? PALAVRAS.pagar : PALAVRAS.receber
   const diferenca = resumo.liquidadoCentavos - resumo.pagoCentavos
@@ -57,22 +70,24 @@ export default function QuatroCartoes({
         <p className={estilo.cartoesTitulo}>
           {p.titulo} <span className={estilo.fraco}>· {mesExtenso}</span>
         </p>
-        <div className={estilo.abas} role="group" aria-label="Direção do dinheiro">
-          <Link
-            href={`/painel/financeiro?aba=receber&mes=${mes}`}
-            className={tipo === 'RECEBER' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
-            aria-current={tipo === 'RECEBER' ? 'true' : undefined}
-          >
-            A receber
-          </Link>
-          <Link
-            href={`/painel/financeiro?aba=pagar&mes=${mes}`}
-            className={tipo === 'PAGAR' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
-            aria-current={tipo === 'PAGAR' ? 'true' : undefined}
-          >
-            A pagar
-          </Link>
-        </div>
+        {comTroca ? (
+          <div className={estilo.abas} role="group" aria-label="Direção do dinheiro">
+            <Link
+              href={`/painel/financeiro?aba=receber&mes=${mes}`}
+              className={tipo === 'RECEBER' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+              aria-current={tipo === 'RECEBER' ? 'true' : undefined}
+            >
+              A receber
+            </Link>
+            <Link
+              href={`/painel/financeiro?aba=pagar&mes=${mes}`}
+              className={tipo === 'PAGAR' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+              aria-current={tipo === 'PAGAR' ? 'true' : undefined}
+            >
+              A pagar
+            </Link>
+          </div>
+        ) : null}
       </div>
 
       <div className={`${estilo.resumo} ${estilo.resumo4}`}>

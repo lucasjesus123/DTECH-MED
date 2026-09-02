@@ -1,6 +1,7 @@
 // O calendário junta cinco fontes numa grade — e o motorista NÃO vê dinheiro.
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 import { execFileSync } from 'node:child_process'
+import { lancarConta, hojeISO } from './lancar-conta.mjs'
 const { chromium } = pw
 const QA_BASE = process.env.QA_BASE || 'http://127.0.0.1:3111'
 const SENHA = process.env.QA_SENHA || 'Dtech' + '@2026'
@@ -98,15 +99,12 @@ forcado === 0 ? ok('forçar ?so=pagar na URL não revela nada') : nao(`${forcado
 ;
 console.log('\n4b) O que nasce no Financeiro aparece no calendário')
 await p.goto(`${QA_BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-await p.getByRole('button', { name: 'Lançar conta a pagar' }).click()
 const marca = `Conta do calendário ${Date.now().toString(36).slice(-5)}`
-await p.fill('input[name=descricao]', marca)
-await p.fill('input[name=valor]', '777,00')
-const hoje = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo',
-  year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
-await p.fill('input[name=vencimento]', hoje)
-await p.getByRole('button', { name: 'Lançar a pagar' }).click()
-await p.waitForTimeout(2500)
+// Lançar deixou de ser um botão dentro da aba e virou "+ Nova conta" no
+// cabeçalho, numa janela. A sequência mora em `lancar-conta.mjs` para os cinco
+// roteiros que lançam conta não guardarem cinco cópias dela.
+await lancarConta(p, { tipo: 'PAGAR', descricao: marca, valor: '777,00', vencimento: hojeISO() })
+const hoje = hojeISO()
 
 await p.goto(`${QA_BASE}/painel/calendario`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(900)
