@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { formatarBRL } from '@/lib/dinheiro'
 import type { ResumoDoMes } from '@/server/consultas/caixa'
 import estilo from '../painel.module.css'
@@ -30,36 +29,34 @@ import estilo from '../painel.module.css'
  * descobrir sozinho.
  *
  * =============================================================================
- * O SELETOR TAMBÉM NAVEGA — E SÓ APARECE ONDE NÃO DUPLICA
+ * QUEM TROCA A DIREÇÃO É A BARRA DE ABAS — E SÓ ELA
  * =============================================================================
- * Trocar de direção leva à ABA daquela direção, e não só troca os números.
- * Quem quis ver "quanto tenho a pagar em setembro" quase sempre quer ver a
- * lista logo em seguida; um seletor que muda quatro números e deixa a pessoa
- * onde estava cobraria um segundo clique para a mesma intenção.
+ * A primeira versão punha aqui um seletor "A receber | A pagar". A tela ficou
+ * com DOIS links de mesmo nome apontando para o mesmo lugar, porque a barra de
+ * abas logo abaixo já tem os dois — em TODA aba, não só nas duas de contas. A
+ * bateria pegou contando os rótulos.
  *
- * Mas nas abas "A receber" e "A pagar" a barra logo abaixo JÁ é esse seletor.
- * A primeira versão mostrava os dois, e a tela ficou com dois links "A receber"
- * apontando para o mesmo lugar — a bateria pegou isso contando os rótulos. Não
- * é só feio: para quem usa leitor de tela, dois links de mesmo nome e mesmo
- * destino é a lista de links do documento dizendo a mesma coisa duas vezes.
+ * Minha primeira correção foi errada e vale registrar por quê: escondi o
+ * seletor apenas nas abas "A receber" e "A pagar", achando que a duplicação só
+ * acontecia lá. Não: a barra carrega os dois rótulos o tempo todo, então a
+ * duplicação existia em todas as outras abas também — e a bateria reprovou de
+ * novo, na aba Faturas.
  *
- * Então ele só aparece onde a barra não responde: Faturas, Aprovar, Dar baixa,
- * Recorrências, Relatórios e Histórico — as abas em que os cartões falam de uma
- * direção que nada mais na tela deixa escolher.
+ * Um controle a menos, e nada se perde: clicar em "A pagar" na barra leva à
+ * aba onde os cartões já falam de a pagar. Era exatamente o que o seletor
+ * fazia, com um segundo botão para a mesma intenção.
+ *
+ * O título diz de qual direção os cartões estão falando ("Contas a receber ·
+ * Setembro de 2026"), que é o que o seletor de fato informava.
  */
 export default function QuatroCartoes({
   resumo,
   tipo,
-  mes,
   mesExtenso,
-  comTroca,
 }: {
   resumo: ResumoDoMes
   tipo: 'PAGAR' | 'RECEBER'
-  mes: string
   mesExtenso: string
-  /** Falso quando a aba aberta já É a direção — aí a barra de abas troca. */
-  comTroca: boolean
 }) {
   const p = tipo === 'PAGAR' ? PALAVRAS.pagar : PALAVRAS.receber
   const diferenca = resumo.liquidadoCentavos - resumo.pagoCentavos
@@ -70,24 +67,8 @@ export default function QuatroCartoes({
         <p className={estilo.cartoesTitulo}>
           {p.titulo} <span className={estilo.fraco}>· {mesExtenso}</span>
         </p>
-        {comTroca ? (
-          <div className={estilo.abas} role="group" aria-label="Direção do dinheiro">
-            <Link
-              href={`/painel/financeiro?aba=receber&mes=${mes}`}
-              className={tipo === 'RECEBER' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
-              aria-current={tipo === 'RECEBER' ? 'true' : undefined}
-            >
-              A receber
-            </Link>
-            <Link
-              href={`/painel/financeiro?aba=pagar&mes=${mes}`}
-              className={tipo === 'PAGAR' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
-              aria-current={tipo === 'PAGAR' ? 'true' : undefined}
-            >
-              A pagar
-            </Link>
-          </div>
-        ) : null}
+        {/* Ver o cabeçalho do arquivo: a troca de direção é da barra de abas, e
+            repeti-la aqui punha dois links de mesmo nome na mesma tela. */}
       </div>
 
       <div className={`${estilo.resumo} ${estilo.resumo4}`}>

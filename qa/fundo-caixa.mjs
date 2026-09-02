@@ -2,6 +2,7 @@
 // uso no celular, teclado, e os estados que o axe não vê parado.
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 import { readFileSync } from 'node:fs'
+import { abrirNovaConta, lancarConta } from './lancar-conta.mjs'
 
 // O endereço do sistema em ensaio. Vem do ambiente para a bateria poder rodar
 // noutra porta sem editar dezesseis arquivos.
@@ -87,7 +88,7 @@ await m.waitForTimeout(600)
 const rolaM = await m.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)
 rolaM ? nao('a aba A pagar rola de lado no celular') : ok('a aba A pagar não rola de lado no celular')
 
-const lm = m.locator('li').filter({ hasText: 'Conta de teste do popover' }).first()
+const lm = m.locator('tr').filter({ hasText: 'Conta de teste do popover' }).first()
 if (await lm.count()) {
   await lm.getByRole('group').locator('summary').click()
   await m.waitForTimeout(500)

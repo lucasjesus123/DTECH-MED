@@ -171,16 +171,7 @@ export default async function Financeiro({
         />
       </div>
 
-      {/* Nas abas "A receber" e "A pagar" o seletor de direção dos cartões
-          sairia igualzinho à barra de abas logo abaixo — dois links de mesmo
-          nome e mesmo destino na mesma tela. Ver `cartoes.tsx`. */}
-      <QuatroCartoes
-        resumo={resumo}
-        tipo={tipoFoco}
-        mes={mes}
-        mesExtenso={mesExtenso}
-        comTroca={aba !== 'receber' && aba !== 'pagar'}
-      />
+      <QuatroCartoes resumo={resumo} tipo={tipoFoco} mesExtenso={mesExtenso} />
 
       <Leitura
         panorama={panorama}

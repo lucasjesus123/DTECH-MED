@@ -176,7 +176,9 @@ if (await paraAprovar.count()) {
 
 console.log('\n5) Dar baixa na conta de energia')
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-const linhaEnergia = p.locator('li').filter({ hasText: 'Energia elétrica da oficina' }).first()
+// A lista de contas virou TABELA — a linha é `tr`. A fila de aprovação, logo
+// acima, continua sendo cartão em `li`: são duas telas diferentes.
+const linhaEnergia = p.locator('tr').filter({ hasText: 'Energia elétrica da oficina' }).first()
 await linhaEnergia.getByRole('group').locator('summary').click()
 await p.waitForTimeout(400)
 await linhaEnergia.getByRole('button', { name: 'Confirmar' }).click()
@@ -184,16 +186,22 @@ await p.waitForTimeout(2000)
 
 // Paga, ela sai do filtro "abertas" e aparece em "Pagas no mês" — é o que o
 // rodapé da tela promete.
-const aindaAberta = await p.locator('li').filter({ hasText: 'Energia elétrica da oficina' }).count()
+const aindaAberta = await p.locator('tr').filter({ hasText: 'Energia elétrica da oficina' }).count()
 aindaAberta === 0 ? ok('a conta paga saiu da lista de abertas') : nao('a conta paga continua entre as abertas')
 await p.goto(`${BASE}/painel/financeiro?aba=pagar&situacao=pagas`, { waitUntil: 'networkidle' })
-const selo = await p.locator('li').filter({ hasText: 'Energia elétrica da oficina' }).first().innerText().catch(() => '')
+const selo = await p.locator('tr').filter({ hasText: 'Energia elétrica da oficina' }).first().innerText().catch(() => '')
 ;/pago/i.test(selo) ? ok('e aparece em "Pagas no mês", marcada como paga') : nao(`não achei em "Pagas no mês": "${selo.replace(/\n/g, ' | ').slice(0, 120)}"`)
 
-console.log('\n6) O "Saiu no mês" subiu no topo')
+console.log('\n6) O que saiu do caixa subiu para a faixa de leitura')
+// "Saiu no mês" era um cartão de rótulo próprio; virou uma frase na faixa de
+// leitura ("Entrou X, saiu Y, sobrou Z"). O número é o mesmo e a conferência
+// continua sendo pelo NÚMERO, que é o que importa — o rótulo mudou de forma,
+// a baixa de R$ 842,37 tem de aparecer no caixa realizado do mês do mesmo
+// jeito.
 await p.goto(`${BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
-const saiu = await p.locator('div').filter({ hasText: /^Saiu no mês/ }).first().innerText().catch(() => '')
-;/842,37/.test(saiu) ? ok(`"Saiu no mês" virou R$ 842,37`) : nao(`"Saiu no mês" não bateu: "${saiu.replace(/\n/g, ' | ')}"`)
+await p.waitForTimeout(700)
+const saiu = await p.locator('section[aria-label^="Leitura"]').innerText().catch(() => '')
+;/saiu[^.]*842,37/i.test(saiu) ? ok('a faixa de leitura diz que saíram R$ 842,37') : nao(`o caixa realizado não bateu: "${saiu.replace(/\n/g, ' | ').slice(0, 160)}"`)
 
 // ---------------------------------------------------------------------------
 console.log('\n7) Criar uma recorrência e gerar as contas do mês')
