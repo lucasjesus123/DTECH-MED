@@ -13,22 +13,40 @@ isso mora?**
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Ela já reduziu quatro entradas a uma (Agenda de rota, Ao vivo, App do motorista
-e App do técnico viraram **Rota**), e já organizou o Financeiro em cinco abas
-sem criar nenhum item novo. Aplicada aos seis pedidos, ela produz **um único
+Ela já reduziu Agenda de rota e Ao vivo a **Rota**, e já organizou o Financeiro
+em abas sem criar item novo. Aplicada aos seis pedidos, ela produz **um único
 item de menu novo** — o resto entra onde o assunto já mora.
+
+> ⚠️ **ONDE ESTA REGRA FOI APLICADA ERRADO, e o registro fica.**
+> A primeira versão deste documento contava os **aplicativos de campo** entre as
+> quatro entradas que viraram Rota, com este argumento: *"os aplicativos como
+> botões — porque aplicativo de campo não é outra aba do painel, é outra
+> superfície, feita para o celular de quem está na rua"*.
+>
+> A frase é verdadeira e a conclusão estava errada. O resultado prático foi:
+> menu **O.S.** → aba **Rota** → botão. Três cliques, e o dono do sistema foi
+> procurar os aplicativos e não achou.
+>
+> SER outra superfície é justamente o motivo de precisarem de porta visível. E a
+> regra, lida direito, aponta para isso: *"quero usar o aplicativo de campo"* não
+> é recorte de Ordens, de Acompanhar nem de Rota — é pergunta própria, e pergunta
+> própria é item de menu. Hoje existe **Aplicativos**, ao lado de O.S.
+>
+> A lição não é sobre aplicativos: a regra responde "isto é recorte de outra
+> tela?". Quando a resposta é não, ela manda CRIAR o item — e usá-la só para
+> reduzir a lista é usá-la pela metade.
 
 ### O resultado no menu
 
 | grupo | hoje | depois |
 |---|---|---|
 | Hoje | Painel do dia | Painel do dia · **Calendário** |
-| O trabalho | Ordens · Acompanhar · Rota | igual |
+| O trabalho | Ordens · Acompanhar · Rota | **O.S.** (abas: Ordens · Acompanhar · Rota) · **Aplicativos** |
 | Comercial | Contatos do site | **Comercial** (abas: Contatos · Orçamentos) |
 | Cadastros | Clientes · Equipamentos · Estoque | igual |
 | Dinheiro | Financeiro | igual |
-| Retaguarda | Preventiva · WhatsApp | igual |
-| Equipe | Pessoas e acessos · Trilha | igual |
+| Retaguarda | Preventiva · WhatsApp | Preventiva · WhatsApp · **Modelos de documento** · **Quem fez o quê** |
+| Equipe | Pessoas e acessos · Trilha | Pessoas e acessos |
 
 Doze itens viram treze. Sem a regra, seriam dezoito.
 
@@ -122,6 +140,13 @@ Vem por último porque é o que mais depende: precisa da ficha de cliente comple
 **Por que não é item de menu:** ninguém acorda querendo "abrir o gerador de
 contratos". A pessoa está na ficha de um cliente, ou numa ordem, e de lá emite o
 documento daquele cliente. Documento é ação sobre algo, não destino.
+
+> **Onde isto também foi longe demais.** Emitir não é item de menu — continua
+> valendo. Mas eu pus a emissão num bloco da COLUNA LATERAL da ficha da O.S.,
+> abaixo de Assinaturas, e ninguém achou. Coluna lateral é onde se LÊ o cliente,
+> o aparelho, a rota; o que a pessoa vem FAZER não pertence a ela. Hoje é a aba
+> **Contrato e documentos**, ao lado de Ficha — dentro da ordem, como sempre
+> foi, mas onde se enxerga.
 
 **O que muda:** dois botões no bloco Documentos da ordem, do FINANCEIRO para
 cima. O valor nunca é digitado — vem da fatura, ou do orçamento aprovado quando
