@@ -42,6 +42,15 @@ const schemaPeca = z.object({
   id: z.string().nullish(),
   sku: z.string().trim().min(1, 'Informe o código da peça.').max(40),
   nome: z.string().trim().min(2, 'Informe o nome da peça.'),
+  /**
+   * Peça, insumo ou ferramenta.
+   *
+   * O padrão é PECA porque é o que todo item era antes desta divisão existir —
+   * um formulário antigo que não mande o campo continua criando exatamente o
+   * que criava.
+   */
+  tipo: z.enum(['PECA', 'INSUMO', 'FERRAMENTA']).default('PECA'),
+  patrimonio: z.string().trim().nullish(),
   categoria: z.string().trim().nullish(),
   aplicacao: z.string().trim().nullish(),
   unidade: z.string().trim().default('UN'),
@@ -73,6 +82,8 @@ export async function salvarPeca(_anterior: Resposta, form: FormData): Promise<R
     const dados = {
       sku: v.sku,
       nome: v.nome,
+      tipo: v.tipo,
+      patrimonio: v.patrimonio || null,
       categoria: v.categoria || null,
       aplicacao: v.aplicacao || null,
       unidade: v.unidade || 'UN',
@@ -340,4 +351,196 @@ async function apagarAntiga(
 ): Promise<void> {
   if (caminho && caminho !== novoCaminho) await apagarArquivo(caminho)
   if (thumb && thumb !== novoThumb) await apagarArquivo(thumb)
+}
+
+// ---------------------------------------------------------------------------
+// FERRAMENTA: sai com alguém, e volta
+// ---------------------------------------------------------------------------
+
+/**
+ * O EMPRÉSTIMO DE FERRAMENTA — a custódia que o estoque não tinha.
+ *
+ * =============================================================================
+ * POR QUE ISTO NÃO É UMA "SAÍDA"
+ * =============================================================================
+ * Uma chave de fenda que sai com o técnico não foi consumida. Registrá-la como
+ * saída baixa o saldo e faz a ferramenta desaparecer do sistema no dia em que
+ * alguém a levou — e é assim que se perde ferramenta: não por roubo, por não
+ * saber com quem está.
+ *
+ * O movimento EMPRESTIMO não mexe no saldo; ele move a unidade para
+ * `saldoEmprestado`, que é irmão do reservado. A ferramenta continua sendo da
+ * empresa, só não está na prateleira. Ver `movimentar`.
+ *
+ * =============================================================================
+ * O REGISTRO DA POSSE É UMA LINHA PRÓPRIA, E NÃO SÓ O MOVIMENTO
+ * =============================================================================
+ * O livro-razão diz que saiu. Ele não diz COM QUEM ESTÁ AGORA sem parear cada
+ * saída com a devolução correspondente — e o pareamento não existe, porque duas
+ * unidades do mesmo multímetro podem estar com duas pessoas. Por isso a linha
+ * em `emprestimos_ferramenta`, onde `devolvidoEm` nulo é a pergunta inteira.
+ *
+ * As duas coisas entram na MESMA transação: um movimento sem a linha de posse
+ * seria um saldo que ninguém sabe explicar, e uma linha de posse sem movimento
+ * seria uma ferramenta que a conta do estoque não vê sair.
+ */
+const schemaEmprestimo = z.object({
+  pecaId: z.string().min(1, 'Escolha a ferramenta.'),
+  quantidade: z.coerce.number().positive('A quantidade precisa ser maior que zero.').default(1),
+  responsavelId: z.string().trim().min(1, 'Escolha quem está levando a ferramenta.'),
+  ordemId: z.string().trim().nullish(),
+  previstoPara: z.string().trim().nullish(),
+  observacao: z.string().trim().nullish(),
+})
+
+export async function emprestarFerramenta(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_MEXER.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não movimenta ferramenta.' }
+  }
+
+  const d = schemaEmprestimo.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const peca = await tx.peca.findUnique({
+      where: { id: v.pecaId },
+      select: { id: true, nome: true, tipo: true },
+    })
+    if (!peca) return { ok: false as const, motivo: 'Item não encontrado nesta empresa.' }
+    /**
+     * Só FERRAMENTA se empresta, e a recusa é explicada.
+     *
+     * Emprestar uma peça de consumo é um pedido que parece razoável e não é:
+     * a peça sairia do disponível para sempre, esperando uma devolução que
+     * nunca vem, e a O.S. que precisasse dela veria falta de estoque sem
+     * nenhuma pista do motivo.
+     */
+    if (peca.tipo !== 'FERRAMENTA') {
+      return {
+        ok: false as const,
+        motivo: `"${peca.nome}" está cadastrado como ${peca.tipo === 'PECA' ? 'peça' : 'insumo'}, e peça não volta. Empréstimo é só de ferramenta — mude o tipo no cadastro se for o caso.`,
+      }
+    }
+
+    // O responsável vem da equipe da própria empresa: o `findUnique` roda
+    // dentro do escopo, então um id de outra franquia não é achado aqui.
+    const quem = await tx.user.findUnique({
+      where: { id: v.responsavelId },
+      select: { id: true, nome: true, ativo: true },
+    })
+    if (!quem || !quem.ativo) {
+      return { ok: false as const, motivo: 'Pessoa não encontrada na equipe desta empresa.' }
+    }
+
+    const mov = await movimentar(tx, exigirEmpresa(a.ctx), a.ator, {
+      pecaId: v.pecaId,
+      tipo: TipoMovimentoEstoque.EMPRESTIMO,
+      quantidade: v.quantidade,
+      ordemId: v.ordemId || null,
+      motivo: `Saiu com ${quem.nome}${v.observacao ? ` — ${v.observacao}` : ''}`,
+    })
+    if (!mov.ok) return { ok: false as const, motivo: mov.motivo }
+
+    const emprestimo = await tx.emprestimoFerramenta.create({
+      data: {
+        tenantId: exigirEmpresa(a.ctx),
+        pecaId: v.pecaId,
+        quantidade: new Prisma.Decimal(v.quantidade),
+        responsavelId: quem.id,
+        responsavelNome: quem.nome,
+        ordemId: v.ordemId || null,
+        // A data vem como 'aaaa-mm-dd' do campo de data; `new Date` sobre ela
+        // resolve em UTC, e é o que o resto do sistema já faz com prazo.
+        previstoPara: v.previstoPara ? new Date(`${v.previstoPara}T12:00:00`) : null,
+        observacao: v.observacao || null,
+        registradoPorId: a.ator.id,
+        registradoPorNome: a.ator.nome,
+      },
+      select: { id: true },
+    })
+
+    return { ok: true as const, id: emprestimo.id, nome: peca.nome, quem: quem.nome }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ferramenta.emprestada',
+    entidade: 'emprestimo_ferramenta',
+    entidadeId: r.id,
+    detalhes: { peca: r.nome, responsavel: r.quem, quantidade: v.quantidade },
+  })
+  revalidatePath('/painel/estoque')
+  return { ok: true }
+}
+
+const schemaDevolucao = z.object({
+  emprestimoId: z.string().min(1),
+  condicaoVolta: z.string().trim().nullish(),
+})
+
+/**
+ * A DEVOLUÇÃO — e a condição em que a ferramenta voltou.
+ *
+ * O campo da condição é opcional e existe por um motivo só: é aqui que "voltou
+ * sem a ponteira" fica escrito no dia em que aconteceu, e não na discussão de
+ * três meses depois, quando ninguém lembra quem foi o último a levar.
+ */
+export async function devolverFerramenta(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_MEXER.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não movimenta ferramenta.' }
+  }
+
+  const d = schemaDevolucao.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const emp = await tx.emprestimoFerramenta.findUnique({
+      where: { id: v.emprestimoId },
+      select: {
+        id: true,
+        pecaId: true,
+        quantidade: true,
+        devolvidoEm: true,
+        responsavelNome: true,
+        peca: { select: { nome: true } },
+      },
+    })
+    if (!emp) return { ok: false as const, motivo: 'Empréstimo não encontrado nesta empresa.' }
+    // Devolver duas vezes somaria a ferramenta de volta duas vezes e o
+    // disponível passaria do patrimônio. A recusa diz o que já aconteceu.
+    if (emp.devolvidoEm) {
+      return { ok: false as const, motivo: 'Esta ferramenta já foi devolvida.' }
+    }
+
+    const mov = await movimentar(tx, exigirEmpresa(a.ctx), a.ator, {
+      pecaId: emp.pecaId,
+      tipo: TipoMovimentoEstoque.DEVOLUCAO,
+      quantidade: Number(emp.quantidade),
+      motivo: `Devolvida por ${emp.responsavelNome}${v.condicaoVolta ? ` — ${v.condicaoVolta}` : ''}`,
+    })
+    if (!mov.ok) return { ok: false as const, motivo: mov.motivo }
+
+    await tx.emprestimoFerramenta.update({
+      where: { id: emp.id },
+      data: { devolvidoEm: new Date(), condicaoVolta: v.condicaoVolta || null },
+    })
+
+    return { ok: true as const, id: emp.id, nome: emp.peca.nome, quem: emp.responsavelNome }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ferramenta.devolvida',
+    entidade: 'emprestimo_ferramenta',
+    entidadeId: r.id,
+    detalhes: { peca: r.nome, responsavel: r.quem, condicao: v.condicaoVolta ?? null },
+  })
+  revalidatePath('/painel/estoque')
+  return { ok: true }
 }

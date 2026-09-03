@@ -223,13 +223,25 @@ export async function listarEquipamentos(ctx: ContextoAcesso, busca?: string) {
 // Estoque
 // ---------------------------------------------------------------------------
 
-export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCriticas = false) {
+export async function listarPecas(
+  ctx: ContextoAcesso,
+  busca?: string,
+  soCriticas = false,
+  /**
+   * Peça, insumo ou ferramenta — ou tudo, quando não vem nada.
+   *
+   * O filtro é do BANCO e não da tela: uma casa com quatrocentos itens não
+   * pode trazer os quatrocentos para escolher trinta no navegador.
+   */
+  tipo?: 'PECA' | 'INSUMO' | 'FERRAMENTA',
+) {
   const b = busca?.trim() ?? ''
 
   const pecas = await comEscopo(ctx, (tx) =>
     tx.peca.findMany({
       where: {
         ativo: true,
+        ...(tipo ? { tipo } : {}),
         ...(b
           ? {
               OR: [
@@ -237,6 +249,7 @@ export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCritica
                 { nome: { contains: b, mode: 'insensitive' } },
                 { categoria: { contains: b, mode: 'insensitive' } },
                 { aplicacao: { contains: b, mode: 'insensitive' } },
+                { patrimonio: { contains: b, mode: 'insensitive' } },
               ],
             }
           : {}),
@@ -250,8 +263,11 @@ export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCritica
         categoria: true,
         unidade: true,
         localizacao: true,
+        tipo: true,
+        patrimonio: true,
         saldo: true,
         saldoReservado: true,
+        saldoEmprestado: true,
         estoqueMinimo: true,
         custoMedioCentavos: true,
         precoVendaCentavos: true,
@@ -266,20 +282,29 @@ export async function listarPecas(ctx: ContextoAcesso, busca?: string, soCritica
   const linhas = pecas.map((p) => {
     const saldo = Number(p.saldo)
     const reservado = Number(p.saldoReservado)
+    const emprestado = Number(p.saldoEmprestado)
     const minimo = Number(p.estoqueMinimo)
     return {
       id: p.id,
       sku: p.sku,
       nome: p.nome,
+      tipo: p.tipo,
+      patrimonio: p.patrimonio,
       categoria: p.categoria,
       unidade: p.unidade,
       localizacao: p.localizacao,
       temFoto: Boolean(p.fotoCaminho),
       saldo,
       reservado,
-      // O que dá para prometer hoje. É este número que decide se a O.S. anda —
-      // o saldo cheio inclui peça já vendida para outra ordem.
-      livre: saldo - reservado,
+      emprestado,
+      /**
+       * O que dá para prometer hoje.
+       *
+       * É este número que decide se a O.S. anda. O saldo cheio inclui peça já
+       * vendida para outra ordem (reservada) e ferramenta que está na mão de
+       * alguém (emprestada) — nenhuma das duas está na prateleira.
+       */
+      livre: saldo - reservado - emprestado,
       minimo,
       custoMedioCentavos: p.custoMedioCentavos,
       precoVendaCentavos: p.precoVendaCentavos,

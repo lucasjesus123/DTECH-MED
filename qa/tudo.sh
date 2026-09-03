@@ -55,7 +55,7 @@ TABELAS="tenants, usuarios, sessoes, clientes, equipamentos, ordens, eventos_ord
  assinaturas, orcamentos, orcamento_itens, pecas, movimentos_estoque, faturas, pagamentos,
  agendamentos, documentos, outbox_jobs, mensagens_whatsapp, templates_mensagem,
  whatsapp_instances, leads, audit_logs, contadores, lancamentos, recorrencias,
- compromissos, modelos_documento, colunas_quadro"
+ compromissos, modelos_documento, colunas_quadro, emprestimos_ferramenta"
 
 semear() {
   [ -x "$PG_SUBIR" ] || [ -f "$PG_SUBIR" ] && bash "$PG_SUBIR" >/dev/null 2>&1
@@ -137,6 +137,7 @@ node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no t
 node a11y.mjs           >"$LOGS/ax.log" 2>&1; marcar $? "acessibilidade (axe-core) em 21 telas, com o papel que usa cada uma"
 node equipamento.mjs    >"$LOGS/eq.log" 2>&1; marcar $? "o catálogo e a O.S. se falam: puxar, amarrar, e não duplicar"
 node quadro.mjs         >"$LOGS/qd.log" 2>&1; marcar $? "o quadro: colunas da empresa, cartão que anda, e nada some"
+node estoque.mjs        >"$LOGS/es.log" 2>&1; marcar $? "estoque: peça, insumo e ferramenta — e emprestar não baixa saldo"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

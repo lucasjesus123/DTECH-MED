@@ -66,6 +66,7 @@ export const ModelName = {
   ContratoManutencao: 'ContratoManutencao',
   VisitaPreventiva: 'VisitaPreventiva',
   Peca: 'Peca',
+  EmprestimoFerramenta: 'EmprestimoFerramenta',
   MovimentoEstoque: 'MovimentoEstoque',
   Fatura: 'Fatura',
   Pagamento: 'Pagamento',
@@ -460,12 +461,15 @@ export const PecaScalarFieldEnum = {
   descricao: 'descricao',
   categoria: 'categoria',
   marca: 'marca',
+  tipo: 'tipo',
+  patrimonio: 'patrimonio',
   aplicacao: 'aplicacao',
   unidade: 'unidade',
   custoMedioCentavos: 'custoMedioCentavos',
   precoVendaCentavos: 'precoVendaCentavos',
   saldo: 'saldo',
   saldoReservado: 'saldoReservado',
+  saldoEmprestado: 'saldoEmprestado',
   estoqueMinimo: 'estoqueMinimo',
   localizacao: 'localizacao',
   fornecedor: 'fornecedor',
@@ -478,6 +482,27 @@ export const PecaScalarFieldEnum = {
 } as const
 
 export type PecaScalarFieldEnum = (typeof PecaScalarFieldEnum)[keyof typeof PecaScalarFieldEnum]
+
+
+export const EmprestimoFerramentaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  pecaId: 'pecaId',
+  quantidade: 'quantidade',
+  responsavelId: 'responsavelId',
+  responsavelNome: 'responsavelNome',
+  ordemId: 'ordemId',
+  retiradoEm: 'retiradoEm',
+  previstoPara: 'previstoPara',
+  devolvidoEm: 'devolvidoEm',
+  condicaoVolta: 'condicaoVolta',
+  observacao: 'observacao',
+  registradoPorId: 'registradoPorId',
+  registradoPorNome: 'registradoPorNome',
+  criadoEm: 'criadoEm'
+} as const
+
+export type EmprestimoFerramentaScalarFieldEnum = (typeof EmprestimoFerramentaScalarFieldEnum)[keyof typeof EmprestimoFerramentaScalarFieldEnum]
 
 
 export const MovimentoEstoqueScalarFieldEnum = {

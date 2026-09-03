@@ -412,6 +412,7 @@ export const ModelName = {
   ContratoManutencao: 'ContratoManutencao',
   VisitaPreventiva: 'VisitaPreventiva',
   Peca: 'Peca',
+  EmprestimoFerramenta: 'EmprestimoFerramenta',
   MovimentoEstoque: 'MovimentoEstoque',
   Fatura: 'Fatura',
   Pagamento: 'Pagamento',
@@ -449,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1560,6 +1561,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PecaCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PecaCountAggregateOutputType> | number
+        }
+      }
+    }
+    EmprestimoFerramenta: {
+      payload: Prisma.$EmprestimoFerramentaPayload<ExtArgs>
+      fields: Prisma.EmprestimoFerramentaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EmprestimoFerramentaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EmprestimoFerramentaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        findFirst: {
+          args: Prisma.EmprestimoFerramentaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EmprestimoFerramentaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        findMany: {
+          args: Prisma.EmprestimoFerramentaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>[]
+        }
+        create: {
+          args: Prisma.EmprestimoFerramentaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        createMany: {
+          args: Prisma.EmprestimoFerramentaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EmprestimoFerramentaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>[]
+        }
+        delete: {
+          args: Prisma.EmprestimoFerramentaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        update: {
+          args: Prisma.EmprestimoFerramentaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        deleteMany: {
+          args: Prisma.EmprestimoFerramentaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EmprestimoFerramentaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EmprestimoFerramentaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>[]
+        }
+        upsert: {
+          args: Prisma.EmprestimoFerramentaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmprestimoFerramentaPayload>
+        }
+        aggregate: {
+          args: Prisma.EmprestimoFerramentaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEmprestimoFerramenta>
+        }
+        groupBy: {
+          args: Prisma.EmprestimoFerramentaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmprestimoFerramentaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EmprestimoFerramentaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EmprestimoFerramentaCountAggregateOutputType> | number
         }
       }
     }
@@ -3584,12 +3659,15 @@ export const PecaScalarFieldEnum = {
   descricao: 'descricao',
   categoria: 'categoria',
   marca: 'marca',
+  tipo: 'tipo',
+  patrimonio: 'patrimonio',
   aplicacao: 'aplicacao',
   unidade: 'unidade',
   custoMedioCentavos: 'custoMedioCentavos',
   precoVendaCentavos: 'precoVendaCentavos',
   saldo: 'saldo',
   saldoReservado: 'saldoReservado',
+  saldoEmprestado: 'saldoEmprestado',
   estoqueMinimo: 'estoqueMinimo',
   localizacao: 'localizacao',
   fornecedor: 'fornecedor',
@@ -3602,6 +3680,27 @@ export const PecaScalarFieldEnum = {
 } as const
 
 export type PecaScalarFieldEnum = (typeof PecaScalarFieldEnum)[keyof typeof PecaScalarFieldEnum]
+
+
+export const EmprestimoFerramentaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  pecaId: 'pecaId',
+  quantidade: 'quantidade',
+  responsavelId: 'responsavelId',
+  responsavelNome: 'responsavelNome',
+  ordemId: 'ordemId',
+  retiradoEm: 'retiradoEm',
+  previstoPara: 'previstoPara',
+  devolvidoEm: 'devolvidoEm',
+  condicaoVolta: 'condicaoVolta',
+  observacao: 'observacao',
+  registradoPorId: 'registradoPorId',
+  registradoPorNome: 'registradoPorNome',
+  criadoEm: 'criadoEm'
+} as const
+
+export type EmprestimoFerramentaScalarFieldEnum = (typeof EmprestimoFerramentaScalarFieldEnum)[keyof typeof EmprestimoFerramentaScalarFieldEnum]
 
 
 export const MovimentoEstoqueScalarFieldEnum = {
@@ -4302,6 +4401,20 @@ export type ListEnumStatusVisitaFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'TipoItemEstoque'
+ */
+export type EnumTipoItemEstoqueFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoItemEstoque'>
+    
+
+
+/**
+ * Reference to a field of type 'TipoItemEstoque[]'
+ */
+export type ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoItemEstoque[]'>
+    
+
+
+/**
  * Reference to a field of type 'TipoMovimentoEstoque'
  */
 export type EnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoMovimentoEstoque'>
@@ -4606,6 +4719,7 @@ export type GlobalOmitConfig = {
   contratoManutencao?: Prisma.ContratoManutencaoOmit
   visitaPreventiva?: Prisma.VisitaPreventivaOmit
   peca?: Prisma.PecaOmit
+  emprestimoFerramenta?: Prisma.EmprestimoFerramentaOmit
   movimentoEstoque?: Prisma.MovimentoEstoqueOmit
   fatura?: Prisma.FaturaOmit
   pagamento?: Prisma.PagamentoOmit

@@ -440,6 +440,7 @@ export type OrdemWhereInput = {
   ordemOrigem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
   retornos?: Prisma.OrdemListRelationFilter
   pecasRetiradas?: Prisma.PecaRetiradaListRelationFilter
+  emprestimos?: Prisma.EmprestimoFerramentaListRelationFilter
   visitaPreventiva?: Prisma.XOR<Prisma.VisitaPreventivaNullableScalarRelationFilter, Prisma.VisitaPreventivaWhereInput> | null
   eventos?: Prisma.EventoOrdemListRelationFilter
   fotos?: Prisma.FotoListRelationFilter
@@ -493,6 +494,7 @@ export type OrdemOrderByWithRelationInput = {
   ordemOrigem?: Prisma.OrdemOrderByWithRelationInput
   retornos?: Prisma.OrdemOrderByRelationAggregateInput
   pecasRetiradas?: Prisma.PecaRetiradaOrderByRelationAggregateInput
+  emprestimos?: Prisma.EmprestimoFerramentaOrderByRelationAggregateInput
   visitaPreventiva?: Prisma.VisitaPreventivaOrderByWithRelationInput
   eventos?: Prisma.EventoOrdemOrderByRelationAggregateInput
   fotos?: Prisma.FotoOrderByRelationAggregateInput
@@ -550,6 +552,7 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   ordemOrigem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
   retornos?: Prisma.OrdemListRelationFilter
   pecasRetiradas?: Prisma.PecaRetiradaListRelationFilter
+  emprestimos?: Prisma.EmprestimoFerramentaListRelationFilter
   visitaPreventiva?: Prisma.XOR<Prisma.VisitaPreventivaNullableScalarRelationFilter, Prisma.VisitaPreventivaWhereInput> | null
   eventos?: Prisma.EventoOrdemListRelationFilter
   fotos?: Prisma.FotoListRelationFilter
@@ -675,6 +678,7 @@ export type OrdemCreateInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -722,6 +726,7 @@ export type OrdemUncheckedCreateInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -769,6 +774,7 @@ export type OrdemUpdateInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -816,6 +822,7 @@ export type OrdemUncheckedUpdateInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -1427,6 +1434,22 @@ export type OrdemUpdateOneWithoutVisitaPreventivaNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrdemUpdateToOneWithWhereWithoutVisitaPreventivaInput, Prisma.OrdemUpdateWithoutVisitaPreventivaInput>, Prisma.OrdemUncheckedUpdateWithoutVisitaPreventivaInput>
 }
 
+export type OrdemCreateNestedOneWithoutEmprestimosInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutEmprestimosInput, Prisma.OrdemUncheckedCreateWithoutEmprestimosInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutEmprestimosInput
+  connect?: Prisma.OrdemWhereUniqueInput
+}
+
+export type OrdemUpdateOneWithoutEmprestimosNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutEmprestimosInput, Prisma.OrdemUncheckedCreateWithoutEmprestimosInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutEmprestimosInput
+  upsert?: Prisma.OrdemUpsertWithoutEmprestimosInput
+  disconnect?: Prisma.OrdemWhereInput | boolean
+  delete?: Prisma.OrdemWhereInput | boolean
+  connect?: Prisma.OrdemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrdemUpdateToOneWithWhereWithoutEmprestimosInput, Prisma.OrdemUpdateWithoutEmprestimosInput>, Prisma.OrdemUncheckedUpdateWithoutEmprestimosInput>
+}
+
 export type OrdemCreateNestedOneWithoutMovimentosInput = {
   create?: Prisma.XOR<Prisma.OrdemCreateWithoutMovimentosInput, Prisma.OrdemUncheckedCreateWithoutMovimentosInput>
   connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutMovimentosInput
@@ -1535,6 +1558,7 @@ export type OrdemCreateWithoutTenantInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -1581,6 +1605,7 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -1691,6 +1716,7 @@ export type OrdemCreateWithoutTecnicoInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -1737,6 +1763,7 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -1793,6 +1820,7 @@ export type OrdemCreateWithoutAtendenteInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -1839,6 +1867,7 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -1927,6 +1956,7 @@ export type OrdemCreateWithoutClienteInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -1973,6 +2003,7 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2045,6 +2076,7 @@ export type OrdemCreateWithoutEquipamentoInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -2091,6 +2123,7 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2163,6 +2196,7 @@ export type OrdemCreateWithoutRetornosInput = {
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -2209,6 +2243,7 @@ export type OrdemUncheckedCreateWithoutRetornosInput = {
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2260,6 +2295,7 @@ export type OrdemCreateWithoutOrdemOrigemInput = {
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -2306,6 +2342,7 @@ export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2373,6 +2410,7 @@ export type OrdemUpdateWithoutRetornosInput = {
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -2419,6 +2457,7 @@ export type OrdemUncheckedUpdateWithoutRetornosInput = {
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2482,6 +2521,7 @@ export type OrdemCreateWithoutEventosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -2528,6 +2568,7 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2590,6 +2631,7 @@ export type OrdemUpdateWithoutEventosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -2636,6 +2678,7 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2682,6 +2725,7 @@ export type OrdemCreateWithoutFotosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -2728,6 +2772,7 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2790,6 +2835,7 @@ export type OrdemUpdateWithoutFotosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -2836,6 +2882,7 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2882,6 +2929,7 @@ export type OrdemCreateWithoutAssinaturasInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -2928,6 +2976,7 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -2990,6 +3039,7 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -3036,6 +3086,7 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3082,6 +3133,7 @@ export type OrdemCreateWithoutOrcamentosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -3128,6 +3180,7 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -3190,6 +3243,7 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -3236,6 +3290,7 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3281,6 +3336,7 @@ export type OrdemCreateWithoutPecasRetiradasInput = {
   tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -3327,6 +3383,7 @@ export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
   prazoPrometido?: Date | string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -3389,6 +3446,7 @@ export type OrdemUpdateWithoutPecasRetiradasInput = {
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -3435,6 +3493,7 @@ export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3482,6 +3541,7 @@ export type OrdemCreateWithoutVisitaPreventivaInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
@@ -3528,6 +3588,7 @@ export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
   assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3590,6 +3651,7 @@ export type OrdemUpdateWithoutVisitaPreventivaInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
@@ -3636,6 +3698,211 @@ export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemCreateWithoutEmprestimosInput = {
+  id?: string
+  numero: number
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
+  cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
+  equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
+  atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
+  tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
+  pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemUncheckedCreateWithoutEmprestimosInput = {
+  id?: string
+  tenantId: string
+  numero: number
+  clienteId: string
+  equipamentoId: string
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  atendenteId?: string | null
+  tecnicoId?: string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemCreateOrConnectWithoutEmprestimosInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutEmprestimosInput, Prisma.OrdemUncheckedCreateWithoutEmprestimosInput>
+}
+
+export type OrdemUpsertWithoutEmprestimosInput = {
+  update: Prisma.XOR<Prisma.OrdemUpdateWithoutEmprestimosInput, Prisma.OrdemUncheckedUpdateWithoutEmprestimosInput>
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutEmprestimosInput, Prisma.OrdemUncheckedCreateWithoutEmprestimosInput>
+  where?: Prisma.OrdemWhereInput
+}
+
+export type OrdemUpdateToOneWithWhereWithoutEmprestimosInput = {
+  where?: Prisma.OrdemWhereInput
+  data: Prisma.XOR<Prisma.OrdemUpdateWithoutEmprestimosInput, Prisma.OrdemUncheckedUpdateWithoutEmprestimosInput>
+}
+
+export type OrdemUpdateWithoutEmprestimosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
+  cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
+  equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
+  atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
+  tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentoId?: Prisma.StringFieldUpdateOperationsInput | string
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
   assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3682,6 +3949,7 @@ export type OrdemCreateWithoutMovimentosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -3728,6 +3996,7 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -3790,6 +4059,7 @@ export type OrdemUpdateWithoutMovimentosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -3836,6 +4106,7 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3882,6 +4153,7 @@ export type OrdemCreateWithoutFaturaInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -3928,6 +4200,7 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -3990,6 +4263,7 @@ export type OrdemUpdateWithoutFaturaInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4036,6 +4310,7 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4082,6 +4357,7 @@ export type OrdemCreateWithoutAgendamentosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -4128,6 +4404,7 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -4190,6 +4467,7 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4236,6 +4514,7 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4282,6 +4561,7 @@ export type OrdemCreateWithoutDocumentosInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -4328,6 +4608,7 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -4390,6 +4671,7 @@ export type OrdemUpdateWithoutDocumentosInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4436,6 +4718,7 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4482,6 +4765,7 @@ export type OrdemCreateWithoutMensagensInput = {
   ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
   retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
@@ -4528,6 +4812,7 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
   eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
   fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
@@ -4590,6 +4875,7 @@ export type OrdemUpdateWithoutMensagensInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4636,6 +4922,7 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4715,6 +5002,7 @@ export type OrdemUpdateWithoutTenantInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4761,6 +5049,7 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4909,6 +5198,7 @@ export type OrdemUpdateWithoutTecnicoInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -4955,6 +5245,7 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5035,6 +5326,7 @@ export type OrdemUpdateWithoutAtendenteInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -5081,6 +5373,7 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5195,6 +5488,7 @@ export type OrdemUpdateWithoutClienteInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -5241,6 +5535,7 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5355,6 +5650,7 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -5401,6 +5697,7 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5515,6 +5812,7 @@ export type OrdemUpdateWithoutOrdemOrigemInput = {
   tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
   retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
@@ -5561,6 +5859,7 @@ export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5615,6 +5914,7 @@ export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
 export type OrdemCountOutputType = {
   retornos: number
   pecasRetiradas: number
+  emprestimos: number
   eventos: number
   fotos: number
   assinaturas: number
@@ -5628,6 +5928,7 @@ export type OrdemCountOutputType = {
 export type OrdemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   retornos?: boolean | OrdemCountOutputTypeCountRetornosArgs
   pecasRetiradas?: boolean | OrdemCountOutputTypeCountPecasRetiradasArgs
+  emprestimos?: boolean | OrdemCountOutputTypeCountEmprestimosArgs
   eventos?: boolean | OrdemCountOutputTypeCountEventosArgs
   fotos?: boolean | OrdemCountOutputTypeCountFotosArgs
   assinaturas?: boolean | OrdemCountOutputTypeCountAssinaturasArgs
@@ -5660,6 +5961,13 @@ export type OrdemCountOutputTypeCountRetornosArgs<ExtArgs extends runtime.Types.
  */
 export type OrdemCountOutputTypeCountPecasRetiradasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PecaRetiradaWhereInput
+}
+
+/**
+ * OrdemCountOutputType without action
+ */
+export type OrdemCountOutputTypeCountEmprestimosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmprestimoFerramentaWhereInput
 }
 
 /**
@@ -5760,6 +6068,7 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
   retornos?: boolean | Prisma.Ordem$retornosArgs<ExtArgs>
   pecasRetiradas?: boolean | Prisma.Ordem$pecasRetiradasArgs<ExtArgs>
+  emprestimos?: boolean | Prisma.Ordem$emprestimosArgs<ExtArgs>
   visitaPreventiva?: boolean | Prisma.Ordem$visitaPreventivaArgs<ExtArgs>
   eventos?: boolean | Prisma.Ordem$eventosArgs<ExtArgs>
   fotos?: boolean | Prisma.Ordem$fotosArgs<ExtArgs>
@@ -5900,6 +6209,7 @@ export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   ordemOrigem?: boolean | Prisma.Ordem$ordemOrigemArgs<ExtArgs>
   retornos?: boolean | Prisma.Ordem$retornosArgs<ExtArgs>
   pecasRetiradas?: boolean | Prisma.Ordem$pecasRetiradasArgs<ExtArgs>
+  emprestimos?: boolean | Prisma.Ordem$emprestimosArgs<ExtArgs>
   visitaPreventiva?: boolean | Prisma.Ordem$visitaPreventivaArgs<ExtArgs>
   eventos?: boolean | Prisma.Ordem$eventosArgs<ExtArgs>
   fotos?: boolean | Prisma.Ordem$fotosArgs<ExtArgs>
@@ -5943,6 +6253,7 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      * Peças que saíram deste aparelho neste serviço.
      */
     pecasRetiradas: Prisma.$PecaRetiradaPayload<ExtArgs>[]
+    emprestimos: Prisma.$EmprestimoFerramentaPayload<ExtArgs>[]
     /**
      * A visita preventiva que gerou esta ordem, quando veio de um contrato.
      */
@@ -6443,6 +6754,7 @@ export interface Prisma__OrdemClient<T, Null = never, ExtArgs extends runtime.Ty
   ordemOrigem<T extends Prisma.Ordem$ordemOrigemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$ordemOrigemArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   retornos<T extends Prisma.Ordem$retornosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$retornosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pecasRetiradas<T extends Prisma.Ordem$pecasRetiradasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$pecasRetiradasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PecaRetiradaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  emprestimos<T extends Prisma.Ordem$emprestimosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$emprestimosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmprestimoFerramentaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   visitaPreventiva<T extends Prisma.Ordem$visitaPreventivaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$visitaPreventivaArgs<ExtArgs>>): Prisma.Prisma__VisitaPreventivaClient<runtime.Types.Result.GetResult<Prisma.$VisitaPreventivaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   eventos<T extends Prisma.Ordem$eventosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$eventosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventoOrdemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   fotos<T extends Prisma.Ordem$fotosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$fotosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FotoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7017,6 +7329,30 @@ export type Ordem$pecasRetiradasArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.PecaRetiradaScalarFieldEnum | Prisma.PecaRetiradaScalarFieldEnum[]
+}
+
+/**
+ * Ordem.emprestimos
+ */
+export type Ordem$emprestimosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmprestimoFerramenta
+   */
+  select?: Prisma.EmprestimoFerramentaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmprestimoFerramenta
+   */
+  omit?: Prisma.EmprestimoFerramentaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmprestimoFerramentaInclude<ExtArgs> | null
+  where?: Prisma.EmprestimoFerramentaWhereInput
+  orderBy?: Prisma.EmprestimoFerramentaOrderByWithRelationInput | Prisma.EmprestimoFerramentaOrderByWithRelationInput[]
+  cursor?: Prisma.EmprestimoFerramentaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmprestimoFerramentaScalarFieldEnum | Prisma.EmprestimoFerramentaScalarFieldEnum[]
 }
 
 /**

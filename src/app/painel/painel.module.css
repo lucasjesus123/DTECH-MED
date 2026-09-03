@@ -5370,3 +5370,68 @@ a.calNumero:hover, a.calNumero:focus-visible {
   display: grid;
   gap: var(--s3);
 }
+
+/* ==========================================================================
+   O GIRO DO ESTOQUE — a barra que responde "quanto isto pesa"
+   ==========================================================================
+   Uma coluna de números diz quanto saiu de cada item; ela não diz qual deles
+   domina o consumo da casa. A barra proporcional responde isso numa olhada, e
+   é a única razão de ela existir aqui — não é enfeite de tabela.
+
+   A linha é grade de três colunas em vez de flex porque os nomes têm larguras
+   muito diferentes: com flex, a barra de cada linha começaria num ponto
+   distinto e a comparação visual — que é o ponto — se perderia.
+   ========================================================================== */
+.giroLinha {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.2fr) minmax(80px, 2fr) auto;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) 0;
+  border-bottom: 1px solid var(--casca-linha, var(--borda));
+}
+.giroLinha:last-child { border-bottom: 0; }
+
+.giroNome {
+  font-weight: 600;
+  color: var(--txt);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.giroNome:hover { text-decoration: underline; }
+
+.giroBarra {
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: var(--borda-viva);
+  overflow: hidden;
+}
+.giroBarra > span {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--vio-forte), var(--vio));
+}
+
+.giroNumero {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: var(--txt-2);
+  white-space: nowrap;
+}
+
+/* No celular o nome ganha a linha inteira: espremido em 120px ele vira
+   reticências, e "Fonte cha…" não identifica peça nenhuma. */
+@media (max-width: 640px) {
+  .giroLinha {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'nome numero' 'barra barra';
+    row-gap: var(--s2);
+  }
+  .giroNome { grid-area: nome; white-space: normal; }
+  .giroNumero { grid-area: numero; }
+  .giroBarra { grid-area: barra; }
+}

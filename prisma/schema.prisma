@@ -91,6 +91,18 @@ enum TipoItemOrcamento {
   TAXA
 }
 
+/// O que o item É — e são três contas diferentes.
+///
+/// PECA é vendida na O.S. e entra no orçamento. INSUMO é gasto no trabalho e
+/// não se cobra por unidade (solda, álcool, graxa). FERRAMENTA **volta**: ela
+/// sai com alguém e continua sendo da empresa, e é por não saber isso que se
+/// perde ferramenta. Ver a migração `estoque_ferramentas`.
+enum TipoItemEstoque {
+  PECA
+  INSUMO
+  FERRAMENTA
+}
+
 enum TipoMovimentoEstoque {
   ENTRADA // Compra ou devolução ao estoque
   SAIDA // Consumo em uma O.S.
@@ -98,6 +110,8 @@ enum TipoMovimentoEstoque {
   RESERVA // Separada para uma O.S. aprovada, ainda não consumida
   LIBERACAO // Reserva desfeita (orçamento reprovado/cancelado)
   PERDA // Quebra, extravio
+  EMPRESTIMO // Ferramenta saiu com alguém — o saldo não muda, o lugar muda
+  DEVOLUCAO // Ferramenta voltou
 }
 
 enum FormaPagamento {
@@ -294,6 +308,7 @@ model Tenant {
   visitasPreventivas  VisitaPreventiva[]
   pecas               Peca[]
   movimentos          MovimentoEstoque[]
+  emprestimos         EmprestimoFerramenta[]
   faturas             Fatura[]
   pagamentos          Pagamento[]
   agendamentos        Agendamento[]
@@ -649,6 +664,7 @@ model Ordem {
 
   /// Peças que saíram deste aparelho neste serviço.
   pecasRetiradas   PecaRetirada[]
+  emprestimos      EmprestimoFerramenta[]
   /// A visita preventiva que gerou esta ordem, quando veio de um contrato.
   visitaPreventiva VisitaPreventiva?
 
@@ -1018,6 +1034,11 @@ model Peca {
   descricao String?
   categoria String?
   marca     String?
+
+  /// Peça, insumo ou ferramenta. Ver `TipoItemEstoque`.
+  tipo TipoItemEstoque @default(PECA)
+  /// A plaquinha da ferramenta. É por ela que se acha a que sumiu.
+  patrimonio String?
   /// Compatibilidade: em quais equipamentos essa peça serve.
   aplicacao String?
   unidade   String  @default("UN")
@@ -1030,6 +1051,12 @@ model Peca {
   saldo          Decimal @default(0) @db.Decimal(12, 3)
   /// Parte do saldo já comprometida com O.S. aprovadas.
   saldoReservado Decimal @default(0) @db.Decimal(12, 3)
+  /// Parte do saldo que está NA MÃO DE ALGUÉM — ferramenta emprestada.
+  ///
+  /// Irmão de `saldoReservado`, e não do saldo: a ferramenta emprestada
+  /// continua sendo da empresa, só não está disponível.
+  /// disponível = saldo − saldoReservado − saldoEmprestado
+  saldoEmprestado Decimal @default(0) @db.Decimal(12, 3)
   estoqueMinimo  Decimal @default(0) @db.Decimal(12, 3)
 
   localizacao String?
@@ -1056,11 +1083,60 @@ model Peca {
 
   movimentos     MovimentoEstoque[]
   itensOrcamento OrcamentoItem[]
+  emprestimos    EmprestimoFerramenta[]
 
   @@unique([tenantId, sku])
   @@index([tenantId, ativo, nome])
   @@index([tenantId, categoria])
+  @@index([tenantId, tipo, ativo])
   @@map("pecas")
+}
+
+/// ONDE ESTÁ CADA FERRAMENTA, AGORA.
+///
+/// O livro-razão (`MovimentoEstoque`) responde "o que aconteceu". Ele NÃO
+/// responde "com quem está o multímetro" sem varrer o histórico inteiro e
+/// parear cada saída com a devolução — e o pareamento não existe, porque duas
+/// unidades da mesma ferramenta podem estar com duas pessoas diferentes.
+///
+/// Esta tabela é o ESTADO PRESENTE: uma linha com `devolvidoEm` nulo é uma
+/// ferramenta na mão de alguém. É a pergunta inteira, numa consulta só.
+model EmprestimoFerramenta {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  pecaId String
+  peca   Peca   @relation(fields: [pecaId], references: [id], onDelete: Restrict)
+
+  quantidade Decimal @default(1) @db.Decimal(12, 3)
+
+  /// Quem está com a ferramenta — id para ligar à pessoa, nome para o registro
+  /// sobreviver à saída dela da empresa. Mesma escolha de `PecaRetirada`: um
+  /// registro de posse que perde o nome de quem tinha a posse não serve.
+  responsavelId   String?
+  responsavelNome String
+
+  /// Levou para qual serviço. Opcional: ferramenta também sai para a bancada.
+  ordemId String?
+  ordem   Ordem?  @relation(fields: [ordemId], references: [id], onDelete: SetNull)
+
+  retiradoEm   DateTime  @default(now())
+  previstoPara DateTime?
+  devolvidoEm  DateTime?
+  /// Como voltou. É aqui que "voltou sem a ponteira" fica escrito no dia em que
+  /// aconteceu, e não na discussão de três meses depois.
+  condicaoVolta String?
+  observacao    String?
+
+  registradoPorId   String?
+  registradoPorNome String
+  criadoEm          DateTime @default(now())
+
+  @@index([tenantId, devolvidoEm, retiradoEm])
+  @@index([tenantId, pecaId, retiradoEm])
+  @@index([tenantId, responsavelId, devolvidoEm])
+  @@map("emprestimos_ferramenta")
 }
 
 /// Livro-razão do estoque: o saldo da peça é consequência destes movimentos,

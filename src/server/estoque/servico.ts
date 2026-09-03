@@ -47,9 +47,16 @@ export async function movimentar(
   }
 
   const travadas = await tx.$queryRaw<
-    Array<{ id: string; nome: string; saldo: string; saldoReservado: string; custoMedioCentavos: number }>
+    Array<{
+      id: string
+      nome: string
+      saldo: string
+      saldoReservado: string
+      saldoEmprestado: string
+      custoMedioCentavos: number
+    }>
   >`
-    SELECT id, nome, saldo, "saldoReservado", "custoMedioCentavos"
+    SELECT id, nome, saldo, "saldoReservado", "saldoEmprestado", "custoMedioCentavos"
       FROM pecas
      WHERE id = ${dados.pecaId} AND "tenantId" = ${tenantId}
        FOR UPDATE
@@ -59,10 +66,12 @@ export async function movimentar(
 
   const saldo = Number(peca.saldo)
   const reservado = Number(peca.saldoReservado)
+  const emprestado = Number(peca.saldoEmprestado)
   const q = dados.quantidade
 
   let novoSaldo = saldo
   let novoReservado = reservado
+  let novoEmprestado = emprestado
   let novoCusto = peca.custoMedioCentavos
 
   switch (dados.tipo) {
@@ -121,6 +130,41 @@ export async function movimentar(
       novoSaldo = q
       break
     }
+
+    /**
+     * =======================================================================
+     * EMPRÉSTIMO E DEVOLUÇÃO NÃO MEXEM NO SALDO — de propósito
+     * =======================================================================
+     * A ferramenta emprestada continua sendo da empresa. O que muda é o LUGAR
+     * dela, e por isso `saldoEmprestado` é irmão de `saldoReservado`:
+     *
+     *     disponível = saldo − reservado − emprestado
+     *
+     * Baixar o saldo faria a ferramenta desaparecer do sistema no dia em que
+     * alguém a levou — que é exatamente o defeito que este par conserta. Uma
+     * chave de fenda que sai com o técnico não foi consumida.
+     */
+    case TM.EMPRESTIMO: {
+      const livre = saldo - reservado - emprestado
+      if (q > livre) {
+        return {
+          ok: false,
+          motivo:
+            livre <= 0
+              ? `Não há "${peca.nome}" disponível: ${emprestado} ${emprestado === 1 ? 'está' : 'estão'} com alguém e ${reservado} ${reservado === 1 ? 'está reservada' : 'estão reservadas'}.`
+              : `Só ${livre} de "${peca.nome}" ${livre === 1 ? 'está disponível' : 'estão disponíveis'} para sair.`,
+        }
+      }
+      novoEmprestado = emprestado + q
+      break
+    }
+
+    case TM.DEVOLUCAO: {
+      // `Math.max` porque devolver mais do que consta emprestado é erro de
+      // digitação, não motivo para deixar o número negativo no banco.
+      novoEmprestado = Math.max(0, emprestado - q)
+      break
+    }
   }
 
   await tx.movimentoEstoque.create({
@@ -145,6 +189,7 @@ export async function movimentar(
     data: {
       saldo: new Prisma.Decimal(novoSaldo),
       saldoReservado: new Prisma.Decimal(novoReservado),
+      saldoEmprestado: new Prisma.Decimal(novoEmprestado),
       custoMedioCentavos: novoCusto,
     },
   })

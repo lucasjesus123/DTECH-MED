@@ -348,6 +348,7 @@ export type TenantWhereInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaListRelationFilter
   pecas?: Prisma.PecaListRelationFilter
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
+  emprestimos?: Prisma.EmprestimoFerramentaListRelationFilter
   faturas?: Prisma.FaturaListRelationFilter
   pagamentos?: Prisma.PagamentoListRelationFilter
   agendamentos?: Prisma.AgendamentoListRelationFilter
@@ -407,6 +408,7 @@ export type TenantOrderByWithRelationInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaOrderByRelationAggregateInput
   pecas?: Prisma.PecaOrderByRelationAggregateInput
   movimentos?: Prisma.MovimentoEstoqueOrderByRelationAggregateInput
+  emprestimos?: Prisma.EmprestimoFerramentaOrderByRelationAggregateInput
   faturas?: Prisma.FaturaOrderByRelationAggregateInput
   pagamentos?: Prisma.PagamentoOrderByRelationAggregateInput
   agendamentos?: Prisma.AgendamentoOrderByRelationAggregateInput
@@ -469,6 +471,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   visitasPreventivas?: Prisma.VisitaPreventivaListRelationFilter
   pecas?: Prisma.PecaListRelationFilter
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
+  emprestimos?: Prisma.EmprestimoFerramentaListRelationFilter
   faturas?: Prisma.FaturaListRelationFilter
   pagamentos?: Prisma.PagamentoListRelationFilter
   agendamentos?: Prisma.AgendamentoListRelationFilter
@@ -588,6 +591,7 @@ export type TenantCreateInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -647,6 +651,7 @@ export type TenantUncheckedCreateInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -706,6 +711,7 @@ export type TenantUpdateInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -765,6 +771,7 @@ export type TenantUncheckedUpdateInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -1157,6 +1164,20 @@ export type TenantUpdateOneRequiredWithoutPecasNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutPecasInput, Prisma.TenantUpdateWithoutPecasInput>, Prisma.TenantUncheckedUpdateWithoutPecasInput>
 }
 
+export type TenantCreateNestedOneWithoutEmprestimosInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutEmprestimosInput, Prisma.TenantUncheckedCreateWithoutEmprestimosInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutEmprestimosInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutEmprestimosNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutEmprestimosInput, Prisma.TenantUncheckedCreateWithoutEmprestimosInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutEmprestimosInput
+  upsert?: Prisma.TenantUpsertWithoutEmprestimosInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutEmprestimosInput, Prisma.TenantUpdateWithoutEmprestimosInput>, Prisma.TenantUncheckedUpdateWithoutEmprestimosInput>
+}
+
 export type TenantCreateNestedOneWithoutMovimentosInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutMovimentosInput, Prisma.TenantUncheckedCreateWithoutMovimentosInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMovimentosInput
@@ -1467,6 +1488,7 @@ export type TenantCreateWithoutUsuariosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -1525,6 +1547,7 @@ export type TenantUncheckedCreateWithoutUsuariosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -1599,6 +1622,7 @@ export type TenantUpdateWithoutUsuariosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -1657,6 +1681,7 @@ export type TenantUncheckedUpdateWithoutUsuariosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -1715,6 +1740,7 @@ export type TenantCreateWithoutClientesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -1773,6 +1799,7 @@ export type TenantUncheckedCreateWithoutClientesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -1847,6 +1874,7 @@ export type TenantUpdateWithoutClientesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -1905,6 +1933,7 @@ export type TenantUncheckedUpdateWithoutClientesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -1963,6 +1992,7 @@ export type TenantCreateWithoutEquipamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -2021,6 +2051,7 @@ export type TenantUncheckedCreateWithoutEquipamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -2095,6 +2126,7 @@ export type TenantUpdateWithoutEquipamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -2153,6 +2185,7 @@ export type TenantUncheckedUpdateWithoutEquipamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -2211,6 +2244,7 @@ export type TenantCreateWithoutOrdensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -2269,6 +2303,7 @@ export type TenantUncheckedCreateWithoutOrdensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -2343,6 +2378,7 @@ export type TenantUpdateWithoutOrdensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -2401,6 +2437,7 @@ export type TenantUncheckedUpdateWithoutOrdensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -2459,6 +2496,7 @@ export type TenantCreateWithoutEventosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -2517,6 +2555,7 @@ export type TenantUncheckedCreateWithoutEventosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -2591,6 +2630,7 @@ export type TenantUpdateWithoutEventosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -2649,6 +2689,7 @@ export type TenantUncheckedUpdateWithoutEventosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -2707,6 +2748,7 @@ export type TenantCreateWithoutFotosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -2765,6 +2807,7 @@ export type TenantUncheckedCreateWithoutFotosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -2839,6 +2882,7 @@ export type TenantUpdateWithoutFotosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -2897,6 +2941,7 @@ export type TenantUncheckedUpdateWithoutFotosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -2955,6 +3000,7 @@ export type TenantCreateWithoutAssinaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -3013,6 +3059,7 @@ export type TenantUncheckedCreateWithoutAssinaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -3087,6 +3134,7 @@ export type TenantUpdateWithoutAssinaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -3145,6 +3193,7 @@ export type TenantUncheckedUpdateWithoutAssinaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -3203,6 +3252,7 @@ export type TenantCreateWithoutOrcamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -3261,6 +3311,7 @@ export type TenantUncheckedCreateWithoutOrcamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -3335,6 +3386,7 @@ export type TenantUpdateWithoutOrcamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -3393,6 +3445,7 @@ export type TenantUncheckedUpdateWithoutOrcamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -3451,6 +3504,7 @@ export type TenantCreateWithoutItensOrcamentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -3509,6 +3563,7 @@ export type TenantUncheckedCreateWithoutItensOrcamentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -3583,6 +3638,7 @@ export type TenantUpdateWithoutItensOrcamentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -3641,6 +3697,7 @@ export type TenantUncheckedUpdateWithoutItensOrcamentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -3699,6 +3756,7 @@ export type TenantCreateWithoutPecasRetiradasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -3757,6 +3815,7 @@ export type TenantUncheckedCreateWithoutPecasRetiradasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -3831,6 +3890,7 @@ export type TenantUpdateWithoutPecasRetiradasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -3889,6 +3949,7 @@ export type TenantUncheckedUpdateWithoutPecasRetiradasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -3947,6 +4008,7 @@ export type TenantCreateWithoutContratosManutencaoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -4005,6 +4067,7 @@ export type TenantUncheckedCreateWithoutContratosManutencaoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -4079,6 +4142,7 @@ export type TenantUpdateWithoutContratosManutencaoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -4137,6 +4201,7 @@ export type TenantUncheckedUpdateWithoutContratosManutencaoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -4195,6 +4260,7 @@ export type TenantCreateWithoutVisitasPreventivasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -4253,6 +4319,7 @@ export type TenantUncheckedCreateWithoutVisitasPreventivasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -4327,6 +4394,7 @@ export type TenantUpdateWithoutVisitasPreventivasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -4385,6 +4453,7 @@ export type TenantUncheckedUpdateWithoutVisitasPreventivasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -4443,6 +4512,7 @@ export type TenantCreateWithoutPecasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoCreateNestedManyWithoutTenantInput
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -4501,6 +4571,7 @@ export type TenantUncheckedCreateWithoutPecasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutTenantInput
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -4575,6 +4646,7 @@ export type TenantUpdateWithoutPecasInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUpdateManyWithoutTenantNestedInput
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -4632,6 +4704,259 @@ export type TenantUncheckedUpdateWithoutPecasInput = {
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutTenantNestedInput
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutTenantNestedInput
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
+  faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
+  pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutTenantNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutTenantNestedInput
+  jobs?: Prisma.OutboxJobUncheckedUpdateManyWithoutTenantNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutTenantNestedInput
+  templates?: Prisma.TemplateMensagemUncheckedUpdateManyWithoutTenantNestedInput
+  instanciaWhats?: Prisma.WhatsappInstanceUncheckedUpdateOneWithoutTenantNestedInput
+  auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  contadores?: Prisma.ContadorUncheckedUpdateManyWithoutTenantNestedInput
+  posicoesRota?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutTenantNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutTenantNestedInput
+  lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutTenantNestedInput
+  recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutTenantNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
+  modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
+  colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutEmprestimosInput = {
+  id?: string
+  slug: string
+  nome: string
+  razaoSocial?: string | null
+  cnpj?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  logoUrl?: string | null
+  corPrimaria?: string
+  corSecundaria?: string
+  ativo?: boolean
+  plano?: string
+  bloqueado?: boolean
+  motivoBloqueio?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  usuarios?: Prisma.UserCreateNestedManyWithoutTenantInput
+  clientes?: Prisma.ClienteCreateNestedManyWithoutTenantInput
+  equipamentos?: Prisma.EquipamentoCreateNestedManyWithoutTenantInput
+  ordens?: Prisma.OrdemCreateNestedManyWithoutTenantInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutTenantInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutTenantInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutTenantInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutTenantInput
+  itensOrcamento?: Prisma.OrcamentoItemCreateNestedManyWithoutTenantInput
+  pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutTenantInput
+  contratosManutencao?: Prisma.ContratoManutencaoCreateNestedManyWithoutTenantInput
+  visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
+  pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
+  pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutTenantInput
+  leads?: Prisma.LeadCreateNestedManyWithoutTenantInput
+  jobs?: Prisma.OutboxJobCreateNestedManyWithoutTenantInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutTenantInput
+  templates?: Prisma.TemplateMensagemCreateNestedManyWithoutTenantInput
+  instanciaWhats?: Prisma.WhatsappInstanceCreateNestedOneWithoutTenantInput
+  auditoria?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  contadores?: Prisma.ContadorCreateNestedManyWithoutTenantInput
+  posicoesRota?: Prisma.PosicaoRotaCreateNestedManyWithoutTenantInput
+  recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutTenantInput
+  lancamentos?: Prisma.LancamentoCreateNestedManyWithoutTenantInput
+  recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutTenantInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
+  modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
+  colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutEmprestimosInput = {
+  id?: string
+  slug: string
+  nome: string
+  razaoSocial?: string | null
+  cnpj?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  logoUrl?: string | null
+  corPrimaria?: string
+  corSecundaria?: string
+  ativo?: boolean
+  plano?: string
+  bloqueado?: boolean
+  motivoBloqueio?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  usuarios?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutTenantInput
+  equipamentos?: Prisma.EquipamentoUncheckedCreateNestedManyWithoutTenantInput
+  ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutTenantInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutTenantInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutTenantInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutTenantInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTenantInput
+  itensOrcamento?: Prisma.OrcamentoItemUncheckedCreateNestedManyWithoutTenantInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutTenantInput
+  contratosManutencao?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutTenantInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
+  pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
+  pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutTenantInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutTenantInput
+  jobs?: Prisma.OutboxJobUncheckedCreateNestedManyWithoutTenantInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutTenantInput
+  templates?: Prisma.TemplateMensagemUncheckedCreateNestedManyWithoutTenantInput
+  instanciaWhats?: Prisma.WhatsappInstanceUncheckedCreateNestedOneWithoutTenantInput
+  auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  contadores?: Prisma.ContadorUncheckedCreateNestedManyWithoutTenantInput
+  posicoesRota?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutTenantInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutTenantInput
+  lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutTenantInput
+  recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutTenantInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
+  modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
+  colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutEmprestimosInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutEmprestimosInput, Prisma.TenantUncheckedCreateWithoutEmprestimosInput>
+}
+
+export type TenantUpsertWithoutEmprestimosInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutEmprestimosInput, Prisma.TenantUncheckedUpdateWithoutEmprestimosInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutEmprestimosInput, Prisma.TenantUncheckedCreateWithoutEmprestimosInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutEmprestimosInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutEmprestimosInput, Prisma.TenantUncheckedUpdateWithoutEmprestimosInput>
+}
+
+export type TenantUpdateWithoutEmprestimosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cnpj?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corPrimaria?: Prisma.StringFieldUpdateOperationsInput | string
+  corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  plano?: Prisma.StringFieldUpdateOperationsInput | string
+  bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usuarios?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  clientes?: Prisma.ClienteUpdateManyWithoutTenantNestedInput
+  equipamentos?: Prisma.EquipamentoUpdateManyWithoutTenantNestedInput
+  ordens?: Prisma.OrdemUpdateManyWithoutTenantNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutTenantNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutTenantNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutTenantNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutTenantNestedInput
+  itensOrcamento?: Prisma.OrcamentoItemUpdateManyWithoutTenantNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutTenantNestedInput
+  contratosManutencao?: Prisma.ContratoManutencaoUpdateManyWithoutTenantNestedInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
+  pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
+  pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutTenantNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutTenantNestedInput
+  jobs?: Prisma.OutboxJobUpdateManyWithoutTenantNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutTenantNestedInput
+  templates?: Prisma.TemplateMensagemUpdateManyWithoutTenantNestedInput
+  instanciaWhats?: Prisma.WhatsappInstanceUpdateOneWithoutTenantNestedInput
+  auditoria?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  contadores?: Prisma.ContadorUpdateManyWithoutTenantNestedInput
+  posicoesRota?: Prisma.PosicaoRotaUpdateManyWithoutTenantNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutTenantNestedInput
+  lancamentos?: Prisma.LancamentoUpdateManyWithoutTenantNestedInput
+  recorrencias?: Prisma.RecorrenciaUpdateManyWithoutTenantNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
+  modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
+  colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutEmprestimosInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cnpj?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corPrimaria?: Prisma.StringFieldUpdateOperationsInput | string
+  corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  plano?: Prisma.StringFieldUpdateOperationsInput | string
+  bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usuarios?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutTenantNestedInput
+  equipamentos?: Prisma.EquipamentoUncheckedUpdateManyWithoutTenantNestedInput
+  ordens?: Prisma.OrdemUncheckedUpdateManyWithoutTenantNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutTenantNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutTenantNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutTenantNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutTenantNestedInput
+  itensOrcamento?: Prisma.OrcamentoItemUncheckedUpdateManyWithoutTenantNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutTenantNestedInput
+  contratosManutencao?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutTenantNestedInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
+  pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -4691,6 +5016,7 @@ export type TenantCreateWithoutMovimentosInput = {
   contratosManutencao?: Prisma.ContratoManutencaoCreateNestedManyWithoutTenantInput
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -4749,6 +5075,7 @@ export type TenantUncheckedCreateWithoutMovimentosInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutTenantInput
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -4823,6 +5150,7 @@ export type TenantUpdateWithoutMovimentosInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUpdateManyWithoutTenantNestedInput
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -4881,6 +5209,7 @@ export type TenantUncheckedUpdateWithoutMovimentosInput = {
   contratosManutencao?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutTenantNestedInput
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -4940,6 +5269,7 @@ export type TenantCreateWithoutFaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoCreateNestedManyWithoutTenantInput
@@ -4998,6 +5328,7 @@ export type TenantUncheckedCreateWithoutFaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutTenantInput
@@ -5072,6 +5403,7 @@ export type TenantUpdateWithoutFaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUpdateManyWithoutTenantNestedInput
@@ -5130,6 +5462,7 @@ export type TenantUncheckedUpdateWithoutFaturasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -5188,6 +5521,7 @@ export type TenantCreateWithoutPagamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoCreateNestedManyWithoutTenantInput
@@ -5246,6 +5580,7 @@ export type TenantUncheckedCreateWithoutPagamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutTenantInput
@@ -5320,6 +5655,7 @@ export type TenantUpdateWithoutPagamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUpdateManyWithoutTenantNestedInput
@@ -5378,6 +5714,7 @@ export type TenantUncheckedUpdateWithoutPagamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -5436,6 +5773,7 @@ export type TenantCreateWithoutAgendamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoCreateNestedManyWithoutTenantInput
@@ -5494,6 +5832,7 @@ export type TenantUncheckedCreateWithoutAgendamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutTenantInput
@@ -5568,6 +5907,7 @@ export type TenantUpdateWithoutAgendamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUpdateManyWithoutTenantNestedInput
@@ -5626,6 +5966,7 @@ export type TenantUncheckedUpdateWithoutAgendamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -5684,6 +6025,7 @@ export type TenantCreateWithoutDocumentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -5742,6 +6084,7 @@ export type TenantUncheckedCreateWithoutDocumentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -5816,6 +6159,7 @@ export type TenantUpdateWithoutDocumentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -5874,6 +6218,7 @@ export type TenantUncheckedUpdateWithoutDocumentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -5932,6 +6277,7 @@ export type TenantCreateWithoutJobsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -5990,6 +6336,7 @@ export type TenantUncheckedCreateWithoutJobsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -6064,6 +6411,7 @@ export type TenantUpdateWithoutJobsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -6122,6 +6470,7 @@ export type TenantUncheckedUpdateWithoutJobsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -6180,6 +6529,7 @@ export type TenantCreateWithoutMensagensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -6238,6 +6588,7 @@ export type TenantUncheckedCreateWithoutMensagensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -6312,6 +6663,7 @@ export type TenantUpdateWithoutMensagensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -6370,6 +6722,7 @@ export type TenantUncheckedUpdateWithoutMensagensInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -6428,6 +6781,7 @@ export type TenantCreateWithoutTemplatesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -6486,6 +6840,7 @@ export type TenantUncheckedCreateWithoutTemplatesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -6560,6 +6915,7 @@ export type TenantUpdateWithoutTemplatesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -6618,6 +6974,7 @@ export type TenantUncheckedUpdateWithoutTemplatesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -6676,6 +7033,7 @@ export type TenantCreateWithoutInstanciaWhatsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -6734,6 +7092,7 @@ export type TenantUncheckedCreateWithoutInstanciaWhatsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -6808,6 +7167,7 @@ export type TenantUpdateWithoutInstanciaWhatsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -6866,6 +7226,7 @@ export type TenantUncheckedUpdateWithoutInstanciaWhatsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -6924,6 +7285,7 @@ export type TenantCreateWithoutLeadsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -6982,6 +7344,7 @@ export type TenantUncheckedCreateWithoutLeadsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -7056,6 +7419,7 @@ export type TenantUpdateWithoutLeadsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -7114,6 +7478,7 @@ export type TenantUncheckedUpdateWithoutLeadsInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -7172,6 +7537,7 @@ export type TenantCreateWithoutAuditoriaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -7230,6 +7596,7 @@ export type TenantUncheckedCreateWithoutAuditoriaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -7304,6 +7671,7 @@ export type TenantUpdateWithoutAuditoriaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -7362,6 +7730,7 @@ export type TenantUncheckedUpdateWithoutAuditoriaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -7420,6 +7789,7 @@ export type TenantCreateWithoutLancamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -7478,6 +7848,7 @@ export type TenantUncheckedCreateWithoutLancamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -7552,6 +7923,7 @@ export type TenantUpdateWithoutLancamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -7610,6 +7982,7 @@ export type TenantUncheckedUpdateWithoutLancamentosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -7668,6 +8041,7 @@ export type TenantCreateWithoutCompromissosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -7726,6 +8100,7 @@ export type TenantUncheckedCreateWithoutCompromissosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -7800,6 +8175,7 @@ export type TenantUpdateWithoutCompromissosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -7858,6 +8234,7 @@ export type TenantUncheckedUpdateWithoutCompromissosInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -7916,6 +8293,7 @@ export type TenantCreateWithoutModelosDocumentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -7974,6 +8352,7 @@ export type TenantUncheckedCreateWithoutModelosDocumentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -8048,6 +8427,7 @@ export type TenantUpdateWithoutModelosDocumentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -8106,6 +8486,7 @@ export type TenantUncheckedUpdateWithoutModelosDocumentoInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -8164,6 +8545,7 @@ export type TenantCreateWithoutRecorrenciasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -8222,6 +8604,7 @@ export type TenantUncheckedCreateWithoutRecorrenciasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -8296,6 +8679,7 @@ export type TenantUpdateWithoutRecorrenciasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -8354,6 +8738,7 @@ export type TenantUncheckedUpdateWithoutRecorrenciasInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -8412,6 +8797,7 @@ export type TenantCreateWithoutRecuperacoesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -8470,6 +8856,7 @@ export type TenantUncheckedCreateWithoutRecuperacoesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -8544,6 +8931,7 @@ export type TenantUpdateWithoutRecuperacoesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -8602,6 +8990,7 @@ export type TenantUncheckedUpdateWithoutRecuperacoesInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -8660,6 +9049,7 @@ export type TenantCreateWithoutContadoresInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -8718,6 +9108,7 @@ export type TenantUncheckedCreateWithoutContadoresInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -8792,6 +9183,7 @@ export type TenantUpdateWithoutContadoresInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -8850,6 +9242,7 @@ export type TenantUncheckedUpdateWithoutContadoresInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -8908,6 +9301,7 @@ export type TenantCreateWithoutPosicoesRotaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -8966,6 +9360,7 @@ export type TenantUncheckedCreateWithoutPosicoesRotaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -9040,6 +9435,7 @@ export type TenantUpdateWithoutPosicoesRotaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -9098,6 +9494,7 @@ export type TenantUncheckedUpdateWithoutPosicoesRotaInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -9156,6 +9553,7 @@ export type TenantCreateWithoutColunasQuadroInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
@@ -9214,6 +9612,7 @@ export type TenantUncheckedCreateWithoutColunasQuadroInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
   pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
   pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
   agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
@@ -9288,6 +9687,7 @@ export type TenantUpdateWithoutColunasQuadroInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
@@ -9346,6 +9746,7 @@ export type TenantUncheckedUpdateWithoutColunasQuadroInput = {
   visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
   pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
   pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
@@ -9385,6 +9786,7 @@ export type TenantCountOutputType = {
   visitasPreventivas: number
   pecas: number
   movimentos: number
+  emprestimos: number
   faturas: number
   pagamentos: number
   agendamentos: number
@@ -9419,6 +9821,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   visitasPreventivas?: boolean | TenantCountOutputTypeCountVisitasPreventivasArgs
   pecas?: boolean | TenantCountOutputTypeCountPecasArgs
   movimentos?: boolean | TenantCountOutputTypeCountMovimentosArgs
+  emprestimos?: boolean | TenantCountOutputTypeCountEmprestimosArgs
   faturas?: boolean | TenantCountOutputTypeCountFaturasArgs
   pagamentos?: boolean | TenantCountOutputTypeCountPagamentosArgs
   agendamentos?: boolean | TenantCountOutputTypeCountAgendamentosArgs
@@ -9544,6 +9947,13 @@ export type TenantCountOutputTypeCountPecasArgs<ExtArgs extends runtime.Types.Ex
  */
 export type TenantCountOutputTypeCountMovimentosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MovimentoEstoqueWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountEmprestimosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmprestimoFerramentaWhereInput
 }
 
 /**
@@ -9705,6 +10115,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   visitasPreventivas?: boolean | Prisma.Tenant$visitasPreventivasArgs<ExtArgs>
   pecas?: boolean | Prisma.Tenant$pecasArgs<ExtArgs>
   movimentos?: boolean | Prisma.Tenant$movimentosArgs<ExtArgs>
+  emprestimos?: boolean | Prisma.Tenant$emprestimosArgs<ExtArgs>
   faturas?: boolean | Prisma.Tenant$faturasArgs<ExtArgs>
   pagamentos?: boolean | Prisma.Tenant$pagamentosArgs<ExtArgs>
   agendamentos?: boolean | Prisma.Tenant$agendamentosArgs<ExtArgs>
@@ -9823,6 +10234,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   visitasPreventivas?: boolean | Prisma.Tenant$visitasPreventivasArgs<ExtArgs>
   pecas?: boolean | Prisma.Tenant$pecasArgs<ExtArgs>
   movimentos?: boolean | Prisma.Tenant$movimentosArgs<ExtArgs>
+  emprestimos?: boolean | Prisma.Tenant$emprestimosArgs<ExtArgs>
   faturas?: boolean | Prisma.Tenant$faturasArgs<ExtArgs>
   pagamentos?: boolean | Prisma.Tenant$pagamentosArgs<ExtArgs>
   agendamentos?: boolean | Prisma.Tenant$agendamentosArgs<ExtArgs>
@@ -9863,6 +10275,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     visitasPreventivas: Prisma.$VisitaPreventivaPayload<ExtArgs>[]
     pecas: Prisma.$PecaPayload<ExtArgs>[]
     movimentos: Prisma.$MovimentoEstoquePayload<ExtArgs>[]
+    emprestimos: Prisma.$EmprestimoFerramentaPayload<ExtArgs>[]
     faturas: Prisma.$FaturaPayload<ExtArgs>[]
     pagamentos: Prisma.$PagamentoPayload<ExtArgs>[]
     agendamentos: Prisma.$AgendamentoPayload<ExtArgs>[]
@@ -10327,6 +10740,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   visitasPreventivas<T extends Prisma.Tenant$visitasPreventivasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$visitasPreventivasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisitaPreventivaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pecas<T extends Prisma.Tenant$pecasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$pecasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PecaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movimentos<T extends Prisma.Tenant$movimentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$movimentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovimentoEstoquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  emprestimos<T extends Prisma.Tenant$emprestimosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$emprestimosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmprestimoFerramentaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   faturas<T extends Prisma.Tenant$faturasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$faturasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FaturaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pagamentos<T extends Prisma.Tenant$pagamentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$pagamentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PagamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   agendamentos<T extends Prisma.Tenant$agendamentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$agendamentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgendamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -11124,6 +11538,30 @@ export type Tenant$movimentosArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.MovimentoEstoqueScalarFieldEnum | Prisma.MovimentoEstoqueScalarFieldEnum[]
+}
+
+/**
+ * Tenant.emprestimos
+ */
+export type Tenant$emprestimosArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmprestimoFerramenta
+   */
+  select?: Prisma.EmprestimoFerramentaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmprestimoFerramenta
+   */
+  omit?: Prisma.EmprestimoFerramentaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmprestimoFerramentaInclude<ExtArgs> | null
+  where?: Prisma.EmprestimoFerramentaWhereInput
+  orderBy?: Prisma.EmprestimoFerramentaOrderByWithRelationInput | Prisma.EmprestimoFerramentaOrderByWithRelationInput[]
+  cursor?: Prisma.EmprestimoFerramentaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmprestimoFerramentaScalarFieldEnum | Prisma.EmprestimoFerramentaScalarFieldEnum[]
 }
 
 /**

@@ -80,13 +80,24 @@ export const TipoItemOrcamento = {
 export type TipoItemOrcamento = (typeof TipoItemOrcamento)[keyof typeof TipoItemOrcamento]
 
 
+export const TipoItemEstoque = {
+  PECA: 'PECA',
+  INSUMO: 'INSUMO',
+  FERRAMENTA: 'FERRAMENTA'
+} as const
+
+export type TipoItemEstoque = (typeof TipoItemEstoque)[keyof typeof TipoItemEstoque]
+
+
 export const TipoMovimentoEstoque = {
   ENTRADA: 'ENTRADA',
   SAIDA: 'SAIDA',
   AJUSTE: 'AJUSTE',
   RESERVA: 'RESERVA',
   LIBERACAO: 'LIBERACAO',
-  PERDA: 'PERDA'
+  PERDA: 'PERDA',
+  EMPRESTIMO: 'EMPRESTIMO',
+  DEVOLUCAO: 'DEVOLUCAO'
 } as const
 
 export type TipoMovimentoEstoque = (typeof TipoMovimentoEstoque)[keyof typeof TipoMovimentoEstoque]

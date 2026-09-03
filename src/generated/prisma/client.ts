@@ -141,6 +141,19 @@ export type VisitaPreventiva = Prisma.VisitaPreventivaModel
  */
 export type Peca = Prisma.PecaModel
 /**
+ * Model EmprestimoFerramenta
+ * ONDE ESTÁ CADA FERRAMENTA, AGORA.
+ * 
+ * O livro-razão (`MovimentoEstoque`) responde "o que aconteceu". Ele NÃO
+ * responde "com quem está o multímetro" sem varrer o histórico inteiro e
+ * parear cada saída com a devolução — e o pareamento não existe, porque duas
+ * unidades da mesma ferramenta podem estar com duas pessoas diferentes.
+ * 
+ * Esta tabela é o ESTADO PRESENTE: uma linha com `devolvidoEm` nulo é uma
+ * ferramenta na mão de alguém. É a pergunta inteira, numa consulta só.
+ */
+export type EmprestimoFerramenta = Prisma.EmprestimoFerramentaModel
+/**
  * Model MovimentoEstoque
  * Livro-razão do estoque: o saldo da peça é consequência destes movimentos,
  * nunca um número digitado à mão.

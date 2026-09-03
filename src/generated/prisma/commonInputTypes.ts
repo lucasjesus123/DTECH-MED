@@ -511,6 +511,23 @@ export type EnumStatusVisitaWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
 }
 
+export type EnumTipoItemEstoqueFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoItemEstoque | Prisma.EnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel> | $Enums.TipoItemEstoque
+}
+
+export type EnumTipoItemEstoqueWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoItemEstoque | Prisma.EnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoItemEstoqueWithAggregatesFilter<$PrismaModel> | $Enums.TipoItemEstoque
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel>
+}
+
 export type EnumTipoMovimentoEstoqueFilter<$PrismaModel = never> = {
   equals?: $Enums.TipoMovimentoEstoque | Prisma.EnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel>
   in?: $Enums.TipoMovimentoEstoque[] | Prisma.ListEnumTipoMovimentoEstoqueFieldRefInput<$PrismaModel>
@@ -1263,6 +1280,23 @@ export type NestedEnumStatusVisitaWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusVisitaFilter<$PrismaModel>
+}
+
+export type NestedEnumTipoItemEstoqueFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoItemEstoque | Prisma.EnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel> | $Enums.TipoItemEstoque
+}
+
+export type NestedEnumTipoItemEstoqueWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TipoItemEstoque | Prisma.EnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  in?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TipoItemEstoque[] | Prisma.ListEnumTipoItemEstoqueFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTipoItemEstoqueWithAggregatesFilter<$PrismaModel> | $Enums.TipoItemEstoque
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTipoItemEstoqueFilter<$PrismaModel>
 }
 
 export type NestedEnumTipoMovimentoEstoqueFilter<$PrismaModel = never> = {
