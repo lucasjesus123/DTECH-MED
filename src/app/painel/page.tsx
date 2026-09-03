@@ -10,7 +10,7 @@ import { contatosNovosContagem, leadsNovos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from './painel.module.css'
 
-export const metadata: Metadata = { title: 'Painel do dia', robots: { index: false } }
+export const metadata: Metadata = { title: 'Dashboard', robots: { index: false } }
 // Painel mostra o estado de agora; cache aqui só serviria para mostrar o
 // passado com cara de presente.
 export const dynamic = 'force-dynamic'

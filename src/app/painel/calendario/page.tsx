@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic'
  * a pergunta que faz, *"o que vem por aí"*, não é feita de dentro de nenhum
  * deles.
  *
- * Fica em **Hoje**, ao lado do Painel do dia: um mostra o agora, o outro mostra
+ * Fica em **Hoje**, ao lado do Dashboard: um mostra o agora, o outro mostra
  * o depois.
  *
  * =============================================================================

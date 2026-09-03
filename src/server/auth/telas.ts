@@ -115,11 +115,18 @@ export type Grupo =
   | 'Equipe'
 
 export const TELAS: readonly Tela[] = [
-  { chave: 'painel',       rotulo: 'Painel do dia',     grupo: 'Hoje',       href: '/painel',              icone: 'mostrador',   piso: Papel.MOTORISTA },
+  // "PAINEL DO DIA" VIROU "DASHBOARD", e só o rótulo mudou.
+  //
+  // A CHAVE continua `painel`: ela está gravada na marcação de abas de cada
+  // pessoa, e renomeá-la tiraria o acesso de quem já marcou. É para isso que a
+  // chave é curta e estável, e o rótulo é que é a palavra da tela — a mesma
+  // razão pela qual `auditoria` continua `auditoria` chamando-se "Quem fez o
+  // quê", e `contatos` continua `contatos` chamando-se "Comercial".
+  { chave: 'painel',       rotulo: 'Dashboard',         grupo: 'Hoje',       href: '/painel',              icone: 'mostrador',   piso: Papel.MOTORISTA },
   // O ÚNICO item novo desta rodada de seis telas, e ele é item porque não é
   // recorte de nenhuma outra: atravessa rota, preventiva, contas e contratos,
   // e a pergunta que faz — "o que vem por aí" — não é feita de dentro de
-  // nenhuma delas. Ao lado do Painel do dia porque um mostra o agora e o outro
+  // nenhuma delas. Ao lado do Dashboard porque um mostra o agora e o outro
   // mostra o depois.
   //
   // Piso MOTORISTA: ele precisa ver as paradas da semana para se organizar.

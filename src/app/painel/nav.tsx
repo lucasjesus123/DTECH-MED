@@ -37,7 +37,7 @@ const T = {
   strokeLinejoin: 'round' as const,
 }
 
-/** Painel do dia: um mostrador com o ponteiro. */
+/** Dashboard: um mostrador com o ponteiro. */
 const Mostrador = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true" {...T}>
     <path d="M4 15a8 8 0 0 1 16 0" />
@@ -196,7 +196,7 @@ export default function Navegacao({ grupos }: { grupos: GrupoNav[] }) {
             /**
              * `/painel` casa com a rota exata; o resto casa com o ramo.
              *
-             * Sem a exceção, "Painel do dia" ficaria marcado em TODA tela do
+             * Sem a exceção, o "Dashboard" ficaria marcado em TODA tela do
              * sistema, porque todo caminho começa com `/painel`. Marcar tudo é
              * o mesmo que não marcar nada.
              */

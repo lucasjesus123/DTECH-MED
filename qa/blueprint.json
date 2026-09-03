@@ -128,12 +128,12 @@
         {
           "acao": "ir",
           "alvo": "/painel",
-          "espera": "diagrama: a central entra no Painel do dia"
+          "espera": "diagrama: a central entra no Dashboard (era \"Painel do dia\")"
         },
         {
           "acao": "verificarTexto",
-          "valor": "Painel",
-          "espera": "o painel abriu"
+          "valor": "Dashboard",
+          "espera": "o Dashboard abriu — o rótulo mudou, a tela é a mesma"
         },
         {
           "acao": "ir",
@@ -320,7 +320,7 @@
       ]
     },
     {
-      "nome": "GESTOR — quem decide (diagrama: Painel do dia, Preventiva, e a liberação do orçamento)",
+      "nome": "GESTOR — quem decide (diagrama: Dashboard, Preventiva, e a liberação do orçamento)",
       "usuario": {
         "user": "camila@dtechmed.com.br",
         "pass": "${QA_SENHA}"
@@ -329,7 +329,7 @@
         {
           "acao": "ir",
           "alvo": "/painel",
-          "espera": "diagrama: 'Painel do dia de manhã'"
+          "espera": "diagrama: o Dashboard de manhã"
         },
         {
           "acao": "verificarSemTexto",
