@@ -3,6 +3,7 @@
 import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { abrirOrdem } from '@/server/acoes/ordem'
+import QuemEOCliente from './quem-e-o-cliente'
 import estilo from '../../painel.module.css'
 
 type Resposta = { ok: true; dados?: { id: string } } | { ok: false; motivo: string }
@@ -43,63 +44,16 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
       {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
       {lead ? <input type="hidden" name="leadId" value={lead.id} /> : null}
 
-      <p className={estilo.blocoTitulo}>Quem é o cliente</p>
-      <div className={estilo.grade}>
-        <label className={estilo.rotulo}>
-          Nome ou razão social *
-          <input
-            className={estilo.campo}
-            name="clienteNome"
-            required
-            minLength={3}
-            autoComplete="off"
-            defaultValue={lead?.nome ?? ''}
-          />
-        </label>
-        <label className={estilo.rotulo}>
-          CPF ou CNPJ *
-          <input className={estilo.campo} name="clienteDocumento" required inputMode="numeric" autoComplete="off" />
-          <span className={estilo.dica}>
-            Se já for cliente, o cadastro é reaproveitado. É também o que ele digita
-            para aprovar o orçamento.
-          </span>
-        </label>
-        <label className={estilo.rotulo}>
-          WhatsApp *
-          <input
-            className={estilo.campo}
-            name="clienteWhatsapp"
-            required
-            inputMode="tel"
-            placeholder="51 99999-9999"
-            defaultValue={lead?.telefone ?? ''}
-          />
-          <span className={estilo.dica}>Todos os avisos da esteira saem por aqui.</span>
-        </label>
-        <label className={estilo.rotulo}>
-          Quem é o contato
-          <input
-            className={estilo.campo}
-            name="contatoNome"
-            placeholder="Nome de quem atende na clínica"
-            defaultValue={lead?.contato ?? ''}
-          />
-        </label>
-      </div>
-
-      <p className={estilo.blocoTitulo} style={{ marginTop: 'var(--s4)' }}>
-        Onde buscar
-      </p>
-      <div className={estilo.grade}>
-        <label className={estilo.rotulo} style={{ gridColumn: '1 / -1' }}>
-          Endereço da retirada *
-          <input className={estilo.campo} name="endereco" required minLength={5} placeholder="Rua, número, sala, bairro" />
-        </label>
-        <label className={estilo.rotulo}>
-          Cidade
-          <input className={estilo.campo} name="cidade" defaultValue={lead?.cidade ?? ''} />
-        </label>
-      </div>
+      {/* Quem é o cliente, onde buscar, e a busca que reconhece a carteira.
+          Saiu daqui para um componente próprio porque virou estado: seis campos
+          que se preenchem juntos quando alguém escolhe um cliente já cadastrado.
+          Ver `quem-e-o-cliente.tsx`. */}
+      <QuemEOCliente
+        nomeInicial={lead?.nome ?? ''}
+        telefoneInicial={lead?.telefone ?? ''}
+        contatoInicial={lead?.contato ?? ''}
+        cidadeInicial={lead?.cidade ?? ''}
+      />
 
       <p className={estilo.blocoTitulo} style={{ marginTop: 'var(--s4)' }}>
         Qual é o aparelho

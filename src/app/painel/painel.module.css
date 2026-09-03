@@ -5170,3 +5170,44 @@ a.calNumero:hover, a.calNumero:focus-visible {
   font-variant-numeric: tabular-nums;
   color: var(--vio-claro);
 }
+
+/* ----- A lista de sugestão sob um campo --------------------------------- */
+/* Flutua sobre o que vem abaixo em vez de empurrar: uma lista que empurra o
+   formulário faz o campo seguinte fugir do dedo no meio da digitação. */
+.sugestoes {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% - 1.15rem);
+  left: 0;
+  right: 0;
+  max-height: 17rem;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--sup);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sombra-3);
+}
+.sugestao {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-md, 8px);
+  text-align: left;
+  font-size: var(--t-sm);
+  color: var(--txt);
+  cursor: pointer;
+}
+.sugestao:hover,
+.sugestao:focus-visible { background: var(--vio-veu-2); }
+.sugestaoVazia {
+  padding: 8px 10px;
+  font-size: var(--t-sm);
+  color: var(--txt-3);
+}
