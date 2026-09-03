@@ -153,6 +153,25 @@ export const TELAS: readonly Tela[] = [
   // aplicativos de campo. Agora ela mesma é aba.
   { chave: 'rota',         rotulo: 'Rota',              grupo: 'O trabalho', href: '/painel/rota',         icone: 'rota',        piso: Papel.MOTORISTA, abaDe: 'ordens' },
 
+  // ---------------------------------------------------------------------------
+  // OS APLICATIVOS DE CAMPO — o item que eu tinha argumentado para NÃO existir
+  // ---------------------------------------------------------------------------
+  // Eles estavam a três cliques: menu O.S. → aba Rota → botão. E não foi
+  // descuido: o `docs/PLANO.md` diz, com estas palavras, que "os aplicativos
+  // como botões — porque aplicativo de campo não é outra aba do painel, é outra
+  // superfície, feita para o celular de quem está na rua".
+  //
+  // A frase é verdadeira e a conclusão estava errada. SER outra superfície é
+  // exatamente o motivo de precisarem de porta visível, não de botão dentro da
+  // terceira aba de outro assunto. E a regra da casa, lida direito, aponta para
+  // cá: "quero usar o aplicativo de campo" não é recorte de Ordens, de
+  // Acompanhar nem de Rota — é pergunta própria, e pergunta própria é item.
+  //
+  // Piso MOTORISTA porque ele precisa alcançar o próprio aplicativo. O que a
+  // tela MOSTRA muda com o papel: o cartão do aplicativo que o papel não abre
+  // aparece sem botão, dizendo de quem é.
+  { chave: 'aplicativos',  rotulo: 'Aplicativos',       grupo: 'O trabalho', href: '/painel/aplicativos',  icone: 'rota',        piso: Papel.MOTORISTA },
+
   // A tela virou DUAS abas — contatos do site e o funil de orçamentos — e o
   // rótulo acompanhou. A chave NÃO muda: ela está gravada na marcação de abas
   // de cada pessoa, e renomeá-la tiraria o acesso de quem já tinha marcado.

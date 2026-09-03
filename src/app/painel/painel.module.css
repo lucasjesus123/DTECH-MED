@@ -5102,3 +5102,33 @@ a.calNumero:hover, a.calNumero:focus-visible {
   }
   .caixaAcoes { flex-wrap: wrap; }
 }
+
+/* ----- A tela dos aplicativos de campo ---------------------------------- */
+/* O endereço fica LEGÍVEL, e não escondido atrás do botão de copiar: quem vai
+   ditá-lo por telefone para o motorista na rua precisa ler, e quem desconfia
+   de um botão que copia sabe-se lá o quê precisa conferir antes de mandar.
+   Monoespaçado porque endereço se lê caractere por caractere, e quebra em
+   qualquer ponto porque um domínio longo não pode alargar o cartão. */
+.enderecoApp {
+  margin: 0 0 var(--s3);
+  padding: var(--s3);
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow-wrap: anywhere;
+}
+.enderecoApp code {
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  color: var(--txt);
+  user-select: all;
+}
+
+.listaSimples {
+  margin: var(--s3) 0;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 5px;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}

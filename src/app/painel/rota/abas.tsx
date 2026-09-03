@@ -29,9 +29,24 @@ import estilo from '../painel.module.css'
  * e o que está acontecendo. Ficam lado a lado, e trocar entre eles é um clique
  * sem sair do lugar.
  *
- * Os aplicativos de campo não são abas: eles são OUTRA superfície, feita para o
- * celular de quem está na rua. Viram botões, à direita, com o verbo "abrir" —
- * que é o que descreve o que acontece.
+ * =============================================================================
+ * OS APLICATIVOS SAÍRAM DAQUI — E ESTA BARRA ERA O ESCONDERIJO DELES
+ * =============================================================================
+ * Eles eram dois botões à direita, e o comentário que estava aqui defendia
+ * isso: "não são abas, são OUTRA superfície, feita para o celular de quem está
+ * na rua". A frase é verdadeira; a conclusão estava errada.
+ *
+ * O resultado prático era: menu **O.S.** → aba **Rota** → botão. Três cliques,
+ * e o dono do sistema foi procurar os aplicativos e não achou. Ser outra
+ * superfície é justamente o motivo de precisarem de porta visível.
+ *
+ * Agora existe **Aplicativos** no menu, ao lado de O.S., e a tela de lá faz o
+ * que dois botões nunca fariam: mostra o endereço para copiar, manda no
+ * WhatsApp de quem está na rua, e ensina a instalar na tela inicial.
+ *
+ * O link daqui para lá continua, porque quem está olhando a agenda e quer
+ * conferir o que o motorista vê na mão está a um clique do assunto certo. O que
+ * mudou é que ele deixou de ser o ÚNICO caminho.
  */
 export default function AbasDaRota({ atual }: { atual: 'planejada' | 'aoVivo' }) {
   /**
@@ -65,16 +80,14 @@ export default function AbasDaRota({ atual }: { atual: 'planejada' | 'aoVivo' })
         </Link>
       </nav>
 
-      {/* Os aplicativos de campo. Abrem em ABA NOVA de propósito: quem clica
-          aqui está conferindo, e vai querer voltar para onde estava sem perder
-          o filtro e a rolagem da agenda. */}
+      {/* Um link, e não dois botões de abrir. Quem está na agenda e quer
+          conferir o que a equipe vê na mão continua a um clique — mas o assunto
+          "aplicativos de campo" agora tem lugar próprio no menu, com o endereço
+          para mandar a quem está na rua. Ver o cabeçalho deste arquivo. */}
       <div className={estilo.rotaApps}>
-        <a href="/app/motorista" target="_blank" rel="noreferrer" className={estilo.btnSec}>
-          Abrir app do motorista
-        </a>
-        <a href="/app/tecnico" target="_blank" rel="noreferrer" className={estilo.btnSec}>
-          Abrir app do técnico
-        </a>
+        <Link href="/painel/aplicativos" className={estilo.btnSec}>
+          Aplicativos de campo
+        </Link>
       </div>
     </div>
   )
