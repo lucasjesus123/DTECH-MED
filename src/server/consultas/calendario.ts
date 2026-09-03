@@ -99,12 +99,12 @@ const horaDe = (d: Date) => HORA.format(d).replace(':00', 'h').replace(':', 'h')
  * os valores pelo fio até o navegador dele, onde qualquer um lê no inspetor —
  * "não mostrar" e "não enviar" são coisas diferentes.
  */
-export async function eventosDoMes(
+export async function eventosNoPeriodo(
   ctx: ContextoAcesso,
-  mes: string,
+  inicio: Date,
+  fim: Date,
   opcoes: { comDinheiro: boolean },
 ): Promise<Evento[]> {
-  const { inicio, fim } = janelaDoMes(mes)
   const agora = new Date()
   const { comDinheiro } = opcoes
 
@@ -278,7 +278,11 @@ export async function eventosDoMes(
         dia: diaDe(l.vencimento),
         titulo: l.descricao,
         detalhe: l.cliente?.nome ?? l.contraparte,
-        href: `/painel/financeiro?aba=${l.tipo === 'PAGAR' ? 'pagar' : 'receber'}&mes=${mes}`,
+        // O mês vem do PRÓPRIO vencimento, e não do período que a tela está
+        // olhando: a grade mostra os dias vizinhos que completam a primeira e a
+        // última semana, e um vencimento do dia 31 de agosto visto na grade de
+        // setembro levaria ao Financeiro de setembro, onde ele não está.
+        href: `/painel/financeiro?aba=${l.tipo === 'PAGAR' ? 'pagar' : 'receber'}&mes=${diaDe(l.vencimento).slice(0, 7)}`,
         valorCentavos: l.valorCentavos,
         atrasado: l.vencimento < agora,
       })
@@ -314,7 +318,7 @@ export async function eventosDoMes(
         dia: k.dia.toISOString().slice(0, 10),
         titulo: k.hora ? `${k.hora} · ${k.titulo}` : k.titulo,
         detalhe: [k.responsavel?.nome, k.observacao].filter(Boolean).join(' · ') || null,
-        href: `/painel/calendario?mes=${mes}&dia=${k.dia.toISOString().slice(0, 10)}`,
+        href: `/painel/calendario?mes=${k.dia.toISOString().slice(0, 7)}&dia=${k.dia.toISOString().slice(0, 10)}`,
         valorCentavos: null,
         // Compromisso vencido e não concluído é o que ninguém fez — e é isso que
         // a agenda precisa gritar. Concluído nunca é atraso, mesmo se passou.
@@ -360,35 +364,101 @@ function ordem(t: TipoEvento): number {
 }
 
 /**
- * A grade do mês: as semanas, com os dias que o calendário mostra.
+ * O MÊS INTEIRO — o atalho de sempre, agora por cima do período.
  *
- * Inclui os dias vizinhos que completam a primeira e a última semana — sem
- * eles a grade fica com buracos nas pontas e o olho perde a coluna do dia da
- * semana, que é justamente como se lê um calendário.
+ * Continua existindo porque "o mês" é a pergunta mais feita, e escrever as duas
+ * pontas da janela em toda chamada convidaria alguém a errar uma delas.
  */
-export function gradeDoMes(mes: string): Array<Array<{ dia: string; doMes: boolean }>> {
-  const [ano, m] = mes.split('-').map(Number) as [number, number]
-  const primeiro = new Date(Date.UTC(ano, m - 1, 1))
-  const ultimo = new Date(Date.UTC(ano, m, 0))
+export async function eventosDoMes(
+  ctx: ContextoAcesso,
+  mes: string,
+  opcoes: { comDinheiro: boolean },
+): Promise<Evento[]> {
+  const { inicio, fim } = janelaDoMes(mes)
+  return eventosNoPeriodo(ctx, inicio, fim, opcoes)
+}
 
-  // Recua até o domingo anterior (ou o próprio, se o mês começa num domingo).
-  const comeco = new Date(primeiro)
-  comeco.setUTCDate(1 - primeiro.getUTCDay())
+/**
+ * QUANTOS EVENTOS EM CADA DIA — só a contagem, para a visão de ANO.
+ *
+ * =============================================================================
+ * POR QUE NÃO REUSAR `eventosNoPeriodo`
+ * =============================================================================
+ * A visão de ano desenha 365 quadradinhos. Ela não precisa do título, do
+ * detalhe, do link nem do valor de nada — precisa saber se o dia tem alguma
+ * coisa e quantas. Buscar o ano inteiro em eventos completos seria trazer
+ * milhares de linhas com seis junções cada para pintar pontos, e ainda bateria
+ * nos tetos por fonte (`take`), que existem para a grade do mês: um ano
+ * apareceria truncado sem nada avisar.
+ *
+ * =============================================================================
+ * AQUI O `UNION ALL` É CERTO — E NO OUTRO CASO ERA ERRADO
+ * =============================================================================
+ * O cabeçalho deste arquivo recusa o UNION para os eventos, e com razão: seis
+ * tabelas com formatos diferentes só cabem juntas se cada coluna que serve a
+ * uma virar NULL nas outras cinco.
+ *
+ * A contagem não tem esse problema: as seis fontes viram exatamente as mesmas
+ * duas colunas — o dia e o tipo. Onde os formatos JÁ são iguais, uma consulta
+ * só é mais simples que seis, e o banco agrega sem trazer linha nenhuma para o
+ * JavaScript.
+ *
+ * A conversão de fuso é feita no SQL (`AT TIME ZONE`) porque é o banco que está
+ * agrupando. É a única parte do calendário em que a data vira dia fora do
+ * JavaScript, e por isso o fuso está escrito com todas as letras, igual ao que
+ * `diaDe` usa aqui em cima.
+ */
+export async function contagemPorDia(
+  ctx: ContextoAcesso,
+  inicio: Date,
+  fim: Date,
+  opcoes: { comDinheiro: boolean },
+): Promise<Map<string, number>> {
+  const dinheiro = opcoes.comDinheiro
 
-  const semanas: Array<Array<{ dia: string; doMes: boolean }>> = []
-  const cursor = new Date(comeco)
-  while (cursor <= ultimo || cursor.getUTCDay() !== 0) {
-    const semana: Array<{ dia: string; doMes: boolean }> = []
-    for (let i = 0; i < 7; i++) {
-      const iso = cursor.toISOString().slice(0, 10)
-      semana.push({ dia: iso, doMes: cursor.getUTCMonth() === m - 1 })
-      cursor.setUTCDate(cursor.getUTCDate() + 1)
-    }
-    semanas.push(semana)
-    // Trava de segurança: seis semanas cobrem qualquer mês do calendário
-    // gregoriano. Sem ela, um erro de aritmética viraria laço infinito na
-    // renderização de uma página.
-    if (semanas.length >= 6) break
-  }
-  return semanas
+  const linhas = await comEscopo(ctx, (tx) =>
+    tx.$queryRaw<Array<{ dia: string; n: bigint }>>`
+      SELECT dia, count(*) AS n FROM (
+        SELECT to_char("previstoPara" AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS dia
+          FROM agendamentos
+         WHERE "previstoPara" >= ${inicio} AND "previstoPara" < ${fim}
+           AND status <> 'CANCELADO'
+
+        UNION ALL
+        SELECT to_char("previstaPara" AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
+          FROM visitas_preventivas
+         WHERE "previstaPara" >= ${inicio} AND "previstaPara" < ${fim}
+           AND status <> 'CANCELADA'
+
+        UNION ALL
+        SELECT to_char(dia AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
+          FROM compromissos
+         WHERE dia >= ${inicio} AND dia < ${fim}
+
+        UNION ALL
+        SELECT to_char(fim AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
+          FROM contratos_manutencao
+         WHERE fim >= ${inicio} AND fim < ${fim} AND ativo = true
+
+        -- O dinheiro entra na contagem só para quem pode ver dinheiro. Sem
+        -- isto, o motorista contaria os vencimentos da empresa nos pontos do
+        -- ano: não leria os valores, mas leria os DIAS de pagamento — que é
+        -- informação que também não é dele.
+        UNION ALL
+        SELECT to_char(vencimento AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
+          FROM lancamentos
+         WHERE ${dinheiro} AND vencimento >= ${inicio} AND vencimento < ${fim}
+           AND "pagoEm" IS NULL
+
+        UNION ALL
+        SELECT to_char(vencimento AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
+          FROM faturas
+         WHERE ${dinheiro} AND vencimento >= ${inicio} AND vencimento < ${fim}
+           AND status IN ('ABERTA', 'PARCIAL')
+      ) t
+      GROUP BY dia
+    `,
+  )
+
+  return new Map(linhas.map((l) => [l.dia, Number(l.n)]))
 }

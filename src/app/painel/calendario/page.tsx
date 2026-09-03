@@ -3,8 +3,23 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { exigirNivel, exigirAba, podeVer } from '@/server/auth/guarda'
-import { mesPorExtenso, mesValido, mesVizinho } from '@/server/consultas/caixa'
-import { eventosDoMes, gradeDoMes, type Evento, type TipoEvento } from '@/server/consultas/calendario'
+import {
+  contagemPorDia,
+  eventosNoPeriodo,
+  type Evento,
+  type TipoEvento,
+} from '@/server/consultas/calendario'
+import {
+  gradeDoAno,
+  gradeDoMes,
+  hojeEmLajeado,
+  resolverPeriodo,
+  semanaDe,
+  visaoValida,
+  VISOES,
+  type Periodo,
+  type Visao,
+} from '@/server/consultas/periodo'
 import { pessoasDaEmpresa } from '@/server/consultas/listas'
 import LancarNoDia from './lancar'
 import estilo from '../painel.module.css'
@@ -13,32 +28,46 @@ export const metadata: Metadata = { title: 'Calendário', robots: { index: false
 export const dynamic = 'force-dynamic'
 
 /**
- * O CALENDÁRIO — o que vem por aí.
+ * O CALENDÁRIO — o que vem por aí, em cinco visões.
  *
  * =============================================================================
  * POR QUE ELE É O ÚNICO ITEM DE MENU NOVO
  * =============================================================================
  * A regra da casa manda transformar tela nova em aba sempre que ela responde à
- * mesma pergunta de uma tela existente. Este não responde: ele atravessa CINCO
- * assuntos — rota, preventiva, contas a pagar, contas a receber e contratos — e
- * a pergunta que faz, *"o que vem por aí"*, não é feita de dentro de nenhum
- * deles.
- *
- * Fica em **Hoje**, ao lado do Dashboard: um mostra o agora, o outro mostra
- * o depois.
+ * mesma pergunta de uma tela existente. Este não responde: ele atravessa SEIS
+ * assuntos — rota, preventiva, contas a pagar, contas a receber, contratos e
+ * compromissos — e a pergunta que faz, *"o que vem por aí"*, não é feita de
+ * dentro de nenhum deles.
  *
  * =============================================================================
- * O QUE ELE EVITA
+ * CINCO VISÕES, PORQUE A MESMA AGENDA É LIDA DE CINCO DISTÂNCIAS
  * =============================================================================
- * Cinco calendários mentais, e ninguém conseguindo dizer se a quinta-feira que
- * vem está cheia. O custo é concreto: marca-se entrega para o mesmo dia em que
- * três preventivas vencem, e o motorista descobre na hora.
+ *   DIA      o que tem HOJE, hora a hora, e onde se marca uma coisa nova
+ *   SEMANA   a carga da semana — é aqui que se vê a terça sobrecarregada
+ *   MÊS      o panorama, que é como se decide em que semana encaixar algo
+ *   ANO      onde estão os picos do ano; serve para planejar férias e compra
+ *   LISTA    a agenda corrida, para imprimir ou ler no celular
+ *
+ * Uma grade de mês sozinha obriga a fazer as outras quatro leituras na cabeça.
+ * A de semana e a de dia mostram o dia inteiro sem o "+N mais" que a célula do
+ * mês precisa ter — quem abre a semana quer justamente o que não coube.
+ *
+ * =============================================================================
+ * O DIA EM FOCO ATRAVESSA AS VISÕES
+ * =============================================================================
+ * Uma âncora só, na URL: `dia`. Trocar de visão nunca perde o lugar — quem
+ * estava em 15 de setembro no Dia e clica em Ano cai em 2026, e não em janeiro.
+ * Ver `resolverPeriodo`.
+ *
+ * O endereço antigo (`?mes=AAAA-MM`) continua valendo como entrada: ele vira
+ * foco no primeiro dia do mês, ou em hoje quando hoje cai nele. Links já
+ * mandados por mensagem não podem quebrar porque a tela ganhou visões.
  *
  * =============================================================================
  * A COR SEPARA O QUE DISPUTA A MESMA HORA DO QUE NÃO DISPUTA
  * =============================================================================
- * Rua e bancada têm pessoa alocada e hora marcada; vencimento é do dia inteiro e
- * se resolve entre uma coisa e outra. Por isso os dois primeiros são violeta
+ * Rua e bancada têm pessoa alocada e hora marcada; vencimento é do dia inteiro
+ * e se resolve entre uma coisa e outra. Por isso os dois primeiros são violeta
  * (a cor do trabalho, no sistema inteiro) e o dinheiro é âmbar — o mesmo par
  * validado nos gráficos do Financeiro, que separa também por luminosidade e não
  * só por matiz.
@@ -46,18 +75,33 @@ export const dynamic = 'force-dynamic'
 export default async function Calendario({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; so?: string; dia?: string }>
+  searchParams: Promise<{ mes?: string; so?: string; dia?: string; ver?: string }>
 }) {
   const { ctx, sessao } = await exigirNivel(Papel.MOTORISTA)
   await exigirAba('calendario')
   const q = await searchParams
 
-  const mes = mesValido(q.mes)
+  const visao = visaoValida(q.ver)
+  const hoje = hojeEmLajeado()
+
+  const diaUrl = /^\d{4}-\d{2}-\d{2}$/.test(q.dia ?? '') ? q.dia! : null
+  const mesUrl = /^\d{4}-(0[1-9]|1[0-2])$/.test(q.mes ?? '') ? q.mes! : null
+
+  /**
+   * O DIA EM FOCO — uma âncora só para as cinco visões.
+   *
+   * A ordem de preferência importa: o `dia` explícito manda; depois o `mes` do
+   * endereço antigo, que aponta para hoje quando hoje cai nele (abrir "este
+   * mês" e cair no dia 1 seria estranho) e para o dia 1 quando não cai.
+   */
+  const foco = diaUrl ?? (mesUrl ? (hoje.startsWith(mesUrl) ? hoje : `${mesUrl}-01`) : hoje)
+  const periodo = resolverPeriodo(visao, foco)
+
   // QUEM VÊ DINHEIRO NESTE CALENDÁRIO é quem já vê dinheiro no sistema. O
   // motorista entra aqui para ver as PARADAS da semana; salário, aluguel e
-  // quanto cada cliente deve não são dele. O corte é feito na CONSULTA — filtrar
-  // só na tela mandaria os valores pelo fio até o navegador dele, onde qualquer
-  // um lê no inspetor.
+  // quanto cada cliente deve não são dele. O corte é feito na CONSULTA —
+  // filtrar só na tela mandaria os valores pelo fio até o navegador dele, onde
+  // qualquer um lê no inspetor.
   const comDinheiro = podeVer(sessao.papel, Papel.FINANCEIRO)
   const so = FILTROS.filter((f) => comDinheiro || (f.chave !== 'pagar' && f.chave !== 'receber'))
     .some((f) => f.chave === q.so)
@@ -65,44 +109,68 @@ export default async function Calendario({
     : null
 
   /**
-   * O DIA CLICADO.
+   * O PAINEL DE MARCAR abre quando o dia veio no endereço — e SEMPRE na visão
+   * de dia, porque ali ele não é um extra: a visão de dia existe para olhar e
+   * mexer num dia só.
    *
-   * Ele vem pela URL, e não por estado de componente, para que o painel de
-   * lançar sobreviva a um recarregar e possa ser mandado por mensagem: "abre
-   * este link e marca a visita aí". Uma tela de agenda que perde o dia ao
-   * atualizar obriga a pessoa a caçar o dia de novo toda vez.
+   * No ANO ele não abre. A visão do ano é de PANORAMA — olhar doze meses e
+   * achar o pico. Um formulário de "marcar em 5 de setembro" pendurado embaixo
+   * dela oferece uma ação de escala errada, e ainda empurra os doze meses para
+   * cima da dobra em tela de notebook.
    */
-  const diaAberto = /^\d{4}-\d{2}-\d{2}$/.test(q.dia ?? '') && (q.dia ?? '').startsWith(mes)
-    ? q.dia!
-    : null
+  const diaAberto = visao === 'ano' ? null : visao === 'dia' ? periodo.dia : diaUrl
 
-  const [todos, pessoas] = await Promise.all([
-    eventosDoMes(ctx, mes, { comDinheiro }),
+  /**
+   * A visão de ANO pede CONTAGEM, não eventos.
+   *
+   * Ela desenha 365 quadradinhos e não usa título, detalhe nem valor de nada.
+   * Buscar o ano inteiro em eventos completos traria milhares de linhas com
+   * seis junções cada para pintar pontos — e bateria nos tetos por fonte, que
+   * existem para a grade do mês: o ano apareceria truncado sem nada avisar.
+   */
+  const [eventos, contagem, pessoas] = await Promise.all([
+    visao === 'ano'
+      ? Promise.resolve([] as Evento[])
+      : eventosNoPeriodo(ctx, periodo.inicio, periodo.fim, { comDinheiro }),
+    visao === 'ano'
+      ? contagemPorDia(ctx, periodo.inicio, periodo.fim, { comDinheiro })
+      : Promise.resolve(new Map<string, number>()),
     // Só quando há dia aberto: a lista da equipe não é usada na grade, e
     // buscá-la sempre seria uma consulta por carregamento de tela para nada.
     diaAberto ? pessoasDaEmpresa(ctx) : Promise.resolve([]),
   ])
-  const eventos = so ? todos.filter((e) => e.tipo === so) : todos
-  const semanas = gradeDoMes(mes)
+
+  const filtrados = so ? eventos.filter((e) => e.tipo === so) : eventos
 
   const porDia = new Map<string, Evento[]>()
-  for (const e of eventos) {
+  for (const e of filtrados) {
     const lista = porDia.get(e.dia)
     if (lista) lista.push(e)
     else porDia.set(e.dia, [e])
   }
 
-  const hoje = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Sao_Paulo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date())
+  const atrasados = filtrados.filter((e) => e.atrasado).length
+  const aReceber = filtrados.filter((e) => e.tipo === 'receber').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
+  const aPagar = filtrados.filter((e) => e.tipo === 'pagar').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
+  const naRua = filtrados.filter((e) => e.tipo === 'parada' || e.tipo === 'preventiva').length
 
-  const atrasados = eventos.filter((e) => e.atrasado).length
-  const aReceber = eventos.filter((e) => e.tipo === 'receber').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
-  const aPagar = eventos.filter((e) => e.tipo === 'pagar').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
-  const naRua = eventos.filter((e) => e.tipo === 'parada' || e.tipo === 'preventiva').length
+  /** Monta um endereço desta tela mantendo o que não mudou. */
+  const url = (troca: { ver?: Visao; dia?: string; so?: TipoEvento | null }) => {
+    const v = troca.ver ?? visao
+    const d = troca.dia ?? periodo.dia
+    const s = troca.so === undefined ? so : troca.so
+    return `/painel/calendario?ver=${v}&dia=${d}${s ? `&so=${s}` : ''}`
+  }
+
+  /**
+   * "+ Novo evento" leva ao DIA, onde o painel de marcar já está aberto.
+   *
+   * O dia escolhido é HOJE quando hoje cai no período olhado, e o primeiro dia
+   * do período quando não cai. Clicar em "novo evento" olhando dezembro e cair
+   * em hoje seria perder o lugar; cair no dia 1 de dezembro é o que a pessoa
+   * quis dizer.
+   */
+  const diaDoBotao = dentroDoPeriodo(hoje, periodo) ? hoje : primeiroDoPeriodo(periodo)
 
   return (
     <>
@@ -111,41 +179,82 @@ export default async function Calendario({
           <p className={estilo.grav}>Hoje</p>
           <h1 className={estilo.titulo}>Calendário</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
-            Tudo que tem data e ainda vai acontecer: paradas de rota, preventivas, vencimentos e
-            contratos terminando.
+            Tudo que tem data e ainda vai acontecer: paradas de rota, preventivas, vencimentos,
+            contratos terminando e o que a equipe marcou.
           </p>
         </div>
+        <Link className={estilo.btnPrimario} href={url({ ver: 'dia', dia: diaDoBotao })}>
+          + Novo evento
+        </Link>
       </div>
 
       <div className={estilo.resumo}>
-        <Indicador rotulo="Compromissos no mês" valor={String(eventos.length)} nota="tudo que tem data" />
-        <Indicador rotulo="Saídas de rua" valor={String(naRua)} nota="paradas e preventivas" />
+        <Indicador
+          rotulo={visao === 'ano' ? 'No ano' : 'No período'}
+          valor={visao === 'ano' ? String(somar(contagem)) : String(filtrados.length)}
+          nota="tudo que tem data"
+        />
+        <Indicador rotulo="Saídas de rua" valor={visao === 'ano' ? '—' : String(naRua)} nota="paradas e preventivas" />
         {comDinheiro ? (
           <Indicador
-            rotulo="A receber no mês"
-            valor={formatarBRL(aReceber)}
+            rotulo="A receber"
+            valor={visao === 'ano' ? '—' : formatarBRL(aReceber)}
             nota="faturas e avulsos vencendo"
           />
         ) : (
           <Indicador
             rotulo="Contratos terminando"
-            valor={String(eventos.filter((e) => e.tipo === 'contrato').length)}
+            valor={visao === 'ano' ? '—' : String(filtrados.filter((e) => e.tipo === 'contrato').length)}
             nota="precisam de renovação"
           />
         )}
         <Indicador
           rotulo="Passou da data"
-          valor={String(atrasados)}
-          nota={atrasados > 0 ? 'ainda em aberto' : 'nada atrasado'}
+          valor={visao === 'ano' ? '—' : String(atrasados)}
+          nota={visao === 'ano' ? 'abra um mês para ver' : atrasados > 0 ? 'ainda em aberto' : 'nada atrasado'}
           alerta={atrasados > 0}
         />
       </div>
 
-      {/* A barra: o mês à esquerda, o filtro por tipo à direita. */}
+      {/* A barra: as cinco visões à esquerda, a navegação do período à direita. */}
       <div className={estilo.rotaBarra}>
-        <nav className={estilo.abas} aria-label="Filtrar por tipo">
+        <nav className={estilo.abas} aria-label="Como olhar o calendário">
+          {VISOES.map(([v, rotulo]) => (
+            <Link
+              key={v}
+              href={url({ ver: v })}
+              className={visao === v ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+              aria-current={visao === v ? 'page' : undefined}
+            >
+              {rotulo}
+            </Link>
+          ))}
+        </nav>
+
+        <div className={estilo.mesTroca}>
+          <Link href={url({ dia: periodo.anteriorDia })} className={estilo.mesSeta} aria-label="Período anterior" rel="prev">
+            ‹
+          </Link>
+          <strong className={estilo.mesNome}>{periodo.titulo}</strong>
+          <Link href={url({ dia: periodo.proximoDia })} className={estilo.mesSeta} aria-label="Próximo período" rel="next">
+            ›
+          </Link>
+          {/* "Hoje" só aparece quando não se está nele: um botão que não faz
+              nada ensina que o botão não faz nada. */}
+          {!dentroDoPeriodo(hoje, periodo) ? (
+            <Link href={url({ dia: hoje })} className={estilo.btnSec}>
+              Hoje
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      {/* O filtro por tipo não vale no ano: lá a leitura é de volume, e um ano
+          filtrado por "só contratos" seria uma folha quase toda em branco. */}
+      {visao !== 'ano' ? (
+        <nav className={estilo.abas} aria-label="Filtrar por tipo" style={{ marginBottom: 'var(--s4)' }}>
           <Link
-            href={`/painel/calendario?mes=${mes}`}
+            href={url({ so: null })}
             className={so === null ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
             aria-current={so === null ? 'page' : undefined}
           >
@@ -154,7 +263,7 @@ export default async function Calendario({
           {FILTROS.filter((f) => comDinheiro || (f.chave !== 'pagar' && f.chave !== 'receber')).map((f) => (
             <Link
               key={f.chave}
-              href={`/painel/calendario?mes=${mes}&so=${f.chave}`}
+              href={url({ so: f.chave })}
               className={so === f.chave ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
               aria-current={so === f.chave ? 'page' : undefined}
             >
@@ -162,130 +271,62 @@ export default async function Calendario({
             </Link>
           ))}
         </nav>
+      ) : null}
 
-        <div className={estilo.mesTroca}>
-          <Link
-            href={`/painel/calendario?mes=${mesVizinho(mes, -1)}${so ? `&so=${so}` : ''}`}
-            className={estilo.mesSeta}
-            aria-label="Mês anterior"
-            rel="prev"
-          >
-            ‹
-          </Link>
-          <strong className={estilo.mesNome}>{mesPorExtenso(mes)}</strong>
-          <Link
-            href={`/painel/calendario?mes=${mesVizinho(mes, 1)}${so ? `&so=${so}` : ''}`}
-            className={estilo.mesSeta}
-            aria-label="Mês seguinte"
-            rel="next"
-          >
-            ›
-          </Link>
-        </div>
-      </div>
-
-      {comDinheiro && (aPagar > 0 || aReceber > 0) ? (
+      {comDinheiro && visao !== 'ano' && (aPagar > 0 || aReceber > 0) ? (
         <p className={estilo.dica}>
-          Este mês vencem {formatarBRL(aReceber)} a receber e {formatarBRL(aPagar)} a pagar.{' '}
-          <Link href={`/painel/financeiro?mes=${mes}`}>Ver no Financeiro</Link>
+          Neste período vencem {formatarBRL(aReceber)} a receber e {formatarBRL(aPagar)} a pagar.{' '}
+          <Link href={`/painel/financeiro?mes=${periodo.mes}`}>Ver no Financeiro</Link>
         </p>
       ) : null}
 
-      {/* =====================================================================
-          A GRADE
-          =====================================================================
-          `<table>` e não `<div>` com grid: um calendário É uma tabela — dias da
-          semana em colunas, semanas em linhas. O leitor de tela anuncia "sábado,
-          15" porque o cabeçalho da coluna está ligado à célula; numa grade de
-          divs ele leria só "15", e a informação que importa some.
-          ===================================================================== */}
-      <div className={estilo.rolaX}>
-        <table className={estilo.calGrade}>
-          <caption className={estilo.soLeitor}>
-            Compromissos de {mesPorExtenso(mes)}, por dia
-          </caption>
-          <thead>
-            <tr>
-              {['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].map((d) => (
-                <th key={d} scope="col">
-                  <span aria-hidden="true">{d.slice(0, 3)}</span>
-                  <span className={estilo.soLeitor}>{d}</span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {semanas.map((semana) => (
-              <tr key={semana[0]!.dia}>
-                {semana.map((d) => {
-                  const doDia = porDia.get(d.dia) ?? []
-                  const ehHoje = d.dia === hoje
-                  return (
-                    <td
-                      key={d.dia}
-                      className={[
-                        estilo.calDia,
-                        d.doMes ? '' : estilo.calForaDoMes,
-                        ehHoje ? estilo.calHoje : '',
-                      ]
-                        .filter(Boolean)
-                        .join(' ')}
-                    >
-                      {/* O NÚMERO DO DIA VIRA O BOTÃO DE MARCAR.
-                          Sem um botão a mais na célula: a grade tem 42 células,
-                          e um "+" em cada uma seria 42 alvos disputando atenção
-                          com o conteúdo. O número já é o lugar onde o olho vai
-                          quando a pessoa escolhe um dia. */}
-                      <Link
-                        href={`/painel/calendario?mes=${mes}${so ? `&so=${so}` : ''}&dia=${d.dia}`}
-                        className={estilo.calNumero}
-                        aria-label={`Marcar algo no dia ${Number(d.dia.slice(8))}`}
-                      >
-                        {Number(d.dia.slice(8))}
-                        {ehHoje ? <span className={estilo.soLeitor}> (hoje)</span> : null}
-                      </Link>
-                      {doDia.slice(0, NO_DIA).map((e) => (
-                        <Compromisso key={e.id} e={e} />
-                      ))}
-                      {/* O DIA CHEIO NÃO PODE ESTICAR A GRADE.
-                          Um dia com trinta e duas paradas empurrava a linha
-                          inteira para fora da tela e transformava o calendário
-                          numa lista — perdendo justamente o que ele tem de
-                          melhor, que é mostrar o mês de uma olhada.
-                          O resto continua ALCANÇÁVEL, atrás de um clique, e
-                          `<details>` faz isso sem rota nova e sem JavaScript. */}
-                      {doDia.length > NO_DIA ? (
-                        <details className={estilo.calMais}>
-                          <summary>+{doDia.length - NO_DIA} mais</summary>
-                          {doDia.slice(NO_DIA).map((e) => (
-                            <Compromisso key={e.id} e={e} />
-                          ))}
-                        </details>
-                      ) : null}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {visao === 'mes' ? (
+        <Grade
+          semanas={gradeDoMes(periodo.mes)}
+          porDia={porDia}
+          hoje={hoje}
+          teto={NO_DIA}
+          legenda={`Compromissos de ${periodo.titulo}, por dia`}
+          url={url}
+        />
+      ) : null}
+
+      {visao === 'semana' ? (
+        <Grade
+          semanas={[semanaDe(periodo.dia).map((d) => ({ dia: d, doMes: true }))]}
+          porDia={porDia}
+          hoje={hoje}
+          // Na semana não há corte: quem abre a semana quer justamente o que
+          // não coube na célula do mês. Sete células numa linha só têm altura
+          // de sobra para isso.
+          teto={99}
+          rolarCelula
+          legenda={`Compromissos da semana de ${periodo.titulo}`}
+          url={url}
+        />
+      ) : null}
+
+      {visao === 'dia' ? <VisaoDia eventos={filtrados} titulo={periodo.titulo} /> : null}
+
+      {visao === 'lista' ? <VisaoLista porDia={porDia} hoje={hoje} url={url} /> : null}
+
+      {visao === 'ano' ? <VisaoAno ano={periodo.dia.slice(0, 4)} contagem={contagem} hoje={hoje} /> : null}
 
       {diaAberto ? (
         <LancarNoDia
           dia={diaAberto}
-          mes={mes}
+          mes={diaAberto.slice(0, 7)}
           pessoas={pessoas}
           comDinheiro={comDinheiro}
           podeMarcarParada={podeVer(sessao.papel, Papel.ATENDENTE)}
         />
       ) : null}
 
-      {eventos.length === 0 ? (
+      {visao !== 'ano' && filtrados.length === 0 ? (
         <p className={estilo.vazio}>
           {so
-            ? 'Nada deste tipo neste mês.'
-            : 'Nenhum compromisso neste mês. Paradas de rota, preventivas e vencimentos aparecem aqui assim que existirem.'}
+            ? 'Nada deste tipo neste período.'
+            : 'Nenhum compromisso neste período. Paradas de rota, preventivas e vencimentos aparecem aqui assim que existirem.'}
         </p>
       ) : null}
 
@@ -306,8 +347,337 @@ export default async function Calendario({
   )
 }
 
+// ---------------------------------------------------------------------------
+// A GRADE — serve ao mês e à semana, com um teto diferente por célula
+// ---------------------------------------------------------------------------
+
+type Url = (troca: { ver?: Visao; dia?: string; so?: TipoEvento | null }) => string
+
 /**
- * Quantos compromissos aparecem abertos num dia.
+ * `<table>` e não `<div>` com grid: um calendário É uma tabela — dias da semana
+ * em colunas, semanas em linhas. O leitor de tela anuncia "sábado, 15" porque o
+ * cabeçalho da coluna está ligado à célula; numa grade de divs ele leria só
+ * "15", e a informação que importa some.
+ *
+ * A mesma tabela desenha o mês (seis linhas, teto de quatro por dia) e a semana
+ * (uma linha, sem teto). Duas implementações do mesmo desenho divergiriam no
+ * primeiro conserto — e o conserto costuma ser justamente no dia cheio.
+ */
+function Grade({
+  semanas,
+  porDia,
+  hoje,
+  teto,
+  legenda,
+  url,
+  rolarCelula,
+}: {
+  semanas: Array<Array<{ dia: string; doMes: boolean }>>
+  porDia: Map<string, Evento[]>
+  hoje: string
+  teto: number
+  legenda: string
+  url: Url
+  /**
+   * A célula rola por dentro em vez de esticar a página.
+   *
+   * Vale para a SEMANA, que não corta nada: sem teto, um dia com trinta e três
+   * paradas faz uma coluna de dois metros e leva as outras seis para fora da
+   * tela — a semana deixa de ser comparável, que é a única coisa que ela faz
+   * melhor que o mês.
+   */
+  rolarCelula?: boolean
+}) {
+  return (
+    <div className={estilo.rolaX}>
+      <table className={estilo.calGrade}>
+        <caption className={estilo.soLeitor}>{legenda}</caption>
+        <thead>
+          <tr>
+            {['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'].map((d) => (
+              <th key={d} scope="col">
+                <span aria-hidden="true">{d.slice(0, 3)}</span>
+                <span className={estilo.soLeitor}>{d}</span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {semanas.map((semana) => (
+            <tr key={semana[0]!.dia}>
+              {semana.map((d) => {
+                const doDia = porDia.get(d.dia) ?? []
+                const ehHoje = d.dia === hoje
+                return (
+                  <td
+                    key={d.dia}
+                    className={[
+                      estilo.calDia,
+                      rolarCelula ? estilo.calDiaRola : '',
+                      d.doMes ? '' : estilo.calForaDoMes,
+                      ehHoje ? estilo.calHoje : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    {/* O NÚMERO DO DIA VIRA O BOTÃO DE MARCAR.
+                        Sem um botão a mais na célula: a grade tem 42 células, e
+                        um "+" em cada uma seria 42 alvos disputando atenção com
+                        o conteúdo. O número já é o lugar onde o olho vai quando
+                        a pessoa escolhe um dia. */}
+                    <Link
+                      href={url({ dia: d.dia })}
+                      className={estilo.calNumero}
+                      aria-label={`Marcar algo no dia ${Number(d.dia.slice(8))}`}
+                    >
+                      {Number(d.dia.slice(8))}
+                      {ehHoje ? <span className={estilo.soLeitor}> (hoje)</span> : null}
+                    </Link>
+                    {doDia.slice(0, teto).map((e) => (
+                      <Compromisso key={e.id} e={e} />
+                    ))}
+                    {/* O DIA CHEIO NÃO PODE ESTICAR A GRADE.
+                        Um dia com trinta e duas paradas empurrava a linha
+                        inteira para fora da tela e transformava o calendário
+                        numa lista — perdendo justamente o que ele tem de melhor,
+                        que é mostrar o mês de uma olhada. O resto continua
+                        ALCANÇÁVEL, atrás de um clique, e `<details>` faz isso
+                        sem rota nova e sem JavaScript. */}
+                    {doDia.length > teto ? (
+                      <details className={estilo.calMais}>
+                        <summary>+{doDia.length - teto} mais</summary>
+                        {doDia.slice(teto).map((e) => (
+                          <Compromisso key={e.id} e={e} />
+                        ))}
+                      </details>
+                    ) : null}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// VISÃO DE DIA
+// ---------------------------------------------------------------------------
+
+/**
+ * O dia inteiro, em ordem, sem corte.
+ *
+ * Não é uma grade de horas: das seis fontes, só duas têm hora (a parada com
+ * janela combinada e o compromisso). Desenhar 24 faixas para preencher três
+ * seria dar à tela a forma de uma agenda médica que este trabalho não tem — o
+ * resto do dia é vencimento e visita, que são do dia e não da hora.
+ */
+function VisaoDia({ eventos, titulo }: { eventos: Evento[]; titulo: string }) {
+  if (eventos.length === 0) {
+    return (
+      <p className={estilo.vazio}>
+        Nada marcado em {titulo.toLowerCase()}. Use o painel abaixo para marcar.
+      </p>
+    )
+  }
+  return (
+    <ul className={estilo.calDiaLista}>
+      {eventos.map((e) => (
+        <li key={e.id}>
+          <Link
+            href={e.href}
+            className={`${estilo.calDiaItem} ${COR[e.tipo]} ${e.atrasado ? estilo.calAtrasado : ''}`}
+          >
+            <span className={estilo.calDiaTipo}>{ROTULO_TIPO[e.tipo]}</span>
+            <span className={estilo.calDiaTitulo}>
+              {e.titulo}
+              {e.detalhe ? <span className={estilo.fraco}> · {e.detalhe}</span> : null}
+            </span>
+            {e.valorCentavos != null ? (
+              <span className={estilo.calDiaValor}>{formatarBRL(e.valorCentavos)}</span>
+            ) : null}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// VISÃO DE LISTA
+// ---------------------------------------------------------------------------
+
+/**
+ * A agenda corrida — só os dias que têm alguma coisa.
+ *
+ * É a visão que serve para imprimir e para ler no celular, onde uma grade de
+ * sete colunas vira sete colunas de dois centímetros. Dia vazio não entra: numa
+ * lista, o vazio é ruído; na grade ele é informação, porque desenha a forma da
+ * semana.
+ */
+function VisaoLista({
+  porDia,
+  hoje,
+  url,
+}: {
+  porDia: Map<string, Evento[]>
+  hoje: string
+  url: Url
+}) {
+  const dias = [...porDia.keys()].sort()
+  if (dias.length === 0) return null
+
+  return (
+    <div className={estilo.calLista}>
+      {dias.map((d) => (
+        <section key={d} className={estilo.bloco}>
+          <p className={estilo.blocoTitulo}>
+            <Link href={url({ ver: 'dia', dia: d })}>
+              {porExtenso(d)}
+              {d === hoje ? ' · hoje' : ''}
+            </Link>
+            <span className={estilo.fraco}>
+              {porDia.get(d)!.length} {porDia.get(d)!.length === 1 ? 'compromisso' : 'compromissos'}
+            </span>
+          </p>
+          <ul className={estilo.calDiaLista}>
+            {porDia.get(d)!.map((e) => (
+              <li key={e.id}>
+                <Link
+                  href={e.href}
+                  className={`${estilo.calDiaItem} ${COR[e.tipo]} ${e.atrasado ? estilo.calAtrasado : ''}`}
+                >
+                  <span className={estilo.calDiaTipo}>{ROTULO_TIPO[e.tipo]}</span>
+                  <span className={estilo.calDiaTitulo}>
+                    {e.titulo}
+                    {e.detalhe ? <span className={estilo.fraco}> · {e.detalhe}</span> : null}
+                  </span>
+                  {e.valorCentavos != null ? (
+                    <span className={estilo.calDiaValor}>{formatarBRL(e.valorCentavos)}</span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// VISÃO DE ANO
+// ---------------------------------------------------------------------------
+
+/**
+ * Os doze meses, e a densidade de cada dia.
+ *
+ * A pergunta do ano não é "o que acontece no dia 12 de março" — para isso
+ * existem as outras quatro visões. É **onde estão os picos**: o mês em que a
+ * preventiva se acumula, a semana que já está cheia antes de alguém marcar
+ * férias, o vazio de janeiro.
+ *
+ * Por isso cada dia é um quadrado com três intensidades, e não um número.
+ * Escrever a contagem em 365 células faria uma parede de dígitos que ninguém
+ * lê; a mancha se enxerga de longe, que é a distância certa para esta visão.
+ */
+function VisaoAno({
+  ano,
+  contagem,
+  hoje,
+}: {
+  ano: string
+  contagem: Map<string, number>
+  hoje: string
+}) {
+  return (
+    <div className={estilo.calAno}>
+      {gradeDoAno(ano).map((m) => {
+        const total = m.semanas
+          .flat()
+          .filter((d) => d.doMes)
+          .reduce((s, d) => s + (contagem.get(d.dia) ?? 0), 0)
+        return (
+          <section key={m.mes} className={estilo.calAnoMes}>
+            <p className={estilo.calAnoNome}>
+              <Link href={`/painel/calendario?ver=mes&dia=${m.mes}-01`}>{m.nome}</Link>
+              <span className={estilo.fraco}>{total}</span>
+            </p>
+            <div className={estilo.calMini} role="list" aria-label={`${m.nome} de ${ano}`}>
+              {m.semanas.flat().map((d) => {
+                const n = d.doMes ? (contagem.get(d.dia) ?? 0) : 0
+                return (
+                  <Link
+                    key={d.dia}
+                    href={`/painel/calendario?ver=dia&dia=${d.dia}`}
+                    role="listitem"
+                    aria-label={`${d.dia}: ${n} ${n === 1 ? 'compromisso' : 'compromissos'}`}
+                    title={`${Number(d.dia.slice(8))} — ${n} ${n === 1 ? 'compromisso' : 'compromissos'}`}
+                    className={[
+                      estilo.calMiniDia,
+                      d.doMes ? '' : estilo.calMiniFora,
+                      // O anel de hoje só no mês DELE: a semana que completa
+                      // agosto contém 3 de setembro, e um anel ali faria
+                      // "hoje" aparecer duas vezes no ano, em dois cartões.
+                      d.doMes && d.dia === hoje ? estilo.calMiniHoje : '',
+                      n === 0 ? '' : n <= 2 ? estilo.calMiniPouco : n <= 5 ? estilo.calMiniMedio : estilo.calMiniMuito,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    <span className={estilo.soLeitor}>{Number(d.dia.slice(8))}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )
+      })}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+/** Está hoje dentro do que a tela está olhando? */
+function dentroDoPeriodo(dia: string, p: Periodo): boolean {
+  const inicio = p.inicio.toISOString()
+  const fim = p.fim.toISOString()
+  const instante = new Date(`${dia}T12:00:00-03:00`).toISOString()
+  return instante >= inicio && instante < fim
+}
+
+/** O primeiro dia do período olhado — para onde "+ Novo evento" leva. */
+function primeiroDoPeriodo(p: Periodo): string {
+  switch (p.visao) {
+    case 'dia':
+      return p.dia
+    case 'semana':
+      return semanaDe(p.dia)[0]!
+    case 'ano':
+      return `${p.dia.slice(0, 4)}-01-01`
+    default:
+      return `${p.mes}-01`
+  }
+}
+
+const somar = (m: Map<string, number>) => [...m.values()].reduce((s, n) => s + n, 0)
+
+const POR_EXTENSO = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: 'America/Sao_Paulo',
+  weekday: 'long',
+  day: '2-digit',
+  month: 'long',
+})
+function porExtenso(dia: string): string {
+  const bruto = POR_EXTENSO.format(new Date(`${dia}T12:00:00-03:00`))
+  return bruto.charAt(0).toUpperCase() + bruto.slice(1)
+}
+
+/**
+ * Quantos compromissos aparecem abertos num dia da grade do MÊS.
  *
  * Quatro cabem na altura de uma célula sem esticar a linha. O quinto e os
  * seguintes ficam atrás de "+N mais" — porque um dia com trinta e duas paradas
@@ -338,6 +708,16 @@ const FILTROS: Array<{ chave: TipoEvento; rotulo: string }> = [
   { chave: 'pagar', rotulo: 'A pagar' },
   { chave: 'contrato', rotulo: 'Contratos' },
 ]
+
+/** O nome do tipo, para as visões que têm largura para escrevê-lo. */
+const ROTULO_TIPO: Record<TipoEvento, string> = {
+  parada: 'Rota',
+  preventiva: 'Preventiva',
+  pagar: 'A pagar',
+  receber: 'A receber',
+  contrato: 'Contrato',
+  compromisso: 'Compromisso',
+}
 
 /**
  * A cor por tipo, num mapa explícito.

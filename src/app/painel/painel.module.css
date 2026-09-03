@@ -5457,3 +5457,153 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .abaOpcaoBloqueada > span > .dica {
   display: block;
 }
+
+/* ==========================================================================
+   AS VISÕES DE DIA E DE LISTA
+   --------------------------------------------------------------------------
+   A grade do mês espreme cada compromisso numa linha de uma frase. O dia e a
+   lista têm a largura inteira, e é isso que elas gastam: o TIPO à esquerda,
+   escrito por extenso, o título no meio, o valor à direita.
+
+   O tipo em coluna própria é o que faz a lista ser lida em diagonal — "onde
+   estão as preventivas desta semana" se responde correndo o olho pela primeira
+   coluna, e não lendo trinta títulos.
+   ========================================================================== */
+.calDiaLista {
+  display: grid;
+  gap: var(--s2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.calDiaItem {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: baseline;
+  gap: var(--s3);
+  padding: var(--s3);
+  border-radius: var(--r);
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: background 160ms var(--ease);
+}
+
+.calDiaTipo {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  opacity: .85;
+}
+
+.calDiaTitulo {
+  color: var(--txt);
+  font-weight: 500;
+}
+
+.calDiaValor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calLista {
+  display: grid;
+  gap: var(--s4);
+}
+
+/* No celular o tipo sobe para cima do título: 110px de coluna fixa somados ao
+   valor não deixam largura de leitura para o título, e "Preventiva · Hospital
+   Bruno Bo…" não identifica nada. */
+@media (max-width: 640px) {
+  .calDiaItem {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'tipo valor' 'titulo titulo';
+    row-gap: 2px;
+  }
+  .calDiaTipo { grid-area: tipo; }
+  .calDiaValor { grid-area: valor; }
+  .calDiaTitulo { grid-area: titulo; }
+}
+
+/* ==========================================================================
+   A VISÃO DE ANO
+   --------------------------------------------------------------------------
+   Doze meses, cada dia um quadrado com três intensidades. A pergunta do ano
+   não é "o que acontece dia 12 de março" — é ONDE ESTÃO OS PICOS. Escrever a
+   contagem em 365 células faria uma parede de dígitos que ninguém lê; a mancha
+   se enxerga de longe, que é a distância certa desta visão.
+
+   As três intensidades são degraus de OPACIDADE sobre o mesmo violeta, e não
+   três matizes. Matizes diferentes seriam lidos como categorias — "o roxo é
+   preventiva?" — quando o que muda é só a quantidade.
+   ========================================================================== */
+.calAno {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--s4);
+}
+
+.calAnoMes {
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  padding: var(--s3);
+}
+
+.calAnoNome {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s2);
+  margin: 0 0 var(--s2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.calAnoNome a { color: var(--txt); text-decoration: none; }
+.calAnoNome a:hover { text-decoration: underline; }
+
+.calMini {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.calMiniDia {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--bg-1);
+  border: 1px solid transparent;
+  display: block;
+  transition: transform 120ms var(--ease), outline-color 120ms var(--ease);
+}
+.calMiniDia:hover { transform: scale(1.35); }
+.calMiniDia:focus-visible { outline: 2px solid var(--vio); outline-offset: 1px; }
+
+/* Dia que completa a semana mas é de outro mês: fica quase invisível, porque
+   ele existe só para a coluna do dia da semana não sair do lugar. */
+.calMiniFora { opacity: .25; }
+
+.calMiniPouco { background: color-mix(in srgb, var(--vio) 30%, transparent); }
+.calMiniMedio { background: color-mix(in srgb, var(--vio) 60%, transparent); }
+.calMiniMuito { background: var(--vio); }
+
+/* Hoje é anel, e não preenchimento: o preenchimento já está reservado para a
+   quantidade, e sobrepor os dois faria um dia cheio e um dia de hoje ficarem
+   iguais. */
+.calMiniHoje {
+  border-color: var(--txt);
+  box-shadow: 0 0 0 1px var(--txt);
+}
+
+/* A célula da SEMANA rola por dentro.
+   A semana não corta nada — quem a abre quer justamente o que não coube na
+   célula do mês. Mas sem limite de altura um dia com trinta e três paradas faz
+   uma coluna de dois metros e empurra as outras seis para fora da tela: a
+   semana deixa de ser comparável, que é a única coisa que ela faz melhor que o
+   mês. 60vh mantém as sete colunas lado a lado numa tela só. */
+.calDiaRola {
+  max-height: 60vh;
+  overflow-y: auto;
+  vertical-align: top;
+}
