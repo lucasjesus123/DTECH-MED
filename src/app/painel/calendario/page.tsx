@@ -232,11 +232,25 @@ export default async function Calendario({
         </nav>
 
         <div className={estilo.mesTroca}>
-          <Link href={url({ dia: periodo.anteriorDia })} className={estilo.mesSeta} aria-label="Período anterior" rel="prev">
+          {/* O rótulo diz a UNIDADE que a seta anda, e não "período".
+              Quem navega por leitor de tela ouve só o rótulo: "período
+              anterior" não responde se o clique vai recuar um dia ou um ano, e
+              é justamente essa a informação que a seta carrega. */}
+          <Link
+            href={url({ dia: periodo.anteriorDia })}
+            className={estilo.mesSeta}
+            aria-label={`${UNIDADE[visao]} anterior`}
+            rel="prev"
+          >
             ‹
           </Link>
           <strong className={estilo.mesNome}>{periodo.titulo}</strong>
-          <Link href={url({ dia: periodo.proximoDia })} className={estilo.mesSeta} aria-label="Próximo período" rel="next">
+          <Link
+            href={url({ dia: periodo.proximoDia })}
+            className={estilo.mesSeta}
+            aria-label={`${UNIDADE[visao]} seguinte`}
+            rel="next"
+          >
             ›
           </Link>
           {/* "Hoje" só aparece quando não se está nele: um botão que não faz
@@ -699,6 +713,20 @@ function Compromisso({ e }: { e: Evento }) {
       ) : null}
     </Link>
   )
+}
+
+/**
+ * A unidade que cada visão anda, para o rótulo das setas.
+ *
+ * A LISTA anda de mês porque é a janela que ela olha — o desenho é outro, o
+ * período é o mesmo.
+ */
+const UNIDADE: Record<Visao, string> = {
+  dia: 'Dia',
+  semana: 'Semana',
+  mes: 'Mês',
+  ano: 'Ano',
+  lista: 'Mês',
 }
 
 const FILTROS: Array<{ chave: TipoEvento; rotulo: string }> = [

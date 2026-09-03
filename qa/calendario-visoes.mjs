@@ -116,8 +116,10 @@ const passos = [
 ]
 for (const [v, foco, esperadoAntes, esperadoDepois] of passos) {
   await p.goto(`${QA_BASE}/painel/calendario?ver=${v}&dia=${foco}`, { waitUntil: 'networkidle' })
-  const antes = await p.locator('a[aria-label="Período anterior"]').getAttribute('href')
-  const depois = await p.locator('a[aria-label="Próximo período"]').getAttribute('href')
+  // O rótulo diz a unidade da visão — é o que quem usa leitor de tela ouve.
+  const unidade = { dia: 'Dia', semana: 'Semana', mes: 'Mês', ano: 'Ano' }[v]
+  const antes = await p.locator(`a[aria-label="${unidade} anterior"]`).getAttribute('href')
+  const depois = await p.locator(`a[aria-label="${unidade} seguinte"]`).getAttribute('href')
   String(antes).includes(esperadoAntes) && String(depois).includes(esperadoDepois)
     ? ok(`${v}: ‹ vai para ${esperadoAntes} e › para ${esperadoDepois}`)
     : nao(`${v}: setas erradas — ‹ ${antes} › ${depois}`)
