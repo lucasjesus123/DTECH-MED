@@ -50,11 +50,23 @@ export default function QuemEOCliente({
   telefoneInicial,
   contatoInicial,
   cidadeInicial,
+  aoMudarEscolha,
 }: {
   nomeInicial: string
   telefoneInicial: string
   contatoInicial: string
   cidadeInicial: string
+  /**
+   * Avisa o formulário de quem é o cliente escolhido — ou que não há mais um.
+   *
+   * Quem precisa saber é o bloco do APARELHO: puxar do catálogo uma máquina que
+   * está no nome de outra clínica é recusado no servidor, e a tela consegue
+   * avisar na hora da escolha em vez de deixar a pessoa descobrir ao salvar.
+   *
+   * É chamada só de dentro de manipulador de evento — nunca de efeito — para
+   * não pôr o pai a renderizar em cascata a cada tecla.
+   */
+  aoMudarEscolha?: (c: { id: string; nome: string } | null) => void
 }) {
   const [nome, setNome] = useState(nomeInicial)
   const [documento, setDocumento] = useState('')
@@ -106,6 +118,7 @@ export default function QuemEOCliente({
 
   function escolher(c: ClienteAchado) {
     setEscolhido(c)
+    aoMudarEscolha?.({ id: c.id, nome: c.nome })
     setNome(c.nome)
     setDocumento(c.documento)
     setWhatsapp(c.whatsapp)
@@ -121,6 +134,7 @@ export default function QuemEOCliente({
 
   function trocar() {
     setEscolhido(null)
+    aoMudarEscolha?.(null)
     setAchados([])
     setTermo('')
   }
@@ -157,7 +171,10 @@ export default function QuemEOCliente({
               setTermo(e.target.value)
               // Editar o nome desfaz a escolha: quem digita por cima de um
               // cliente escolhido está dizendo que não era aquele.
-              if (escolhido) setEscolhido(null)
+              if (escolhido) {
+                setEscolhido(null)
+                aoMudarEscolha?.(null)
+              }
             }}
           />
           {mostrarSugestoes && (achados.length > 0 || buscando) ? (
@@ -180,7 +197,10 @@ export default function QuemEOCliente({
             onChange={(e) => {
               setDocumento(e.target.value)
               setTermo(e.target.value)
-              if (escolhido) setEscolhido(null)
+              if (escolhido) {
+                setEscolhido(null)
+                aoMudarEscolha?.(null)
+              }
             }}
           />
           {mostrarSugestoes && achados.length > 0 && /\d{4}/.test(documento) ? (

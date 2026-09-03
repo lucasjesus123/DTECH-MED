@@ -120,7 +120,13 @@ export default async function Equipamentos({
                     {e.categoria ? ` · ${e.categoria}` : ''}
                   </p>
 
-                  <p className={estilo.catalogoDono}>{e.cliente.nome}</p>
+                  {/* Sem dono não é falta de dado: é aparelho de catálogo,
+                      cadastrado antes de entrar numa O.S. Escrever isso com
+                      todas as letras evita que alguém "conserte" preenchendo
+                      um cliente qualquer. */}
+                  <p className={estilo.catalogoDono}>
+                    {e.cliente ? e.cliente.nome : 'Sem dono — catálogo'}
+                  </p>
 
                   <p className={estilo.dica}>
                     {ultima ? (

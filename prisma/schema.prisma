@@ -528,8 +528,17 @@ model Equipamento {
   tenantId String
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
-  clienteId String
-  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+  /// Pode ser nulo: o aparelho entra no CATÁLOGO antes de ter dono.
+  ///
+  /// O cadastro serve para ter a máquina identificada — marca, modelo, série,
+  /// foto — e a amarração com o cliente acontece na O.S., que é onde alguém
+  /// confere de quem é o aparelho que está na bancada. Exigir o dono aqui
+  /// transformava o catálogo em ficha presa a um cliente.
+  ///
+  /// A ORDEM NÃO DEPENDE DISTO: ela guarda o próprio `clienteId`. Quem é o
+  /// cliente de uma O.S. sempre foi respondido pela ordem.
+  clienteId String?
+  cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: Restrict)
 
   marca         String
   modelo        String

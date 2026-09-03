@@ -17,24 +17,25 @@ export default function FormularioEquipamento({ clientes }: { clientes: Array<{ 
       {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
       {estado.ok && estado.mensagem ? <p className={estilo.sucesso} role="status">{estado.mensagem}</p> : null}
 
-      {clientes.length === 0 ? (
-        <p className={estilo.texto}>
-          Cadastre um cliente primeiro — todo equipamento pertence a alguém, e é
-          essa ligação que dá sentido ao histórico.
-        </p>
-      ) : (
-        <>
+      <>
           <div className={estilo.grade}>
+            {/* O DONO É OPCIONAL, e isso é o que faz esta tela ser um catálogo.
+                Ver o cabeçalho de `salvarEquipamento`: obrigar o dono aqui
+                obrigava a inventar um cliente para cadastrar um aparelho que
+                ainda estava chegando. */}
             <label className={estilo.rotulo} style={{ gridColumn: 'span 2' }}>
-              Cliente dono *
-              <select className={estilo.selecao} name="clienteId" required style={{ width: '100%' }}>
-                <option value="">Escolha…</option>
+              Cliente dono
+              <select className={estilo.selecao} name="clienteId" defaultValue="" style={{ width: '100%' }}>
+                <option value="">Sem dono ainda — só catálogo</option>
                 {clientes.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.nome}
                   </option>
                 ))}
               </select>
+              <span className={estilo.dica}>
+                Pode ficar em branco. O aparelho se amarra ao cliente quando você o puxar numa O.S.
+              </span>
             </label>
             <label className={estilo.rotulo}>
               Marca *
@@ -95,7 +96,6 @@ export default function FormularioEquipamento({ clientes }: { clientes: Array<{ 
             </button>
           </div>
         </>
-      )}
     </form>
   )
 }

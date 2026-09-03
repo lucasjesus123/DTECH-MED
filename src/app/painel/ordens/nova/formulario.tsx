@@ -1,9 +1,10 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { abrirOrdem } from '@/server/acoes/ordem'
 import QuemEOCliente from './quem-e-o-cliente'
+import QualEOAparelho from './qual-e-o-aparelho'
 import estilo from '../../painel.module.css'
 
 type Resposta = { ok: true; dados?: { id: string } } | { ok: false; motivo: string }
@@ -31,6 +32,15 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
   const [estado, acao, pendente] = useActionState(abrirOrdem, inicial)
   const router = useRouter()
 
+  /**
+   * QUEM É O CLIENTE ESCOLHIDO — o único estado que os dois blocos dividem.
+   *
+   * O bloco do aparelho precisa dele para avisar, na hora da escolha, que a
+   * máquina puxada está no nome de outra clínica. É a única coisa que sobe até
+   * aqui; o resto de cada bloco continua sendo assunto dele.
+   */
+  const [cliente, setCliente] = useState<{ id: string; nome: string } | null>(null)
+
   // A marca costuma vir como "Ibramed Neurodyn": a primeira palavra é a marca,
   // o resto é o modelo. Chute útil, e a pessoa corrige em um clique se errar.
   const [marca = '', ...resto] = (lead?.equipamento ?? '').split(' ')
@@ -53,31 +63,19 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         telefoneInicial={lead?.telefone ?? ''}
         contatoInicial={lead?.contato ?? ''}
         cidadeInicial={lead?.cidade ?? ''}
+        aoMudarEscolha={setCliente}
       />
 
-      <p className={estilo.blocoTitulo} style={{ marginTop: 'var(--s4)' }}>
-        Qual é o aparelho
-      </p>
-      <div className={estilo.grade}>
-        <label className={estilo.rotulo}>
-          Marca *
-          <input className={estilo.campo} name="marca" required minLength={2} defaultValue={marca} />
-        </label>
-        <label className={estilo.rotulo}>
-          Modelo *
-          <input className={estilo.campo} name="modelo" required defaultValue={resto.join(' ')} />
-        </label>
-        <label className={estilo.rotulo}>
-          Número de série
-          <input className={estilo.campo} name="numeroSerie" />
-          <span className={estilo.dica}>É o que amarra o histórico do aparelho entre uma visita e outra.</span>
-        </label>
-        <label className={estilo.rotulo}>
-          Acessórios que vêm junto
-          <input className={estilo.campo} name="acessorios" placeholder="Cabo, pedal, ponteira…" />
-          <span className={estilo.dica}>Anotar aqui evita discussão na devolução.</span>
-        </label>
-      </div>
+      {/* O aparelho saiu daqui para um bloco próprio quando ganhou a busca no
+          catálogo. Ver `qual-e-o-aparelho.tsx`: puxar a máquina já cadastrada é
+          o que impede o mesmo laser de virar quatro linhas, cada uma com um
+          pedaço do histórico. */}
+      <QualEOAparelho
+        marcaInicial={marca}
+        modeloInicial={resto.join(' ')}
+        clienteId={cliente?.id ?? null}
+        clienteNome={cliente?.nome ?? null}
+      />
 
       <label className={estilo.rotulo}>
         O que está acontecendo *

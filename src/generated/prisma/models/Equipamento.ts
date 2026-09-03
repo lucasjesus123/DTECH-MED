@@ -255,7 +255,7 @@ export type EquipamentoGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type EquipamentoGroupByOutputType = {
   id: string
   tenantId: string
-  clienteId: string
+  clienteId: string | null
   marca: string
   modelo: string
   numeroSerie: string | null
@@ -298,7 +298,7 @@ export type EquipamentoWhereInput = {
   NOT?: Prisma.EquipamentoWhereInput | Prisma.EquipamentoWhereInput[]
   id?: Prisma.StringFilter<"Equipamento"> | string
   tenantId?: Prisma.StringFilter<"Equipamento"> | string
-  clienteId?: Prisma.StringFilter<"Equipamento"> | string
+  clienteId?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   marca?: Prisma.StringFilter<"Equipamento"> | string
   modelo?: Prisma.StringFilter<"Equipamento"> | string
   numeroSerie?: Prisma.StringNullableFilter<"Equipamento"> | string | null
@@ -314,7 +314,7 @@ export type EquipamentoWhereInput = {
   criadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
-  cliente?: Prisma.XOR<Prisma.ClienteScalarRelationFilter, Prisma.ClienteWhereInput>
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   ordens?: Prisma.OrdemListRelationFilter
   contratos?: Prisma.ContratoManutencaoListRelationFilter
 }
@@ -322,7 +322,7 @@ export type EquipamentoWhereInput = {
 export type EquipamentoOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
-  clienteId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   marca?: Prisma.SortOrder
   modelo?: Prisma.SortOrder
   numeroSerie?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -349,7 +349,7 @@ export type EquipamentoWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.EquipamentoWhereInput[]
   NOT?: Prisma.EquipamentoWhereInput | Prisma.EquipamentoWhereInput[]
   tenantId?: Prisma.StringFilter<"Equipamento"> | string
-  clienteId?: Prisma.StringFilter<"Equipamento"> | string
+  clienteId?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   marca?: Prisma.StringFilter<"Equipamento"> | string
   modelo?: Prisma.StringFilter<"Equipamento"> | string
   numeroSerie?: Prisma.StringNullableFilter<"Equipamento"> | string | null
@@ -365,7 +365,7 @@ export type EquipamentoWhereUniqueInput = Prisma.AtLeast<{
   criadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Equipamento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
-  cliente?: Prisma.XOR<Prisma.ClienteScalarRelationFilter, Prisma.ClienteWhereInput>
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   ordens?: Prisma.OrdemListRelationFilter
   contratos?: Prisma.ContratoManutencaoListRelationFilter
 }, "id">
@@ -373,7 +373,7 @@ export type EquipamentoWhereUniqueInput = Prisma.AtLeast<{
 export type EquipamentoOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
-  clienteId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   marca?: Prisma.SortOrder
   modelo?: Prisma.SortOrder
   numeroSerie?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -401,7 +401,7 @@ export type EquipamentoScalarWhereWithAggregatesInput = {
   NOT?: Prisma.EquipamentoScalarWhereWithAggregatesInput | Prisma.EquipamentoScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Equipamento"> | string
   tenantId?: Prisma.StringWithAggregatesFilter<"Equipamento"> | string
-  clienteId?: Prisma.StringWithAggregatesFilter<"Equipamento"> | string
+  clienteId?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
   marca?: Prisma.StringWithAggregatesFilter<"Equipamento"> | string
   modelo?: Prisma.StringWithAggregatesFilter<"Equipamento"> | string
   numeroSerie?: Prisma.StringNullableWithAggregatesFilter<"Equipamento"> | string | null
@@ -435,7 +435,7 @@ export type EquipamentoCreateInput = {
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
-  cliente: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
   ordens?: Prisma.OrdemCreateNestedManyWithoutEquipamentoInput
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutEquipamentoInput
 }
@@ -443,7 +443,7 @@ export type EquipamentoCreateInput = {
 export type EquipamentoUncheckedCreateInput = {
   id?: string
   tenantId: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -479,7 +479,7 @@ export type EquipamentoUpdateInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
-  cliente?: Prisma.ClienteUpdateOneRequiredWithoutEquipamentosNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutEquipamentosNestedInput
   ordens?: Prisma.OrdemUpdateManyWithoutEquipamentoNestedInput
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutEquipamentoNestedInput
 }
@@ -487,7 +487,7 @@ export type EquipamentoUpdateInput = {
 export type EquipamentoUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -509,7 +509,7 @@ export type EquipamentoUncheckedUpdateInput = {
 export type EquipamentoCreateManyInput = {
   id?: string
   tenantId: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -547,7 +547,7 @@ export type EquipamentoUpdateManyMutationInput = {
 export type EquipamentoUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -783,14 +783,14 @@ export type EquipamentoCreateWithoutTenantInput = {
   fotoHash?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
-  cliente: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
   ordens?: Prisma.OrdemCreateNestedManyWithoutEquipamentoInput
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutEquipamentoInput
 }
 
 export type EquipamentoUncheckedCreateWithoutTenantInput = {
   id?: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -841,7 +841,7 @@ export type EquipamentoScalarWhereInput = {
   NOT?: Prisma.EquipamentoScalarWhereInput | Prisma.EquipamentoScalarWhereInput[]
   id?: Prisma.StringFilter<"Equipamento"> | string
   tenantId?: Prisma.StringFilter<"Equipamento"> | string
-  clienteId?: Prisma.StringFilter<"Equipamento"> | string
+  clienteId?: Prisma.StringNullableFilter<"Equipamento"> | string | null
   marca?: Prisma.StringFilter<"Equipamento"> | string
   modelo?: Prisma.StringFilter<"Equipamento"> | string
   numeroSerie?: Prisma.StringNullableFilter<"Equipamento"> | string | null
@@ -943,14 +943,14 @@ export type EquipamentoCreateWithoutOrdensInput = {
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
-  cliente: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutEquipamentoInput
 }
 
 export type EquipamentoUncheckedCreateWithoutOrdensInput = {
   id?: string
   tenantId: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -1001,14 +1001,14 @@ export type EquipamentoUpdateWithoutOrdensInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
-  cliente?: Prisma.ClienteUpdateOneRequiredWithoutEquipamentosNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutEquipamentosNestedInput
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutEquipamentoNestedInput
 }
 
 export type EquipamentoUncheckedUpdateWithoutOrdensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1043,14 +1043,14 @@ export type EquipamentoCreateWithoutContratosInput = {
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutEquipamentosInput
-  cliente: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
+  cliente?: Prisma.ClienteCreateNestedOneWithoutEquipamentosInput
   ordens?: Prisma.OrdemCreateNestedManyWithoutEquipamentoInput
 }
 
 export type EquipamentoUncheckedCreateWithoutContratosInput = {
   id?: string
   tenantId: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -1101,14 +1101,14 @@ export type EquipamentoUpdateWithoutContratosInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutEquipamentosNestedInput
-  cliente?: Prisma.ClienteUpdateOneRequiredWithoutEquipamentosNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutEquipamentosNestedInput
   ordens?: Prisma.OrdemUpdateManyWithoutEquipamentoNestedInput
 }
 
 export type EquipamentoUncheckedUpdateWithoutContratosInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1128,7 +1128,7 @@ export type EquipamentoUncheckedUpdateWithoutContratosInput = {
 
 export type EquipamentoCreateManyTenantInput = {
   id?: string
-  clienteId: string
+  clienteId?: string | null
   marca: string
   modelo: string
   numeroSerie?: string | null
@@ -1161,14 +1161,14 @@ export type EquipamentoUpdateWithoutTenantInput = {
   fotoHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cliente?: Prisma.ClienteUpdateOneRequiredWithoutEquipamentosNestedInput
+  cliente?: Prisma.ClienteUpdateOneWithoutEquipamentosNestedInput
   ordens?: Prisma.OrdemUpdateManyWithoutEquipamentoNestedInput
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutEquipamentoNestedInput
 }
 
 export type EquipamentoUncheckedUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1189,7 +1189,7 @@ export type EquipamentoUncheckedUpdateWithoutTenantInput = {
 
 export type EquipamentoUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  clienteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   marca?: Prisma.StringFieldUpdateOperationsInput | string
   modelo?: Prisma.StringFieldUpdateOperationsInput | string
   numeroSerie?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1345,7 +1345,7 @@ export type EquipamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
   ordens?: boolean | Prisma.Equipamento$ordensArgs<ExtArgs>
   contratos?: boolean | Prisma.Equipamento$contratosArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentoCountOutputTypeDefaultArgs<ExtArgs>
@@ -1370,7 +1370,7 @@ export type EquipamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["equipamento"]>
 
 export type EquipamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1392,7 +1392,7 @@ export type EquipamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["equipamento"]>
 
 export type EquipamentoSelectScalar = {
@@ -1418,32 +1418,43 @@ export type EquipamentoSelectScalar = {
 export type EquipamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "clienteId" | "marca" | "modelo" | "numeroSerie" | "patrimonio" | "categoria" | "voltagem" | "anoFabricacao" | "acessorios" | "observacoes" | "fotoCaminho" | "fotoCaminhoThumb" | "fotoHash" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["equipamento"]>
 export type EquipamentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
   ordens?: boolean | Prisma.Equipamento$ordensArgs<ExtArgs>
   contratos?: boolean | Prisma.Equipamento$contratosArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentoCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EquipamentoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
 }
 export type EquipamentoIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
-  cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
+  cliente?: boolean | Prisma.Equipamento$clienteArgs<ExtArgs>
 }
 
 export type $EquipamentoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Equipamento"
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
-    cliente: Prisma.$ClientePayload<ExtArgs>
+    cliente: Prisma.$ClientePayload<ExtArgs> | null
     ordens: Prisma.$OrdemPayload<ExtArgs>[]
     contratos: Prisma.$ContratoManutencaoPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     tenantId: string
-    clienteId: string
+    /**
+     * Pode ser nulo: o aparelho entra no CATÁLOGO antes de ter dono.
+     * 
+     * O cadastro serve para ter a máquina identificada — marca, modelo, série,
+     * foto — e a amarração com o cliente acontece na O.S., que é onde alguém
+     * confere de quem é o aparelho que está na bancada. Exigir o dono aqui
+     * transformava o catálogo em ficha presa a um cliente.
+     * 
+     * A ORDEM NÃO DEPENDE DISTO: ela guarda o próprio `clienteId`. Quem é o
+     * cliente de uma O.S. sempre foi respondido pela ordem.
+     */
+    clienteId: string | null
     marca: string
     modelo: string
     /**
@@ -1875,7 +1886,7 @@ readonly fields: EquipamentoFieldRefs;
 export interface Prisma__EquipamentoClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  cliente<T extends Prisma.ClienteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ClienteDefaultArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  cliente<T extends Prisma.Equipamento$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipamento$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ordens<T extends Prisma.Equipamento$ordensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipamento$ordensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contratos<T extends Prisma.Equipamento$contratosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipamento$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContratoManutencaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2322,6 +2333,25 @@ export type EquipamentoDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many Equipamentos to delete.
    */
   limit?: number
+}
+
+/**
+ * Equipamento.cliente
+ */
+export type Equipamento$clienteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cliente
+   */
+  select?: Prisma.ClienteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cliente
+   */
+  omit?: Prisma.ClienteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClienteInclude<ExtArgs> | null
+  where?: Prisma.ClienteWhereInput
 }
 
 /**

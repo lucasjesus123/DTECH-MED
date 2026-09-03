@@ -73,12 +73,22 @@ export default async function Preventiva() {
     ),
   ])
 
-  const opcoes: EquipamentoOpcao[] = equipamentos.map((e) => ({
-    id: e.id,
-    rotulo: `${e.marca} ${e.modelo}${e.numeroSerie ? ` (${e.numeroSerie})` : ''}`,
-    cliente: e.cliente.nome,
-    jaTemContrato: e.contratos.length > 0,
-  }))
+  /**
+   * Só aparelho COM DONO entra na lista do contrato.
+   *
+   * Contrato de preventiva é acordo com alguém: tem valor de visita e um
+   * cliente que paga. Aparelho de catálogo — cadastrado, mas ainda não amarrado
+   * a ninguém — não tem a outra ponta. A ação do servidor recusa de novo, com o
+   * mesmo motivo; aqui é só para não oferecer o que vai ser negado.
+   */
+  const opcoes: EquipamentoOpcao[] = equipamentos
+    .filter((e) => e.cliente !== null)
+    .map((e) => ({
+      id: e.id,
+      rotulo: `${e.marca} ${e.modelo}${e.numeroSerie ? ` (${e.numeroSerie})` : ''}`,
+      cliente: e.cliente!.nome,
+      jaTemContrato: e.contratos.length > 0,
+    }))
 
   const agora = new Date()
   const atrasadas = visitas.filter((v) => v.previstaPara < agora)

@@ -111,10 +111,18 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
             {eq.marca} {eq.modelo}
           </h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
-            <Link href={`/painel/clientes?q=${encodeURIComponent(eq.cliente.nome)}`}>
-              {eq.cliente.nome}
-            </Link>
-            {eq.cliente.cidade ? ` · ${eq.cliente.cidade}${eq.cliente.uf ? `/${eq.cliente.uf}` : ''}` : ''}
+            {eq.cliente ? (
+              <>
+                <Link href={`/painel/clientes?q=${encodeURIComponent(eq.cliente.nome)}`}>
+                  {eq.cliente.nome}
+                </Link>
+                {eq.cliente.cidade
+                  ? ` · ${eq.cliente.cidade}${eq.cliente.uf ? `/${eq.cliente.uf}` : ''}`
+                  : ''}
+              </>
+            ) : (
+              'Sem dono — aparelho de catálogo'
+            )}
             {eq.numeroSerie ? ` · série ${eq.numeroSerie}` : ''}
           </p>
         </div>

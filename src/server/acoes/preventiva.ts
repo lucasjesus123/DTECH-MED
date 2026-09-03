@@ -94,6 +94,24 @@ export async function abrirContratoPreventiva(
     tx.equipamento.findUnique({ where: { id: v.equipamentoId }, select: { clienteId: true } }),
   )
   if (!dono) return { ok: false, motivo: 'Equipamento não encontrado nesta empresa.' }
+  /**
+   * APARELHO DE CATÁLOGO NÃO ENTRA EM CONTRATO — e o motivo não é técnico.
+   *
+   * O contrato de preventiva é um acordo COM ALGUÉM: tem valor de visita,
+   * periodicidade e um cliente que paga. Um aparelho ainda sem dono não tem a
+   * outra ponta do acordo. Deixar passar criaria um contrato pendurado em
+   * ninguém, que apareceria na receita mensal e não teria para quem cobrar.
+   *
+   * A tela já não oferece esses aparelhos na lista; isto aqui é a trava de
+   * verdade, porque esconder a opção impede o clique, não o pedido.
+   */
+  if (!dono.clienteId) {
+    return {
+      ok: false,
+      motivo:
+        'Este aparelho ainda não tem dono — ele está só no catálogo. Amarre-o a um cliente (abrindo uma O.S. ou pelo cadastro) antes de fazer o contrato.',
+    }
+  }
 
   const inicio = dataLocal(v.inicio)
   const fim = v.fim ? dataLocal(v.fim) : null

@@ -1,0 +1,29 @@
+-- O EQUIPAMENTO PASSA A EXISTIR ANTES DE TER DONO.
+--
+-- =============================================================================
+-- O QUE ESTAVA ERRADO
+-- =============================================================================
+-- `clienteId` era NOT NULL, então "Cliente dono" era campo obrigatório no
+-- cadastro. Isso fazia do cadastro de equipamento uma FICHA PRESA A UM CLIENTE,
+-- e não um catálogo: não dava para cadastrar o aparelho com foto, série e
+-- acessórios e só depois dizer de quem ele é.
+--
+-- Na prática da casa é o contrário: o aparelho chega, é fotografado e
+-- identificado, e a amarração com o cliente acontece na O.S. — que é onde
+-- alguém confere de quem é a máquina que está na bancada.
+--
+-- =============================================================================
+-- POR QUE ISTO NÃO PERDE NADA
+-- =============================================================================
+-- Soltar um NOT NULL não toca em uma linha sequer: todo equipamento que hoje
+-- tem dono continua com o mesmo dono. O que muda é o que passa a ser POSSÍVEL
+-- daqui para frente — nascer sem dono e ganhar um depois.
+--
+-- A ordem de serviço NÃO depende disso: ela guarda o próprio `clienteId`. Quem
+-- é o cliente de uma O.S. sempre foi respondido pela ordem, nunca pelo
+-- equipamento. É por isso que este campo pode afrouxar sem afrouxar nada do
+-- histórico.
+--
+-- O ON DELETE RESTRICT continua: apagar um cliente que ainda tem aparelho no
+-- catálogo continua sendo recusado pelo banco.
+ALTER TABLE "equipamentos" ALTER COLUMN "clienteId" DROP NOT NULL;

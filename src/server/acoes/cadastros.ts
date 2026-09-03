@@ -158,9 +158,29 @@ export async function salvarCliente(_anterior: Resposta, form: FormData): Promis
   return { ok: true, mensagem: v.id ? 'Cadastro atualizado.' : 'Cliente cadastrado.' }
 }
 
+/**
+ * O DONO É OPCIONAL — e é isso que faz do cadastro um CATÁLOGO.
+ *
+ * ---------------------------------------------------------------------------
+ * O QUE ESTAVA ERRADO
+ * ---------------------------------------------------------------------------
+ * `clienteId` era obrigatório, então não dava para cadastrar um aparelho sem
+ * antes escolher de quem ele é. Só que a ordem do trabalho real é a inversa: a
+ * máquina chega, é fotografada e identificada pela série, e de quem ela é se
+ * confirma na O.S. — que é onde alguém olha o aparelho e o cliente juntos.
+ *
+ * Com o dono obrigatório, quem estava montando o catálogo tinha que inventar um
+ * cliente ou não cadastrar. As duas saídas são piores que a ausência do campo.
+ *
+ * ---------------------------------------------------------------------------
+ * ONDE O DONO É PREENCHIDO, ENTÃO
+ * ---------------------------------------------------------------------------
+ * Na abertura da O.S.: puxar um aparelho do catálogo AMARRA ele ao cliente
+ * daquela ordem. É a mesma informação, dita no momento em que alguém sabe.
+ */
 const schemaEquipamento = z.object({
   id: z.string().nullish(),
-  clienteId: z.string().min(1, 'Escolha o cliente dono do equipamento.'),
+  clienteId: z.string().trim().nullish(),
   marca: z.string().trim().min(2, 'Informe a marca.'),
   modelo: z.string().trim().min(1, 'Informe o modelo.'),
   numeroSerie: z.string().trim().nullish(),
@@ -188,27 +208,52 @@ export async function salvarEquipamento(_anterior: Resposta, form: FormData): Pr
   const v = d.data
 
   const r = await comEscopo(a.ctx, async (tx) => {
-    const cliente = await tx.cliente.findUnique({ where: { id: v.clienteId }, select: { id: true } })
-    if (!cliente) return { ok: false as const, motivo: 'Cliente não encontrado nesta empresa.' }
+    const clienteId = v.clienteId || null
 
-    // O número de série é a identidade física do aparelho: é ele que amarra o
-    // histórico. Duplicá-lo no mesmo cliente quebraria essa amarração.
+    // O `findUnique` roda dentro do escopo: um id de cliente de OUTRA empresa
+    // não é achado aqui, e a resposta é a mesma de um id inventado.
+    if (clienteId) {
+      const cliente = await tx.cliente.findUnique({ where: { id: clienteId }, select: { id: true } })
+      if (!cliente) return { ok: false as const, motivo: 'Cliente não encontrado nesta empresa.' }
+    }
+
+    /**
+     * O número de série é a identidade física do aparelho: é ele que amarra o
+     * histórico. Duplicá-lo quebraria essa amarração.
+     *
+     * A REGRA MUDA CONFORME TEM DONO OU NÃO, e não por capricho:
+     *
+     * · COM dono, a checagem é dentro do cliente — como sempre foi. Alargar
+     *   para a empresa inteira começaria a recusar cadastro que hoje existe e
+     *   está certo, e quem descobriria seria a pessoa tentando salvar uma
+     *   correção de rotina.
+     *
+     * · SEM dono, a checagem é a empresa inteira. Um aparelho de catálogo só
+     *   serve se for ACHÁVEL na abertura da O.S., e duas linhas com a mesma
+     *   série fazem quem procura escolher no chute. Aqui não há cadastro antigo
+     *   para quebrar: sem dono é situação que nasce agora.
+     */
     if (v.numeroSerie) {
       const colide = await tx.equipamento.findFirst({
         where: {
-          clienteId: v.clienteId,
+          ...(clienteId ? { clienteId } : {}),
           numeroSerie: v.numeroSerie,
           ...(v.id ? { NOT: { id: v.id } } : {}),
         },
-        select: { id: true },
+        select: { id: true, clienteId: true },
       })
       if (colide) {
-        return { ok: false as const, motivo: 'Este cliente já tem um equipamento com esse número de série.' }
+        return {
+          ok: false as const,
+          motivo: clienteId
+            ? 'Este cliente já tem um equipamento com esse número de série.'
+            : 'Já existe um equipamento com esse número de série nesta empresa. Procure por ele em vez de cadastrar de novo.',
+        }
       }
     }
 
     const dados = {
-      clienteId: v.clienteId,
+      clienteId,
       marca: v.marca,
       modelo: v.modelo,
       numeroSerie: v.numeroSerie || null,

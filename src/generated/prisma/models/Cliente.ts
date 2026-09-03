@@ -1091,14 +1091,14 @@ export type ClienteMinOrderByAggregateInput = {
   atualizadoEm?: Prisma.SortOrder
 }
 
-export type ClienteScalarRelationFilter = {
-  is?: Prisma.ClienteWhereInput
-  isNot?: Prisma.ClienteWhereInput
-}
-
 export type ClienteNullableScalarRelationFilter = {
   is?: Prisma.ClienteWhereInput | null
   isNot?: Prisma.ClienteWhereInput | null
+}
+
+export type ClienteScalarRelationFilter = {
+  is?: Prisma.ClienteWhereInput
+  isNot?: Prisma.ClienteWhereInput
 }
 
 export type ClienteCreateNestedManyWithoutTenantInput = {
@@ -1153,10 +1153,12 @@ export type ClienteCreateNestedOneWithoutEquipamentosInput = {
   connect?: Prisma.ClienteWhereUniqueInput
 }
 
-export type ClienteUpdateOneRequiredWithoutEquipamentosNestedInput = {
+export type ClienteUpdateOneWithoutEquipamentosNestedInput = {
   create?: Prisma.XOR<Prisma.ClienteCreateWithoutEquipamentosInput, Prisma.ClienteUncheckedCreateWithoutEquipamentosInput>
   connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutEquipamentosInput
   upsert?: Prisma.ClienteUpsertWithoutEquipamentosInput
+  disconnect?: Prisma.ClienteWhereInput | boolean
+  delete?: Prisma.ClienteWhereInput | boolean
   connect?: Prisma.ClienteWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClienteUpdateToOneWithWhereWithoutEquipamentosInput, Prisma.ClienteUpdateWithoutEquipamentosInput>, Prisma.ClienteUncheckedUpdateWithoutEquipamentosInput>
 }

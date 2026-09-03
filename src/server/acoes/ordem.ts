@@ -52,6 +52,15 @@ const schemaNovaOrdem = z.object({
   contatoNome: z.string().trim().optional(),
   endereco: z.string().trim().min(5, 'Informe o endereço da retirada.'),
   cidade: z.string().trim().optional(),
+  /**
+   * O aparelho PUXADO DO CATÁLOGO, quando a pessoa escolheu um.
+   *
+   * Vazio é o caso normal de quem digita um aparelho novo — e continua sendo o
+   * caminho de sempre. Preenchido, ele MANDA sobre marca e modelo: quem
+   * escolheu um aparelho do catálogo quer aquele, não o texto que ficou na
+   * tela. Ver `abrirOrdem`.
+   */
+  equipamentoId: z.string().trim().nullish(),
   marca: z.string().trim().min(2, 'Informe a marca.'),
   modelo: z.string().trim().min(1, 'Informe o modelo.'),
   numeroSerie: z.string().trim().optional(),
@@ -80,7 +89,7 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
   const v = d.data
 
-  const ordemId = await comEscopo(a.ctx, async (tx) => {
+  const feito = await comEscopo(a.ctx, async (tx) => {
     const cliente = await tx.cliente.upsert({
       where: { tenantId_documento: { tenantId: exigirEmpresa(a.ctx), documento: v.clienteDocumento } },
       create: {
@@ -103,10 +112,76 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
       },
     })
 
-    const equipamento =
+    /**
+     * =========================================================================
+     * DE ONDE VEM O APARELHO — três caminhos, nesta ordem
+     * =========================================================================
+     * 1. PUXADO DO CATÁLOGO (`equipamentoId`). É o caminho novo: a pessoa
+     *    procurou pelo nome ou pela série e escolheu o aparelho que já está
+     *    cadastrado, com foto e acessórios. Cadastrar de novo o que já existe
+     *    era o que fazia o mesmo laser aparecer quatro vezes na lista, cada uma
+     *    com um pedaço do histórico.
+     *
+     * 2. RECONHECIDO PELA SÉRIE, dentro do cliente — como sempre foi. Vale para
+     *    quem digita a série de cabeça sem procurar no catálogo.
+     *
+     * 3. NOVO. Nasce aqui, junto com a ordem, e entra no catálogo já amarrado
+     *    ao cliente.
+     *
+     * -------------------------------------------------------------------------
+     * PUXAR DO CATÁLOGO É O QUE AMARRA O APARELHO AO CLIENTE
+     * -------------------------------------------------------------------------
+     * Um aparelho de catálogo nasce sem dono de propósito (ver a migração
+     * `equipamento_sem_dono`). É AQUI que o dono é decidido, porque é aqui que
+     * alguém está com a máquina e o cliente na frente.
+     *
+     * E se o aparelho já for de OUTRO cliente, a abertura é recusada. Trocar o
+     * dono em silêncio arrastaria junto todo o histórico de ordens daquela
+     * máquina para o nome errado — e o prontuário do equipamento é justamente o
+     * que dá sentido à quarta visita.
+     */
+    let equipamento: { id: string } | null = null
+
+    if (v.equipamentoId) {
+      // `findUnique` dentro do escopo: id de outra empresa não é achado, e a
+      // resposta é a mesma de um id inventado.
+      const doCatalogo = await tx.equipamento.findUnique({
+        where: { id: v.equipamentoId },
+        select: { id: true, clienteId: true, acessorios: true },
+      })
+      if (!doCatalogo) {
+        return { ok: false as const, motivo: 'Equipamento não encontrado nesta empresa.' }
+      }
+      if (doCatalogo.clienteId && doCatalogo.clienteId !== cliente.id) {
+        return {
+          ok: false as const,
+          motivo:
+            'Este aparelho está cadastrado no nome de outro cliente. Confira o cliente da O.S. ou cadastre o aparelho separadamente.',
+        }
+      }
+
+      // Sem dono, ganha um. Os acessórios do catálogo só são preenchidos quando
+      // estão VAZIOS: o que veio junto nesta retirada é informação boa, mas não
+      // pode apagar em silêncio a lista que alguém conferiu no cadastro.
+      const preenche =
+        doCatalogo.clienteId === null || (!doCatalogo.acessorios && Boolean(v.acessorios))
+      equipamento = preenche
+        ? await tx.equipamento.update({
+            where: { id: doCatalogo.id },
+            data: {
+              clienteId: cliente.id,
+              ...(doCatalogo.acessorios ? {} : { acessorios: v.acessorios || null }),
+            },
+            select: { id: true },
+          })
+        : { id: doCatalogo.id }
+    }
+
+    equipamento ??=
       (v.numeroSerie
         ? await tx.equipamento.findFirst({
             where: { clienteId: cliente.id, numeroSerie: v.numeroSerie },
+            select: { id: true },
           })
         : null) ??
       (await tx.equipamento.create({
@@ -118,6 +193,7 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
           numeroSerie: v.numeroSerie || null,
           acessorios: v.acessorios || null,
         },
+        select: { id: true },
       }))
 
     /**
@@ -160,8 +236,11 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
       })
     }
 
-    return ordem.id
+    return { ok: true as const, id: ordem.id }
   })
+  // Recusa dentro da transação: nada foi gravado — nem cliente, nem aparelho.
+  if (!feito.ok) return { ok: false, motivo: feito.motivo }
+  const ordemId = feito.id
 
   // A ordem nasce como solicitação e imediatamente vira ordem de retirada:
   // é o motor que grava o primeiro evento e gera o PDF.
