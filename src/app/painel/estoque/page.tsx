@@ -291,8 +291,15 @@ function AbaItens({
                     )}
                   </td>
                   <td>
+                    {/* Duas portas para a mesma tela: "ficha" para conferir,
+                        "editar" para quem já sabe o que vai corrigir e não
+                        quer rolar até o formulário. */}
                     <Link href={`/painel/estoque/${p.id}`} className={estilo.fraco}>
                       ficha
+                    </Link>{' '}
+                    ·{' '}
+                    <Link href={`/painel/estoque/${p.id}?editar=1`} className={estilo.fraco}>
+                      editar
                     </Link>
                   </td>
                 </tr>

@@ -6,6 +6,7 @@ import { formatarBRL } from '@/lib/dinheiro'
 import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { fichaDoItem } from '@/server/consultas/estoque'
 import FotoCatalogo from '../../foto-catalogo'
+import EditarItem from './editar'
 import estilo from '../../painel.module.css'
 
 export const metadata: Metadata = { title: 'Ficha do item', robots: { index: false } }
@@ -38,10 +39,17 @@ const NOME_DO_TIPO: Record<string, string> = {
  * errou. A ficha escreve a subtração inteira — 4 na prateleira, 2 reservadas,
  * 1 em campo — porque é a diferença entre confiar no número e conferir a mão.
  */
-export default async function FichaDoItem({ params }: { params: Promise<{ id: string }> }) {
+export default async function FichaDoItem({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ editar?: string }>
+}) {
   const { ctx } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.TECNICO)
   await exigirAba('estoque')
   const { id } = await params
+  const q = await searchParams
 
   const item = await fichaDoItem(ctx, id)
   if (!item) notFound()
@@ -133,6 +141,28 @@ export default async function FichaDoItem({ params }: { params: Promise<{ id: st
           </div>
         </div>
       </div>
+
+      {/* A CORREÇÃO DO CADASTRO. Ver `editar.tsx`: ela mora aqui porque é
+          olhando para o item que alguém percebe que a prateleira mudou, que o
+          fornecedor não é mais aquele, que o mínimo está errado. */}
+      <EditarItem
+        comecarAberto={q.editar === '1'}
+        item={{
+          id: item.id,
+          sku: item.sku,
+          nome: item.nome,
+          tipo: item.tipo,
+          patrimonio: item.patrimonio,
+          categoria: item.categoria,
+          aplicacao: item.aplicacao,
+          unidade: item.unidade,
+          localizacao: item.localizacao,
+          fornecedor: item.fornecedor,
+          precoVendaCentavos: item.precoVendaCentavos,
+          custoMedioCentavos: item.custoMedioCentavos,
+          estoqueMinimo: item.minimo,
+        }}
+      />
 
       {item.descricao || item.aplicacao || item.fornecedor ? (
         <div className={estilo.bloco} style={{ marginTop: 'var(--s5)' }}>

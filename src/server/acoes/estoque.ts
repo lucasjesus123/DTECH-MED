@@ -94,8 +94,35 @@ export async function salvarPeca(_anterior: Resposta, form: FormData): Promise<R
     }
 
     if (v.id) {
+      /**
+       * =====================================================================
+       * FERRAMENTA COM UNIDADE NA RUA NÃO MUDA DE TIPO
+       * =====================================================================
+       * `saldoEmprestado` só existe para ferramenta. Trocar o tipo enquanto
+       * alguma unidade está na mão de alguém deixaria uma peça de consumo com
+       * saldo emprestado pendurado: o disponível ficaria permanentemente menor
+       * que o saldo, sem nenhuma tela explicando por quê — e a devolução, que
+       * é o único jeito de zerar aquilo, passaria a ser recusada, porque
+       * emprestar e devolver são só de ferramenta.
+       *
+       * A recusa diz o caminho: receba a ferramenta de volta primeiro.
+       */
+      const antes = await tx.peca.findUnique({
+        where: { id: v.id },
+        select: { tipo: true, saldoEmprestado: true, nome: true },
+      })
+      if (!antes) return { ok: false as const, motivo: 'Item não encontrado nesta empresa.' }
+
+      if (antes.tipo === 'FERRAMENTA' && v.tipo !== 'FERRAMENTA' && Number(antes.saldoEmprestado) > 0) {
+        return {
+          ok: false as const,
+          motivo: `"${antes.nome}" tem ${Number(antes.saldoEmprestado)} ${Number(antes.saldoEmprestado) === 1 ? 'unidade' : 'unidades'} na mão de alguém. Registre a devolução antes de mudar o tipo — depois de mudado não haveria como dar baixa nela.`,
+        }
+      }
+
       // O custo médio é consequência das entradas — editá-lo pela tela faria o
-      // relatório de margem mentir. Só entra no cadastro inicial.
+      // relatório de margem mentir. Só entra no cadastro inicial, e a tela de
+      // correção mostra o valor como leitura em vez de fingir um campo.
       await tx.peca.update({ where: { id: v.id }, data: dados })
       return { ok: true as const, id: v.id }
     }

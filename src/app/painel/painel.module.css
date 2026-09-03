@@ -5435,3 +5435,25 @@ a.calNumero:hover, a.calNumero:focus-visible {
   .giroNumero { grid-area: numero; }
   .giroBarra { grid-area: barra; }
 }
+
+/* --------------------------------------------------------------------------
+   O RÓTULO DA OPÇÃO COM NOTA EMBAIXO
+   --------------------------------------------------------------------------
+   `.abaOpcao` é uma linha flex, e `.dica` é inline. O resultado, quando a
+   opção tem nome e explicação, era os dois colados numa palavra só:
+   "PeçaVendida na O.S. e entra no orçamento".
+
+   A grade separa os dois em linhas próprias. Vale para as três telas que usam
+   este rótulo — as permissões, as etapas do quadro e o tipo do item do
+   estoque —, e nas que não têm nota a grade de um filho não muda nada.
+   -------------------------------------------------------------------------- */
+.abaOpcao > span,
+.abaOpcaoBloqueada > span {
+  display: grid;
+  gap: 1px;
+  padding: var(--s2) 0;
+}
+.abaOpcao > span > .dica,
+.abaOpcaoBloqueada > span > .dica {
+  display: block;
+}

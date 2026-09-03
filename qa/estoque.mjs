@@ -254,6 +254,76 @@ const compras = await p.locator('body').innerText()
   : ok('ferramenta fica fora do giro e da lista de compra')
 
 // ---------------------------------------------------------------------------
+console.log('\n8) EDITAR · dá para corrigir o cadastro, menos o que não se corrige')
+// ---------------------------------------------------------------------------
+// O atalho da linha da tabela abre a ficha JÁ com o formulário aberto: quem
+// clicou em "editar" não quer rolar até achar o botão.
+await p.goto(`${QA_BASE}/painel/estoque`, { waitUntil: 'networkidle' })
+;(await p.locator(`a[href="/painel/estoque/${idFer}?editar=1"]`).count()) > 0
+  ? ok('a linha da tabela tem o atalho de editar')
+  : nao('não há atalho de editar na linha da tabela')
+
+await p.goto(`${QA_BASE}/painel/estoque/${idFer}?editar=1`, { waitUntil: 'networkidle' })
+const nomeNoCampo = await p.inputValue('input[name=nome]')
+const patNoCampo = await p.inputValue('input[name=patrimonio]')
+nomeNoCampo === 'Multímetro de bancada QA' && patNoCampo === 'PAT-9001'
+  ? ok('o formulário abre preenchido com o que está gravado')
+  : nao(`o formulário não veio preenchido — nome:"${nomeNoCampo}" patrimônio:"${patNoCampo}"`)
+
+// O custo médio é consequência das ENTRADAS. Um campo que aceita digitação e
+// joga o valor fora é pior que campo nenhum: a pessoa confia que corrigiu.
+const editaCusto = await p.locator('input[name=custoMedio]').count()
+const mostraCusto = /Não se corrige por aqui/i.test(await p.locator('body').innerText())
+editaCusto === 0 && mostraCusto
+  ? ok('o custo médio aparece como leitura, com o motivo escrito')
+  : nao(`o custo médio está editável na correção (campos: ${editaCusto})`)
+
+await p.fill('input[name=nome]', 'Multímetro de bancada QA II')
+await p.fill('input[name=localizacao]', 'Armário B')
+await p.fill('input[name=estoqueMinimo]', '2')
+await p.getByRole('button', { name: 'Salvar correção' }).click()
+await p.waitForTimeout(3000)
+
+const corrigido = sql(`select nome||'|'||coalesce(localizacao,'-')||'|'||trim_scale("estoqueMinimo")::text
+                         from pecas where sku='QA-FER-1'`)
+corrigido === 'Multímetro de bancada QA II|Armário B|2'
+  ? ok(`a correção gravou: ${corrigido}`)
+  : nao(`a correção não gravou: ${corrigido}`)
+
+// O saldo não pode ter sido tocado por uma edição de cadastro: quem mexe em
+// saldo é movimento, e só ele.
+const saldoIntacto = sql(`select trim_scale(saldo)::text from pecas where sku='QA-FER-1'`)
+saldoIntacto === '2'
+  ? ok('editar o cadastro não mexeu no saldo')
+  : nao(`editar mexeu no saldo: ${saldoIntacto}`)
+
+// ---------------------------------------------------------------------------
+console.log('\n9) A TRAVA DA EDIÇÃO · ferramenta na rua não muda de tipo')
+// ---------------------------------------------------------------------------
+// Uma peça com saldo emprestado pendurado teria o disponível permanentemente
+// menor que o saldo, sem tela nenhuma explicando — e a devolução, único jeito
+// de zerar aquilo, passaria a ser recusada, porque só ferramenta se empresta.
+await p.goto(`${QA_BASE}/painel/estoque?ver=ferramentas`, { waitUntil: 'networkidle' })
+await p.getByRole('button', { name: 'Registrar saída de ferramenta' }).click()
+await p.waitForTimeout(500)
+await escolher(p, 'select[name=pecaId]', 'QA-FER-1')
+await escolher(p, 'select[name=responsavelId]', 'Rafael')
+await p.getByRole('button', { name: 'Registrar saída' }).click()
+await p.waitForTimeout(3000)
+
+await p.goto(`${QA_BASE}/painel/estoque/${idFer}?editar=1`, { waitUntil: 'networkidle' })
+await p.locator('input[name=tipo][value=PECA]').check()
+await p.waitForTimeout(300)
+await p.getByRole('button', { name: 'Salvar correção' }).click()
+await p.waitForTimeout(3000)
+
+const tipoDepois = sql(`select tipo from pecas where sku='QA-FER-1'`)
+const recusaTipo = await p.locator('[role=alert]').first().innerText().catch(() => '')
+tipoDepois === 'FERRAMENTA' && /na mão de alguém/i.test(recusaTipo)
+  ? ok(`recusou trocar o tipo com unidade na rua: "${recusaTipo.trim().slice(0, 80)}…"`)
+  : nao(`a trava do tipo falhou — tipo agora ${tipoDepois}, recusa: "${recusaTipo.trim().slice(0, 80)}"`)
+
+// ---------------------------------------------------------------------------
 console.log(`\nERROS DE TELA: ${erros.length === 0 ? 'nenhum' : erros.join(' | ')}`)
 if (erros.length > 0) ruins += erros.length
 await nav.close()
