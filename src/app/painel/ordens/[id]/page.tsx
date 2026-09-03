@@ -6,7 +6,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { prontuario } from '@/server/consultas/painel'
 import { listarPecas, motoristasDaEmpresa, tecnicosDaEmpresa } from '@/server/consultas/listas'
-import { proximosPassos, ROTULO_DOCUMENTO, ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
+import { proximosPassos, ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
 import { verificarIntegridade } from '@/server/ordem/motor'
 import { env } from '@/lib/env'
 import BotoesEtapa from './botoes-etapa'
@@ -21,7 +21,7 @@ import { montarTrilha } from '@/server/ordem/trilha'
 import { TrilhaDoEquipamento } from './trilha'
 import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
 import { pendenciaDe } from '@/server/estoque/pendencia'
-import EmitirDocumentos from './emitir'
+import DocumentosDaOrdem from './documentos'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -39,9 +39,42 @@ export const dynamic = 'force-dynamic'
  * ao abrir. Se alguém tiver mexido no banco por fora, aparece aqui — e é isso
  * que faz o histórico ter valor de prova, e não só de anotação.
  */
-export default async function Prontuario({ params }: { params: Promise<{ id: string }> }) {
+/**
+ * AS DUAS ABAS DESTA TELA, E POR QUE A SEGUNDA PRECISOU EXISTIR
+ * ---------------------------------------------------------------------------
+ * A emissão de contrato e de nota promissória era um bloco na COLUNA LATERAL,
+ * abaixo de Assinaturas — um `<p>Documentos</p>` com dois botões debaixo, na
+ * terceira dobra da direita. O dono do sistema foi procurar como emitir
+ * contrato e não achou; a queixa foi "acrescentar a aba de emissão de
+ * contrato".
+ *
+ * Ela está certa. Emitir documento não é informação sobre a ordem, é TRABALHO
+ * sobre a ordem: a pessoa vem à tela para fazer isso, e coisa que se vem fazer
+ * não mora numa coluna de leitura. Vira aba.
+ *
+ * `ver=documentos` na URL, e não estado de componente, por três motivos:
+ * a página inteira é servidor (o bloco lê os documentos do banco); o endereço
+ * fica compartilhável — dá para mandar "abre a aba de documentos desta O.S."; e
+ * o botão de voltar do navegador faz o que a pessoa espera.
+ *
+ * A ABA PADRÃO É A FICHA, e nada dela mudou de lugar. Isso não é conservadorismo:
+ * a jornada das 18 etapas percorre esta tela com 42 conferências, e mover para
+ * trás de aba qualquer coisa que ela usa transformaria uma reorganização de
+ * layout numa regressão da esteira.
+ */
+type Ver = 'ficha' | 'documentos'
+
+export default async function Prontuario({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ ver?: string }>
+}) {
   const { ctx, sessao } = await exigirSessao()
   const { id } = await params
+  const { ver: verBruto } = await searchParams
+  const ver: Ver = verBruto === 'documentos' ? 'documentos' : 'ficha'
 
   const o = await prontuario(ctx, id)
   // Ordem de outra franquia não devolve linha nenhuma pelo RLS. Para quem
@@ -144,6 +177,50 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           está o aparelho. Ela vem antes das ações porque responder é mais
           rápido que decidir. */}
       <TrilhaDoEquipamento trilha={trilha} />
+
+      {/* A barra de abas vem DEPOIS da trilha, e não antes. A trilha responde
+          "onde está o aparelho", que é a primeira pergunta de quem abre a
+          ficha — e ela vale para as duas abas. Pôr a barra acima dela faria
+          escolher a aba antes de saber o que se está olhando. */}
+      <nav className={estilo.abas} aria-label="Visões desta O.S.">
+        <Link
+          href={`/painel/ordens/${o.id}`}
+          className={ver === 'ficha' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+          aria-current={ver === 'ficha' ? 'page' : undefined}
+        >
+          Ficha
+        </Link>
+        <Link
+          href={`/painel/ordens/${o.id}?ver=documentos`}
+          className={ver === 'documentos' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+          aria-current={ver === 'documentos' ? 'page' : undefined}
+        >
+          {/* A contagem no rótulo poupa a ida: quem quer saber se já existe
+              contrato não precisa trocar de aba para descobrir que não. */}
+          Contrato e documentos
+          {o.documentos.length > 0 ? (
+            <span className={estilo.abaConta}>{o.documentos.length}</span>
+          ) : null}
+        </Link>
+      </nav>
+
+      {ver === 'documentos' ? (
+        <DocumentosDaOrdem
+          ordemId={o.id}
+          documentos={o.documentos.map((d) => ({
+            id: d.id,
+            tipo: d.tipo,
+            numero: d.numero,
+            tokenAcesso: d.tokenAcesso,
+            geradoEm: dataCurta(d.geradoEm),
+          }))}
+          podeEmitir={podeEmitir}
+          cliente={o.cliente.nome}
+          numeroOS={`#${String(o.numero).padStart(4, '0')}`}
+        />
+      ) : (
+      <>
+
 
       {/* A pendência de peça vem logo abaixo da trilha, porque ela é a
           explicação do "por que essa ordem está parada". O código antigo
@@ -507,35 +584,27 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
             </div>
           ) : null}
 
-          {/* O bloco de documentos aparece SEMPRE para quem emite, e não só
-              quando já existe algum: sem isso, o botão de emitir o contrato só
-              apareceria depois de já haver um documento — que é o contrário do
-              que se precisa. */}
+          {/* O bloco de documentos SAIU DAQUI e virou a aba "Contrato e
+              documentos", logo acima. Ele era um `<p>Documentos</p>` com dois
+              botões debaixo, na terceira dobra desta coluna — e o dono do
+              sistema foi procurar como emitir contrato e não achou.
+
+              Emitir documento não é informação SOBRE a ordem, é trabalho SOBRE
+              a ordem: coisa que se vem fazer não mora numa coluna de leitura.
+              Aqui fica só o atalho, para quem está lendo a ficha e lembrou. */}
           {o.documentos.length > 0 || podeEmitir ? (
             <div className={estilo.bloco}>
               <p className={estilo.blocoTitulo}>Documentos</p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 'var(--s2)' }}>
-                {o.documentos.map((d) => (
-                  <li key={d.id}>
-                    <a
-                      href={`/api/documento/${d.tokenAcesso}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={estilo.parVal}
-                      style={{ color: 'var(--vio-claro)', textDecoration: 'none' }}
-                    >
-                      {ROTULO_DOCUMENTO[d.tipo] ?? d.tipo} nº {d.numero.split('-').pop()?.replace(/^0+/, '')}
-                    </a>
-                    <div className={estilo.fraco}>{dataCurta(d.geradoEm)}</div>
-                  </li>
-                ))}
-              </ul>
-              {o.documentos.length === 0 ? (
-                <p className={estilo.fraco}>
-                  Nenhum documento ainda. Os da esteira nascem sozinhos; os dois abaixo se pedem.
-                </p>
-              ) : null}
-              {podeEmitir ? <EmitirDocumentos ordemId={o.id} /> : null}
+              <p className={estilo.fraco}>
+                {o.documentos.length === 0
+                  ? 'Nenhum ainda.'
+                  : `${o.documentos.length} ${o.documentos.length === 1 ? 'documento' : 'documentos'} nesta ordem.`}
+              </p>
+              <div className={estilo.modeloCartaoAcoes}>
+                <Link className={estilo.btnSec} href={`/painel/ordens/${o.id}?ver=documentos`}>
+                  {podeEmitir ? 'Abrir contrato e documentos' : 'Ver os documentos'}
+                </Link>
+              </div>
             </div>
           ) : null}
 
@@ -592,6 +661,8 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           ) : null}
         </div>
       </div>
+      </>
+      )}
     </>
   )
 }

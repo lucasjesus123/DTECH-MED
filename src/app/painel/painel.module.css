@@ -5132,3 +5132,41 @@ a.calNumero:hover, a.calNumero:focus-visible {
   font-size: var(--t-sm);
   color: var(--txt-2);
 }
+
+/* ----- A aba de documentos da O.S. -------------------------------------- */
+.docLista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--s3);
+}
+.docLista > li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding-bottom: var(--s3);
+  border-bottom: 1px solid var(--borda);
+}
+.docLista > li:last-child { border-bottom: 0; padding-bottom: 0; }
+.docLink {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--vio-claro);
+  text-decoration: none;
+}
+.docLink:hover { text-decoration: underline; }
+
+/* O número ao lado do rótulo da aba. Ele poupa a ida: quem quer saber se já
+   existe contrato não precisa trocar de aba para descobrir que não. */
+.abaConta {
+  margin-left: 6px;
+  padding: 1px 7px;
+  background: var(--vio-veu-2);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--vio-claro);
+}

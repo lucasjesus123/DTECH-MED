@@ -90,8 +90,21 @@ const abertoEsperado = sql(`
 
 console.log('\n1) O financeiro emite os dois')
 const p = await entrar('fabio@dtechmed.com.br')
+
+// A EMISSÃO MUDOU DE LUGAR, e o roteiro confere que o caminho novo funciona.
+//
+// Ela era um bloco na coluna lateral da ficha, abaixo de Assinaturas — o dono
+// do sistema foi procurar como emitir contrato e não achou. Virou a aba
+// "Contrato e documentos". Aqui se prova o caminho INTEIRO: a ficha oferece a
+// aba, e a aba oferece os botões. Ir direto pela URL provaria só metade, e a
+// metade que faltaria é justamente a que estava quebrada — achar.
 await p.goto(`${QA_BASE}/painel/ordens/${ordemId}`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(900)
+const linkAba = p.getByRole('link', { name: /Contrato e documentos/i }).first()
+;(await linkAba.count()) > 0 ? ok('a ficha tem a aba "Contrato e documentos"') : nao('a ficha não oferece a aba de documentos')
+await linkAba.click()
+await p.waitForURL(/ver=documentos/, { timeout: 15000 })
+await p.waitForTimeout(700)
 
 for (const b of ['Emitir contrato', 'Emitir nota promissória']) {
   ;(await p.getByRole('button', { name: b }).count()) > 0 ? ok(`botão "${b}"`) : nao(`sem botão "${b}"`)
@@ -185,7 +198,7 @@ const quitada = sql(`
      and f."valorTotalCentavos" + f."multaCentavos" + f."jurosCentavos" - f."valorPagoCentavos" <= 0
    limit 1`)
 if (quitada) {
-  await p.goto(`${QA_BASE}/painel/ordens/${quitada}`, { waitUntil: 'networkidle' })
+  await p.goto(`${QA_BASE}/painel/ordens/${quitada}?ver=documentos`, { waitUntil: 'networkidle' })
   await p.waitForTimeout(800)
   await p.getByRole('button', { name: 'Emitir nota promissória' }).click()
   await p.waitForTimeout(2500)
@@ -207,10 +220,25 @@ if (quitada) {
 
 console.log('\n4) Quem NÃO pode emitir não vê o botão nem consegue pela ação')
 const t = await entrar('rafael@dtechmed.com.br')  // técnico
-await t.goto(`${QA_BASE}/painel/ordens/${ordemId}`, { waitUntil: 'networkidle' })
+
+// A conferência vai ATÉ A ABA, e não para na ficha.
+//
+// Depois de a emissão virar aba, olhar só a ficha passaria de graça: o botão
+// não está lá para ninguém. Isso teria trocado uma trava de permissão por um
+// detalhe de layout, e o roteiro continuaria verde sem provar nada.
+//
+// O técnico ALCANÇA a aba de propósito — ele precisa ver o contrato que o
+// cliente assinou. O que ele não tem é o botão de emitir, e é isso que se
+// confere: a aba abre, os documentos aparecem, e o botão não existe.
+await t.goto(`${QA_BASE}/painel/ordens/${ordemId}?ver=documentos`, { waitUntil: 'networkidle' })
 await t.waitForTimeout(800)
 ;(await t.getByRole('button', { name: 'Emitir contrato' }).count()) === 0
-  ? ok('o técnico não vê o botão') : nao('o técnico vê o botão de emitir')
+  ? ok('o técnico abre a aba de documentos e NÃO vê o botão de emitir')
+  : nao('o técnico vê o botão de emitir dentro da aba')
+const explica = await t.locator('body').innerText()
+;/quem responde pelo dinheiro/i.test(explica)
+  ? ok('e a tela diz por que ele não vê, em vez de só faltar botão')
+  : nao('o técnico não recebe explicação nenhuma do botão ausente')
 
 console.log('\n5) Ordem SEM valor aprovado é recusada com frase legível')
 const semValor = sql(`
@@ -220,7 +248,7 @@ const semValor = sql(`
      and not exists (select 1 from faturas f where f."ordemId" = o.id)
    limit 1`)
 if (semValor) {
-  await p.goto(`${QA_BASE}/painel/ordens/${semValor}`, { waitUntil: 'networkidle' })
+  await p.goto(`${QA_BASE}/painel/ordens/${semValor}?ver=documentos`, { waitUntil: 'networkidle' })
   await p.waitForTimeout(800)
   const btn = p.getByRole('button', { name: 'Emitir contrato' })
   if (await btn.count()) {
@@ -240,12 +268,17 @@ for (const tema of ['escuro', 'claro']) {
   await p.evaluate((x) => { document.cookie = `dtechmed_tema=${x}; path=/; max-age=31536000` }, tema)
   for (const larg of [1440, 390]) {
     await p.setViewportSize({ width: larg, height: 900 })
-    await p.goto(`${QA_BASE}/painel/ordens/${ordemId}`, { waitUntil: 'networkidle' })
-    await p.waitForTimeout(600)
-    const rola = await p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)
-    if (rola) nao(`${tema}/${larg}px: a ficha rola de lado`)
+    // As DUAS abas, e não só a ficha: a de documentos tem grade de duas
+    // colunas, que é justamente o que estoura em 390px quando alguém esquece
+    // do celular.
+    for (const onde of ['', '?ver=documentos']) {
+      await p.goto(`${QA_BASE}/painel/ordens/${ordemId}${onde}`, { waitUntil: 'networkidle' })
+      await p.waitForTimeout(600)
+      const rola = await p.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1)
+      if (rola) nao(`${tema}/${larg}px${onde ? ' · aba documentos' : ' · ficha'}: rola de lado`)
+    }
   }
-  ok(`${tema}: a ficha cabe em 1440 e 390`)
+  ok(`${tema}: as duas abas cabem em 1440 e 390`)
 }
 
 erros.length ? nao(`erro de JavaScript: ${erros[0].slice(0, 130)}`) : ok('nenhum erro de JavaScript')
