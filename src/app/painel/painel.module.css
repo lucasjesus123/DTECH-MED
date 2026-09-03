@@ -5211,3 +5211,162 @@ a.calNumero:hover, a.calNumero:focus-visible {
   font-size: var(--t-sm);
   color: var(--txt-3);
 }
+
+/* =========================================================================
+   O QUADRO DA O.S.
+   -------------------------------------------------------------------------
+   Rola de lado, e SÓ ele. Um quadro com sete colunas não cabe em tela nenhuma,
+   e é assim que todo quadro funciona — o que não pode é a PÁGINA rolar de lado
+   junto, levando o menu e o cabeçalho embora. Por isso a rolagem vive aqui
+   dentro, e as colunas têm largura fixa: coluna que encolhe para caber vira
+   uma tira de texto cortado que não se lê.
+   ========================================================================= */
+.quadro {
+  display: flex;
+  gap: var(--s3);
+  overflow-x: auto;
+  padding-bottom: var(--s3);
+  /* Encosta nas bordas da área de trabalho ao rolar, em vez de parar antes. */
+  scroll-snap-type: x proximity;
+}
+.quadroColuna {
+  flex: 0 0 17.5rem;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  min-height: 8rem;
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.quadroTopo {
+  padding: 10px var(--s3);
+  border-bottom: 1px solid var(--borda);
+  /* A cor entra como filete no topo. Faixa inteira colorida em sete colunas
+     transforma o quadro num arco-íris e some com a hierarquia dos cartões. */
+  box-shadow: inset 0 3px 0 var(--tom, transparent);
+}
+.tomVioleta { --tom: var(--vio); }
+.tomSinal   { --tom: var(--sinal); }
+.tomAlerta  { --tom: var(--alerta); }
+.tomEspera  { --tom: var(--espera); }
+.tomAcao    { --tom: var(--acao); }
+
+.quadroNome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin: 0;
+  font-family: var(--f-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.quadroConta {
+  padding: 1px 8px;
+  background: var(--sup-2);
+  border-radius: 999px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt-3);
+}
+.quadroAviso,
+.quadroVazio {
+  margin: 0;
+  padding: var(--s3);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+.quadroAviso { color: var(--txt-2); }
+
+.quadroCartoes {
+  list-style: none;
+  margin: 0;
+  padding: var(--s2);
+  display: grid;
+  gap: var(--s2);
+}
+.quadroCartao {
+  padding: var(--s3);
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+}
+/* Filete, e não fundo vermelho: com metade do quadro atrasado, fundo colorido
+   vira um alarme constante — e alarme constante se aprende a ignorar. */
+.quadroAtrasado { box-shadow: inset 3px 0 0 var(--alerta); }
+
+.quadroCartaoTopo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  text-decoration: none;
+  color: var(--txt);
+}
+.quadroCartaoTopo:hover { color: var(--vio-claro); }
+.quadroCartaoTopo strong { font-variant-numeric: tabular-nums; font-size: var(--t-sm); }
+.quadroCliente {
+  font-size: var(--t-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quadroAparelho {
+  margin: 2px 0 6px;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quadroChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+}
+.quadroEtapa,
+.quadroDias {
+  padding: 1px 7px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  font-size: 10px;
+  color: var(--txt-3);
+}
+.quadroEtapa { color: var(--txt-2); }
+
+.quadroPassos {
+  display: grid;
+  gap: 4px;
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--borda);
+}
+/* O passo ocupa a linha inteira: são um ou dois por cartão, e botão largo é
+   alvo fácil no toque — este quadro vai ser usado no tablet da bancada. */
+.quadroPasso {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--vio-veu);
+  border: 1px solid var(--vio-borda);
+  border-radius: var(--r-md, 8px);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  text-align: left;
+  color: var(--vio-claro);
+  cursor: pointer;
+}
+.quadroPasso:hover:not(:disabled) { background: var(--vio-veu-2); }
+.quadroPasso:disabled { opacity: .55; cursor: progress; }
+
+.colunaLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}

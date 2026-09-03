@@ -3,7 +3,7 @@ import type { Papel } from '@/generated/prisma/enums'
 import { telasEfetivas } from '@/server/auth/telas'
 import estilo from './painel.module.css'
 
-export type AbaOS = 'ordens' | 'acompanhar' | 'rota'
+export type AbaOS = 'ordens' | 'quadro' | 'acompanhar' | 'rota'
 
 /**
  * AS TRÊS ABAS DA O.S.
@@ -47,12 +47,23 @@ export default function AbasOS({
 }) {
   const alcanca = new Set(telasEfetivas(papel, telas).map((t) => t.chave))
 
-  const abas: Array<[AbaOS, string, string]> = [
-    ['ordens', 'Ordens', '/painel/ordens'],
-    ['acompanhar', 'Acompanhar', '/painel/acompanhar'],
-    ['rota', 'Rota', '/painel/rota'],
+  /**
+   * O QUADRO É UMA QUARTA MANEIRA DE OLHAR A MESMA O.S.
+   *
+   * Lista, quadro, estágio, rua. Ele entra pela mesma regra que juntou as
+   * outras três — e usa a CHAVE `ordens`, não uma nova: quem alcança a lista
+   * alcança o quadro, porque são a mesma informação em dois desenhos. Uma
+   * chave própria obrigaria todo mundo que já marcou "Ordens" a voltar em
+   * "Pessoas e acessos" para marcar mais uma caixa, sem nenhum ganho de
+   * controle.
+   */
+  const abas: Array<[AbaOS, string, string, string]> = [
+    ['ordens', 'Ordens', '/painel/ordens', 'ordens'],
+    ['quadro', 'Quadro', '/painel/ordens/quadro', 'ordens'],
+    ['acompanhar', 'Acompanhar', '/painel/acompanhar', 'acompanhar'],
+    ['rota', 'Rota', '/painel/rota', 'rota'],
   ]
-  const visiveis = abas.filter(([chave]) => alcanca.has(chave))
+  const visiveis = abas.filter(([, , , chave]) => alcanca.has(chave))
 
   // Uma aba sozinha não é escolha — é rótulo repetindo o título da tela. Some.
   if (visiveis.length < 2) return null

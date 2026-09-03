@@ -432,7 +432,8 @@ export const ModelName = {
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
   PosicaoRota: 'PosicaoRota',
-  ConfigPlataforma: 'ConfigPlataforma'
+  ConfigPlataforma: 'ConfigPlataforma',
+  ColunaQuadro: 'ColunaQuadro'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -448,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3116,6 +3117,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ColunaQuadro: {
+      payload: Prisma.$ColunaQuadroPayload<ExtArgs>
+      fields: Prisma.ColunaQuadroFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ColunaQuadroFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ColunaQuadroFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        findFirst: {
+          args: Prisma.ColunaQuadroFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ColunaQuadroFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        findMany: {
+          args: Prisma.ColunaQuadroFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>[]
+        }
+        create: {
+          args: Prisma.ColunaQuadroCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        createMany: {
+          args: Prisma.ColunaQuadroCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ColunaQuadroCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>[]
+        }
+        delete: {
+          args: Prisma.ColunaQuadroDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        update: {
+          args: Prisma.ColunaQuadroUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        deleteMany: {
+          args: Prisma.ColunaQuadroDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ColunaQuadroUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ColunaQuadroUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>[]
+        }
+        upsert: {
+          args: Prisma.ColunaQuadroUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ColunaQuadroPayload>
+        }
+        aggregate: {
+          args: Prisma.ColunaQuadroAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateColunaQuadro>
+        }
+        groupBy: {
+          args: Prisma.ColunaQuadroGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ColunaQuadroGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ColunaQuadroCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ColunaQuadroCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3913,6 +3988,20 @@ export const ConfigPlataformaScalarFieldEnum = {
 export type ConfigPlataformaScalarFieldEnum = (typeof ConfigPlataformaScalarFieldEnum)[keyof typeof ConfigPlataformaScalarFieldEnum]
 
 
+export const ColunaQuadroScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  nome: 'nome',
+  ordem: 'ordem',
+  etapas: 'etapas',
+  cor: 'cor',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ColunaQuadroScalarFieldEnum = (typeof ColunaQuadroScalarFieldEnum)[keyof typeof ColunaQuadroScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4538,6 +4627,7 @@ export type GlobalOmitConfig = {
   conteudoSiteVersao?: Prisma.ConteudoSiteVersaoOmit
   posicaoRota?: Prisma.PosicaoRotaOmit
   configPlataforma?: Prisma.ConfigPlataformaOmit
+  colunaQuadro?: Prisma.ColunaQuadroOmit
 }
 
 /* Types for Logging */

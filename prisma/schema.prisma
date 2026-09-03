@@ -314,6 +314,7 @@ model Tenant {
 
   @@index([ativo])
   @@map("tenants")
+  colunasQuadro ColunaQuadro[]
 }
 
 /// Usuário do sistema. `tenantId` nulo apenas para SUPER_ADMIN.
@@ -1875,4 +1876,58 @@ model ConfigPlataforma {
   atualizadoPorId String?
 
   @@map("config_plataforma")
+}
+
+/// AS COLUNAS DO QUADRO — o processo da casa, por cima da esteira.
+///
+/// ---------------------------------------------------------------------------
+/// O QUE É EDITÁVEL AQUI, E O QUE NUNCA SERÁ
+/// ---------------------------------------------------------------------------
+/// As 18 etapas NÃO são cadastro e não podem virar. Cada evento da linha do
+/// tempo carrega o resumo criptográfico do anterior, e a ficha confere a
+/// corrente inteira ao abrir — é isso que faz o prontuário ter valor de prova.
+/// A máquina de estados também sabe quais transições são legais, quem pode
+/// fazer cada uma e o que cada uma exige. Nada disso sobrevive a uma lista que
+/// qualquer administrador edita.
+///
+/// O que esta tabela torna editável é a LEITURA: a empresa escreve as colunas
+/// com as palavras dela — "Comp. peças", "Aprovação", "S/ reparo" — e diz quais
+/// etapas cada uma agrupa. Mover o cartão continua sendo transição de verdade,
+/// com a mesma trava de papel e o mesmo registro na trilha.
+///
+/// ---------------------------------------------------------------------------
+/// NENHUMA O.S. PODE SUMIR DO QUADRO
+/// ---------------------------------------------------------------------------
+/// Etapa que não esteja em coluna nenhuma deixaria ordens invisíveis — a pior
+/// falha possível aqui, porque não parece falha: o quadro fica bonito e o
+/// aparelho de alguém está parado sem ninguém ver. É regra de conjunto, entre
+/// linhas, e nenhum CHECK alcança; quem garante é a tela, desenhando uma coluna
+/// "Fora do quadro" com o aviso do que fazer.
+model ColunaQuadro {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// A palavra da casa, no topo da coluna.
+  nome String
+
+  /// Da esquerda para a direita. Esparso (10, 20, 30…) de propósito: inserir
+  /// uma coluna no meio não obriga a reescrever as outras todas.
+  ordem Int
+
+  /// As etapas que esta coluna agrupa. `String[]` e não `EtapaOrdem[]`: assim
+  /// uma etapa nova no enum não exige migração desta tabela, e uma removida não
+  /// trava a leitura do quadro. Em troca, quem lê ignora valor desconhecido.
+  etapas String[] @default([])
+
+  /// Um tom do sistema ('violeta' | 'sinal' | 'alerta' | 'espera' | 'acao'), ou
+  /// nulo. Guardado como NOME e não como hexadecimal: cor literal no banco não
+  /// acompanha a troca de tema e viraria uma coluna ilegível no escuro.
+  cor String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([tenantId, ordem])
+  @@map("colunas_quadro")
 }

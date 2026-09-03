@@ -378,3 +378,32 @@ export type PosicaoRota = Prisma.PosicaoRotaModel
  * conteúdo ao navegador, mostrando só "configurado" ou "vazio".
  */
 export type ConfigPlataforma = Prisma.ConfigPlataformaModel
+/**
+ * Model ColunaQuadro
+ * AS COLUNAS DO QUADRO — o processo da casa, por cima da esteira.
+ * 
+ * ---------------------------------------------------------------------------
+ * O QUE É EDITÁVEL AQUI, E O QUE NUNCA SERÁ
+ * ---------------------------------------------------------------------------
+ * As 18 etapas NÃO são cadastro e não podem virar. Cada evento da linha do
+ * tempo carrega o resumo criptográfico do anterior, e a ficha confere a
+ * corrente inteira ao abrir — é isso que faz o prontuário ter valor de prova.
+ * A máquina de estados também sabe quais transições são legais, quem pode
+ * fazer cada uma e o que cada uma exige. Nada disso sobrevive a uma lista que
+ * qualquer administrador edita.
+ * 
+ * O que esta tabela torna editável é a LEITURA: a empresa escreve as colunas
+ * com as palavras dela — "Comp. peças", "Aprovação", "S/ reparo" — e diz quais
+ * etapas cada uma agrupa. Mover o cartão continua sendo transição de verdade,
+ * com a mesma trava de papel e o mesmo registro na trilha.
+ * 
+ * ---------------------------------------------------------------------------
+ * NENHUMA O.S. PODE SUMIR DO QUADRO
+ * ---------------------------------------------------------------------------
+ * Etapa que não esteja em coluna nenhuma deixaria ordens invisíveis — a pior
+ * falha possível aqui, porque não parece falha: o quadro fica bonito e o
+ * aparelho de alguém está parado sem ninguém ver. É regra de conjunto, entre
+ * linhas, e nenhum CHECK alcança; quem garante é a tela, desenhando uma coluna
+ * "Fora do quadro" com o aviso do que fazer.
+ */
+export type ColunaQuadro = Prisma.ColunaQuadroModel

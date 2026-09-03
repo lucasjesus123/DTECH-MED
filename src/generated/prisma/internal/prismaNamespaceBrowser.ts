@@ -86,7 +86,8 @@ export const ModelName = {
   ConteudoSite: 'ConteudoSite',
   ConteudoSiteVersao: 'ConteudoSiteVersao',
   PosicaoRota: 'PosicaoRota',
-  ConfigPlataforma: 'ConfigPlataforma'
+  ConfigPlataforma: 'ConfigPlataforma',
+  ColunaQuadro: 'ColunaQuadro'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -861,6 +862,20 @@ export const ConfigPlataformaScalarFieldEnum = {
 } as const
 
 export type ConfigPlataformaScalarFieldEnum = (typeof ConfigPlataformaScalarFieldEnum)[keyof typeof ConfigPlataformaScalarFieldEnum]
+
+
+export const ColunaQuadroScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  nome: 'nome',
+  ordem: 'ordem',
+  etapas: 'etapas',
+  cor: 'cor',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type ColunaQuadroScalarFieldEnum = (typeof ColunaQuadroScalarFieldEnum)[keyof typeof ColunaQuadroScalarFieldEnum]
 
 
 export const SortOrder = {
