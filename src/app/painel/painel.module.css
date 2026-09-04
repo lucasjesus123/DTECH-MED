@@ -6913,3 +6913,193 @@ i.riscoBaixo { background: var(--txt-3); }
 @media (prefers-reduced-motion: reduce) {
   .fonte { transition: none; }
 }
+
+/* ==========================================================================
+   A FOLHA DE RASTREABILIDADE — "quem mexeu em quê"
+   --------------------------------------------------------------------------
+   Esta é a única tela do painel feita para SAIR DA IMPRESSORA. Ela é entregue
+   ao cliente que perguntou, ao fabricante num pedido de garantia, ou à
+   vigilância. Por isso ela tem duas aparências: a da tela, que segue o resto
+   do console, e a do papel, lá embaixo.
+   ========================================================================== */
+.folhaRastro { max-width: 62rem; }
+
+.rastroTopo { align-items: flex-start; }
+.rastroAcoes { display: flex; gap: var(--s2); flex: none; }
+
+/* QUEM TOCOU — a resposta curta, antes da lista longa. */
+.rastroPessoas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rastroPessoa {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-pill, 999px);
+  background: var(--sup-2);
+  font-size: var(--t-sm);
+}
+.rastroPessoa strong { color: var(--txt); font-weight: 600; }
+.rastroContagem {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--txt-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.rastroCabOS {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+.rastroDefeito {
+  margin: var(--s2) 0 var(--s3);
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  font-style: italic;
+}
+
+/* A LISTA DE PASSOS.
+   Quatro colunas fixas — quando, o quê, quem, prova — porque a folha é lida
+   em varredura vertical: o olho desce pela coluna do NOME procurando uma
+   pessoa, ou pela do QUANDO procurando um dia. Com as colunas dançando de
+   linha para linha, essa varredura não existe. */
+.rastroPassos {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--borda);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.rastroPasso {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) 168px minmax(0, 200px);
+  gap: var(--s3);
+  align-items: baseline;
+  padding: 9px var(--s3);
+  background: var(--sup);
+  font-size: var(--t-xs);
+}
+.rastroQuando {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--txt-3);
+  font-variant-numeric: tabular-nums;
+}
+.rastroOque { color: var(--txt); }
+.rastroQuem { color: var(--txt-2); }
+.rastroProvas {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--txt-3);
+}
+
+/* A TENTATIVA BARRADA aparece, e aparece MARCADA.
+   Esconder o que o sistema recusou seria contar metade da história — e é
+   justamente a metade que um relatório de rastreabilidade existe para contar.
+   O filete à esquerda a distingue sem pintar a linha inteira de vermelho:
+   ela é um fato registrado, não um erro em curso. */
+.rastroNegado {
+  box-shadow: inset 3px 0 0 var(--alerta);
+  background: var(--alerta-veu);
+}
+.rastroSelo {
+  color: var(--alerta);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.rastroRodape {
+  margin-top: var(--s5);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+
+@media (max-width: 900px) {
+  .rastroPasso { grid-template-columns: 1fr; gap: 3px; }
+}
+
+/* ==========================================================================
+   A MESMA FOLHA, NO PAPEL
+   --------------------------------------------------------------------------
+   Papel não tem tema escuro, não tem lateral e não tem botão. Tudo o que é
+   navegação some, o fundo vira branco e a tinta vira preta — imprimir o tema
+   escuro gastaria um cartucho por folha e sairia ilegível.
+
+   `print-color-adjust: exact` fica de fora de propósito: ele forçaria o
+   navegador a imprimir os fundos, que é exatamente o que não se quer aqui.
+   ========================================================================== */
+@media print {
+  .lateral,
+  .barra,
+  .rastroAcoes,
+  .rodape {
+    display: none !important;
+  }
+  .app { display: block; background: #fff; }
+  .principal::before,
+  .principal::after { display: none; }
+  .folhaRastro { max-width: none; color: #000; }
+  .folhaRastro .indicador,
+  .folhaRastro .bloco,
+  .folhaRastro .rastroPasso,
+  .folhaRastro .rastroPessoa {
+    background: #fff;
+    border-color: #999;
+    color: #000;
+  }
+
+  /* =========================================================================
+     A TINTA, NO PAPEL
+     =========================================================================
+     Pintar só os contêineres de preto não pinta a folha: cada peça de dentro
+     — o que aconteceu, quem fez, o horário — declara a PRÓPRIA cor a partir
+     dos tokens do tema, e cor declarada ganha de cor herdada. A primeira
+     impressão desta folha saiu com a coluna do MEIO quase invisível: cinza
+     claro de tema escuro sobre papel branco. Era justamente a coluna que
+     conta o que aconteceu.
+     `!important` aqui não é preguiça — é o caso para o qual ele existe: um
+     bloco de mídia que precisa vencer o tema inteiro de uma vez, sem ter de
+     caçar cada seletor que um dia venha a ser criado dentro desta folha. */
+  .folhaRastro *,
+  .folhaRastro *::before,
+  .folhaRastro *::after {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+  /* O segundo plano continua existindo no papel, só que em cinza de tinta e
+     não em opacidade: sem hierarquia, dezessete linhas iguais viram parede. */
+  .folhaRastro .fraco,
+  .folhaRastro .grav,
+  .folhaRastro .indNota,
+  .folhaRastro .rastroQuando,
+  .folhaRastro .rastroProvas,
+  .folhaRastro .rastroContagem,
+  .folhaRastro .rastroRodape {
+    color: #444 !important;
+  }
+  .folhaRastro .rastroPessoa { border: 1px solid #999; }
+  .folhaRastro .rastroPassos { background: #999; }
+  /* Uma O.S. não se parte no meio da página: quem lê a folha impressa perde o
+     fio quando o cabeçalho fica numa folha e os passos na seguinte. */
+  .folhaRastro section { break-inside: avoid; }
+  .rastroNegado { box-shadow: inset 3px 0 0 #000; background: #fff; }
+  .rastroSelo { color: #000; }
+}

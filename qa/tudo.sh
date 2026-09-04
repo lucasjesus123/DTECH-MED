@@ -177,6 +177,11 @@ set -a; . "$PG_ENV"; set +a
 npx tsx scripts/historico-para-previsao.mts 12 >"$LOGS/hist.log" 2>&1
 cd "$RAIZ/qa"
 node azul-fase7.mjs     >"$LOGS/az7.log" 2>&1; marcar $? "a previsão de prazo: selo, confiança, fonte clicável — e a recusa sem base"
+# A folha de rastreabilidade PROVOCA uma recusa de verdade no portal do cliente
+# (CPF errado) para conferir que a tentativa barrada chega ao papel. Isso só
+# ESCREVE na trilha de auditoria, que é append-only por projeto — nenhuma O.S.
+# muda de lugar. Precisa de uma O.S. aguardando o cliente, que o cenário semeia.
+node azul-rastreabilidade.mjs >"$LOGS/rastro.log" 2>&1; marcar $? "quem mexeu no aparelho: a folha soma, marca a barrada e sai com tinta no papel"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

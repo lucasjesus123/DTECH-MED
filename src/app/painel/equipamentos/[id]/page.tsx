@@ -143,6 +143,14 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           ) : (
             <span className={estilo.fraco}>sem contrato de preventiva</span>
           )}
+          {/* A PORTA DA FOLHA DE RASTREABILIDADE.
+              Ela fica aqui, no alto da ficha, porque a pergunta que leva a ela
+              — "quem mexeu neste aparelho?" — costuma chegar por telefone, com
+              o cliente esperando. Enterrada no rodapé, a folha existiria e
+              ninguém acharia. */}
+          <Link href={`/painel/equipamentos/${eq.id}/rastreabilidade`} className={estilo.btnSec}>
+            Quem mexeu neste aparelho
+          </Link>
         </div>
       </div>
 
