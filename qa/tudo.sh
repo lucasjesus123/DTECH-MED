@@ -102,7 +102,24 @@ npx tsc --noEmit                        >/dev/null 2>&1; marcar $? "tsc --noEmit
 npm run lint                            >/dev/null 2>&1; marcar $? "eslint ."
 npm test                                >"$LOGS/t.log" 2>&1
 marcar $? "$(grep -oE 'Tests +[0-9]+ passed' "$LOGS/t.log" | grep -oE '[0-9]+' | head -1) testes unitários"
-npm audit --omit=dev                    >/dev/null 2>&1; marcar $? "npm audit (produção)"
+# =============================================================================
+# O AUDIT PRECISA DA REDE — e "não deu para verificar" NÃO É "está seguro", nem
+# é "está inseguro".
+# =============================================================================
+# `npm audit` consulta o registro. Quando a rede cai no meio, ele sai com código
+# de erro igual ao de quando ACHA vulnerabilidade — e a bateria pintava de
+# vermelho uma conferência que nem chegou a acontecer.
+#
+# As duas leituras erradas são igualmente ruins: alguém corrige o que não está
+# quebrado, ou aprende a ignorar o vermelho do audit. A regra da casa é a mesma
+# do laudo: o que não deu para verificar vira NÃO VERIFICADO, com o motivo.
+npm audit --omit=dev >"$LOGS/audit.log" 2>&1
+CODIGO_AUDIT=$?
+if [ "$CODIGO_AUDIT" -ne 0 ] && grep -qiE 'ENOTFOUND|ECONNREFUSED|ETIMEDOUT|EAI_AGAIN|socket hang up|network|request to .* failed|ERR_SOCKET|proxy' "$LOGS/audit.log"; then
+  echo "   ? npm audit (produção) — NÃO VERIFICADO: a consulta ao registro falhou (rede)"
+else
+  marcar $CODIGO_AUDIT "npm audit (produção)"
+fi
 
 # As quatro travas que valem para o repositório inteiro, não só para o que
 # mudou hoje. Elas são baratas e pegam a classe de erro que passa despercebida
