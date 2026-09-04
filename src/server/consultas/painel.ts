@@ -131,8 +131,12 @@ export async function filaDoDegrau(
 }
 
 export type ResumoDoDia = {
-  aReceber: number
-  recebidoNoMes: number
+  /**
+   * `null` para quem não pode ver dinheiro — e é `null` porque a consulta nem
+   * chegou a rodar, não porque a tela escondeu depois.
+   */
+  aReceber: number | null
+  recebidoNoMes: number | null
   ordensAbertas: number
   atrasadas: number
   pecasAbaixoDoMinimo: number
@@ -146,10 +150,26 @@ export type ResumoDoDia = {
  * Escolhidos pelo que muda a decisão do dia, não pelo que é fácil de contar.
  * "Atrasadas" está aqui porque é o número que o sistema antigo deixava crescer
  * até 173 sem ninguém ser cobrado.
+ *
+ * =============================================================================
+ * O DINHEIRO SÓ SAI DAQUI PARA QUEM PODE VER DINHEIRO
+ * =============================================================================
+ * Este cartão mostrava "A receber R$ 23.335,00" para TODO MUNDO que abrisse o
+ * Dashboard — inclusive para o motorista, cuja tela inteira já é cortada em
+ * todo o resto do sistema. O corte estava no Calendário e no Financeiro, e
+ * faltava justamente na primeira tela que qualquer pessoa vê ao entrar.
+ *
+ * A consulta das faturas nem chega a rodar quando não pode: filtrar depois, na
+ * renderização, mandaria o valor pelo fio até o navegador de quem não deve
+ * vê-lo, onde qualquer um lê no inspetor.
  */
-export async function resumoDoDia(ctx: ContextoAcesso): Promise<ResumoDoDia> {
+export async function resumoDoDia(
+  ctx: ContextoAcesso,
+  opcoes: { comDinheiro: boolean },
+): Promise<ResumoDoDia> {
   return comEscopo(ctx, async (tx) => {
-    const [fin] = await tx.$queryRaw<Array<{ areceber: bigint; recebido: bigint }>>`
+    const [fin] = opcoes.comDinheiro
+      ? await tx.$queryRaw<Array<{ areceber: bigint; recebido: bigint }>>`
       SELECT
         coalesce(sum("valorTotalCentavos" - "valorPagoCentavos")
                  FILTER (WHERE status IN ('ABERTA','PARCIAL')), 0) AS areceber,
@@ -157,6 +177,7 @@ export async function resumoDoDia(ctx: ContextoAcesso): Promise<ResumoDoDia> {
                  FILTER (WHERE "quitadaEm" >= date_trunc('month', now())), 0) AS recebido
       FROM faturas WHERE "tenantId" = ${ctx.tenantId}
     `
+      : [null]
     const [ord] = await tx.$queryRaw<Array<{ abertas: bigint; atrasadas: bigint }>>`
       SELECT count(*) AS abertas,
              count(*) FILTER (WHERE "prazoPrometido" < now()) AS atrasadas
@@ -175,8 +196,8 @@ export async function resumoDoDia(ctx: ContextoAcesso): Promise<ResumoDoDia> {
     `
 
     return {
-      aReceber: Number(fin?.areceber ?? 0),
-      recebidoNoMes: Number(fin?.recebido ?? 0),
+      aReceber: opcoes.comDinheiro ? Number(fin?.areceber ?? 0) : null,
+      recebidoNoMes: opcoes.comDinheiro ? Number(fin?.recebido ?? 0) : null,
       ordensAbertas: Number(ord?.abertas ?? 0),
       atrasadas: Number(ord?.atrasadas ?? 0),
       pecasAbaixoDoMinimo: Number(pec?.n ?? 0),

@@ -4,8 +4,17 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
-import { exigirSessao } from '@/server/auth/guarda'
+import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { esteira, filaDoDegrau, resumoDoDia } from '@/server/consultas/painel'
+import {
+  dinheiroMensal,
+  movimentoMensal,
+  ondeEstaParado,
+  oQueMaisQuebra,
+  prazoMensal,
+  quemTrazTrabalho,
+} from '@/server/consultas/operacao'
+import Operacao from './operacao'
 import { contatosNovosContagem, leadsNovos } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import estilo from './painel.module.css'
@@ -18,7 +27,7 @@ export const dynamic = 'force-dynamic'
 export default async function PainelDoDia({
   searchParams,
 }: {
-  searchParams: Promise<{ degrau?: string }>
+  searchParams: Promise<{ degrau?: string; ver?: string }>
 }) {
   const { ctx, sessao } = await exigirSessao()
 
@@ -34,11 +43,36 @@ export default async function PainelDoDia({
   // acabado de sair — e a visita parecia não ter funcionado.
   if (sessao.papel === Papel.SUPER_ADMIN && !sessao.visitando) redirect('/painel/empresas')
 
-  const { degrau = 'manut' } = await searchParams
+  const { degrau = 'manut', ver } = await searchParams
 
+  /**
+   * DUAS ABAS, DOIS HORIZONTES.
+   *
+   *   HOJE      o que está parado, e o que fazer nas próximas horas
+   *   OPERAÇÃO  como o mês está indo, e o que decidir para o próximo
+   *
+   * Empilhar os gráficos em cima ou embaixo da esteira empurraria a fila do dia
+   * — a informação que a pessoa veio ver de manhã — para a terceira dobra. É a
+   * mesma regra que já separou as visões da O.S., do Financeiro, do Comercial e
+   * do Calendário.
+   */
+  const aba: 'hoje' | 'operacao' = ver === 'operacao' ? 'operacao' : 'hoje'
+
+  // O DINHEIRO SÓ VAI PARA QUEM PODE VER DINHEIRO, e o corte é na consulta.
+  // Filtrar na tela mandaria o faturamento por cliente pelo fio até o navegador
+  // de quem não deve vê-lo, onde qualquer um lê no inspetor.
+  const comDinheiro = podeVer(sessao.papel, Papel.FINANCEIRO)
+
+  /**
+   * Só o que a aba mostrada precisa.
+   *
+   * As seis consultas da operação varrem o histórico inteiro; rodá-las na aba
+   * de hoje seria pagar seis agregações por cada abertura de tela para desenhar
+   * uma esteira que não usa nenhuma delas.
+   */
   const [degraus, resumo, fila, leads, contatosNovos] = await Promise.all([
     esteira(ctx),
-    resumoDoDia(ctx),
+    resumoDoDia(ctx, { comDinheiro }),
     filaDoDegrau(ctx, degrau),
     // A tira traz três; a contagem diz quantos são de verdade. Sem ela, "3
     // pessoas chamaram" seria mentira num dia de trinta.
@@ -46,27 +80,71 @@ export default async function PainelDoDia({
     contatosNovosContagem(ctx),
   ])
 
+  const op =
+    aba === 'operacao'
+      ? await (async () => {
+          const [movimento, prazo, filas, aparelhos, clientes, dinheiro] = await Promise.all([
+            movimentoMensal(ctx),
+            prazoMensal(ctx),
+            ondeEstaParado(ctx),
+            oQueMaisQuebra(ctx),
+            quemTrazTrabalho(ctx, { comDinheiro }),
+            comDinheiro ? dinheiroMensal(ctx) : Promise.resolve([]),
+          ])
+          return { movimento, prazo, filas, aparelhos, clientes, dinheiro }
+        })()
+      : null
+
   const selecionado = degraus.find((d) => d.chave === degrau) ?? degraus[0]!
+
+  /**
+   * A aba de OPERAÇÃO sai por aqui.
+   *
+   * Duas saídas em vez de um ternário gigante em volta das 170 linhas do
+   * "hoje": o ternário deixaria o conteúdo do dia inteiro deslocado um nível,
+   * e o custo disso é pago em toda leitura futura do arquivo. O cabeçalho é o
+   * mesmo nos dois caminhos e por isso virou `Topo`.
+   */
+  if (aba === 'operacao' && op) {
+    return (
+      <>
+        <Topo aba={aba} nome={sessao.nome} />
+        <Operacao
+          movimento={op.movimento}
+          prazo={op.prazo}
+          filas={op.filas}
+          aparelhos={op.aparelhos}
+          clientes={op.clientes}
+          dinheiro={op.dinheiro}
+          comDinheiro={comDinheiro}
+        />
+      </>
+    )
+  }
 
   return (
     <>
-      <div className={estilo.cab}>
-        <div>
-          <p className={estilo.grav}>{saudacao()}, {primeiroNome(sessao.nome)}</p>
-          <h1 className={estilo.titulo}>Onde a esteira está agora</h1>
-        </div>
-        <Link href="/painel/ordens/nova" className={estilo.btnOS}>
-          Abrir O.S.
-        </Link>
-      </div>
+      <Topo aba={aba} nome={sessao.nome} />
 
-      {/* Os números que mudam a decisão do dia. Nada de contar por contar. */}
-      <div className={estilo.resumo}>
-        <Indicador
-          rotulo="A receber"
-          valor={formatarBRL(resumo.aReceber)}
-          nota={`${formatarBRL(resumo.recebidoNoMes)} recebidos no mês`}
-        />
+      {/* Os números que mudam a decisão do dia. Nada de contar por contar.
+
+          O CARTÃO DO DINHEIRO SÓ EXISTE PARA QUEM PODE VER DINHEIRO. Ele
+          mostrava "A receber" para todo mundo, motorista incluído — a única
+          tela do sistema em que essa trava faltava, e logo a primeira que
+          qualquer pessoa abre. O valor não é escondido aqui: ele não é
+          consultado. Sem ele são três cartões, e a grade acompanha. */}
+      <div
+        className={
+          resumo.aReceber === null ? `${estilo.resumo} ${estilo.resumo3}` : estilo.resumo
+        }
+      >
+        {resumo.aReceber === null ? null : (
+          <Indicador
+            rotulo="A receber"
+            valor={formatarBRL(resumo.aReceber)}
+            nota={`${formatarBRL(resumo.recebidoNoMes ?? 0)} recebidos no mês`}
+          />
+        )}
         <Indicador
           rotulo="Ordens abertas"
           valor={String(resumo.ordensAbertas)}
@@ -228,6 +306,50 @@ export default async function PainelDoDia({
           ))}
         </ul>
       )}
+    </>
+  )
+}
+
+/**
+ * O CABEÇALHO, que as duas abas dividem.
+ *
+ * Ele saiu do corpo da tela quando a segunda aba apareceu: duplicá-lo nas duas
+ * saídas garantiria que um dia as duas divergissem — e a que divergisse seria a
+ * menos usada, que é a que ninguém olha.
+ */
+function Topo({ aba, nome }: { aba: 'hoje' | 'operacao'; nome: string }) {
+  return (
+    <>
+      <div className={estilo.cab}>
+        <div>
+          <p className={estilo.grav}>{saudacao()}, {primeiroNome(nome)}</p>
+          <h1 className={estilo.titulo}>
+            {aba === 'operacao' ? 'Como a operação está indo' : 'Onde a esteira está agora'}
+          </h1>
+        </div>
+        <Link href="/painel/ordens/nova" className={estilo.btnOS}>
+          Abrir O.S.
+        </Link>
+      </div>
+
+      <div className={estilo.rotaBarra}>
+        <nav className={estilo.abas} aria-label="Visões do painel">
+          <Link
+            href="/painel"
+            className={aba === 'hoje' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+            aria-current={aba === 'hoje' ? 'page' : undefined}
+          >
+            Hoje
+          </Link>
+          <Link
+            href="/painel?ver=operacao"
+            className={aba === 'operacao' ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
+            aria-current={aba === 'operacao' ? 'page' : undefined}
+          >
+            Operação
+          </Link>
+        </nav>
+      </div>
     </>
   )
 }

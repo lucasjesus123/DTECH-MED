@@ -539,6 +539,14 @@
  * O fator 10 saiu da medição, não do gosto: doze caracteres de
  * "R$ 23.335,00" na fonte de display ocupam cerca de 0,58em cada, e 10cqi
  * deixa folga até nos cartões mais estreitos que esta grade produz. */
+/* Três colunas, pelo mesmo motivo das cinco.
+ *
+ * Quem não pode ver dinheiro não recebe o cartão "A receber" — e sobram três.
+ * Na grade de quatro, os três ficam espremidos à esquerda com um quarto de
+ * largura vazio à direita, o que faz a tela parecer quebrada em vez de
+ * recortada de propósito. */
+.resumo3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
 .resumo5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .resumo5 .indicador { container-type: inline-size; }
 .resumo5 .indValor { font-size: clamp(1rem, 10cqi, var(--t-2xl)); }
@@ -5640,3 +5648,49 @@ a.calNumero:hover, a.calNumero:focus-visible {
    informação. */
 .linhaArquivada td { opacity: .62; }
 .linhaArquivada:hover td { opacity: 1; }
+
+/* ==========================================================================
+   O VALOR ESCRITO NO TOPO DA BARRA
+   --------------------------------------------------------------------------
+   Barra sem número obriga a estimar, e estimativa não entra em conversa de
+   decisão — ninguém compra peça com "parece que subiu". Onde há uma série só,
+   o número cabe em cima da barra e some a necessidade de medir contra a escala.
+   ========================================================================== */
+.grafValor {
+  fill: var(--txt-2);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   A BASE DO GRÁFICO — os mesmos números, em tabela
+   --------------------------------------------------------------------------
+   Não é redundância: é o que permite conferir, copiar para uma mensagem e ler
+   com leitor de tela. Um gráfico sem base é uma afirmação sem fonte.
+
+   Fica fechada porque a leitura normal é o desenho; quem abre está conferindo,
+   e conferir é o gesto raro.
+   ========================================================================== */
+.baseNumeros {
+  margin-top: var(--s3);
+}
+.baseNumeros > summary {
+  cursor: pointer;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  padding: var(--s2) 0;
+  list-style: none;
+}
+.baseNumeros > summary::-webkit-details-marker { display: none; }
+.baseNumeros > summary::before {
+  content: '▸ ';
+  color: var(--vio);
+}
+.baseNumeros[open] > summary::before { content: '▾ '; }
+.baseNumeros > summary:hover { color: var(--txt); }
+.baseNumeros > summary:focus-visible {
+  outline: 2px solid var(--vio);
+  outline-offset: 2px;
+  border-radius: var(--r-s, 4px);
+}

@@ -158,6 +158,7 @@ node quadro.mjs         >"$LOGS/qd.log" 2>&1; marcar $? "o quadro: colunas da em
 node estoque.mjs        >"$LOGS/es.log" 2>&1; marcar $? "estoque: peça, insumo e ferramenta — e emprestar não baixa saldo"
 node calendario-visoes.mjs >"$LOGS/cv.log" 2>&1; marcar $? "o calendário em cinco visões, e o lugar não se perde"
 node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, chamar, arquivar — e arquivar não apaga"
+node dashboard-operacao.mjs >"$LOGS/dop.log" 2>&1; marcar $? "o dashboard em gráficos: as bases batem com o banco, e o motorista sem dinheiro"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"
