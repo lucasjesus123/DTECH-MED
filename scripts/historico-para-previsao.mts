@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { EtapaOrdem, Papel } from '../src/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '../src/lib/db'
-import { novoToken } from '../src/lib/cripto'
+import { hashDocumento, novoToken } from '../src/lib/cripto'
 
 /**
  * =============================================================================
@@ -63,15 +63,53 @@ async function main() {
 
   const ctx: ContextoAcesso = { tenantId: tenant.id, userId: null, ehSuperAdmin: false }
 
-  const { cliente, equipamento, autor, ultimo } = await comEscopo(ctx, async (tx) => ({
-    cliente: await tx.cliente.findFirst(),
-    equipamento: await tx.equipamento.findFirst(),
-    autor: await tx.user.findFirst({ where: { papel: Papel.TECNICO } }),
-    ultimo: await tx.ordem.aggregate({ _max: { numero: true } }),
-  }))
-  if (!cliente || !equipamento || !autor) {
-    throw new Error('Cenário incompleto: rode o cenario-demo antes.')
-  }
+  /**
+   * ELE NÃO ENCOSTA NAS PEÇAS DO CENÁRIO, e isso foi uma correção.
+   *
+   * A primeira versão pendurava as doze O.S. sintéticas no primeiro cliente e
+   * no primeiro equipamento que encontrasse — que era o Lavieen Duo. O
+   * equipamento pulou de 6 para 18 ordens, e o roteiro do diagrama, que abre
+   * uma O.S. de Lavieen pelo formulário e depois a procura pela marca, parou
+   * de funcionar. A bateria acusou "a ordem da marca Lavieen não foi criada
+   * pelo formulário" e a culpa parecia do produto.
+   *
+   * Dado de ensaio não pode contaminar o cenário que os outros roteiros usam.
+   * Agora ele tem cliente e equipamento PRÓPRIOS, com nome que se reconhece de
+   * longe — e nenhum outro roteiro esbarra neles.
+   */
+  const autor = await comEscopo(ctx, (tx) =>
+    tx.user.findFirst({ where: { papel: Papel.TECNICO } }),
+  )
+  if (!autor) throw new Error('Cenário incompleto: rode o cenario-demo antes.')
+
+  const MARCA = 'Histórico'
+  const { cliente, equipamento, ultimo } = await comEscopo(ctx, async (tx) => {
+    const cliente =
+      (await tx.cliente.findFirst({ where: { nome: 'Clínica do Histórico (ensaio)' } })) ??
+      (await tx.cliente.create({
+        data: {
+          tenantId: tenant.id,
+          nome: 'Clínica do Histórico (ensaio)',
+          documento: '00000000000191',
+          // O documento é indexado pelo HASH, e não em claro: a busca por CNPJ
+          // acha pelo hash, e o campo aberto existe só para a tela mostrar.
+          documentoHash: hashDocumento('00000000000191'),
+          telefone: '51999999999',
+        },
+      }))
+    const equipamento =
+      (await tx.equipamento.findFirst({ where: { marca: MARCA } })) ??
+      (await tx.equipamento.create({
+        data: {
+          tenantId: tenant.id,
+          marca: MARCA,
+          modelo: 'Calibragem',
+          numeroSerie: `HIST-${Date.now()}`,
+          clienteId: cliente.id,
+        },
+      }))
+    return { cliente, equipamento, ultimo: await tx.ordem.aggregate({ _max: { numero: true } }) }
+  })
 
   const quantas = Number(process.argv[2] ?? 12)
   let numero = (ultimo._max.numero ?? 0) + 1
@@ -140,6 +178,29 @@ async function main() {
     }
     criadas++
   }
+
+  /**
+   * O CONTADOR TEM DE ANDAR JUNTO — e esquecer isso quebrou a bateria.
+   *
+   * A numeração da O.S. não sai de `max(numero)`: sai da tabela `contadores`,
+   * que o sistema incrementa a cada ordem aberta. Este script escrevia
+   * `numero` na mão e deixava o contador para trás — então o formulário pedia
+   * o próximo, recebia um número que estas O.S. sintéticas já tinham tomado, e
+   * batia na chave única `(tenantId, numero)`.
+   *
+   * O sintoma não apontava para cá: o roteiro do diagrama reprovava com "a
+   * ordem da marca Lavieen não foi criada pelo formulário", e a acusação caía
+   * no formulário, que estava certo. Foi preciso comparar o contador com o
+   * maior número de ordem para achar a diferença.
+   *
+   * Semear dado por fora é sempre isto: ou você mexe em TODAS as peças que o
+   * sistema mantém em pé, ou deixa uma inconsistência que só aparece três
+   * roteiros depois.
+   */
+  await comEscopo(ctx, (tx) => tx.$executeRaw`
+    UPDATE contadores SET valor = ${numero - 1}
+     WHERE "tenantId" = ${tenant.id} AND chave = 'ordem' AND valor < ${numero - 1}
+  `)
 
   console.log(`  ${criadas} O.S. concluídas com linha do tempo — histórico pronto para a previsão.`)
 }
