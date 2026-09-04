@@ -1,4 +1,5 @@
-// O calendário junta cinco fontes numa grade — e o motorista NÃO vê dinheiro.
+// O calendário junta as fontes da OPERAÇÃO numa grade — e não tem dinheiro
+// nenhum, para ninguém. Vencimento se responde no Financeiro.
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 import { execFileSync } from 'node:child_process'
 import { lancarConta, hojeISO } from './lancar-conta.mjs'
@@ -27,7 +28,7 @@ async function entrar(email) {
 
 const mes = new Date().toISOString().slice(0, 7)
 
-console.log('\n1) O administrador vê a grade e as cinco fontes')
+console.log('\n1) O administrador vê a grade e as quatro fontes')
 const p = await entrar('lucas@dtechmed.com.br')
 await p.goto(`${QA_BASE}/painel/calendario`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(900)
@@ -57,71 +58,94 @@ const noBanco = Number(sql(`
        and "previstoPara" < date_trunc('month', now()) + interval '1 month' and status <> 'CANCELADO')
   + (select count(*) from visitas_preventivas where "previstaPara" >= date_trunc('month', now())
        and "previstaPara" < date_trunc('month', now()) + interval '1 month' and status <> 'CANCELADA')
-  + (select count(*) from lancamentos where vencimento >= date_trunc('month', now())
-       and vencimento < date_trunc('month', now()) + interval '1 month' and "pagoEm" is null)
-  + (select count(*) from faturas where vencimento >= date_trunc('month', now())
-       and vencimento < date_trunc('month', now()) + interval '1 month' and status in ('ABERTA','PARCIAL'))
   + (select count(*) from contratos_manutencao where fim >= date_trunc('month', now())
-       and fim < date_trunc('month', now()) + interval '1 month' and ativo = true)`))
+       and fim < date_trunc('month', now()) + interval '1 month' and ativo = true)
+  + (select count(*) from compromissos where dia >= date_trunc('month', now())
+       and dia < date_trunc('month', now()) + interval '1 month')`))
 eventos === noBanco
-  ? ok(`${eventos} na grade = ${noBanco} no banco (as cinco fontes)`)
+  ? ok(`${eventos} na grade = ${noBanco} no banco (as quatro fontes)`)
   : nao(`grade tem ${eventos}, banco tem ${noBanco}`)
 
 console.log('\n3) O FILTRO por tipo funciona')
 await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&so=parada`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(600)
 const soParadas = await p.locator('a[class*="calEvento"]').count()
-const dinheiroNoFiltro = await p.locator('a[class*="calDinheiro"]').count()
-dinheiroNoFiltro === 0 ? ok(`filtro "Rota" trouxe ${soParadas} e nenhum de dinheiro`) : nao('o filtro deixou passar dinheiro')
+const paradasNoBanco = Number(sql(`select count(*) from agendamentos
+  where "previstoPara" >= date_trunc('month', now())
+    and "previstoPara" < date_trunc('month', now()) + interval '1 month'
+    and status <> 'CANCELADO'`))
+soParadas === paradasNoBanco
+  ? ok(`filtro "Rota" trouxe as ${soParadas} paradas do mês, nem mais nem menos`)
+  : nao(`filtro "Rota" trouxe ${soParadas} e o banco tem ${paradasNoBanco} paradas`)
 
-console.log('\n4) O MOTORISTA não vê dinheiro — nem na tela, nem no HTML')
-const m = await entrar('adriano@dtechmed.com.br')
-const r = await m.goto(`${QA_BASE}/painel/calendario`, { waitUntil: 'networkidle' })
-r.status() === 200 ? ok('o motorista abre o calendário') : nao(`o motorista recebeu ${r.status()}`)
-await m.waitForTimeout(800)
+// ---------------------------------------------------------------------------
+console.log('\n4) NÃO HÁ DINHEIRO no calendário — para ninguém, nem no HTML')
+// ---------------------------------------------------------------------------
+/**
+ * O calendário mostrava conta a pagar e a receber, e foi retirado: vencimento
+ * não disputa o dia com ninguém. Uma conta que vence na quinta não ocupa o
+ * motorista nem prende a bancada — ela só enchia a grade e empurrava para baixo
+ * o que precisa ser olhado antes de marcar mais uma entrega.
+ *
+ * A conferência é no ADMINISTRADOR, e não no motorista: enquanto havia dinheiro
+ * ali, a pergunta era "quem pode ver"; agora é "não existe". Testar só o
+ * motorista deixaria passar o dinheiro voltando para os outros seis papéis.
+ */
+for (const [quem, pagina] of [['administrador', p], ['motorista', await entrar('adriano@dtechmed.com.br')]]) {
+  const r = await pagina.goto(`${QA_BASE}/painel/calendario`, { waitUntil: 'networkidle' })
+  await pagina.waitForTimeout(700)
+  r.status() === 200 ? ok(`o ${quem} abre o calendário`) : nao(`o ${quem} recebeu ${r.status()}`)
 
-const semDinheiro = await m.locator('a[class*="calDinheiro"]').count()
-semDinheiro === 0 ? ok('nenhum evento de dinheiro na grade dele') : nao(`${semDinheiro} eventos de dinheiro apareceram`)
+  const texto = await pagina.locator('body').innerText()
+  ;/R\$\s?\d/.test(texto)
+    ? nao(`${quem}: apareceu valor em reais no calendário`)
+    : ok(`${quem}: nenhum valor em reais na tela`)
 
-// A prova que importa: o valor não pode estar NEM no HTML entregue.
-const html = await m.content()
-const contas = sql("select descricao from lancamentos where \"pagoEm\" is null limit 3")
-const vazou = contas && contas.length > 3 && html.includes(contas)
-vazou ? nao(`a descrição de uma conta veio no HTML dele: "${contas}"`) : ok('nenhuma descrição de conta no HTML entregue ao motorista')
-const temReceber = html.includes('A receber no mês')
-temReceber ? nao('o indicador de dinheiro apareceu para o motorista') : ok('o indicador de dinheiro não existe na página dele')
+  const filtros = await pagina.locator('nav[aria-label="Filtrar por tipo"]').innerText().catch(() => '')
+  ;/a pagar|a receber/i.test(filtros)
+    ? nao(`${quem}: o filtro ainda oferece dinheiro — ${filtros.replace(/\n/g, ' ')}`)
+    : ok(`${quem}: os filtros são só de operação`)
 
-// E forçar o filtro pela URL também não abre porta.
-await m.goto(`${QA_BASE}/painel/calendario?so=pagar`, { waitUntil: 'networkidle' })
-await m.waitForTimeout(600)
-const forcado = await m.locator('a[class*="calDinheiro"]').count()
-forcado === 0 ? ok('forçar ?so=pagar na URL não revela nada') : nao(`${forcado} eventos vazaram pela URL`)
-;
-console.log('\n4b) O que nasce no Financeiro aparece no calendário')
+  // A prova que importa: a descrição de uma conta não pode estar NEM no HTML.
+  const html = await pagina.content()
+  const conta = sql("select descricao from lancamentos where \"pagoEm\" is null limit 1")
+  conta && conta.length > 3 && html.includes(conta)
+    ? nao(`${quem}: a descrição de uma conta veio no HTML — "${conta}"`)
+    : ok(`${quem}: nenhuma descrição de conta no HTML entregue`)
+}
+
+// Forçar o filtro antigo pela URL não ressuscita a fonte.
+await p.goto(`${QA_BASE}/painel/calendario?so=pagar`, { waitUntil: 'networkidle' })
+await p.waitForTimeout(600)
+const forcado = await p.locator('body').innerText()
+;/R\$\s?\d/.test(forcado)
+  ? nao('forçar ?so=pagar na URL trouxe dinheiro de volta')
+  : ok('o endereço antigo ?so=pagar abre normal, e sem dinheiro')
+
+// ---------------------------------------------------------------------------
+console.log('\n4b) A conta lançada no Financeiro FICA no Financeiro')
+// ---------------------------------------------------------------------------
+// A separação é de propósito, e por isso é conferida: uma conta nova aparece na
+// tela do dinheiro e NÃO aparece na grade da operação.
 await p.goto(`${QA_BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
 const marca = `Conta do calendário ${Date.now().toString(36).slice(-5)}`
-// Lançar deixou de ser um botão dentro da aba e virou "+ Nova conta" no
-// cabeçalho, numa janela. A sequência mora em `lancar-conta.mjs` para os cinco
-// roteiros que lançam conta não guardarem cinco cópias dela.
 await lancarConta(p, { tipo: 'PAGAR', descricao: marca, valor: '777,00', vencimento: hojeISO() })
-const hoje = hojeISO()
+
+await p.goto(`${QA_BASE}/painel/financeiro?aba=pagar`, { waitUntil: 'networkidle' })
+await p.waitForTimeout(600)
+;(await p.locator('body').innerText()).includes(marca)
+  ? ok('a conta nasceu e aparece no Financeiro')
+  : nao('a conta não apareceu nem no Financeiro — o lançamento falhou')
 
 await p.goto(`${QA_BASE}/painel/calendario`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(900)
-
-// Num dia cheio o compromisso fica atrás do "+N mais". Abrir os `<details>`
-// é o que o usuário faria, e prova o que importa: que dá para CHEGAR nele.
-// Conferir só o texto visível reprovaria um produto que está certo.
-const abrir = await p.locator('details[class*="calMais"] > summary').all()
-for (const d of abrir) await d.click()
+// Num dia cheio o item fica atrás do "+N mais". Abrir os `<details>` é o que o
+// usuário faria — conferir só o texto visível aprovaria um vazamento escondido.
+for (const d of await p.locator('details[class*="calMais"] > summary').all()) await d.click()
 await p.waitForTimeout(400)
-
-const noCalendario = await p.locator('body').innerText()
-noCalendario.includes(marca)
-  ? ok(`a conta lançada agora apareceu no calendário: "${marca}"`)
-  : nao('a conta lançada no Financeiro não apareceu no calendário')
-;(await p.locator('a[class*="calDinheiro"]').count()) > 0
-  ? ok('e veio com a cor do dinheiro') : nao('a conta não veio com a cor do dinheiro')
+;(await p.locator('body').innerText()).includes(marca)
+  ? nao(`a conta apareceu no calendário: "${marca}"`)
+  : ok('e não aparece no calendário, que é o combinado')
 
 console.log('\n5) Navegar entre meses preserva o filtro')
 await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&so=parada`, { waitUntil: 'networkidle' })

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { formatarBRL } from '@/lib/dinheiro'
 import { exigirNivel, exigirAba, podeVer } from '@/server/auth/guarda'
 import {
   contagemPorDia,
@@ -64,13 +63,13 @@ export const dynamic = 'force-dynamic'
  * mandados por mensagem não podem quebrar porque a tela ganhou visões.
  *
  * =============================================================================
- * A COR SEPARA O QUE DISPUTA A MESMA HORA DO QUE NÃO DISPUTA
+ * A COR SEPARA O QUE O SISTEMA DESCOBRIU DO QUE UMA PESSOA ESCREVEU
  * =============================================================================
- * Rua e bancada têm pessoa alocada e hora marcada; vencimento é do dia inteiro
- * e se resolve entre uma coisa e outra. Por isso os dois primeiros são violeta
- * (a cor do trabalho, no sistema inteiro) e o dinheiro é âmbar — o mesmo par
- * validado nos gráficos do Financeiro, que separa também por luminosidade e não
- * só por matiz.
+ * Parada, preventiva e contrato terminando são consequência de outra coisa —
+ * uma O.S., um contrato — e usam o violeta do trabalho. O compromisso é o que
+ * alguém anotou à mão para aquele dia, e por isso tem cor própria: distinguir
+ * "o que eu marquei" de "o que caiu na minha agenda" é o que faz alguém confiar
+ * na grade.
  */
 export default async function Calendario({
   searchParams,
@@ -97,16 +96,18 @@ export default async function Calendario({
   const foco = diaUrl ?? (mesUrl ? (hoje.startsWith(mesUrl) ? hoje : `${mesUrl}-01`) : hoje)
   const periodo = resolverPeriodo(visao, foco)
 
-  // QUEM VÊ DINHEIRO NESTE CALENDÁRIO é quem já vê dinheiro no sistema. O
-  // motorista entra aqui para ver as PARADAS da semana; salário, aluguel e
-  // quanto cada cliente deve não são dele. O corte é feito na CONSULTA —
-  // filtrar só na tela mandaria os valores pelo fio até o navegador dele, onde
-  // qualquer um lê no inspetor.
-  const comDinheiro = podeVer(sessao.papel, Papel.FINANCEIRO)
-  const so = FILTROS.filter((f) => comDinheiro || (f.chave !== 'pagar' && f.chave !== 'receber'))
-    .some((f) => f.chave === q.so)
-    ? (q.so as TipoEvento)
-    : null
+  /**
+   * NÃO HÁ MAIS CORTE DE DINHEIRO AQUI, porque não há mais dinheiro aqui.
+   *
+   * O calendário mostrava conta a pagar e a receber, e por isso precisava saber
+   * quem pode ver dinheiro — sem esse corte, o motorista lia salário, aluguel e
+   * quanto cada cliente deve. Retiradas as duas fontes, a trava some junto com
+   * o motivo dela: nenhuma visão nova pode esquecer um corte que não existe.
+   *
+   * Vencimento se responde no FINANCEIRO, que tem o mês, o atraso, a idade da
+   * dívida e o botão de dar baixa.
+   */
+  const so = FILTROS.some((f) => f.chave === q.so) ? (q.so as TipoEvento) : null
 
   /**
    * O PAINEL DE MARCAR abre quando o dia veio no endereço — e SEMPRE na visão
@@ -131,9 +132,9 @@ export default async function Calendario({
   const [eventos, contagem, pessoas] = await Promise.all([
     visao === 'ano'
       ? Promise.resolve([] as Evento[])
-      : eventosNoPeriodo(ctx, periodo.inicio, periodo.fim, { comDinheiro }),
+      : eventosNoPeriodo(ctx, periodo.inicio, periodo.fim),
     visao === 'ano'
-      ? contagemPorDia(ctx, periodo.inicio, periodo.fim, { comDinheiro })
+      ? contagemPorDia(ctx, periodo.inicio, periodo.fim)
       : Promise.resolve(new Map<string, number>()),
     // Só quando há dia aberto: a lista da equipe não é usada na grade, e
     // buscá-la sempre seria uma consulta por carregamento de tela para nada.
@@ -150,8 +151,6 @@ export default async function Calendario({
   }
 
   const atrasados = filtrados.filter((e) => e.atrasado).length
-  const aReceber = filtrados.filter((e) => e.tipo === 'receber').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
-  const aPagar = filtrados.filter((e) => e.tipo === 'pagar').reduce((s, e) => s + (e.valorCentavos ?? 0), 0)
   const naRua = filtrados.filter((e) => e.tipo === 'parada' || e.tipo === 'preventiva').length
 
   /** Monta um endereço desta tela mantendo o que não mudou. */
@@ -179,8 +178,9 @@ export default async function Calendario({
           <p className={estilo.grav}>Hoje</p>
           <h1 className={estilo.titulo}>Calendário</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
-            Tudo que tem data e ainda vai acontecer: paradas de rota, preventivas, vencimentos,
-            contratos terminando e o que a equipe marcou.
+            O que a equipe tem pela frente: paradas de rota, visitas preventivas, contratos
+            terminando e o que alguém marcou no dia. Conta a pagar e a receber ficam no{' '}
+            <Link href="/painel/financeiro">Financeiro</Link>.
           </p>
         </div>
         <Link className={estilo.btnPrimario} href={url({ ver: 'dia', dia: diaDoBotao })}>
@@ -195,19 +195,11 @@ export default async function Calendario({
           nota="tudo que tem data"
         />
         <Indicador rotulo="Saídas de rua" valor={visao === 'ano' ? '—' : String(naRua)} nota="paradas e preventivas" />
-        {comDinheiro ? (
-          <Indicador
-            rotulo="A receber"
-            valor={visao === 'ano' ? '—' : formatarBRL(aReceber)}
-            nota="faturas e avulsos vencendo"
-          />
-        ) : (
-          <Indicador
-            rotulo="Contratos terminando"
-            valor={visao === 'ano' ? '—' : String(filtrados.filter((e) => e.tipo === 'contrato').length)}
-            nota="precisam de renovação"
-          />
-        )}
+        <Indicador
+          rotulo="Contratos terminando"
+          valor={visao === 'ano' ? '—' : String(filtrados.filter((e) => e.tipo === 'contrato').length)}
+          nota="precisam de renovação"
+        />
         <Indicador
           rotulo="Passou da data"
           valor={visao === 'ano' ? '—' : String(atrasados)}
@@ -274,7 +266,7 @@ export default async function Calendario({
           >
             Tudo
           </Link>
-          {FILTROS.filter((f) => comDinheiro || (f.chave !== 'pagar' && f.chave !== 'receber')).map((f) => (
+          {FILTROS.map((f) => (
             <Link
               key={f.chave}
               href={url({ so: f.chave })}
@@ -285,13 +277,6 @@ export default async function Calendario({
             </Link>
           ))}
         </nav>
-      ) : null}
-
-      {comDinheiro && visao !== 'ano' && (aPagar > 0 || aReceber > 0) ? (
-        <p className={estilo.dica}>
-          Neste período vencem {formatarBRL(aReceber)} a receber e {formatarBRL(aPagar)} a pagar.{' '}
-          <Link href={`/painel/financeiro?mes=${periodo.mes}`}>Ver no Financeiro</Link>
-        </p>
       ) : null}
 
       {visao === 'mes' ? (
@@ -331,7 +316,6 @@ export default async function Calendario({
           dia={diaAberto}
           mes={diaAberto.slice(0, 7)}
           pessoas={pessoas}
-          comDinheiro={comDinheiro}
           podeMarcarParada={podeVer(sessao.papel, Papel.ATENDENTE)}
         />
       ) : null}
@@ -340,7 +324,7 @@ export default async function Calendario({
         <p className={estilo.vazio}>
           {so
             ? 'Nada deste tipo neste período.'
-            : 'Nenhum compromisso neste período. Paradas de rota, preventivas e vencimentos aparecem aqui assim que existirem.'}
+            : 'Nada marcado neste período. Paradas de rota, preventivas e contratos terminando aparecem aqui assim que existirem.'}
         </p>
       ) : null}
 
@@ -348,11 +332,10 @@ export default async function Calendario({
         <span>
           <i className={`${estilo.calPonto} ${estilo.calPontoRua}`} aria-hidden="true" /> rua e bancada
         </span>
-        {comDinheiro ? (
-          <span>
-            <i className={`${estilo.calPonto} ${estilo.calPontoDinheiro}`} aria-hidden="true" /> dinheiro
-          </span>
-        ) : null}
+        <span>
+          <i className={`${estilo.calPonto} ${estilo.calPontoNota}`} aria-hidden="true" /> marcado por
+          alguém
+        </span>
         <span className={estilo.fraco}>
           Riscado embaixo em vermelho: passou da data e continua em aberto.
         </span>
@@ -483,10 +466,10 @@ function Grade({
 /**
  * O dia inteiro, em ordem, sem corte.
  *
- * Não é uma grade de horas: das seis fontes, só duas têm hora (a parada com
- * janela combinada e o compromisso). Desenhar 24 faixas para preencher três
- * seria dar à tela a forma de uma agenda médica que este trabalho não tem — o
- * resto do dia é vencimento e visita, que são do dia e não da hora.
+ * Não é uma grade de horas: das quatro fontes, só duas têm hora (a parada com
+ * janela combinada e o compromisso). Desenhar 24 faixas para preencher duas
+ * seria dar à tela a forma de uma agenda médica que este trabalho não tem — a
+ * visita e o fim de contrato são do dia, e não da hora.
  */
 function VisaoDia({ eventos, titulo }: { eventos: Evento[]; titulo: string }) {
   if (eventos.length === 0) {
@@ -509,9 +492,6 @@ function VisaoDia({ eventos, titulo }: { eventos: Evento[]; titulo: string }) {
               {e.titulo}
               {e.detalhe ? <span className={estilo.fraco}> · {e.detalhe}</span> : null}
             </span>
-            {e.valorCentavos != null ? (
-              <span className={estilo.calDiaValor}>{formatarBRL(e.valorCentavos)}</span>
-            ) : null}
           </Link>
         </li>
       ))}
@@ -568,9 +548,6 @@ function VisaoLista({
                     {e.titulo}
                     {e.detalhe ? <span className={estilo.fraco}> · {e.detalhe}</span> : null}
                   </span>
-                  {e.valorCentavos != null ? (
-                    <span className={estilo.calDiaValor}>{formatarBRL(e.valorCentavos)}</span>
-                  ) : null}
                 </Link>
               </li>
             ))}
@@ -708,9 +685,6 @@ function Compromisso({ e }: { e: Evento }) {
       title={[e.titulo, e.detalhe].filter(Boolean).join(' — ')}
     >
       <span className={estilo.calEventoTitulo}>{e.titulo}</span>
-      {e.valorCentavos != null ? (
-        <span className={estilo.calEventoValor}>{formatarBRL(e.valorCentavos)}</span>
-      ) : null}
     </Link>
   )
 }
@@ -732,17 +706,14 @@ const UNIDADE: Record<Visao, string> = {
 const FILTROS: Array<{ chave: TipoEvento; rotulo: string }> = [
   { chave: 'parada', rotulo: 'Rota' },
   { chave: 'preventiva', rotulo: 'Preventiva' },
-  { chave: 'receber', rotulo: 'A receber' },
-  { chave: 'pagar', rotulo: 'A pagar' },
   { chave: 'contrato', rotulo: 'Contratos' },
+  { chave: 'compromisso', rotulo: 'Compromissos' },
 ]
 
 /** O nome do tipo, para as visões que têm largura para escrevê-lo. */
 const ROTULO_TIPO: Record<TipoEvento, string> = {
   parada: 'Rota',
   preventiva: 'Preventiva',
-  pagar: 'A pagar',
-  receber: 'A receber',
   contrato: 'Contrato',
   compromisso: 'Compromisso',
 }
@@ -750,23 +721,20 @@ const ROTULO_TIPO: Record<TipoEvento, string> = {
 /**
  * A cor por tipo, num mapa explícito.
  *
- * Duas famílias, e não cinco cores: o que exige SAIR (rota, preventiva,
- * contrato terminando) usa o violeta do trabalho; o que é dinheiro usa o âmbar.
- * Cinco cores diferentes numa grade de trinta e um dias viram confete — e uma
- * grade que parece confete não é lida, é olhada.
+ * DUAS CORES, e não quatro: tudo que é consequência da esteira — rota,
+ * preventiva, contrato terminando — usa o violeta do trabalho. Quatro cores
+ * diferentes numa grade de trinta e um dias viram confete, e uma grade que
+ * parece confete não é lida, é olhada.
  */
 const COR: Record<TipoEvento, string> = {
-  // O COMPROMISSO ganha a TERCEIRA cor, e é a única exceção à regra das duas
-  // famílias — porque ele é de outra natureza: as outras cinco o sistema
-  // descobriu sozinho, esta uma pessoa escreveu. Distinguir "o que eu marquei"
-  // de "o que caiu na minha agenda" é a diferença que faz alguém confiar na
-  // grade.
+  // O COMPROMISSO ganha a SEGUNDA cor porque ele é de outra natureza: as outras
+  // três o sistema descobriu sozinho, esta uma pessoa escreveu. Distinguir "o
+  // que eu marquei" de "o que caiu na minha agenda" é a diferença que faz
+  // alguém confiar na grade.
   compromisso: estilo.calNota!,
   parada: estilo.calRua!,
   preventiva: estilo.calRua!,
   contrato: estilo.calRua!,
-  receber: estilo.calDinheiro!,
-  pagar: estilo.calDinheiro!,
 }
 
 function Indicador({

@@ -1,11 +1,15 @@
-// O que as telas passaram a DEIXAR CRIAR: compromisso e conta pelo Calendário,
-// contato à mão no Comercial, modelo de documento, e a aprovação do Financeiro.
+// O que as telas passaram a DEIXAR CRIAR: compromisso pelo Calendário, contato
+// à mão no Comercial, modelo de documento, e a aprovação do Financeiro.
+//
+// A conta NÃO se lança mais pelo dia do calendário — ela saiu de lá junto com
+// os vencimentos, e este roteiro confere que saiu.
 //
 // Todas estas telas eram ESPELHOS: mostravam o que outras criaram. Este roteiro
 // existe para provar que elas passaram a receber — e, o que importa mais, que
 // receber não abriu porta para quem não deve.
 import pw from '/opt/node22/lib/node_modules/playwright/index.js'
 import { execFileSync } from 'node:child_process'
+import { lancarConta } from './lancar-conta.mjs'
 const { chromium } = pw
 const QA_BASE = process.env.QA_BASE || 'http://127.0.0.1:3111'
 const SENHA = process.env.QA_SENHA || 'Dtech' + '@2026'
@@ -67,17 +71,32 @@ const grade = await p.locator('table').innerText()
 grade.includes('QA visita antes de orçar') ? ok('a grade mostra o compromisso') : nao('o compromisso não apareceu na grade')
 grade.includes('14:30') ? ok('com a hora na frente') : nao('a hora não apareceu')
 
-console.log('\n3) a conta lançada pelo dia nasce ESPERANDO APROVAÇÃO')
+console.log('\n3) o dia do calendário NÃO lança mais conta — e a conta nasce esperando aprovação')
+/**
+ * O painel do dia oferecia "Compromisso | Conta". A conta saiu quando o
+ * calendário deixou de mostrar vencimentos: lançar ali uma conta que a grade
+ * não mostra criaria algo invisível na própria tela em que foi criado.
+ */
 await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(700)
-await p.getByRole('button', { name: 'Conta' }).click()
-await p.waitForTimeout(400)
-await p.fill('input[name=descricao]', 'QA-contador do mês')
-await p.fill('input[name=valor]', '890,00')
-await p.getByRole('button', { name: 'Lançar conta neste dia' }).click()
-await p.waitForTimeout(2800)
+const temBotaoConta = await p.getByRole('button', { name: /^Conta$/ }).count()
+const temLancarConta = await p.getByRole('button', { name: /Lançar conta neste dia/i }).count()
+temBotaoConta === 0 && temLancarConta === 0
+  ? ok('o dia não oferece mais lançar conta')
+  : nao(`o dia ainda lança conta — aba:${temBotaoConta} botão:${temLancarConta}`)
+
+// E o formulário do compromisso continua ali, agora sem barra de abas: uma aba
+// sozinha é um controle que não escolhe nada.
+;(await p.locator('input[name=titulo]').count()) > 0
+  ? ok('o formulário de compromisso continua no dia')
+  : nao('o painel do dia ficou sem o compromisso')
+
+// A conta passa a nascer no FINANCEIRO, que é onde ela vive. O resto do
+// roteiro — recusa da baixa, aprovação — continua conferindo o mesmo.
+await p.goto(`${QA_BASE}/painel/financeiro?aba=pagar&mes=${mes}`, { waitUntil: 'networkidle' })
+await lancarConta(p, { tipo: 'PAGAR', descricao: 'QA-contador do mês', valor: '890,00', vencimento: dia })
 const conta = sql("select vencimento::date||'|'||coalesce(\"aprovadoEm\"::text,'SEM') from lancamentos where descricao='QA-contador do mês'")
-conta.startsWith(dia) ? ok(`venceu no dia clicado (${dia})`) : nao(`vencimento errado: "${conta}"`)
+conta.startsWith(dia) ? ok(`venceu no dia pedido (${dia})`) : nao(`vencimento errado: "${conta}"`)
 conta.endsWith('|SEM') ? ok('nasceu sem aprovação — quem lança não aprova') : nao('nasceu já aprovada')
 
 console.log('\n4) FINANCEIRO · a baixa é barrada antes da aprovação')
@@ -119,9 +138,10 @@ console.log('\n6) MOTORISTA · marca compromisso e não vê dinheiro nenhum')
 const m = await entrar('adriano@dtechmed.com.br')
 await m.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}`, { waitUntil: 'networkidle' })
 await m.waitForTimeout(900)
-const abasM = await m.locator('[aria-label="O que marcar"] button').allInnerTexts()
-abasM.includes('Compromisso') ? ok('ele marca compromisso') : nao('ele não consegue marcar compromisso')
-!abasM.includes('Conta') ? ok('e NÃO tem a aba Conta') : nao('o motorista pode lançar conta')
+;(await m.locator('input[name=titulo]').count()) > 0
+  ? ok('ele marca compromisso') : nao('ele não consegue marcar compromisso')
+;(await m.getByRole('button', { name: /Lançar conta neste dia/i }).count()) === 0
+  ? ok('e não tem por onde lançar conta') : nao('o motorista pode lançar conta')
 !/R\$\s?\d/.test(await m.locator('body').innerText())
   ? ok('nenhum valor em R$ na tela dele') : nao('vazou valor para o motorista')
 

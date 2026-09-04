@@ -7,43 +7,48 @@ import { janelaDoMes } from '@/server/consultas/caixa'
  * =============================================================================
  * A PERGUNTA
  * =============================================================================
- * "O que vem por aí?"
+ * "O que a equipe tem pela frente?"
  *
  * Ela não era feita de dentro de nenhuma tela, e por isso não tinha resposta em
- * nenhuma. A rota sabia das paradas, a preventiva das visitas, o Financeiro dos
- * vencimentos, e os contratos do próprio fim. Cinco calendários mentais, e
- * ninguém conseguindo dizer se a quinta-feira que vem está cheia ou vazia.
+ * nenhuma. A rota sabia das paradas, a preventiva das visitas, e os contratos
+ * do próprio fim. Calendários mentais separados, e ninguém conseguindo dizer se
+ * a quinta-feira que vem está cheia ou vazia.
  *
  * O custo disso é concreto: marca-se entrega para o mesmo dia em que três
  * preventivas vencem, e o motorista descobre na hora.
  *
  * =============================================================================
- * AS CINCO FONTES, E POR QUE ELAS CABEM JUNTAS
+ * O CALENDÁRIO É DA OPERAÇÃO. O DINHEIRO TEM A TELA DELE.
  * =============================================================================
- * Elas têm naturezas diferentes — uma parada é trabalho de rua, um vencimento é
- * dinheiro — mas respondem à MESMA pergunta e disputam o MESMO dia. É isso que
- * as põe na mesma grade.
+ * Ele já mostrou conta a pagar e conta a receber, e foi retirado: vencimento
+ * não disputa o dia com ninguém. Uma conta que vence na quinta não ocupa o
+ * motorista, não prende a bancada e não muda o que cabe na agenda — ela só
+ * enchia a grade e empurrava para baixo o que de fato precisa ser olhado antes
+ * de marcar mais uma entrega.
+ *
+ * Vencimento se responde no FINANCEIRO, que tem o mês, o atraso, a idade da
+ * dívida e o botão de dar baixa. Repetir aquilo aqui não dava um caminho novo:
+ * dava dois lugares para olhar a mesma coisa, e nenhum dos dois completo.
  *
  *   PARADA       retirada e entrega marcadas
  *   PREVENTIVA   visita de contrato prevista
- *   PAGAR        conta a pagar vencendo
- *   RECEBER      conta a receber ou fatura vencendo
  *   CONTRATO     contrato de manutenção terminando
+ *   COMPROMISSO  o que a equipe marcou direto no dia
  *
  * =============================================================================
  * UMA CONSULTA POR FONTE, E NÃO UM UNION GIGANTE
  * =============================================================================
- * Um `UNION ALL` de cinco tabelas com formatos diferentes exigiria encaixar
- * todas num conjunto de colunas comum, e cada coluna que só serve a uma fonte
- * viraria `NULL` nas outras quatro. O resultado é uma consulta que ninguém
- * consegue alterar sem quebrar as demais.
+ * Um `UNION ALL` de tabelas com formatos diferentes exigiria encaixar todas num
+ * conjunto de colunas comum, e cada coluna que só serve a uma fonte viraria
+ * `NULL` nas outras. O resultado é uma consulta que ninguém consegue alterar
+ * sem quebrar as demais.
  *
- * Cinco consultas simples na MESMA transação custam praticamente o mesmo e cada
- * uma continua legível sozinha. A junção acontece em JavaScript, onde ela é
+ * Consultas simples na MESMA transação custam praticamente o mesmo e cada uma
+ * continua legível sozinha. A junção acontece em JavaScript, onde ela é
  * trivial.
  */
 
-export type TipoEvento = 'parada' | 'preventiva' | 'pagar' | 'receber' | 'contrato' | 'compromisso'
+export type TipoEvento = 'parada' | 'preventiva' | 'contrato' | 'compromisso'
 
 export type Evento = {
   id: string
@@ -54,8 +59,6 @@ export type Evento = {
   detalhe: string | null
   /** Para onde a pessoa vai quando clica. */
   href: string
-  /** Dinheiro, quando o evento tem valor. */
-  valorCentavos: number | null
   /** Passou da data e ninguém resolveu. */
   atrasado: boolean
 }
@@ -85,31 +88,23 @@ const HORA = new Intl.DateTimeFormat('pt-BR', {
 const horaDe = (d: Date) => HORA.format(d).replace(':00', 'h').replace(':', 'h')
 
 /**
- * O DINHEIRO NÃO VAI PARA QUEM NÃO PODE VER DINHEIRO.
+ * Os eventos de um período.
  *
- * `comEscopo` filtra por EMPRESA, e não por papel — é o RLS do banco fazendo o
- * isolamento entre franquias. Ele não sabe nada sobre quem é motorista.
- *
- * Sem este parâmetro, o calendário entregaria ao motorista toda conta a pagar e
- * a receber da empresa: salários, aluguel, quanto cada cliente deve. O
- * calendário existe para ele ver as PARADAS da semana e se organizar; o resto
- * não é dele.
- *
- * O corte é feito na CONSULTA e não na tela. Filtrar só na renderização mandaria
- * os valores pelo fio até o navegador dele, onde qualquer um lê no inspetor —
- * "não mostrar" e "não enviar" são coisas diferentes.
+ * SEM PARÂMETRO DE DINHEIRO, e isso é a trava mais forte que este arquivo já
+ * teve: enquanto o calendário trazia vencimentos, ele precisava saber quem pode
+ * ver dinheiro para não entregar ao motorista os salários e o aluguel da
+ * empresa. Nenhuma fonte daqui tem valor — então não há o que cortar, e não há
+ * corte para alguém esquecer de fazer numa visão nova.
  */
 export async function eventosNoPeriodo(
   ctx: ContextoAcesso,
   inicio: Date,
   fim: Date,
-  opcoes: { comDinheiro: boolean },
 ): Promise<Evento[]> {
   const agora = new Date()
-  const { comDinheiro } = opcoes
 
   return comEscopo(ctx, async (tx) => {
-    const [paradas, preventivas, contas, faturas, contratos, compromissos] = await Promise.all([
+    const [paradas, preventivas, contratos, compromissos] = await Promise.all([
       // `previstoPara` É O DIA DA PARADA, e é obrigatório. `janelaInicio` é
       // OPCIONAL — ela guarda a faixa de horário combinada com o cliente
       // ("entre 14h e 17h"), e a maior parte das paradas não tem nenhuma.
@@ -162,42 +157,6 @@ export async function eventosNoPeriodo(
           },
         },
       }),
-
-      comDinheiro
-        ? tx.lancamento.findMany({
-        where: { vencimento: { gte: inicio, lt: fim }, pagoEm: null },
-        orderBy: { vencimento: 'asc' },
-        take: 400,
-        select: {
-          id: true,
-          tipo: true,
-          descricao: true,
-          vencimento: true,
-          valorCentavos: true,
-          contraparte: true,
-          cliente: { select: { nome: true } },
-        },
-      })
-        : [],
-
-      comDinheiro
-        ? tx.fatura.findMany({
-        where: { vencimento: { gte: inicio, lt: fim }, status: { in: ['ABERTA', 'PARCIAL'] } },
-        orderBy: { vencimento: 'asc' },
-        take: 300,
-        select: {
-          id: true,
-          numero: true,
-          vencimento: true,
-          valorTotalCentavos: true,
-          valorPagoCentavos: true,
-          multaCentavos: true,
-          jurosCentavos: true,
-          cliente: { select: { nome: true } },
-          ordem: { select: { id: true } },
-        },
-      })
-        : [],
 
       tx.contratoManutencao.findMany({
         where: { fim: { gte: inicio, lt: fim }, ativo: true },
@@ -252,7 +211,6 @@ export async function eventosNoPeriodo(
           .filter(Boolean)
           .join(' · '),
         href: `/painel/ordens/${a.ordem.id}`,
-        valorCentavos: null,
         // Parada de ontem que ninguém concluiu é trabalho perdido, não histórico.
         atrasado: a.status !== 'CONCLUIDO' && a.previstoPara < agora,
       })
@@ -266,39 +224,7 @@ export async function eventosNoPeriodo(
         titulo: `Preventiva · ${v.contrato.cliente.nome}`,
         detalhe: `${v.contrato.equipamento.marca} ${v.contrato.equipamento.modelo}`,
         href: v.ordemId ? `/painel/ordens/${v.ordemId}` : '/painel/preventiva',
-        valorCentavos: null,
         atrasado: v.status === 'PREVISTA' && v.previstaPara < agora,
-      })
-    }
-
-    for (const l of contas) {
-      eventos.push({
-        id: `lc-${l.id}`,
-        tipo: l.tipo === 'PAGAR' ? 'pagar' : 'receber',
-        dia: diaDe(l.vencimento),
-        titulo: l.descricao,
-        detalhe: l.cliente?.nome ?? l.contraparte,
-        // O mês vem do PRÓPRIO vencimento, e não do período que a tela está
-        // olhando: a grade mostra os dias vizinhos que completam a primeira e a
-        // última semana, e um vencimento do dia 31 de agosto visto na grade de
-        // setembro levaria ao Financeiro de setembro, onde ele não está.
-        href: `/painel/financeiro?aba=${l.tipo === 'PAGAR' ? 'pagar' : 'receber'}&mes=${diaDe(l.vencimento).slice(0, 7)}`,
-        valorCentavos: l.valorCentavos,
-        atrasado: l.vencimento < agora,
-      })
-    }
-
-    for (const f of faturas) {
-      eventos.push({
-        id: `ft-${f.id}`,
-        tipo: 'receber',
-        dia: diaDe(f.vencimento!),
-        titulo: `Fatura #${String(f.numero).padStart(4, '0')} · ${f.cliente.nome}`,
-        detalhe: 'cobrança de serviço',
-        href: `/painel/ordens/${f.ordem.id}`,
-        valorCentavos:
-          f.valorTotalCentavos + f.multaCentavos + f.jurosCentavos - f.valorPagoCentavos,
-        atrasado: f.vencimento! < agora,
       })
     }
 
@@ -319,7 +245,6 @@ export async function eventosNoPeriodo(
         titulo: k.hora ? `${k.hora} · ${k.titulo}` : k.titulo,
         detalhe: [k.responsavel?.nome, k.observacao].filter(Boolean).join(' · ') || null,
         href: `/painel/calendario?mes=${k.dia.toISOString().slice(0, 7)}&dia=${k.dia.toISOString().slice(0, 10)}`,
-        valorCentavos: null,
         // Compromisso vencido e não concluído é o que ninguém fez — e é isso que
         // a agenda precisa gritar. Concluído nunca é atraso, mesmo se passou.
         atrasado: !k.concluido && k.dia.toISOString().slice(0, 10) < diaDe(agora),
@@ -334,7 +259,6 @@ export async function eventosNoPeriodo(
         titulo: `Contrato #${String(k.numero).padStart(4, '0')} termina`,
         detalhe: `${k.cliente.nome} · ${k.equipamento.marca} ${k.equipamento.modelo}`,
         href: `/painel/clientes/${k.clienteId}`,
-        valorCentavos: null,
         // Contrato que já terminou e continua ativo é renovação esquecida — o
         // caso em que a empresa segue atendendo de graça sem perceber.
         atrasado: k.fim! < agora,
@@ -356,11 +280,10 @@ function ordem(t: TipoEvento): number {
   // O COMPROMISSO vem PRIMEIRO dentro do dia, e não é ordem alfabética.
   //
   // Ele é a única fonte que uma pessoa escreveu à mão para aquele dia — as
-  // outras cinco são consequência de outra coisa. Quem anotou "visitar a
-  // clínica antes de orçar" no dia 12 escreveu justamente porque não queria
-  // esquecer, e enterrá-lo abaixo de quatro vencimentos desfaz o motivo de ele
-  // existir.
-  return { compromisso: 0, parada: 1, preventiva: 2, contrato: 3, receber: 4, pagar: 5 }[t]
+  // outras três são consequência de outra coisa. Quem anotou "visitar a clínica
+  // antes de orçar" no dia 12 escreveu justamente porque não queria esquecer, e
+  // enterrá-lo abaixo do resto desfaz o motivo de ele existir.
+  return { compromisso: 0, parada: 1, preventiva: 2, contrato: 3 }[t]
 }
 
 /**
@@ -369,13 +292,9 @@ function ordem(t: TipoEvento): number {
  * Continua existindo porque "o mês" é a pergunta mais feita, e escrever as duas
  * pontas da janela em toda chamada convidaria alguém a errar uma delas.
  */
-export async function eventosDoMes(
-  ctx: ContextoAcesso,
-  mes: string,
-  opcoes: { comDinheiro: boolean },
-): Promise<Evento[]> {
+export async function eventosDoMes(ctx: ContextoAcesso, mes: string): Promise<Evento[]> {
   const { inicio, fim } = janelaDoMes(mes)
-  return eventosNoPeriodo(ctx, inicio, fim, opcoes)
+  return eventosNoPeriodo(ctx, inicio, fim)
 }
 
 /**
@@ -385,23 +304,23 @@ export async function eventosDoMes(
  * POR QUE NÃO REUSAR `eventosNoPeriodo`
  * =============================================================================
  * A visão de ano desenha 365 quadradinhos. Ela não precisa do título, do
- * detalhe, do link nem do valor de nada — precisa saber se o dia tem alguma
- * coisa e quantas. Buscar o ano inteiro em eventos completos seria trazer
- * milhares de linhas com seis junções cada para pintar pontos, e ainda bateria
- * nos tetos por fonte (`take`), que existem para a grade do mês: um ano
- * apareceria truncado sem nada avisar.
+ * detalhe nem do link de nada — precisa saber se o dia tem alguma coisa e
+ * quantas. Buscar o ano inteiro em eventos completos seria trazer milhares de
+ * linhas com várias junções cada para pintar pontos, e ainda bateria nos tetos
+ * por fonte (`take`), que existem para a grade do mês: um ano apareceria
+ * truncado sem nada avisar.
  *
  * =============================================================================
  * AQUI O `UNION ALL` É CERTO — E NO OUTRO CASO ERA ERRADO
  * =============================================================================
- * O cabeçalho deste arquivo recusa o UNION para os eventos, e com razão: seis
+ * O cabeçalho deste arquivo recusa o UNION para os eventos, e com razão:
  * tabelas com formatos diferentes só cabem juntas se cada coluna que serve a
- * uma virar NULL nas outras cinco.
+ * uma virar NULL nas outras.
  *
- * A contagem não tem esse problema: as seis fontes viram exatamente as mesmas
+ * A contagem não tem esse problema: as quatro fontes viram exatamente as mesmas
  * duas colunas — o dia e o tipo. Onde os formatos JÁ são iguais, uma consulta
- * só é mais simples que seis, e o banco agrega sem trazer linha nenhuma para o
- * JavaScript.
+ * só é mais simples que quatro, e o banco agrega sem trazer linha nenhuma para
+ * o JavaScript.
  *
  * A conversão de fuso é feita no SQL (`AT TIME ZONE`) porque é o banco que está
  * agrupando. É a única parte do calendário em que a data vira dia fora do
@@ -412,10 +331,7 @@ export async function contagemPorDia(
   ctx: ContextoAcesso,
   inicio: Date,
   fim: Date,
-  opcoes: { comDinheiro: boolean },
 ): Promise<Map<string, number>> {
-  const dinheiro = opcoes.comDinheiro
-
   const linhas = await comEscopo(ctx, (tx) =>
     tx.$queryRaw<Array<{ dia: string; n: bigint }>>`
       SELECT dia, count(*) AS n FROM (
@@ -440,21 +356,6 @@ export async function contagemPorDia(
           FROM contratos_manutencao
          WHERE fim >= ${inicio} AND fim < ${fim} AND ativo = true
 
-        -- O dinheiro entra na contagem só para quem pode ver dinheiro. Sem
-        -- isto, o motorista contaria os vencimentos da empresa nos pontos do
-        -- ano: não leria os valores, mas leria os DIAS de pagamento — que é
-        -- informação que também não é dele.
-        UNION ALL
-        SELECT to_char(vencimento AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
-          FROM lancamentos
-         WHERE ${dinheiro} AND vencimento >= ${inicio} AND vencimento < ${fim}
-           AND "pagoEm" IS NULL
-
-        UNION ALL
-        SELECT to_char(vencimento AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD')
-          FROM faturas
-         WHERE ${dinheiro} AND vencimento >= ${inicio} AND vencimento < ${fim}
-           AND status IN ('ABERTA', 'PARCIAL')
       ) t
       GROUP BY dia
     `,

@@ -131,11 +131,11 @@ export const TELAS: readonly Tela[] = [
   //
   // Piso MOTORISTA: ele precisa ver as paradas da semana para se organizar.
   //
-  // O dinheiro NÃO some sozinho, e escrever que somia foi o meu primeiro erro
-  // aqui: `comEscopo` filtra por EMPRESA (é o RLS entre franquias) e não sabe
-  // nada sobre papel. Do jeito ingênuo, o motorista veria salário, aluguel e
-  // quanto cada cliente deve. O corte é explícito, na consulta, em
-  // `eventosDoMes(ctx, mes, { comDinheiro })`.
+  // NÃO HÁ DINHEIRO nesta tela, e por isso não há corte a fazer nela. Ela já
+  // trouxe conta a pagar e a receber, e precisava de um corte por papel para o
+  // motorista não ver salário e aluguel. As fontes de dinheiro saíram — o
+  // vencimento se responde no Financeiro — e a trava saiu junto com o motivo
+  // dela: nenhuma visão nova pode esquecer um corte que não existe.
   { chave: 'calendario',   rotulo: 'Calendário',        grupo: 'Hoje',       href: '/painel/calendario',   icone: 'preventiva',  piso: Papel.MOTORISTA },
 
   // ---------------------------------------------------------------------------

@@ -252,19 +252,29 @@ const cancelada = sql(`select count(*) from visitas_preventivas where status='CA
 console.log(`     canceladas (ficam de fora, de propósito): ${cancelada}`)
 
 // ---------------------------------------------------------------------------
-console.log('\n8) O MOTORISTA continua sem ver dinheiro, em TODAS as visões')
+console.log('\n8) NENHUMA das cinco visões tem dinheiro — para ninguém')
 // ---------------------------------------------------------------------------
-// O corte é na consulta, e a visão de ano usa uma consulta DIFERENTE das
-// outras quatro. É exatamente o tipo de lugar onde uma trava se perde.
+/**
+ * O calendário mostrava conta a pagar e a receber, e foi retirado: vencimento
+ * não disputa o dia com ninguém. Antes a pergunta era "quem pode ver"; agora é
+ * "não existe", e por isso a conferência passou a rodar também no
+ * ADMINISTRADOR — testar só o motorista deixaria o dinheiro voltar pelos
+ * outros seis papéis sem ninguém notar.
+ *
+ * As cinco visões, e não uma: a de ANO usa uma consulta DIFERENTE das outras
+ * quatro, e é exatamente o tipo de lugar onde uma fonte reaparece sozinha.
+ */
 const m = await entrar('adriano@dtechmed.com.br')
-for (const v of ['dia', 'semana', 'mes', 'ano', 'lista']) {
-  await m.goto(`${QA_BASE}/painel/calendario?ver=${v}&dia=${hoje}`, { waitUntil: 'networkidle' })
-  const corpo = await m.locator('body').innerText()
-  const temFiltroDinheiro = /A receber|A pagar/.test(corpo)
-  const temValor = /R\$\s?\d/.test(corpo)
-  !temFiltroDinheiro && !temValor
-    ? ok(`${v}: nenhum valor nem filtro de dinheiro para o motorista`)
-    : nao(`${v}: vazou dinheiro — filtro:${temFiltroDinheiro} valor:${temValor}`)
+for (const [quem, pagina] of [['administrador', p], ['motorista', m]]) {
+  for (const v of ['dia', 'semana', 'mes', 'ano', 'lista']) {
+    await pagina.goto(`${QA_BASE}/painel/calendario?ver=${v}&dia=${hoje}`, { waitUntil: 'networkidle' })
+    const corpo = await pagina.locator('body').innerText()
+    const temFiltroDinheiro = /A receber|A pagar/.test(corpo)
+    const temValor = /R\$\s?\d/.test(corpo)
+    !temFiltroDinheiro && !temValor
+      ? ok(`${quem} · ${v}: nenhum valor nem filtro de dinheiro`)
+      : nao(`${quem} · ${v}: vazou dinheiro — filtro:${temFiltroDinheiro} valor:${temValor}`)
+  }
 }
 
 // ---------------------------------------------------------------------------

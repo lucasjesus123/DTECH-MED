@@ -4454,6 +4454,11 @@
   display: inline-block;
 }
 .calPontoRua { background: var(--vio); }
+/* O ponto do COMPROMISSO. Ele entrou na legenda quando o dinheiro saiu do
+   calendário: com duas cores na grade e uma só explicada, a azul virava enigma
+   — e legenda que não explica tudo que a grade pinta é pior que legenda
+   nenhuma, porque ensina a pessoa a não confiar nela. */
+.calPontoNota { background: var(--acao); }
 .calPontoDinheiro { background: var(--espera); }
 
 /* O "+N mais" de um dia cheio.
