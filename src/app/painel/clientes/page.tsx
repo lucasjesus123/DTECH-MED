@@ -4,6 +4,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { listarClientes } from '@/server/consultas/listas'
 import FormularioCliente from './formulario'
+import AcoesDoCliente from './acoes'
 import Planilha from './planilha'
 import { formatarDocumento, formatarTelefone } from '@/lib/documentos'
 import estilo from '../painel.module.css'
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic'
 export default async function Clientes({
   searchParams,
 }: {
-  searchParams: Promise<{ busca?: string; novo?: string }>
+  searchParams: Promise<{ busca?: string; novo?: string; arquivados?: string }>
 }) {
   /**
    * A carteira inteira é o dado mais sensível do sistema: nome, CPF/CNPJ,
@@ -35,7 +36,16 @@ export default async function Clientes({
   const PODE_EXPORTAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
   const podeExportar = PODE_EXPORTAR.includes(sessao.papel)
   const q = await searchParams
-  const clientes = await listarClientes(ctx, q.busca)
+  /**
+   * Os ARQUIVADOS só aparecem quando alguém pede.
+   *
+   * Eles não somem do banco — some da vista. Mas a carteira do dia a dia é a
+   * dos clientes ativos, e misturar os dois faria a lista crescer com nomes que
+   * ninguém vai atender. A caixa existe para o dia em que alguém precisa achar
+   * um arquivado para reativar.
+   */
+  const verArquivados = q.arquivados === '1'
+  const clientes = await listarClientes(ctx, q.busca, verArquivados)
 
   return (
     <>
@@ -67,6 +77,10 @@ export default async function Clientes({
             aria-label="Buscar clientes"
           />
         </div>
+        <label className={estilo.rotulo} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <input type="checkbox" name="arquivados" value="1" defaultChecked={verArquivados} />
+          mostrar arquivados
+        </label>
         <button type="submit" className={estilo.btn}>
           Buscar
         </button>
@@ -89,11 +103,17 @@ export default async function Clientes({
                 <th>Cidade</th>
                 <th className={estilo.dir}>Equipamentos</th>
                 <th className={estilo.dir}>Ordens</th>
+                {/* A coluna dos botões: rótulo invisível na tela, presente para
+                    quem navega a tabela por leitor de tela. Um `<th>` vazio faz
+                    a tabela inteira perder o cabeçalho. */}
+                <th>
+                  <span className={estilo.soLeitor}>Ações</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {clientes.map((c) => (
-                <tr key={c.id}>
+                <tr key={c.id} className={c.ativo ? undefined : estilo.linhaArquivada}>
                   <td>
                     {/* O nome leva à FICHA. Até agora a lista era um beco: dava
                         para ver que o cliente existe e não dava para abrir o
@@ -102,6 +122,9 @@ export default async function Clientes({
                     <Link href={`/painel/clientes/${c.id}`} className={estilo.forte}>
                       {c.nome}
                     </Link>
+                    {c.ativo ? null : (
+                      <span className={`${estilo.tag} ${estilo.tagNeutra}`}> arquivado</span>
+                    )}
                     {c.contatoNome ? <div className={estilo.fraco}>contato: {c.contatoNome}</div> : null}
                   </td>
                   <td className={estilo.num}>{formatarDocumento(c.documento)}</td>
@@ -115,6 +138,9 @@ export default async function Clientes({
                     <Link href={`/painel/ordens?busca=${encodeURIComponent(c.nome)}&situacao=todas`}>
                       {c._count.ordens}
                     </Link>
+                  </td>
+                  <td>
+                    <AcoesDoCliente id={c.id} nome={c.nome} whatsapp={c.whatsapp} ativo={c.ativo} />
                   </td>
                 </tr>
               ))}

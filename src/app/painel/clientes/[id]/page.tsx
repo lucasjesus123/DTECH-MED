@@ -8,6 +8,7 @@ import { exigirPapel, exigirAba, podeVer } from '@/server/auth/guarda'
 import { fichaDoCliente } from '@/server/consultas/cliente'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import FotoCatalogo from '../../foto-catalogo'
+import EditarCliente from './editar'
 import estilo from '../../painel.module.css'
 
 export const metadata: Metadata = { title: 'Cliente', robots: { index: false } }
@@ -40,7 +41,13 @@ export const dynamic = 'force-dynamic'
  * Ler o telefone antes do saldo faria alguém ligar para cobrar sem saber que a
  * pessoa já pagou.
  */
-export default async function FichaCliente({ params }: { params: Promise<{ id: string }> }) {
+export default async function FichaCliente({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ editar?: string }>
+}) {
   const { ctx, sessao } = await exigirPapel(
     Papel.ADMIN_EMPRESA,
     Papel.GESTOR,
@@ -50,6 +57,7 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
   await exigirAba('clientes')
 
   const { id } = await params
+  const q = await searchParams
   const f = await fichaDoCliente(ctx, id)
   // 404 cobre os dois casos — não existe, e é de outra franquia. Para quem
   // pergunta eles são o mesmo, e é assim que a resposta não revela nada.
@@ -95,6 +103,43 @@ export default async function FichaCliente({ params }: { params: Promise<{ id: s
           <Link className={estilo.btnSec} href={`/painel/ordens/nova?cliente=${c.id}`}>
             Abrir ordem
           </Link>
+          {/* A CORREÇÃO DO CADASTRO. Ver `editar.tsx`: ela mora aqui porque é
+              olhando para o cliente que alguém percebe o telefone errado. */}
+          {podeMexer ? (
+            <EditarCliente
+              comecarAberto={q.editar === '1'}
+              cliente={{
+                id: c.id,
+                nome: c.nome,
+                documento: c.documento,
+                whatsapp: c.whatsapp,
+                telefone: c.telefone,
+                email: c.email,
+                contatoNome: c.contatoNome,
+                cep: c.cep,
+                logradouro: c.logradouro,
+                numero: c.numero,
+                complemento: c.complemento,
+                bairro: c.bairro,
+                cidade: c.cidade,
+                uf: c.uf,
+                coletaMesmoEndereco: c.coletaMesmoEndereco,
+                coletaCep: c.coletaCep,
+                coletaLogradouro: c.coletaLogradouro,
+                coletaNumero: c.coletaNumero,
+                coletaComplemento: c.coletaComplemento,
+                coletaBairro: c.coletaBairro,
+                coletaCidade: c.coletaCidade,
+                coletaUf: c.coletaUf,
+                coletaObservacao: c.coletaObservacao,
+                representanteNome: c.representanteNome,
+                representanteTelefone: c.representanteTelefone,
+                representanteEmail: c.representanteEmail,
+                representanteVinculo: c.representanteVinculo,
+                observacoes: c.observacoes,
+              }}
+            />
+          ) : null}
         </div>
       </div>
 

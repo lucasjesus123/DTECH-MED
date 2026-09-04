@@ -2,12 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { hashDocumento } from '@/lib/cripto'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { anexarFotoDeCatalogo } from '@/server/acoes/estoque'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
+import { TERMINAIS } from '@/server/ordem/maquina-estados'
 
 /**
  * Cadastro de cliente e de equipamento.
@@ -303,4 +304,97 @@ export async function salvarEquipamento(_anterior: Resposta, form: FormData): Pr
   }
 
   return { ok: true, mensagem: v.id ? 'Equipamento atualizado.' : 'Equipamento cadastrado.' }
+}
+
+// ---------------------------------------------------------------------------
+// Arquivar e reativar cliente
+// ---------------------------------------------------------------------------
+
+/**
+ * ARQUIVAR, E NÃO APAGAR — e a diferença não é covardia.
+ *
+ * =============================================================================
+ * POR QUE O BOTÃO NÃO É "EXCLUIR"
+ * =============================================================================
+ * As ordens do cliente continuam existindo, e cada uma tem uma linha do tempo
+ * encadeada por hash que vale como prova. Apagar o cliente deixaria esse
+ * histórico sem o nome de quem foi atendido — um prontuário de aparelho que
+ * ninguém consegue dizer de quem era. O banco, aliás, recusaria: a chave
+ * estrangeira da ordem é RESTRICT, e a tela mostraria um erro cru de
+ * integridade referencial no lugar de uma explicação.
+ *
+ * O que a casa quer quando diz "excluir" é que o cliente SUMA DAS LISTAS: da
+ * busca de quem abre O.S., do `select` do equipamento, da carteira. É isso que
+ * `ativo = false` faz, em `listarClientes` — e, ao contrário de apagar, dá para
+ * desfazer no minuto seguinte, que é o que salva quem clicou na linha errada.
+ *
+ * =============================================================================
+ * A TRAVA: NÃO SE ARQUIVA QUEM TEM SERVIÇO ANDANDO
+ * =============================================================================
+ * Uma O.S. em curso é um aparelho de alguém na bancada, ou dentro da van.
+ * Arquivar o dono no meio disso tira o cliente da busca da atendente
+ * exatamente enquanto ela mais precisa dele — e não há nenhuma leitura em que
+ * isso seja o que a pessoa quis.
+ *
+ * A recusa diz quantas ordens são e onde vê-las, porque "não é possível" sem o
+ * motivo faz a pessoa tentar de novo achando que errou o clique.
+ */
+/**
+ * O que conta como "em andamento" vem da MÁQUINA DE ESTADOS, e não de uma lista
+ * escrita aqui.
+ *
+ * Eu comecei escrevendo as dezesseis etapas abertas à mão. Uma lista dessas
+ * envelhece calada: no dia em que uma etapa nova entrar no enum, ela não estará
+ * aqui, e o sistema passará a arquivar clientes com serviço andando sem que
+ * nenhum teste perceba — porque o teste também não saberia da etapa nova.
+ *
+ * `TERMINAIS` é onde o sistema já diz quais são os fins de linha. Aberto é o
+ * complemento disso, calculado a cada chamada.
+ */
+const ABERTAS = Object.values(EtapaOrdem).filter((e) => !TERMINAIS.includes(e))
+
+export async function arquivarCliente(id: string, arquivar: boolean): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_CADASTRAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não arquiva cliente.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const cliente = await tx.cliente.findUnique({
+      where: { id },
+      select: { id: true, nome: true, ativo: true },
+    })
+    if (!cliente) return { ok: false as const, motivo: 'Cliente não encontrado nesta empresa.' }
+
+    if (arquivar) {
+      const emCurso = await tx.ordem.count({
+        where: { clienteId: id, etapa: { in: ABERTAS } },
+      })
+      if (emCurso > 0) {
+        return {
+          ok: false as const,
+          motivo: `${cliente.nome} tem ${emCurso} ${emCurso === 1 ? 'ordem em andamento' : 'ordens em andamento'}. Termine ou cancele ${emCurso === 1 ? 'ela' : 'elas'} antes de arquivar — arquivar agora tiraria o cliente da busca de quem está atendendo.`,
+        }
+      }
+    }
+
+    await tx.cliente.update({ where: { id }, data: { ativo: !arquivar } })
+    return { ok: true as const, nome: cliente.nome }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: arquivar ? 'cliente.arquivado' : 'cliente.reativado',
+    entidade: 'cliente',
+    entidadeId: id,
+    detalhes: { nome: r.nome },
+  })
+  revalidatePath('/painel/clientes')
+  return {
+    ok: true,
+    mensagem: arquivar
+      ? `${r.nome} foi arquivado. Ele sai das listas, e o histórico dele continua inteiro.`
+      : `${r.nome} voltou para a carteira.`,
+  }
 }

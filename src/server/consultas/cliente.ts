@@ -74,6 +74,24 @@ export async function fichaDoCliente(ctx: ContextoAcesso, id: string) {
         observacoes: true,
         ativo: true,
         criadoEm: true,
+
+        // O endereço de COLETA e o REPRESENTANTE entram porque a ficha passou a
+        // abrigar a EDIÇÃO do cadastro. Um formulário que abre com metade dos
+        // campos vazios e salva por cima apagaria o que não veio — que é o modo
+        // mais silencioso de perder dado que alguém conferiu.
+        coletaMesmoEndereco: true,
+        coletaCep: true,
+        coletaLogradouro: true,
+        coletaNumero: true,
+        coletaComplemento: true,
+        coletaBairro: true,
+        coletaCidade: true,
+        coletaUf: true,
+        coletaObservacao: true,
+        representanteNome: true,
+        representanteTelefone: true,
+        representanteEmail: true,
+        representanteVinculo: true,
       },
     })
     // Nulo quando não existe OU quando é de outra franquia: para quem pergunta,

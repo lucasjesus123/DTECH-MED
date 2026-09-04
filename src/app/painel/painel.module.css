@@ -5607,3 +5607,36 @@ a.calNumero:hover, a.calNumero:focus-visible {
   overflow-y: auto;
   vertical-align: top;
 }
+
+/* ==========================================================================
+   AS AÇÕES NA LINHA DA TABELA
+   --------------------------------------------------------------------------
+   Três alvos pequenos lado a lado, numa célula estreita. `flex-wrap` porque no
+   celular a coluna encolhe e "arquivar" precisa cair para a linha de baixo
+   inteiro — cortado ao meio ele vira um botão que ninguém sabe o que faz.
+   ========================================================================== */
+.acoesLinha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  white-space: nowrap;
+}
+
+/* A recusa aparece NA LINHA de quem a causou. Numa carteira de duzentos nomes,
+   um aviso no topo da tela não diz de qual cliente ele está falando. */
+.erroLinha {
+  display: block;
+  margin-top: var(--s2);
+  font-size: var(--t-xs);
+  color: var(--alerta);
+  white-space: normal;
+  max-width: 32ch;
+}
+
+/* O cliente arquivado continua legível — ele está ali para ser reativado, e um
+   texto apagado demais faria a pessoa não achar o nome que veio procurar. A
+   distinção é sutil de propósito, e a tarja "arquivado" é que carrega a
+   informação. */
+.linhaArquivada td { opacity: .62; }
+.linhaArquivada:hover td { opacity: 1; }

@@ -145,13 +145,36 @@ export async function motoristasDaEmpresa(ctx: ContextoAcesso) {
 // Clientes e equipamentos
 // ---------------------------------------------------------------------------
 
-export async function listarClientes(ctx: ContextoAcesso, busca?: string) {
+/**
+ * A carteira.
+ *
+ * =============================================================================
+ * O ARQUIVADO SOME POR PADRÃO — e some de TODA lista, não só desta tela
+ * =============================================================================
+ * Cliente arquivado é o que parou de ser cliente: mudou de dono, fechou, foi
+ * cadastrado em duplicidade. Ele continua no banco porque as ordens dele
+ * continuam existindo e um histórico sem o nome de quem foi atendido não vale
+ * nada — mas ele não pode continuar aparecendo na lista de escolha do
+ * equipamento, nem na busca de quem abre uma O.S.
+ *
+ * Por isso o filtro mora AQUI, na consulta que todo mundo usa, e não na tela de
+ * clientes. Filtrar só lá deixaria o arquivado voltando pela porta dos fundos,
+ * em cada `select` do sistema.
+ */
+export async function listarClientes(
+  ctx: ContextoAcesso,
+  busca?: string,
+  /** A tela de clientes pede os arquivados quando quer revê-los. */
+  incluirArquivados = false,
+) {
   const b = busca?.trim() ?? ''
   const digitos = b.replace(/\D/g, '')
 
   return comEscopo(ctx, (tx) =>
     tx.cliente.findMany({
-      where: b
+      where: {
+        ...(incluirArquivados ? {} : { ativo: true }),
+        ...(b
         ? {
             OR: [
               { nome: { contains: b, mode: 'insensitive' } },
@@ -160,7 +183,8 @@ export async function listarClientes(ctx: ContextoAcesso, busca?: string) {
               ...(digitos ? [{ documento: { contains: digitos } }] : []),
             ],
           }
-        : {},
+        : {}),
+      },
       orderBy: { nome: 'asc' },
       take: LIMITE,
       select: {
@@ -172,6 +196,7 @@ export async function listarClientes(ctx: ContextoAcesso, busca?: string) {
         cidade: true,
         uf: true,
         contatoNome: true,
+        ativo: true,
         _count: { select: { ordens: true, equipamentos: true } },
       },
     }),

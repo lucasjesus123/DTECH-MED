@@ -1,19 +1,88 @@
 'use client'
 
-import { useActionState, useRef, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { salvarCliente } from '@/server/acoes/cadastros'
 import { buscarCep } from '@/server/acoes/cep'
+import { formatarDocumento, formatarTelefone } from '@/lib/documentos'
 import estilo from '../painel.module.css'
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
 const inicial: Resposta = { ok: false, motivo: '' }
 
-export default function FormularioCliente() {
+/** Tudo que o formulário sabe preencher. Nulo quando é cadastro novo. */
+export type ClienteParaEditar = {
+  id: string
+  nome: string
+  documento: string
+  whatsapp: string | null
+  telefone: string | null
+  email: string | null
+  contatoNome: string | null
+  cep: string | null
+  logradouro: string | null
+  numero: string | null
+  complemento: string | null
+  bairro: string | null
+  cidade: string | null
+  uf: string | null
+  coletaMesmoEndereco: boolean
+  coletaCep: string | null
+  coletaLogradouro: string | null
+  coletaNumero: string | null
+  coletaComplemento: string | null
+  coletaBairro: string | null
+  coletaCidade: string | null
+  coletaUf: string | null
+  coletaObservacao: string | null
+  representanteNome: string | null
+  representanteTelefone: string | null
+  representanteEmail: string | null
+  representanteVinculo: string | null
+  observacoes: string | null
+}
+
+/**
+ * O FORMULÁRIO DO CLIENTE — o mesmo para cadastrar e para corrigir.
+ *
+ * =============================================================================
+ * POR QUE UM SÓ
+ * =============================================================================
+ * São vinte e sete campos, com regras que conversam entre si: o CEP que
+ * preenche o endereço, a caixa que esconde o endereço de coleta, o
+ * representante que não é o contato. Um segundo formulário só para editar
+ * significaria manter as vinte e sete em dois lugares — e a segunda cópia
+ * envelheceria no primeiro campo novo.
+ *
+ * =============================================================================
+ * O DOCUMENTO E OS TELEFONES VOLTAM FORMATADOS
+ * =============================================================================
+ * O banco guarda só dígitos. Devolver "51992668095" para alguém CONFERIR contra
+ * um contrato na mão é obrigar a contar número na tela. A ação já limpa o que
+ * chega, então mostrar formatado não custa nada e é o que se lê.
+ */
+export default function FormularioCliente({
+  cliente,
+  aoFechar,
+}: {
+  cliente?: ClienteParaEditar | null
+  aoFechar?: () => void
+} = {}) {
   const [estado, acao, pendente] = useActionState(salvarCliente, inicial)
   const [buscando, setBuscando] = useState<'cadastro' | 'coleta' | null>(null)
   const [avisoCep, setAvisoCep] = useState<string | null>(null)
-  const [mesmoEndereco, setMesmoEndereco] = useState(true)
+  const [mesmoEndereco, setMesmoEndereco] = useState(cliente ? cliente.coletaMesmoEndereco : true)
   const forma = useRef<HTMLFormElement>(null)
+  const router = useRouter()
+  const c = cliente ?? null
+  const editando = Boolean(c)
+
+  // Depois de corrigir, a ficha ao redor continua com os dados velhos até
+  // alguém recarregar — e a pessoa acha que não salvou. No efeito, e não no
+  // corpo da renderização: no corpo seriam duas recargas por salvamento.
+  useEffect(() => {
+    if (editando && estado.ok && estado.mensagem) router.refresh()
+  }, [estado, editando, router])
 
   /**
    * O CEP PREENCHE, MAS NUNCA IMPEDE.
@@ -59,7 +128,9 @@ export default function FormularioCliente() {
 
   return (
     <form ref={forma} action={acao} className={`${estilo.bloco} ${estilo.form}`}>
-      <p className={estilo.blocoTitulo}>Novo cliente</p>
+      <p className={estilo.blocoTitulo}>{editando ? `Corrigir o cadastro de ${c!.nome}` : 'Novo cliente'}</p>
+
+      {c ? <input type="hidden" name="id" value={c.id} /> : null}
 
       {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
       {estado.ok && estado.mensagem ? <p className={estilo.sucesso} role="status">{estado.mensagem}</p> : null}
@@ -67,27 +138,27 @@ export default function FormularioCliente() {
       <div className={estilo.grade}>
         <label className={estilo.rotulo}>
           Nome ou razão social *
-          <input className={estilo.campo} name="nome" required minLength={3} />
+          <input className={estilo.campo} name="nome" defaultValue={c?.nome ?? ''} required minLength={3} />
         </label>
         <label className={estilo.rotulo}>
           CPF ou CNPJ *
-          <input className={estilo.campo} name="documento" required inputMode="numeric" />
+          <input className={estilo.campo} name="documento" defaultValue={c ? formatarDocumento(c.documento) : ''} required inputMode="numeric" />
         </label>
         <label className={estilo.rotulo}>
           WhatsApp *
-          <input className={estilo.campo} name="whatsapp" required inputMode="tel" placeholder="51 99999-9999" />
+          <input className={estilo.campo} name="whatsapp" defaultValue={c?.whatsapp ? formatarTelefone(c.whatsapp) : ''} required inputMode="tel" placeholder="51 99999-9999" />
         </label>
         <label className={estilo.rotulo}>
           Telefone fixo
-          <input className={estilo.campo} name="telefone" inputMode="tel" />
+          <input className={estilo.campo} name="telefone" defaultValue={c?.telefone ? formatarTelefone(c.telefone) : ''} inputMode="tel" />
         </label>
         <label className={estilo.rotulo}>
           E-mail
-          <input className={estilo.campo} name="email" type="email" />
+          <input className={estilo.campo} name="email" defaultValue={c?.email ?? ''} type="email" />
         </label>
         <label className={estilo.rotulo}>
           Quem é o contato
-          <input className={estilo.campo} name="contatoNome" />
+          <input className={estilo.campo} name="contatoNome" defaultValue={c?.contatoNome ?? ''} />
         </label>
       </div>
 
@@ -95,7 +166,7 @@ export default function FormularioCliente() {
         <label className={estilo.rotulo}>
           CEP
           <span className={estilo.campoComBotao}>
-            <input className={estilo.campo} name="cep" inputMode="numeric" maxLength={9} />
+            <input className={estilo.campo} name="cep" defaultValue={c?.cep ?? ''} inputMode="numeric" maxLength={9} />
             <button
               type="button"
               className={estilo.btnSec}
@@ -108,27 +179,27 @@ export default function FormularioCliente() {
         </label>
         <label className={estilo.rotulo} style={{ gridColumn: 'span 2' }}>
           Logradouro
-          <input className={estilo.campo} name="logradouro" />
+          <input className={estilo.campo} name="logradouro" defaultValue={c?.logradouro ?? ''} />
         </label>
         <label className={estilo.rotulo}>
           Número
-          <input className={estilo.campo} name="numero" />
+          <input className={estilo.campo} name="numero" defaultValue={c?.numero ?? ''} />
         </label>
         <label className={estilo.rotulo}>
           Complemento
-          <input className={estilo.campo} name="complemento" placeholder="Sala, andar" />
+          <input className={estilo.campo} name="complemento" defaultValue={c?.complemento ?? ''} placeholder="Sala, andar" />
         </label>
         <label className={estilo.rotulo}>
           Bairro
-          <input className={estilo.campo} name="bairro" />
+          <input className={estilo.campo} name="bairro" defaultValue={c?.bairro ?? ''} />
         </label>
         <label className={estilo.rotulo}>
           Cidade
-          <input className={estilo.campo} name="cidade" />
+          <input className={estilo.campo} name="cidade" defaultValue={c?.cidade ?? ''} />
         </label>
         <label className={estilo.rotulo}>
           UF
-          <input className={estilo.campo} name="uf" maxLength={2} />
+          <input className={estilo.campo} name="uf" defaultValue={c?.uf ?? ''} maxLength={2} />
         </label>
       </div>
 
@@ -173,7 +244,7 @@ export default function FormularioCliente() {
             <label className={estilo.rotulo}>
               CEP da coleta
               <span className={estilo.campoComBotao}>
-                <input className={estilo.campo} name="coletaCep" inputMode="numeric" maxLength={9} />
+                <input className={estilo.campo} name="coletaCep" defaultValue={c?.coletaCep ?? ''} inputMode="numeric" maxLength={9} />
                 <button
                   type="button"
                   className={estilo.btnSec}
@@ -186,34 +257,34 @@ export default function FormularioCliente() {
             </label>
             <label className={estilo.rotulo} style={{ gridColumn: 'span 2' }}>
               Logradouro
-              <input className={estilo.campo} name="coletaLogradouro" />
+              <input className={estilo.campo} name="coletaLogradouro" defaultValue={c?.coletaLogradouro ?? ''} />
             </label>
             <label className={estilo.rotulo}>
               Número
-              <input className={estilo.campo} name="coletaNumero" />
+              <input className={estilo.campo} name="coletaNumero" defaultValue={c?.coletaNumero ?? ''} />
             </label>
             <label className={estilo.rotulo}>
               Complemento
-              <input className={estilo.campo} name="coletaComplemento" placeholder="Sala, doca, bloco" />
+              <input className={estilo.campo} name="coletaComplemento" defaultValue={c?.coletaComplemento ?? ''} placeholder="Sala, doca, bloco" />
             </label>
             <label className={estilo.rotulo}>
               Bairro
-              <input className={estilo.campo} name="coletaBairro" />
+              <input className={estilo.campo} name="coletaBairro" defaultValue={c?.coletaBairro ?? ''} />
             </label>
             <label className={estilo.rotulo}>
               Cidade
-              <input className={estilo.campo} name="coletaCidade" />
+              <input className={estilo.campo} name="coletaCidade" defaultValue={c?.coletaCidade ?? ''} />
             </label>
             <label className={estilo.rotulo}>
               UF
-              <input className={estilo.campo} name="coletaUf" maxLength={2} />
+              <input className={estilo.campo} name="coletaUf" defaultValue={c?.coletaUf ?? ''} maxLength={2} />
             </label>
           </div>
           <label className={estilo.rotulo}>
             O que o motorista precisa saber
             <input
               className={estilo.campo}
-              name="coletaObservacao"
+              name="coletaObservacao" defaultValue={c?.coletaObservacao ?? ''}
               placeholder="Só das 8h às 11h · tocar no interfone 3 · entrar pela doca"
             />
             <span className={estilo.dica}>Aparece no aplicativo dele, na parada.</span>
@@ -237,21 +308,21 @@ export default function FormularioCliente() {
       <div className={estilo.grade}>
         <label className={estilo.rotulo}>
           Nome
-          <input className={estilo.campo} name="representanteNome" />
+          <input className={estilo.campo} name="representanteNome" defaultValue={c?.representanteNome ?? ''} />
         </label>
         <label className={estilo.rotulo}>
           Telefone
-          <input className={estilo.campo} name="representanteTelefone" inputMode="tel" />
+          <input className={estilo.campo} name="representanteTelefone" defaultValue={c?.representanteTelefone ? formatarTelefone(c.representanteTelefone) : ''} inputMode="tel" />
         </label>
         <label className={estilo.rotulo}>
           E-mail
-          <input className={estilo.campo} name="representanteEmail" type="email" />
+          <input className={estilo.campo} name="representanteEmail" defaultValue={c?.representanteEmail ?? ''} type="email" />
         </label>
         <label className={estilo.rotulo}>
           Vínculo
           <input
             className={estilo.campo}
-            name="representanteVinculo"
+            name="representanteVinculo" defaultValue={c?.representanteVinculo ?? ''}
             placeholder="Sócio, gerente de compras, responsável técnica"
           />
         </label>
@@ -259,13 +330,18 @@ export default function FormularioCliente() {
 
       <label className={estilo.rotulo}>
         Observações internas
-        <textarea className={estilo.area} name="observacoes" rows={2} />
+        <textarea className={estilo.area} name="observacoes" defaultValue={c?.observacoes ?? ''} rows={2} />
         <span className={estilo.dica}>O cliente não vê este campo.</span>
       </label>
 
       <div className={estilo.acoesForm}>
+        {aoFechar ? (
+          <button type="button" className={estilo.btnSec} onClick={aoFechar}>
+            {estado.ok && estado.mensagem ? 'Fechar' : 'Cancelar'}
+          </button>
+        ) : null}
         <button type="submit" className={estilo.btn} disabled={pendente}>
-          {pendente ? 'Salvando…' : 'Cadastrar cliente'}
+          {pendente ? 'Salvando…' : editando ? 'Salvar correção' : 'Cadastrar cliente'}
         </button>
       </div>
     </form>
