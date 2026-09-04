@@ -89,6 +89,30 @@ await naoAlcanca(`/painel/clientes?busca=${encodeURIComponent(clienteA)}`, 'a ca
 await naoAlcanca(`/painel/ordens?situacao=todas`, 'a lista de ordens da vizinha vem vazia')
 await naoAlcanca(`/painel/financeiro`, 'o financeiro da vizinha não mostra fatura da outra')
 
+/**
+ * A BUSCA DA BARRA É PORTA NOVA, e porta nova tem de ser testada como porta.
+ *
+ * Ela está em TODA tela do painel e aceita o número da O.S. e o nome do
+ * cliente — exatamente os dois dados que vazam num print colado no WhatsApp.
+ * Uma caixa de busca que ignorasse o escopo seria a maneira mais discreta de
+ * contornar o isolamento: ninguém audita uma lupa.
+ */
+for (const [termo, oque] of [[numeroA, 'o NÚMERO da O.S. da outra empresa'],
+                             [clienteA, 'o NOME do cliente da outra empresa']]) {
+  await bruno.goto(`${QA_BASE}/painel`, { waitUntil: 'domcontentloaded' })
+  await bruno.waitForTimeout(1200)
+  const campo = bruno.locator('input[type=search]').first()
+  if (await campo.count()) {
+    await campo.fill(String(termo))
+    await bruno.waitForTimeout(1800)
+    const lista = await bruno.locator('#resultados-da-busca').innerText().catch(() => '')
+    const vazou = lista.includes(clienteA) || new RegExp(`#0*${numeroA}\\b`).test(lista)
+    ok(`a busca da barra da vizinha NÃO acha ${oque}`, !vazou, vazou ? 'VAZOU: ' + lista.slice(0, 120) : 'nada')
+  } else {
+    ok(`a busca da barra existe para procurar ${oque}`, false, 'campo de busca não encontrado na barra')
+  }
+}
+
 // Os arquivos: foto e assinatura são servidos por rota própria.
 for (const [cam, oque] of [[`/api/foto/${fotoA}`,'a FOTO da outra empresa não é servida'],
                            [`/api/assinatura/${assinA}`,'a ASSINATURA da outra empresa não é servida']]) {

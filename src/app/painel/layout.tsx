@@ -10,6 +10,7 @@ import Navegacao, { type GrupoNav, type ItemNav } from './nav'
 import SeletorDeTema from './tema'
 import FaixaDaVisita from './faixa-da-visita'
 import SeloWhatsapp from './selo-whatsapp'
+import Busca from './busca'
 import { Credito } from '../credito'
 import { Marca } from '../marca'
 
@@ -192,6 +193,13 @@ export default async function LayoutPainel({ children }: { children: React.React
 
       <div className={estilo.principal}>
         <header className={estilo.barra}>
+          {/* A BUSCA VEM PRIMEIRO, e é o elemento mais largo da barra.
+              O telefone toca e quem atende digita aqui antes de olhar qualquer
+              outra coisa: um número de O.S., o nome da clínica, a marca do
+              aparelho. Antes disto, o nome do cliente custava quatro telas — com
+              ele esperando na linha. */}
+          <Busca />
+
           <span className={estilo.pillEmpresa}>
             <i className={estilo.pulso} aria-hidden="true" />
             {sessao.tenantNome ?? 'Plataforma'}
