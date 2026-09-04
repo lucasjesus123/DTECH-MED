@@ -66,6 +66,201 @@
    como o defeito entrou, sem aparecer em revisão nenhuma.
    ========================================================================== */
 
+/* ==========================================================================
+   AZUL MÁQUINA — a paleta do CONSOLE
+   ==========================================================================
+   O sistema e o site deixaram de ter a mesma cara, de propósito.
+
+   O SITE VENDE. Ele é violeta, arejado, e a Sora ali ecoa o logotipo — é a
+   primeira impressão de quem ainda não é cliente, e continua exatamente como
+   estava. Nenhuma linha deste bloco o alcança.
+
+   O SISTEMA É OPERADO oito horas por dia por quem já foi convencido. Ele
+   precisa de outra coisa: densidade, número grande legível de relance, e uma
+   cor que não canse. Cobalto profundo.
+
+   ==========================================================================
+   POR QUE ESTE BLOCO VIVE EM `.app`, E NÃO EM `:root`
+   ==========================================================================
+   A direção que originou este redesenho mandava declarar os tokens em
+   `:root`. Aqui isso pintaria o site de cobalto junto — `:root` é a raiz que
+   as duas faces dividem.
+
+   O `layout.tsx` do painel já resolvia isso antes: o tema vive no invólucro
+   (`.app[data-tema]`), não no `<html>`. Este bloco se pendura ali, e é essa
+   linha de código, escrita meses atrás por outro motivo, que permite
+   redesenhar o sistema inteiro sem tocar numa vírgula da home.
+
+   `light-dark()` funciona aqui porque `color-scheme` é declarado no PRÓPRIO
+   `.app` (via `[data-tema]`, em globals.css). O token é resolvido no elemento
+   onde é declarado — é a armadilha que o globals.css documenta, e a razão de
+   este bloco poder ser UMA lista em vez de duas.
+
+   ==========================================================================
+   OS NOMES CONTINUAM `--vio`, E O VALOR NÃO É MAIS VIOLETA
+   ==========================================================================
+   `--vio` aparece em mais de duzentos lugares nas 31 telas. Renomear tudo hoje
+   seria arriscar um esquecimento em troca de nada visível. Trocar o VALOR vira
+   as 31 telas de uma vez, sem tocar em nenhuma referência.
+
+   `--marca` fica como o nome certo, apontando para o mesmo valor. Código novo
+   usa `--marca`; a migração do resto é varredura mecânica, para quando não
+   houver mais nada em cima da mesa.
+
+   ==========================================================================
+   O CONTRASTE FOI MEDIDO, NÃO ESTIMADO
+   ==========================================================================
+   A paleta da direção chegou com três reprovações, e o próprio checklist dela
+   exige 4,5:1 nos dois temas. Foram corrigidas:
+
+   `--txt-3`   3,88:1 no escuro e 4,26:1 no claro — reprovava nos dois. É o
+               token dos RÓTULOS, e este projeto já o consertou uma vez, a
+               partir de um print em que os rótulos de "Pessoas e acessos"
+               estavam ilegíveis. Adotar o valor de fora desfaria a correção.
+               Vai a 6,06:1 e 4,64:1.
+
+   BOTÃO       branco sobre #4C7DFF dá 3,69:1 — reprova para texto normal. O
+               cobalto continua sendo a TINTA (link, aba ativa, 5,06:1); o
+               FUNDO do botão escurece para #3C6DEF, e o branco em cima passa
+               a 4,54:1. É a mesma decisão que o violeta já tinha registrada:
+               botão mais bonito e menos legível é troca ruim.
+
+   RAMPA       a rampa da esteira reprovava nas pontas — 2,52:1 no primeiro
+               degrau do escuro, 2,57:1 no último do claro. Como a contagem da
+               etapa é escrita NA cor da etapa, isso é número ilegível. Os oito
+               degraus foram redistribuídos para varrer de 4,5:1 a 9,8:1, com
+               passo visível entre vizinhos (~0,7 de diferença), mantendo o
+               matiz caminhando de cobalto a azul-céu.
+
+   `--ai`      no claro dava 4,11:1 sobre o fundo da página. Vai a 4,62:1.
+
+   Os números saíram de cálculo sobre os valores finais, e o roteiro `a11y.mjs`
+   da bateria confere de novo a cada mudança.
+   ========================================================================== */
+.app {
+  /* --- TIPOGRAFIA -------------------------------------------------------
+     Plus Jakarta Sans no lugar de Sora e Manrope, só aqui dentro. A 800 tem
+     contraforma fechado que aguenta número de 60px sem virar mancha; a 400 lê
+     em 13px numa tabela de quarenta linhas. A JetBrains Mono continua onde
+     sempre esteve: número de série, valor, estado de máquina.
+
+     O site não referencia `--fonte-console` em lugar nenhum. */
+  --f-display: var(--fonte-console, system-ui), system-ui, sans-serif;
+  --f-texto:   var(--fonte-console, system-ui), system-ui, -apple-system, sans-serif;
+
+  /* --- SUPERFÍCIES, do fundo para a frente ---------------------------- */
+  --bg:         light-dark(#F1F4FA, #060A14);
+  --bg-1:       light-dark(#E9EDF7, #04070F);
+  --sup:        light-dark(#FFFFFF, #0C1220);
+  --sup-2:      light-dark(#F6F8FD, #121A2C);
+  --borda:      light-dark(#E0E5F1, #1D2740);
+  --borda-viva: light-dark(#C5CDE1, #2E3B5A);
+  --mesa:       light-dark(#F1F4FA, #060A14);
+
+  /* --- A MARCA: cobalto -------------------------------------------------
+     `--vio` é o FUNDO de botão e por isso carrega branco em cima: os dois
+     valores foram escolhidos pelo contraste do texto, não pelo tom.
+     `--vio-claro` é a TINTA — link, aba ativa, número em destaque — e pode
+     ser mais luminoso porque nada é escrito por cima dele. */
+  --marca:       light-dark(#2B5BE0, #3C6DEF);
+  --marca-tinta: light-dark(#2B5BE0, #4C7DFF);
+  --vio:        var(--marca);
+  --vio-claro:  var(--marca-tinta);
+  --vio-forte:  light-dark(#1E45B8, #2B5BE0);
+  --vio-tinta:  light-dark(#16348C, #1E45B8);
+  --sobre-vio:  #FFFFFF;
+
+  /* --- A TINTA DA IA ----------------------------------------------------
+     Teal, e ela é EXCLUSIVA de inferência da máquina: nada mais no sistema
+     usa esta cor.
+
+     Não é estética. O sistema vai opinar sobre equipamento médico, e quem
+     opera precisa distinguir num relance DADO REGISTRADO de CONCLUSÃO DA
+     MÁQUINA. Uma cor que aparecesse também num selo de "aprovado" apagaria
+     essa diferença justamente onde ela custa caro.
+
+     Por isso a rampa da esteira, logo abaixo, para no azul-céu e não avança
+     para o verde-água: ela chegaria perto demais deste teal. */
+  --ai:        light-dark(#007C71, #00E0C6);
+  --ai-2:      light-dark(#00A192, #5BEEDC);
+  --ai-veu:    light-dark(rgba(0, 124, 113, .10), rgba(0, 224, 198, .12));
+  --ai-borda:  light-dark(rgba(0, 124, 113, .30), rgba(0, 224, 198, .34));
+  --ai-brilho: light-dark(none, 0 0 26px -6px rgba(0, 224, 198, .45));
+
+  /* --- ESTADOS ----------------------------------------------------------
+     Cor só onde há problema. O estado saudável — "em dia", "conectado" — é
+     neutro com um ponto verde de 5px, e não pílula verde: sobre azul-marinho
+     o verde chapado fica ácido, e se tudo colore nada chama atenção. */
+  --sinal:  light-dark(#12783F, #3FBF6D);
+  --alerta: light-dark(#C22138, #FF6B7A);
+  --espera: light-dark(#9A6100, #FFB53D);
+  --acao:   light-dark(#5B3FC4, #9B84FF);
+
+  /* --- TEXTO ------------------------------------------------------------
+     `--txt-3` é o piso, e é o token dos rótulos. Ver a nota de contraste no
+     cabeçalho: ele foi o que mais subiu em relação à paleta que chegou. */
+  --txt:   light-dark(#0B1020, #E8EDFA);
+  --txt-2: light-dark(#454E68, #96A2C2);
+  --txt-3: light-dark(#6B7490, #8492BB);
+
+  /* --- VÉUS: a mesma cor, diluída ------------------------------------- */
+  --vio-veu:      light-dark(rgba(43, 91, 224, .07), rgba(76, 125, 255, .11));
+  --vio-veu-2:    light-dark(rgba(43, 91, 224, .13), rgba(76, 125, 255, .19));
+  --vio-borda:    light-dark(rgba(43, 91, 224, .24), rgba(76, 125, 255, .32));
+  --sinal-veu:    light-dark(rgba(18, 120, 63, .09),  rgba(63, 191, 109, .12));
+  --sinal-borda:  light-dark(rgba(18, 120, 63, .28),  rgba(63, 191, 109, .30));
+  --alerta-veu:   light-dark(rgba(194, 33, 56, .08),  rgba(255, 107, 122, .12));
+  --alerta-borda: light-dark(rgba(194, 33, 56, .26),  rgba(255, 107, 122, .32));
+  --espera-veu:   light-dark(rgba(154, 97, 0, .09),   rgba(255, 181, 61, .12));
+  --espera-borda: light-dark(rgba(154, 97, 0, .26),   rgba(255, 181, 61, .30));
+
+  /* --- LUZ --------------------------------------------------------------
+     Brilho só onde é dinheiro, risco ou marca. Card, tabela e texto corrido
+     nunca brilham — no escuro, halo espalhado vira névoa e some a hierarquia
+     que ele deveria criar. */
+  --brilho:     light-dark(rgba(43, 91, 224, .18), rgba(76, 125, 255, .42));
+  --neon:       light-dark(rgba(43, 91, 224, .55), rgba(122, 156, 255, .95));
+  --neon-veu:   light-dark(rgba(43, 91, 224, .20), rgba(76, 125, 255, .60));
+  --neon-sinal: light-dark(rgba(18, 120, 63, .60),  rgba(63, 191, 109, .95));
+  --neon-grita: light-dark(rgba(194, 33, 56, .55),  rgba(255, 107, 122, .90));
+  --num-glow:   light-dark(none, 0 0 42px rgba(76, 125, 255, .42));
+  --gridline:   light-dark(rgba(20, 32, 70, .045), rgba(140, 165, 220, .055));
+
+  /* --- A RAMPA DA ESTEIRA ----------------------------------------------
+     Oito degraus de cobalto a azul-céu, codificando a proximidade da entrega.
+
+     O NOME É `--e`, e não `--s` como a direção pedia: `--s1`, `--s5` e `--s9`
+     já são os tokens de ESPAÇAMENTO deste projeto, usados em milhares de
+     lugares. Uma rampa chamada `--s1` teria trocado o vão de todas as telas
+     por uma cor — e o estrago apareceria espalhado, sem apontar a causa.
+
+     Nunca verde, âmbar ou vermelho: essas são cores de ESTADO. Uma etapa
+     adiantada não é "boa", é adiantada; pintá-la de verde faria a esteira
+     competir com o alerta que precisa ser visto.
+
+     Cada degrau passa de 4,5:1 sobre o cartão do seu tema, e a diferença
+     entre vizinhos é de cerca de 0,7 — visível sem virar arco-íris. */
+  --e1: light-dark(#2A4A92, #4B78E2);
+  --e2: light-dark(#27519A, #5287E5);
+  --e3: light-dark(#23589F, #5493E8);
+  --e4: light-dark(#1F5FA3, #569FEB);
+  --e5: light-dark(#1B68A7, #59AAEE);
+  --e6: light-dark(#1771AB, #57B4F0);
+  --e7: light-dark(#1278AB, #55BEF2);
+  --e8: light-dark(#0E80AA, #52C9F4);
+  --e-trilho: light-dark(#DDE2EF, #18213A);
+
+  /* --- A LATERAL --------------------------------------------------------
+     Ela acompanha o resto. Mantida quase preta ao lado de uma área de
+     trabalho cobalto, viraria um vão morto em vez de uma moldura. */
+  --casca:       light-dark(#0B1020, #04070F);
+  --casca-2:     light-dark(#182136, #0C1220);
+  --casca-linha: light-dark(#2E3B5A, #1D2740);
+  --casca-txt:   light-dark(#F1F4FA, #E8EDFA);
+  --casca-txt-2: light-dark(#96A2C2, #96A2C2);
+  --selo-neutro: light-dark(#EAEFF8, #182136);
+}
+
 .app {
   --t-xs:   0.8125rem;  /* 13px — era 12 */
   --t-sm:   0.875rem;   /* 14px — era 13 */
@@ -5089,79 +5284,24 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .dinValor::placeholder { color: var(--txt-3); }
 
 /* ==========================================================================
-   O ESCURO DO SISTEMA — levantado do quase-preto
-   --------------------------------------------------------------------------
-   A queixa era direta: "o sistema completo muito escuro no modo escuro". Ela
-   estava certa, e o print mostrava onde dói — os rótulos dos checkboxes de
-   "Pessoas e acessos", cinza sobre um fundo praticamente preto.
+   ONDE FICAVA O AJUSTE FINO DO ESCURO VIOLETA
+   ==========================================================================
+   Havia aqui um bloco `.app[data-tema='escuro']` com vinte e três tokens
+   literais. Ele nasceu de um print do dono em que os rótulos de "Pessoas e
+   acessos" apareciam cinza sobre um fundo quase preto, e corrigia o contraste
+   do tema escuro violeta: superfícies menos pretas, `--txt-3` de 4,54:1 para
+   6,24:1, `--borda-viva` de 1,54:1 para 3,38:1.
 
-   ESTE BLOCO SÓ ALCANÇA O SISTEMA, E ISSO É DELIBERADO.
-   Os tokens nascem em `globals.css`, que o site e o painel dividem. Mexer lá
-   clarearia a home que o cliente vê — e a home não estava em discussão. O
-   `layout.tsx` do painel já resolve isso desde sempre: o tema vive no
-   invólucro (`.app[data-tema]`), não no `<html>`, "para a escolha de quem
-   trabalha no sistema não vazar para a home". Este bloco se pendura ali.
+   Ele saiu porque a paleta que ele corrigia não existe mais. A Azul Máquina,
+   logo no topo deste arquivo, redefine os mesmos tokens para os dois temas em
+   UMA lista — e os valores dela já nascem medidos, com o `--txt-3` do escuro
+   em 6,06:1, na mesma ordem de grandeza que aquela correção conquistou.
 
-   Por isso os valores são LITERAIS e não `light-dark()`: o seletor só existe
-   quando o tema é escuro, então não há segundo valor a declarar — e não se
-   cria a "segunda lista de quarenta cores" contra a qual o globals.css avisa.
-
-   O QUE MUDOU, E POR QUÊ CADA UM
-   --------------------------------------------------------------------------
-   SUPERFÍCIES  #08040F era preto com um sopro de violeta. A luminância do
-                fundo triplica (0,0017 → 0,0040) e passa a ser uma cor —
-                ardósia-ameixa — em vez de ausência de cor. O cartão descola
-                do fundo (1,068 → 1,108) sem precisar de sombra mais forte.
-
-   TEXTO FRACO  `--txt-3` era o piso, 4,54:1, e é justamente o token dos
-                rótulos do print. Vai a 6,24:1 sobre o cartão. Era aqui o
-                problema de verdade — não na saturação, na leitura.
-
-   VIOLETA      `--vio-claro` (link, aba ativa, número em destaque) sobe de
-                6,98:1 para 8,47:1 e fica mais luminoso. O `--vio` do FUNDO
-                dos botões NÃO sobe: branco sobre #8B5CF6 já dá 4,23:1, e
-                clarear para #9B6EFF derrubaria para 3,46:1. Botão mais bonito
-                e menos legível é troca ruim.
-
-   BORDAS       `--borda-viva` é o contorno de campo de formulário, e contorno
-                de controle tem piso de 3:1. Estava em 1,54:1 — reprovava.
-                Vai a 3,38:1 e passa.
-
-   Todos os números acima foram medidos, não estimados. O roteiro `a11y.mjs`
-   da bateria é quem confere de novo a cada mudança.
+   Mantê-lo seria pior que redundante: a especificidade de
+   `.app[data-tema='escuro']` vence a de `.app`, então os literais violeta
+   sobreviveriam por cima do cobalto — e o tema escuro ficaria sendo o único
+   lugar do sistema onde o redesenho não pegou.
    ========================================================================== */
-.app[data-tema='escuro'] {
-  --bg:         #0F0A1C;
-  --bg-1:       #171029;
-  --sup:        #1C1433;
-  --sup-2:      #251A42;
-  --borda:      #463170;
-  --borda-viva: #7E5AB8;
-
-  --vio-claro:  #C0A6FF;
-  --brilho:     rgba(155, 110, 255, .46);
-  --neon:       rgba(192, 166, 255, .95);
-  --neon-veu:   rgba(155, 110, 255, .62);
-
-  --txt:        #F7F4FF;
-  --txt-2:      #CFC2E8;
-  --txt-3:      #A093C4;
-
-  --vio-veu:      rgba(155, 110, 255, .12);
-  --vio-veu-2:    rgba(155, 110, 255, .20);
-  --vio-borda:    rgba(155, 110, 255, .34);
-
-  --mesa:       #0F0A1C;
-  --selo-neutro: #241A3E;
-
-  /* A lateral acompanha o resto: mantida quase preta ao lado de uma área de
-     trabalho mais clara, ela viraria um vão escuro em vez de uma moldura. */
-  --casca:       #150E28;
-  --casca-2:     #23193F;
-  --casca-linha: #34234F;
-  --casca-txt:   #F3EFFF;
-  --casca-txt-2: #B7A9D6;
-}
 
 /* --------------------------------------------------------------------------
    E A OPACIDADE QUE APAGAVA O RÓTULO
