@@ -166,6 +166,7 @@ node modelos-documento.mjs >"$LOGS/md.log" 2>&1; marcar $? "modelos: cinco por t
 # acabaram de povoar, e tela vazia esconde card com sombra.
 node azul-fase4.mjs     >"$LOGS/az4.log" 2>&1; marcar $? "Azul Máquina: a aura atrás de tudo, nenhum card com sombra, e a linha em 38px"
 node azul-fase5.mjs     >"$LOGS/az5.log" 2>&1; marcar $? "a esteira: rampa sem verde, o gargalo certo, e o motorista sem dinheiro"
+node azul-fase6.mjs     >"$LOGS/az6.log" 2>&1; marcar $? "o Dashboard na ordem certa: o problema do dia primeiro, e um herói só"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

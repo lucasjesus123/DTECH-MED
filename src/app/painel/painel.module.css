@@ -917,6 +917,12 @@
  * recortada de propósito. */
 .resumo3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+/* Duas, para quem não vê dinheiro: o cartão de ordens subiu e virou o herói da
+   tela dele, e a faixa fica com estoque e avisos. Duas colunas cheias, e não
+   três com uma inventada para fechar a grade — completar a faixa exigiria um
+   número que ou repete o herói ou não interessa a ninguém. */
+.resumo2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
 .resumo5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .resumo5 .indicador { container-type: inline-size; }
 .resumo5 .indValor { font-size: clamp(1rem, 10cqi, var(--t-2xl)); }
@@ -6464,7 +6470,186 @@ a.calNumero:hover, a.calNumero:focus-visible {
   color: var(--txt-3);
 }
 
+/* A TAXA DE RECEBIMENTO — a metade da história que o número grande não conta.
+   Faturar e receber são coisas diferentes, e a distância entre as duas é o
+   buraco do caixa. O herói mostra o faturado; esta barra mostra que fração
+   daquilo virou dinheiro na conta. É barra e não só número porque a pergunta
+   é de proporção, e proporção se lê melhor em forma. */
+.heroiTaxa {
+  margin-top: var(--s3);
+  max-width: 22rem;
+}
+.heroiTaxaCab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: 5px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.heroiTaxaCab strong {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--txt);
+  font-variant-numeric: tabular-nums;
+}
+.heroiTaxaTrilho {
+  height: 6px;
+  border-radius: 99px;
+  background: var(--e-trilho);
+  overflow: hidden;
+}
+.heroiTaxaTrilho > i {
+  display: block;
+  height: 100%;
+  width: var(--parte, 0%);
+  border-radius: 99px;
+  background: var(--marca);
+}
+
+/* A FAÍSCA — doze meses em 132 pixels.
+   Sem eixo, sem grade e sem número: ela responde "está subindo ou descendo", e
+   nada mais. `vector-effect` mantém a linha com 2px reais mesmo com o `viewBox`
+   sendo escalado — sem ele, a linha engorda junto com a caixa e vira um risco
+   grosso no lugar de um traço. */
+.faisca { display: block; overflow: visible; }
+.faiscaLinha {
+  fill: none;
+  stroke: var(--marca-tinta);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+/* O mês corrente, o único ainda em movimento. Sem ele a linha termina no ar e
+   não se sabe onde é "agora". */
+.faiscaPonta { fill: var(--marca-tinta); }
+
 @media (max-width: 720px) {
   .heroi { grid-template-columns: 1fr; align-items: start; }
   .heroiDir { align-items: flex-start; text-align: left; }
+  .heroiTaxa { max-width: none; }
+}
+
+/* ==========================================================================
+   O BANNER DO PROBLEMA DO DIA
+   --------------------------------------------------------------------------
+   ÂMBAR, E NÃO VERMELHO. Vermelho é para o que já quebrou e não tem volta.
+   Isto tem volta — é por isso que está na tela: alguém pode ligar para o
+   cliente hoje. Âmbar diz "exige ação", que é a mensagem certa. Uma tela que
+   grita em vermelho todo dia é uma tela que ninguém escuta em duas semanas.
+
+   O filete à esquerda carrega a cor, e o fundo fica quase neutro: preencher a
+   faixa inteira de âmbar daria a ela o peso de um erro de sistema, e o
+   conteúdo é operação normal correndo mal.
+   ========================================================================== */
+.alertaDia {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+  padding: var(--s4);
+  border: 1px solid var(--espera-borda);
+  border-left: 3px solid var(--espera);
+  border-radius: var(--r-lg);
+  background: var(--espera-veu);
+}
+.alertaCorpo { min-width: 0; flex: 1 1 24rem; }
+
+.alertaTitulo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--txt);
+  text-wrap: balance;
+}
+.alertaFrase {
+  margin: 6px 0 0;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  max-width: 60ch;
+}
+
+/* OS CHIPS SÃO A PARTE QUE IMPORTA.
+   "3 ordens atrasadas" não é acionável: para fazer alguma coisa é preciso
+   saber QUAIS, e isso custava três cliques. Cada chip traz o número, o cliente,
+   o atraso e o valor, e leva direto para a ordem. O título dá o tamanho do
+   problema; os chips dão os nomes. */
+.alertaChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: var(--s3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.alertaChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 5px 10px;
+  border: 1px solid var(--espera-borda);
+  border-radius: var(--r-pill, 999px);
+  background: var(--sup);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1.2;
+  text-decoration: none;
+  color: var(--txt-2);
+  transition: border-color .16s var(--ease), background .16s var(--ease);
+}
+.alertaChip:hover { border-color: var(--espera); background: var(--carta); }
+.alertaChipOs { font-weight: 700; color: var(--txt); letter-spacing: .02em; }
+/* O nome do cliente é o único pedaço em fonte de texto: nome próprio em mono
+   fica largo e difícil de ler, e é justamente o que a pessoa procura no chip. */
+.alertaChipQuem {
+  font-family: var(--f-texto);
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.alertaChipDias { color: var(--espera); font-weight: 600; }
+.alertaChipValor { color: var(--txt); font-weight: 600; font-variant-numeric: tabular-nums; }
+.alertaChipResto {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--txt-3);
+}
+
+.alertaSaida {
+  flex: none;
+  align-self: center;
+  padding: 7px 14px;
+  border: 1px solid var(--espera-borda);
+  border-radius: var(--r);
+  background: var(--sup);
+  color: var(--txt);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color .16s var(--ease), background .16s var(--ease);
+}
+.alertaSaida:hover { border-color: var(--espera); background: var(--carta); }
+
+@media (prefers-reduced-motion: reduce) {
+  .alertaChip,
+  .alertaSaida { transition: none; }
 }

@@ -1,4 +1,5 @@
 import { EtapaOrdem } from '@/generated/prisma/enums'
+import { formatarBRL } from '@/lib/dinheiro'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 
 /**
@@ -329,6 +330,179 @@ export async function resumoDoDia(
       avisosNaFila: Number(fila?.pendentes ?? 0),
       avisosFalhados: Number(fila?.falhados ?? 0),
     }
+  })
+}
+
+export type Ofensor = {
+  id: string
+  numero: number
+  cliente: string
+  /** `null` para quem não pode ver dinheiro. */
+  valorCentavos: number | null
+  /** Dias de atraso, para o chip dizer o tamanho do buraco. */
+  dias: number
+}
+
+export type AlertaDoDia = {
+  /** `null` quando não há nada gritando. Dia calmo é resposta, não ausência. */
+  tipo: 'atraso' | 'aviso' | 'estoque' | null
+  titulo: string
+  consequencia: string
+  /** No máximo quatro; `total` diz quantos são de verdade. */
+  ofensores: Ofensor[]
+  total: number
+  href: string
+}
+
+/**
+ * =============================================================================
+ * O PROBLEMA DO DIA, ANTES DE QUALQUER MÉTRICA
+ * =============================================================================
+ * O Dashboard abria com quatro contagens. Contagem é o que se lê DEPOIS de
+ * saber que está tudo bem — ela não responde "o que eu faço agora". Quem abria
+ * o sistema de manhã via "12 ordens abertas" e tinha de descobrir sozinho,
+ * clicando, que três estouraram o prazo e uma delas é de um hospital.
+ *
+ * Este bloco responde antes de perguntarem, e responde COM NOME: o número da
+ * O.S., o cliente e o valor de cada caso. Chip com nome é acionável; "3
+ * atrasadas" é uma estatística sobre a qual não se faz nada.
+ *
+ * UM PROBLEMA POR VEZ, E O MAIS CARO PRIMEIRO. Mostrar os três juntos devolve
+ * a pessoa ao estado anterior — uma parede de coisas erradas, e nenhuma
+ * primeira. A ordem é: atraso, aviso que não saiu, estoque no mínimo. A
+ * primeira quebra promessa feita a cliente, a segunda deixa o cliente sem
+ * notícia, a terceira ainda vai travar uma O.S. amanhã.
+ *
+ * O DINHEIRO É CORTADO NA CONSULTA. Os chips carregam valor, e quem não pode
+ * ver dinheiro roda a consulta SEM a junção que o traz — não a versão com o
+ * valor filtrado depois. É a mesma regra do cartão "A receber", que já pagou
+ * por não tê-la.
+ */
+export async function alertaDoDia(
+  ctx: ContextoAcesso,
+  opcoes: { comDinheiro: boolean },
+): Promise<AlertaDoDia> {
+  const VAZIO: AlertaDoDia = {
+    tipo: null,
+    titulo: '',
+    consequencia: '',
+    ofensores: [],
+    total: 0,
+    href: '',
+  }
+
+  return comEscopo(ctx, async (tx) => {
+    // 1. PRAZO VENCIDO — a única das três que quebra uma promessa já feita.
+    //
+    // Duas consultas quase iguais, e a diferença é a junção do valor. Elas
+    // estão escritas por extenso, e não montadas com um fragmento condicional,
+    // porque é assim que dá para LER que a versão sem dinheiro não toca em
+    // `orcamentos`. Uma consulta montada por pedaços esconde exatamente o que
+    // esta regra precisa deixar à vista.
+    type LinhaAtraso = {
+      id: string
+      numero: number
+      cliente: string
+      dias: number
+      valor: bigint | null
+    }
+    const atrasadas = opcoes.comDinheiro
+      ? await tx.$queryRaw<LinhaAtraso[]>`
+          SELECT o.id, o.numero, c.nome AS cliente,
+                 floor(extract(epoch FROM (now() - o."prazoPrometido")) / 86400)::int AS dias,
+                 u."totalCentavos" AS valor
+            FROM ordens o
+            JOIN clientes c ON c.id = o."clienteId"
+            LEFT JOIN LATERAL (
+                   SELECT x."totalCentavos"
+                     FROM orcamentos x
+                    WHERE x."ordemId"  = o.id
+                      AND x."tenantId" = o."tenantId"
+                      AND x.status NOT IN ('CANCELADO','REPROVADO','EXPIRADO')
+                    ORDER BY x.versao DESC
+                    LIMIT 1
+                 ) u ON true
+           WHERE o."tenantId" = ${ctx.tenantId}
+             AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
+             AND o."prazoPrometido" < now()
+           ORDER BY o."prazoPrometido" ASC
+        `
+      : await tx.$queryRaw<LinhaAtraso[]>`
+          SELECT o.id, o.numero, c.nome AS cliente,
+                 floor(extract(epoch FROM (now() - o."prazoPrometido")) / 86400)::int AS dias,
+                 NULL::bigint AS valor
+            FROM ordens o
+            JOIN clientes c ON c.id = o."clienteId"
+           WHERE o."tenantId" = ${ctx.tenantId}
+             AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
+             AND o."prazoPrometido" < now()
+           ORDER BY o."prazoPrometido" ASC
+        `
+
+    if (atrasadas.length > 0) {
+      const exposto = atrasadas.reduce((s, o) => s + Number(o.valor ?? 0), 0)
+      return {
+        tipo: 'atraso' as const,
+        titulo:
+          atrasadas.length === 1
+            ? 'Uma ordem passou do prazo prometido'
+            : `${atrasadas.length} ordens passaram do prazo prometido`,
+        consequencia:
+          opcoes.comDinheiro && exposto > 0
+            ? `${formatarBRL(exposto)} em serviço já vendido, parados com a data vencida.`
+            : 'O cliente ouviu uma data que já passou, e ninguém voltou a falar com ele.',
+        ofensores: atrasadas.slice(0, 4).map((o) => ({
+          id: o.id,
+          numero: o.numero,
+          cliente: o.cliente,
+          valorCentavos: opcoes.comDinheiro ? Number(o.valor ?? 0) : null,
+          dias: o.dias,
+        })),
+        total: atrasadas.length,
+        href: '/painel/ordens',
+      }
+    }
+
+    // 2. AVISO QUE NÃO SAIU — o cliente ficou sem notícia e ninguém soube.
+    const descartados = await tx.$queryRaw<Array<{ n: bigint }>>`
+      SELECT count(*) AS n FROM outbox_jobs
+       WHERE "tenantId" = ${ctx.tenantId} AND status = 'DESCARTADO'
+    `
+    const quantos = Number(descartados[0]?.n ?? 0)
+    if (quantos > 0) {
+      return {
+        ...VAZIO,
+        tipo: 'aviso' as const,
+        titulo:
+          quantos === 1
+            ? 'Um aviso ao cliente não conseguiu sair'
+            : `${quantos} avisos ao cliente não conseguiram sair`,
+        consequencia:
+          'O sistema tentou e desistiu. Quem estava esperando notícia não recebeu nenhuma.',
+        total: quantos,
+        href: '/painel/whatsapp',
+      }
+    }
+
+    // 3. ESTOQUE NO MÍNIMO — ainda não travou nada, e vai travar.
+    const pecas = await tx.$queryRaw<Array<{ n: bigint }>>`
+      SELECT count(*) AS n FROM pecas
+       WHERE "tenantId" = ${ctx.tenantId} AND ativo = true AND saldo <= "estoqueMinimo"
+    `
+    const itens = Number(pecas[0]?.n ?? 0)
+    if (itens > 0) {
+      return {
+        ...VAZIO,
+        tipo: 'estoque' as const,
+        titulo: itens === 1 ? 'Uma peça está no mínimo' : `${itens} peças estão no mínimo`,
+        consequencia:
+          'Ainda não travou nenhuma O.S. A próxima que precisar de uma delas para na bancada.',
+        total: itens,
+        href: '/painel/estoque',
+      }
+    }
+
+    return VAZIO
   })
 }
 

@@ -5,7 +5,15 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
-import { esteira, filaDoDegrau, resumoDoDia, type Degrau } from '@/server/consultas/painel'
+import {
+  alertaDoDia,
+  esteira,
+  filaDoDegrau,
+  resumoDoDia,
+  type AlertaDoDia,
+  type Degrau,
+} from '@/server/consultas/painel'
+import { BigNumber, Delta, Exec, Term } from './console'
 import {
   dinheiroMensal,
   movimentoMensal,
@@ -13,6 +21,7 @@ import {
   oQueMaisQuebra,
   prazoMensal,
   quemTrazTrabalho,
+  type MesDeDinheiro,
 } from '@/server/consultas/operacao'
 import Operacao from './operacao'
 import { contatosNovosContagem, leadsNovos } from '@/server/consultas/listas'
@@ -70,7 +79,7 @@ export default async function PainelDoDia({
    * de hoje seria pagar seis agregações por cada abertura de tela para desenhar
    * uma esteira que não usa nenhuma delas.
    */
-  const [degraus, resumo, fila, leads, contatosNovos] = await Promise.all([
+  const [degraus, resumo, fila, leads, contatosNovos, alerta, meses] = await Promise.all([
     esteira(ctx, { comDinheiro }),
     resumoDoDia(ctx, { comDinheiro }),
     filaDoDegrau(ctx, degrau),
@@ -78,6 +87,13 @@ export default async function PainelDoDia({
     // pessoas chamaram" seria mentira num dia de trinta.
     leadsNovos(ctx),
     contatosNovosContagem(ctx),
+    // O problema do dia. Ele vem antes de qualquer métrica na tela, e por isso
+    // vem junto das outras na mesma viagem — carregá-lo depois faria o
+    // primeiro conteúdo da página ser o último a chegar.
+    alertaDoDia(ctx, { comDinheiro }),
+    // A série do herói. Só para quem vê dinheiro: sem ela, o cartão do
+    // motorista mostra outro número e esta consulta não teria para quê.
+    comDinheiro ? dinheiroMensal(ctx, 12) : Promise.resolve([]),
   ])
 
   const op =
@@ -127,48 +143,37 @@ export default async function PainelDoDia({
     <>
       <Topo aba={aba} nome={sessao.nome} />
 
-      {/* Os números que mudam a decisão do dia. Nada de contar por contar.
+      {/* ===================================================================
+          1. O PROBLEMA DO DIA — antes de qualquer métrica.
+          ===================================================================
+          Ele é o primeiro conteúdo da tela porque é a única coisa aqui que
+          responde "o que eu faço agora". Tudo o mais responde "como estamos",
+          que é a pergunta seguinte.
 
-          O CARTÃO DO DINHEIRO SÓ EXISTE PARA QUEM PODE VER DINHEIRO. Ele
-          mostrava "A receber" para todo mundo, motorista incluído — a única
-          tela do sistema em que essa trava faltava, e logo a primeira que
-          qualquer pessoa abre. O valor não é escondido aqui: ele não é
-          consultado. Sem ele são três cartões, e a grade acompanha. */}
-      <div
-        className={
-          resumo.aReceber === null ? `${estilo.resumo} ${estilo.resumo3}` : estilo.resumo
-        }
-      >
-        {resumo.aReceber === null ? null : (
-          <Indicador
-            rotulo="A receber"
-            valor={formatarBRL(resumo.aReceber)}
-            nota={`${formatarBRL(resumo.recebidoNoMes ?? 0)} recebidos no mês`}
-          />
-        )}
-        <Indicador
-          rotulo="Ordens abertas"
-          valor={String(resumo.ordensAbertas)}
-          nota={resumo.atrasadas > 0 ? `${resumo.atrasadas} com prazo vencido` : 'nenhuma atrasada'}
-          alerta={resumo.atrasadas > 0}
-        />
-        <Indicador
-          rotulo="Estoque baixo"
-          valor={String(resumo.pecasAbaixoDoMinimo)}
-          nota={resumo.pecasAbaixoDoMinimo > 0 ? 'peças no mínimo ou abaixo' : 'tudo acima do mínimo'}
-          alerta={resumo.pecasAbaixoDoMinimo > 0}
-        />
-        <Indicador
-          rotulo="Avisos ao cliente"
-          valor={String(resumo.avisosNaFila)}
-          nota={
-            resumo.avisosFalhados > 0
-              ? `${resumo.avisosFalhados} não saíram — verifique o WhatsApp`
-              : 'na fila para enviar'
-          }
-          alerta={resumo.avisosFalhados > 0}
-        />
-      </div>
+          Quando não há nada gritando, o bloco NÃO APARECE. Um banner verde
+          dizendo "tudo certo" ocuparia o lugar mais nobre da tela para não
+          informar nada, e treinaria o olho a pular aquela faixa — que é
+          exatamente onde o problema vai aparecer amanhã. */}
+      {alerta.tipo ? <BannerDoDia alerta={alerta} /> : null}
+
+      {/* ===================================================================
+          2. O HERÓI — um por tela, e ele muda conforme quem olha.
+          ===================================================================
+          O número que responde a pergunta principal em um relance. Para quem
+          vê dinheiro é a RECEITA DO MÊS; para quem não vê, é ORDENS ABERTAS.
+
+          A troca não é consolo: é o que mantém a regra de UM herói por tela
+          valendo para todo mundo. Deixar o motorista sem herói daria a ele uma
+          tela sem entrada — o olho não teria onde pousar primeiro e voltaria a
+          varrer tudo, que é o estado que o herói existe para desfazer.
+
+          E o indicador correspondente sai da faixa de baixo, para o mesmo
+          número não aparecer duas vezes na mesma tela. */}
+      {comDinheiro ? (
+        <HeroiDeReceita meses={meses} aReceber={resumo.aReceber ?? 0} />
+      ) : (
+        <HeroiDeOrdens abertas={resumo.ordensAbertas} atrasadas={resumo.atrasadas} />
+      )}
 
       {/* A ESTEIRA. Cada degrau diz quantos estão parados, há quanto tempo, e
           quanto está represado ali — e um deles diz que é o gargalo. É o que
@@ -254,6 +259,54 @@ export default async function PainelDoDia({
           )
         })}
       </nav>
+
+      {/* ===================================================================
+          4. A FAIXA DE INDICADORES — depois da esteira, e não antes.
+          ===================================================================
+          Ela abria a tela e foi para baixo. A ordem antiga punha a contagem
+          antes do trabalho: primeiro "12 ordens abertas", depois onde elas
+          estão. Mas ninguém age sobre doze; age-se sobre "três paradas em
+          orçamento há nove dias". A esteira responde isso, então ela vem
+          primeiro e a contagem vira o resumo que se lê depois.
+
+          O CARTÃO QUE VIROU HERÓI SAI DAQUI. Para quem vê dinheiro, o
+          faturamento já está lá em cima em 56px; repetir em 28 seria o mesmo
+          número duas vezes na mesma tela. Para quem não vê, quem subiu foi
+          "Ordens abertas", e é ele que sai — sobram DOIS cartões, e a grade
+          acompanha.
+
+          DOIS, E NÃO TRÊS COM UM DE ENCHIMENTO. A primeira versão completava a
+          faixa do motorista com "Equipamentos na casa", somando os degraus da
+          esteira. O número deu 12 — exatamente o mesmo do herói logo acima, com
+          outro nome. Grade que fecha bonito não vale um número repetido: quem
+          lê duas vezes o mesmo valor com rótulos diferentes passa a duvidar dos
+          dois. */}
+      <div className={`${estilo.resumo} ${comDinheiro ? estilo.resumo3 : estilo.resumo2}`}>
+        {comDinheiro ? (
+          <Indicador
+            rotulo="Ordens abertas"
+            valor={String(resumo.ordensAbertas)}
+            nota={resumo.atrasadas > 0 ? `${resumo.atrasadas} com prazo vencido` : 'nenhuma atrasada'}
+            alerta={resumo.atrasadas > 0}
+          />
+        ) : null}
+        <Indicador
+          rotulo="Estoque baixo"
+          valor={String(resumo.pecasAbaixoDoMinimo)}
+          nota={resumo.pecasAbaixoDoMinimo > 0 ? 'peças no mínimo ou abaixo' : 'tudo acima do mínimo'}
+          alerta={resumo.pecasAbaixoDoMinimo > 0}
+        />
+        <Indicador
+          rotulo="Avisos ao cliente"
+          valor={String(resumo.avisosNaFila)}
+          nota={
+            resumo.avisosFalhados > 0
+              ? `${resumo.avisosFalhados} não saíram — verifique o WhatsApp`
+              : 'na fila para enviar'
+          }
+          alerta={resumo.avisosFalhados > 0}
+        />
+      </div>
 
       {/* A TIRA DOS CONTATOS DO SITE.
           Depois da esteira, no máximo três, uma linha cada, com a mensagem já
@@ -407,6 +460,204 @@ function Indicador({
       </strong>
       <span className={estilo.indNota}>{nota}</span>
     </div>
+  )
+}
+
+/**
+ * O BANNER DO PROBLEMA DO DIA.
+ *
+ * =============================================================================
+ * ÂMBAR, E NÃO VERMELHO
+ * =============================================================================
+ * Vermelho é para o que já quebrou e não tem volta. Isto aqui tem volta — é
+ * justamente por isso que está na tela: alguém pode ligar para o cliente hoje.
+ * Âmbar diz "exige ação", que é a mensagem certa; vermelho diria "é tarde", e
+ * uma tela que grita todo dia é uma tela que ninguém escuta em duas semanas.
+ *
+ * OS CHIPS SÃO A PARTE QUE IMPORTA. "3 ordens atrasadas" não é acionável: para
+ * fazer alguma coisa é preciso saber QUAIS, e isso custava três cliques. Cada
+ * chip carrega o número da O.S., o cliente, o atraso e o valor, e leva direto
+ * para a ordem. O título dá o tamanho do problema; os chips dão os nomes.
+ *
+ * No máximo quatro, e o resto vira "e mais N". Uma parede de vinte chips é a
+ * mesma parede de coisas erradas que este bloco veio desfazer.
+ */
+function BannerDoDia({ alerta }: { alerta: AlertaDoDia }) {
+  return (
+    <section className={estilo.alertaDia} aria-labelledby="alerta-do-dia">
+      <div className={estilo.alertaCorpo}>
+        <Term nome="Atenção" estado={alerta.tipo === 'atraso' ? 'prazo' : alerta.tipo === 'aviso' ? 'whatsapp' : 'estoque'} tom="alerta" />
+        <h2 id="alerta-do-dia" className={estilo.alertaTitulo}>
+          {alerta.titulo}
+        </h2>
+        <p className={estilo.alertaFrase}>{alerta.consequencia}</p>
+
+        {alerta.ofensores.length > 0 ? (
+          <ul className={estilo.alertaChips}>
+            {alerta.ofensores.map((o) => (
+              <li key={o.id}>
+                <Link href={`/painel/ordens/${o.id}`} className={estilo.alertaChip}>
+                  <span className={estilo.alertaChipOs}>OS-{String(o.numero).padStart(4, '0')}</span>
+                  <span className={estilo.alertaChipQuem}>{o.cliente}</span>
+                  <span className={estilo.alertaChipDias}>
+                    {o.dias <= 0 ? 'vence hoje' : `${o.dias}d`}
+                  </span>
+                  {o.valorCentavos != null && o.valorCentavos > 0 ? (
+                    <span className={estilo.alertaChipValor}>{formatarBRL(o.valorCentavos)}</span>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+            {alerta.total > alerta.ofensores.length ? (
+              <li>
+                <span className={estilo.alertaChipResto}>
+                  e mais {alerta.total - alerta.ofensores.length}
+                </span>
+              </li>
+            ) : null}
+          </ul>
+        ) : null}
+      </div>
+
+      <Link href={alerta.href} className={estilo.alertaSaida}>
+        Ver todas
+      </Link>
+    </section>
+  )
+}
+
+/**
+ * O HERÓI DE QUEM VÊ DINHEIRO — a receita do mês.
+ *
+ * =============================================================================
+ * O NÚMERO GRANDE É O FATURADO, E A BARRA É O QUE DE FATO ENTROU
+ * =============================================================================
+ * Faturar e receber são coisas diferentes, e a distância entre as duas é o
+ * buraco do caixa: faturar trinta mil e receber dezoito significa doze mil na
+ * rua. Um cartão que mostrasse só um dos dois mentiria por omissão — o
+ * faturado sozinho parece bom, o recebido sozinho parece ruim.
+ *
+ * Então o herói é o faturado, e logo abaixo dele a TAXA DE RECEBIMENTO diz que
+ * fração daquilo virou dinheiro na conta. É uma barra e um percentual porque
+ * a pergunta é de proporção, e proporção se lê melhor em forma que em número.
+ *
+ * O delta compara com o mês anterior FECHADO, e o tom vem daqui e não do sinal:
+ * receita subindo é boa notícia, e por isso `bom`. Não é sempre assim neste
+ * sistema — "ordens atrasadas" subindo também é positivo no sinal e péssimo na
+ * vida —, e é por isso que o `Delta` exige que quem chama diga o tom.
+ */
+function HeroiDeReceita({ meses, aReceber }: { meses: MesDeDinheiro[]; aReceber: number }) {
+  const atual = meses.at(-1)
+  const anterior = meses.at(-2)
+  const faturado = atual?.faturadoCentavos ?? 0
+  const recebido = atual?.recebidoCentavos ?? 0
+  const antes = anterior?.faturadoCentavos ?? 0
+
+  // Sem mês anterior com movimento não há variação a mostrar. Inventar "+100%"
+  // contra um mês vazio é o tipo de número que ninguém consegue desmentir e
+  // todo mundo repete numa reunião.
+  const variacao = antes > 0 ? Math.round(((faturado - antes) / antes) * 100) : null
+  const taxa = faturado > 0 ? Math.round((recebido / faturado) * 100) : 0
+
+  return (
+    <section className={estilo.heroi} aria-label="Receita do mês">
+      <div className={estilo.heroiEsq}>
+        <Term nome="Receita" estado="mês corrente" />
+        <BigNumber valor={formatarBRL(faturado)} rotulo="Faturado no mês" />
+        <p className={estilo.heroiNota}>
+          {formatarBRL(recebido)} já recebidos · {formatarBRL(aReceber)} a receber
+        </p>
+
+        <div className={estilo.heroiTaxa}>
+          <div className={estilo.heroiTaxaCab}>
+            <span>Taxa de recebimento</span>
+            <strong>{taxa}%</strong>
+          </div>
+          <div className={estilo.heroiTaxaTrilho}>
+            <i style={{ '--parte': `${Math.min(taxa, 100)}%` } as CSSProperties} />
+          </div>
+        </div>
+      </div>
+
+      <div className={estilo.heroiDir}>
+        {variacao !== null ? <Delta valor={variacao} tom={variacao >= 0 ? 'bom' : 'ruim'} /> : null}
+        <Faisca meses={meses} />
+        <Exec href="/painel/financeiro">Financeiro</Exec>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * O HERÓI DE QUEM NÃO VÊ DINHEIRO — os equipamentos em aberto.
+ *
+ * O motorista e o técnico abrem esta tela para saber quanto trabalho existe, e
+ * não quanto ele vale. O número é o mesmo que o gestor lê no indicador; aqui
+ * ele é o herói porque é a resposta principal DESTA pessoa.
+ */
+function HeroiDeOrdens({ abertas, atrasadas }: { abertas: number; atrasadas: number }) {
+  return (
+    <section className={estilo.heroi} aria-label="Ordens em aberto">
+      <div className={estilo.heroiEsq}>
+        <Term nome="Ordens" estado="em aberto" />
+        <BigNumber valor={String(abertas)} rotulo="Ordens em aberto" />
+        <p className={estilo.heroiNota}>
+          {atrasadas > 0
+            ? `${atrasadas} ${atrasadas === 1 ? 'passou' : 'passaram'} do prazo prometido`
+            : 'nenhuma passou do prazo'}
+        </p>
+      </div>
+      {/* SEM PÍLULA DE DELTA AQUI, e a ausência é deliberada.
+          A primeira versão punha `<Delta valor={atrasadas} />` e saía "↗ +3".
+          Delta significa VARIAÇÃO — "subiu três desde o mês passado" —, e o que
+          este número diz é "são três, no total". A pílula estava afirmando uma
+          comparação que ninguém fez. A linha logo abaixo do número já conta a
+          mesma coisa em português, e o banner lá em cima nomeia as três. */}
+      <div className={estilo.heroiDir}>
+        <Exec href="/painel/ordens">Todas as O.S.</Exec>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * A FAÍSCA — doze meses de faturamento em 132 pixels.
+ *
+ * Ela não tem eixo, número nem grade, e isso é a definição: faísca responde
+ * "está subindo ou descendo", e nada mais. Quem precisa do valor de abril abre
+ * o Financeiro — e o botão para lá está a dois centímetros daqui.
+ *
+ * O último ponto ganha um círculo porque é o mês corrente, o único ainda em
+ * movimento. Sem ele, a linha termina no ar e não se sabe onde é "agora".
+ */
+function Faisca({ meses }: { meses: MesDeDinheiro[] }) {
+  const valores = meses.map((m) => m.faturadoCentavos)
+  if (valores.length < 2 || valores.every((v) => v === 0)) return null
+
+  const L = 132
+  const A = 34
+  const teto = Math.max(...valores)
+  const passo = L / (valores.length - 1)
+  const y = (v: number) => A - 2 - (teto > 0 ? (v / teto) * (A - 4) : 0)
+  const pontos = valores.map((v, i) => `${(i * passo).toFixed(1)},${y(v).toFixed(1)}`)
+
+  return (
+    <svg
+      className={estilo.faisca}
+      viewBox={`0 0 ${L} ${A}`}
+      width={L}
+      height={A}
+      role="img"
+      aria-label={`Faturamento dos últimos ${valores.length} meses`}
+    >
+      <polyline className={estilo.faiscaLinha} points={pontos.join(' ')} />
+      <circle
+        className={estilo.faiscaPonta}
+        cx={(valores.length - 1) * passo}
+        cy={y(valores.at(-1) ?? 0)}
+        r="2.5"
+      />
+    </svg>
   )
 }
 
