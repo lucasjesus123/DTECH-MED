@@ -904,12 +904,18 @@
 .resumo5 .indicador { container-type: inline-size; }
 .resumo5 .indValor { font-size: clamp(1rem, 10cqi, var(--t-2xl)); }
 
+/* SEM SOMBRA, E O PADDING FECHOU EM 16px NOS QUATRO LADOS.
+   O que separa um card do fundo neste sistema é a BORDA e a superfície, não
+   uma sombra. Sombra em card espalha peso por toda a tela: com quinze cartões
+   à vista, quinze sombras somam uma névoa cinza que achata justamente a
+   hierarquia que a sombra deveria criar — e some a elevação de quem realmente
+   flutua (menu, modal, folha), que passa a parecer só mais um cartão.
+   O horizontal era 24px; virou 16 pela mesma razão que tudo aqui apertou. */
 .indicador {
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
-  padding: var(--s4) var(--s5);
+  padding: var(--s4);
   display: grid;
   gap: 3px;
   align-content: start;
@@ -975,12 +981,18 @@
   pointer-events: none;
 }
 
+/* O DEGRAU PERDEU A SOMBRA, E O QUE ELE RESPONDE AO TOQUE FICOU MELHOR.
+   São dezoito lado a lado: dezoito sombras em fila não davam relevo, davam uma
+   faixa cinza sob a esteira inteira. O toque agora acende a BORDA e o fundo —
+   que é resposta local, aparece no degrau que está sob o dedo, e não numa
+   camada difusa que meio pertence a três degraus ao mesmo tempo.
+   O degrau selecionado continua sendo o único chapado de cobalto: a seleção
+   nunca dependeu da sombra para se ver. */
 .degrau {
   position: relative;
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
   padding: var(--s3) var(--s3) var(--s4);
   display: grid;
   gap: 5px;
@@ -988,16 +1000,15 @@
   text-decoration: none;
   transition:
     transform 180ms var(--ease),
-    box-shadow 180ms var(--ease),
     border-color 180ms var(--ease),
     background 180ms var(--ease);
 }
 .degrau:hover {
   transform: translateY(-2px);
-  box-shadow: var(--sombra-2);
-  border-color: var(--borda-viva);
+  border-color: var(--vio-borda);
+  background: var(--sup);
 }
-.degrau:active { transform: translateY(0); box-shadow: var(--sombra-1); }
+.degrau:active { transform: translateY(0); }
 .degrau:focus-visible {
   outline: 2px solid var(--vio);
   outline-offset: 2px;
@@ -1007,7 +1018,6 @@
 .degrauAtivo:hover {
   background: var(--vio-forte);
   border-color: var(--vio-forte);
-  box-shadow: var(--sombra-3);
   transform: translateY(-2px);
 }
 /* O bico que encosta na lista de baixo. É a única peça decorativa da tela, e
@@ -1430,9 +1440,20 @@
   border-collapse: collapse;
   font-size: var(--t-sm);
 }
+/* A DENSIDADE DA LINHA — 38 a 40px, e o padding é o que se pode mexer.
+   Quem opera isto passa oito horas aqui. Numa carteira de duzentos clientes,
+   dois pixels a mais por linha são quatrocentos pixels de rolagem por tela —
+   meia tela inteira de nada. O padding caiu de 11 para 9, e a linha de uma
+   linha só fecha em 38.
+
+   O QUE NÃO CABE EM 38, E POR QUÊ ISSO ESTÁ CERTO: a linha que carrega DUAS
+   linhas de conteúdo — "Clínica Bella Pelle" com "contato: Mariana Faria"
+   embaixo — continua alta, e continuar alta é a resposta correta. O alvo de
+   38px é para linha de uma linha; apertar a de duas exigiria tirar a segunda
+   informação da tela, e densidade nunca foi desculpa para esconder dado. */
 .tabela th {
   text-align: left;
-  padding: 10px var(--s4);
+  padding: 8px var(--s4);
   background: var(--sup);
   border-bottom: 1px solid var(--borda);
   font-family: var(--f-texto);
@@ -1444,7 +1465,14 @@
   white-space: nowrap;
 }
 .tabela td {
-  padding: 11px var(--s4);
+  padding: 9px var(--s4);
+  /* A entrelinha da tabela não é a do texto corrido. Herdada, ela vinha em
+     1,6 (22,4px em 14) — número de PARÁGRAFO, feito para o olho voltar da
+     direita para a esquerda sem se perder na linha de baixo. Dado em coluna
+     não se lê assim: cada célula é curta e o olho desce, não varre. Em 1,45 a
+     linha fecha em 39px e continua confortável; o 1,6 sozinho punha a linha
+     em 41 e nos custava a densidade que esta passada inteira foi buscar. */
+  line-height: 1.45;
   border-bottom: 1px solid var(--borda);
   color: var(--txt-2);
   vertical-align: top;
@@ -1550,11 +1578,16 @@
  * colunas: a de lá só foi a primeira com tabela larga dentro.
  */
 .duasColunas > * { min-width: 0; }
+/* A DENSIDADE DO CARD — 16px, e não 24.
+   Vale a mesma conta da linha de tabela: oito pixels a mais em cada card, com
+   uma dúzia de cards por tela, é uma tela de rolagem por dia que não carrega
+   informação nenhuma. Espaço em branco é ferramenta de hierarquia, e vira
+   desperdício quando é distribuído por igual — este aqui era por igual. */
 .bloco {
   background: var(--bg-1);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  padding: var(--s5);
+  padding: var(--s4);
   margin-bottom: var(--s4);
 }
 .blocoTitulo {
@@ -1826,7 +1859,7 @@
 
 .cartao {
   margin-bottom: var(--s5);
-  padding: var(--s5);
+  padding: var(--s4);
   border: 1px solid var(--linha);
   border-radius: var(--r-lg);
   background: var(--branco);
@@ -2009,7 +2042,6 @@
 .degrauAtivo,
 .degrauAtivo:hover {
   box-shadow:
-    var(--sombra-3),
     0 0 0 1px var(--neon),
     0 0 var(--neon-raio) var(--neon-veu);
 }
@@ -2097,7 +2129,7 @@
 }
 .indicador:hover {
   border-color: var(--vio-borda);
-  box-shadow: var(--sombra-1), 0 0 var(--neon-raio) -8px var(--neon-veu);
+  box-shadow: 0 0 var(--neon-raio) -8px var(--neon-veu);
 }
 .abaAtiva {
   box-shadow: 0 2px 12px -6px var(--neon);
@@ -2135,8 +2167,7 @@
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
-  padding: var(--s5);
+  padding: var(--s4);
   margin-bottom: var(--s5);
   display: grid;
   gap: var(--s4);
@@ -2438,7 +2469,6 @@
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
   text-decoration: none;
   color: inherit;
   transition:
@@ -2446,10 +2476,13 @@
     transform 200ms var(--ease),
     box-shadow 200ms var(--ease);
 }
+/* O halo do hover ficou; a sombra de repouso saiu. O que acende sob o dedo é
+   luz de marca — informação —, e não profundidade decorativa que os sessenta
+   cartões carregavam parados. */
 .cartaoAcomp:hover {
   border-color: var(--neon);
   transform: translateY(-2px);
-  box-shadow: var(--sombra-2), 0 0 var(--neon-raio) -6px var(--neon-veu);
+  box-shadow: 0 0 var(--neon-raio) -6px var(--neon-veu);
 }
 .cartaoAcomp:focus-visible {
   outline: 2px solid var(--vio-claro);
@@ -2719,7 +2752,6 @@
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
   min-width: 0;
 }
 .aoVivoQuem {
@@ -3376,34 +3408,49 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   O FUNDO DA MESA
+   A AURA DA MESA — dois halos e uma grade que se dissolve
    --------------------------------------------------------------------------
-   Duas manchas de luz que giram devagar atrás do conteúdo. `fixed` para não
-   rolar junto — fundo que rola vira textura, e textura em movimento cansa.
+   O que mudou nesta passada, e por quê:
 
-   A opacidade é baixíssima de propósito: o efeito tem de ser sentido e não
-   percebido. Se você consegue apontar a mancha, ela está forte demais.
-   -------------------------------------------------------------------------- */
-/* --------------------------------------------------------------------------
-   DUAS CORREÇÕES, E VALE REGISTRAR AS DUAS PORQUE FORAM DEFEITO MEU.
-   --------------------------------------------------------------------------
-   1. ERA `position: fixed`. Somado ao `isolation: isolate` desta caixa, isso
-      criava um contexto de empilhamento que se pinta DEPOIS da lateral — e o
-      `inset: 0` do elemento fixo cobre a viewport inteira. Resultado: a mancha
-      lavava de roxo a metade de baixo do menu. `absolute` prende a mancha à
-      coluna de conteúdo, que é onde ela sempre deveria ter ficado.
+   1. O FUNDO PAROU DE SE MEXER. Ele girava devagar num ciclo de 30s. São três
+      as animações que este sistema aceita — o ponto pulsando na integração
+      caída, o respiro do Copiloto ativo e a linha varrendo a barra de comando
+      — e fundo animado está na lista do que não fazer. Movimento no fundo é
+      movimento que a pessoa vê pelo canto do olho oito horas por dia sem
+      conseguir olhar para ele: cansa sem informar nada.
 
-   2. ERA FORTE DEMAIS NO ESCURO. No claro, uma mancha a 0,85 sobre branco é um
-      sopro. No escuro, sobre quase-preto, a mesma mancha é um borrão colorido
-      no meio da tela de trabalho — e o painel escuro tem de ser CALMO: fundo
-      fundo, cartão claro, e o olho indo direto no número.
+   2. OS HALOS PASSARAM A SER DOIS DE VERDADE. Eram duas manchas cobalto com
+      nomes diferentes (`--vio-veu` e `--neon-veu`), o que dava uma névoa só.
+      Agora é cobalto em cima à esquerda e teal à direita, e a diferença entre
+      as duas pontas é o que faz a tela ter um "de onde vem a luz".
 
-      A opacidade agora é declarada por tema, e o escuro fica em 0,35. O efeito
-      tem de ser sentido, não percebido. Se você consegue apontar a mancha, ela
-      está forte demais — e estava.
+      SOBRE O TEAL, QUE É A COR PROIBIDA DESTE SISTEMA: teal aqui é tinta
+      exclusiva de inferência da máquina, e um teal reconhecível no fundo
+      apagaria a única pista que o operador tem para separar dado de
+      conclusão. Por isso ele entra em `--ai-veu` diluído por uma opacidade de
+      camada — nesse regime a mancha é temperatura, não cor: ela muda o que se
+      SENTE do canto direito sem que ninguém consiga apontar "ali está verde".
+      Se em algum momento der para nomear a cor daquele canto, está forte
+      demais e o valor tem de cair.
+
+   3. ENTROU A GRADE DE 56px. Ela é o que dá a leitura de instrumento — sem
+      ela os halos ficam sendo só uma aquarela. Ela vive numa camada própria
+      (`::after`) porque precisa de MÁSCARA e os halos não: a máscara radial é
+      o que faz a grade existir no meio e sumir nas bordas, em vez de terminar
+      cortada numa linha reta que denunciaria a caixa.
+
+   `absolute`, e não `fixed`: somado ao `isolation: isolate` desta caixa, o
+   fixo criava um contexto de empilhamento que se pintava DEPOIS da lateral, e
+   o `inset: 0` cobria a viewport inteira — a mancha lavava a metade de baixo
+   do menu. O absoluto prende a aura à coluna de conteúdo, que é onde ela
+   sempre deveria ter ficado.
+
+   As duas camadas são `pointer-events: none` e ficam em `z-index: -1`: nunca
+   há aura por cima de texto, e nada aqui intercepta clique.
    -------------------------------------------------------------------------- */
 .principal { position: relative; isolation: isolate; overflow-x: clip; }
 
+/* Os halos. */
 .principal::before {
   content: '';
   position: absolute;
@@ -3411,24 +3458,32 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(48rem 32rem at 88% 4%, var(--vio-veu), transparent 68%),
-    radial-gradient(34rem 26rem at 6% 96%, var(--neon-veu), transparent 70%);
-  opacity: .75;
+    radial-gradient(46rem 30rem at 4% 0%, var(--vio-veu-2), transparent 66%),
+    radial-gradient(40rem 34rem at 100% 30%, var(--ai-veu), transparent 68%);
+  opacity: .8;
 }
 
-/* O escuro recua. Sobre quase-preto qualquer cor pesa o dobro. */
-.app[data-tema='escuro'] .principal::before { opacity: .35; }
-
-@media (prefers-reduced-motion: no-preference) {
-  .principal::before {
-    animation: mesaRespira 30s ease-in-out infinite alternate;
-  }
+/* A grade. 56px, e a máscara é o que a faz existir no meio e sumir na borda. */
+.principal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, var(--gridline) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(to bottom, var(--gridline) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(70% 60% at 50% 0%, #000 0%, transparent 78%);
 }
 
-@keyframes mesaRespira {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(-1.5%, 1%, 0) scale(1.04); }
-}
+/* O CLARO RECUA MAIS QUE O ESCURO, E É O CONTRÁRIO DO QUE PARECE.
+   Sobre branco, cor diluída não some: ela suja. Sobre quase-preto a mesma
+   mancha vira profundidade. O pedido é "no tema claro, quase imperceptível" —
+   e é literal: a 0,45 a aura no claro é sentida ao trocar de tema e não se
+   consegue apontar com a tela parada. */
+.app[data-tema='claro'] .principal::before { opacity: .45; }
+.app[data-tema='claro'] .principal::after  { opacity: .7; }
 
 /* A barra de cima ganha um fio de luz na base. Ela já era "vidro"; o fio é o
    que faz o vidro ter borda em vez de terminar no nada. */
@@ -3532,8 +3587,8 @@
 }
 
 @keyframes gritaRespira {
-  0%, 100% { box-shadow: var(--sombra-1), 0 0 0 0 var(--alerta-veu); }
-  50%      { box-shadow: var(--sombra-1), 0 0 0 6px transparent, 0 0 22px -4px var(--alerta); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--alerta-veu); }
+  50%      { box-shadow: 0 0 0 6px transparent, 0 0 22px -4px var(--alerta); }
 }
 
 /* O trilho da esteira ganha um brilho que corre da chegada para a saída — o
@@ -3744,8 +3799,9 @@
    parada — inclusive as animações desta passada. Não é degradação: o desenho
    continua o mesmo, sem o que se move.
    -------------------------------------------------------------------------- */
+/* `.principal::before` saiu desta lista porque saiu da animação: a aura de
+   fundo não se move mais para ninguém, com ou sem preferência declarada. */
 @media (prefers-reduced-motion: reduce) {
-  .principal::before,
   .degrau,
   .degrauGrita,
   .indAlerta,
@@ -3911,11 +3967,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--s3);
-  padding: var(--s4) var(--s5) var(--s5);
+  padding: var(--s4);
   background: var(--carta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
-  box-shadow: var(--sombra-1);
   transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
 .contato:hover { border-color: var(--vio-borda); box-shadow: var(--luz-fraca); }
@@ -6206,7 +6261,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--s4);
-  padding: var(--s5);
+  padding: var(--s4);
   margin-bottom: var(--s4);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
