@@ -8,6 +8,7 @@ import type {
   MesDeMovimento,
   MesDePrazo,
 } from '@/server/consultas/operacao'
+import { BigNumber, Delta, Exec, Term } from './console'
 import estilo from './painel.module.css'
 
 /**
@@ -74,27 +75,49 @@ export default function Operacao({
 
   return (
     <>
-      <div className={estilo.resumo}>
-        <Indicador
-          rotulo="Abertas em 12 meses"
-          valor={String(abertas12)}
-          nota={`${entregues12} entregues no mesmo período`}
-        />
-        {/* O ACÚMULO é o número que ninguém calcula sozinho, e o que mais
-            explica prateleira cheia: entrar mais do que sai, todo mês, por um
-            pouquinho. */}
-        <Indicador
-          rotulo={acumulo >= 0 ? 'Acumulou' : 'Vazou a fila'}
-          valor={`${acumulo >= 0 ? '+' : ''}${acumulo}`}
-          nota={
-            acumulo > 0
+      {/* =====================================================================
+          O CARTÃO-HERÓI
+          =====================================================================
+          Quatro indicadores do mesmo tamanho é o que deixava esta tela morna:
+          nada era muito maior que nada, e o olho lia a fileira como um
+          parágrafo em vez de encontrar a resposta.
+
+          O VOLUME DE 12 MESES vira o número-herói — é ele que dá a escala de
+          tudo que vem abaixo, e é a pergunta que traz alguém a esta aba. O
+          ACÚMULO fica colado nele como variação, porque acúmulo só significa
+          alguma coisa em relação ao volume: "+12" é grave numa casa de 22
+          ordens e irrelevante numa de 900.
+
+          Os outros dois continuam indicadores comuns. Um por tela é regra: o
+          segundo número-herói mata o primeiro. */}
+      <div className={estilo.heroi}>
+        <div className={estilo.heroiEsq}>
+          <Term nome="Volume" estado="12 meses" />
+          <BigNumber valor={String(abertas12)} rotulo="Ordens abertas no período" />
+          <p className={estilo.heroiNota}>
+            {entregues12} entregues no mesmo período
+          </p>
+        </div>
+        <div className={estilo.heroiDir}>
+          {/* O `tom` é escolhido AQUI, e não deduzido do sinal: acumular é
+              ruim mesmo subindo, e vazar a fila é bom mesmo descendo. */}
+          <Delta
+            valor={acumulo}
+            tom={acumulo > 0 ? 'ruim' : acumulo === 0 ? 'neutro' : 'bom'}
+            sufixo=""
+          />
+          <p className={estilo.heroiNota}>
+            {acumulo > 0
               ? 'entrou mais do que saiu — a fila cresce'
               : acumulo === 0
                 ? 'entrou e saiu na mesma medida'
-                : 'saiu mais do que entrou — a fila encolheu'
-          }
-          alerta={acumulo > 0}
-        />
+                : 'saiu mais do que entrou — a fila encolheu'}
+          </p>
+          <Exec href="/painel/ordens">Ver as ordens</Exec>
+        </div>
+      </div>
+
+      <div className={estilo.resumo3 ? `${estilo.resumo} ${estilo.resumo3}` : estilo.resumo}>
         <Indicador
           rotulo="Do balcão à entrega"
           valor={prazoTipico === null ? '—' : `${prazoTipico} dias`}
@@ -105,13 +128,18 @@ export default function Operacao({
           valor={String(emFila)}
           nota={filas.length > 0 ? `em ${filas.length} etapas diferentes` : 'nada em aberto'}
         />
+        <Indicador
+          rotulo="Entregues em 12 meses"
+          valor={String(entregues12)}
+          nota="o que de fato saiu pela porta"
+        />
       </div>
 
       {/* ===================================================================
           1. ENTROU × SAIU
           =================================================================== */}
       <div className={estilo.bloco}>
-        <p className={estilo.blocoTitulo}>Entrou e saiu, mês a mês</p>
+        <Term nome="Entrou e saiu" estado="mês a mês" />
         <p className={estilo.texto} style={{ maxWidth: '70ch' }}>
           A pergunta que sustenta tudo: <strong>está entrando mais do que sai?</strong> Uma oficina
           que abre doze e entrega oito por mês acumula quatro — e em seis meses tem vinte e quatro
@@ -139,7 +167,7 @@ export default function Operacao({
           2. QUANTO TEMPO LEVA
           =================================================================== */}
       <div className={estilo.bloco} style={{ marginTop: 'var(--s5)' }}>
-        <p className={estilo.blocoTitulo}>Quanto tempo leva, do balcão à entrega</p>
+        <Term nome="Quanto tempo leva" estado="do balcão à entrega" />
         <p className={estilo.texto} style={{ maxWidth: '70ch' }}>
           É a <strong>mediana</strong>, não a média. Um aparelho parado 210 dias esperando peça
           importada não descreve o serviço da casa — descreve um caso; na média, ele levanta o mês
@@ -170,7 +198,7 @@ export default function Operacao({
           3. ONDE O TRABALHO ESTÁ PARADO
           =================================================================== */}
       <div className={estilo.bloco} style={{ marginTop: 'var(--s5)' }}>
-        <p className={estilo.blocoTitulo}>Onde o trabalho está parado, agora</p>
+        <Term nome="Onde está parado" estado="agora" />
         <p className={estilo.texto} style={{ maxWidth: '70ch' }}>
           &ldquo;Sete em análise&rdquo; não diz nada sozinho. <strong>Sete de dezenove</strong> diz
           que mais de um terço da casa espera diagnóstico — e é isso que decide se o gargalo é a
@@ -220,7 +248,7 @@ export default function Operacao({
           =================================================================== */}
       <div className={estilo.duasColunas} style={{ marginTop: 'var(--s5)' }}>
         <div className={estilo.bloco}>
-          <p className={estilo.blocoTitulo}>O que mais quebra</p>
+          <Term nome="O que mais quebra" estado="12 meses" />
           <p className={estilo.dica}>
             Últimos 12 meses. Decide que peça vale ter em prateleira e em que aparelho treinar o
             técnico novo.
@@ -265,7 +293,7 @@ export default function Operacao({
         </div>
 
         <div className={estilo.bloco}>
-          <p className={estilo.blocoTitulo}>Quem traz o trabalho</p>
+          <Term nome="Quem traz o trabalho" estado="12 meses" />
           <p className={estilo.dica}>
             Últimos 12 meses. Costuma-se descobrir tarde que metade vem de três clientes.
           </p>
@@ -309,7 +337,7 @@ export default function Operacao({
           =================================================================== */}
       {comDinheiro ? (
         <div className={estilo.bloco} style={{ marginTop: 'var(--s5)' }}>
-          <p className={estilo.blocoTitulo}>Faturado e recebido, mês a mês</p>
+          <Term nome="Faturado e recebido" estado="mês a mês" />
           <p className={estilo.texto} style={{ maxWidth: '70ch' }}>
             São coisas diferentes, e a diferença entre elas é o buraco do caixa: faturar trinta mil
             e receber dezoito significa <strong>doze mil na rua</strong>. O gráfico do Financeiro

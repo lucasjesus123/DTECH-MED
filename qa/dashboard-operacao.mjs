@@ -68,13 +68,69 @@ await p.waitForLoadState('networkidle')
   ? ok('o título muda com a aba') : nao('o título não acompanhou a aba')
 
 const corpo = await p.locator('body').innerText()
-for (const i of ['ABERTAS EM 12 MESES', 'DO BALCÃO À ENTREGA', 'NA CASA AGORA']) {
+for (const i of ['VOLUME', 'DO BALCÃO À ENTREGA', 'NA CASA AGORA', 'ENTREGUES EM 12 MESES']) {
   corpo.toUpperCase().includes(i) ? ok(`indicador "${i}"`) : nao(`sem indicador "${i}"`)
 }
-// O acúmulo troca de nome conforme o sinal — é o mesmo número, dito na direção
-// em que ele de fato aconteceu.
-;/ACUMULOU|VAZOU A FILA/i.test(corpo)
-  ? ok('indicador do acúmulo (entrou × saiu)') : nao('sem o indicador de acúmulo')
+
+// ---------------------------------------------------------------------------
+console.log('\n2b) AS QUATRO PEÇAS DE ASSINATURA estão na tela')
+// ---------------------------------------------------------------------------
+/**
+ * Term, BigNumber, Delta e Exec são o que dá a hierarquia desta tela: um número
+ * de 56px ao lado de um rótulo de 10px em caixa alta. Quatro indicadores do
+ * mesmo tamanho — o que havia antes — não têm hierarquia nenhuma: o olho varre
+ * os quatro e não encontra a resposta.
+ */
+const termos = await p.locator('[class*="term"]').count()
+termos >= 7
+  ? ok(`${termos} cabeçalhos em Term (o herói + os seis blocos)`)
+  : nao(`só ${termos} Term na tela — os títulos soltos voltaram?`)
+
+// `strong[class*="big"]`, e não `[class*="big"]`: o segundo casaria também com
+// `bigValor` e `bigSufixo`, que são filhos do herói — e a conferência de "um
+// por tela", logo abaixo, acusaria três heróis onde há um.
+const heroi = await p.locator('strong[class*="big"]').first().innerText().catch(() => '')
+;/\d/.test(heroi)
+  ? ok(`o número-herói existe e traz número: ${JSON.stringify(heroi.replace(/\n/g, ' '))}`)
+  : nao('sem número-herói na tela')
+
+// UM por tela. O segundo mata o primeiro: dois candidatos a "o mais
+// importante" fazem o olho voltar a varrer tudo.
+const quantosHerois = await p.locator('strong[class*="big"]').count()
+quantosHerois === 1
+  ? ok('e é o único — um número-herói por tela')
+  : nao(`${quantosHerois} números-herói na mesma tela`)
+
+/**
+ * O DELTA DO ACÚMULO. A seta vem do sinal, mas a COR vem de quem chama:
+ * acumular é ruim mesmo subindo. Se o tom fosse deduzido do sinal, "+13 na
+ * fila" sairia verde — a pior notícia da tela, pintada de boa.
+ */
+const delta = p.locator('[class*="delta"]').first()
+const textoDelta = await delta.innerText().catch(() => '')
+;/[+−-]?\d/.test(textoDelta)
+  ? ok(`o acúmulo virou Delta: ${JSON.stringify(textoDelta.replace(/\n/g, ' '))}`)
+  : nao('sem o Delta do acúmulo')
+
+// A janela é escrita aqui inteira porque `JANELA`, mais abaixo no arquivo,
+// ainda não existe neste ponto — `const` não sobe.
+const DOZE = `(date_trunc('month', (now() at time zone 'America/Sao_Paulo')) - interval '11 months') at time zone 'America/Sao_Paulo'`
+const acumuloNoBanco = Number(sql(`
+  select (select count(*) from ordens where "abertaEm" >= ${DOZE})
+       - (select count(*) from ordens where "entregueEm" is not null
+            and "entregueEm" >= ${DOZE})`))
+const corDelta = await delta.evaluate((el) => getComputedStyle(el).color)
+// Acúmulo positivo tem de vestir a cor de problema, não a de sucesso.
+const ehVermelho = /rgb\(2[0-9][0-9]|rgb\(1[89][0-9]/.test(corDelta)
+acumuloNoBanco > 0
+  ? (ehVermelho ? ok(`acúmulo de +${acumuloNoBanco} veste a cor de problema`)
+                : nao(`acúmulo de +${acumuloNoBanco} não está vermelho: ${corDelta}`))
+  : ok(`acúmulo de ${acumuloNoBanco} — sem acúmulo para conferir a cor`)
+
+const exec = await p.locator('[class*="exec"]').first().innerText().catch(() => '')
+;/EXEC/i.test(exec)
+  ? ok(`a ação em Exec: ${JSON.stringify(exec.replace(/\n/g, ' '))}`)
+  : nao('sem o Exec no cartão-herói')
 
 // Lixo de renderização. A busca é no texto ORIGINAL: "fiNANceiro" contém "nan".
 const lixo = (await p.locator('body').innerText()).match(/\bundefined\b|\bNaN\b|\[object Object\]/)
@@ -83,14 +139,15 @@ lixo ? nao(`"${lixo[0]}" na tela`) : ok('nenhum lixo de renderização')
 // ---------------------------------------------------------------------------
 console.log('\n3) Os seis blocos estão na tela')
 // ---------------------------------------------------------------------------
-const titulos = (await p.locator('[class*="blocoTitulo"]').allInnerTexts()).join(' | ').toUpperCase()
+// Os cabeçalhos são `Term` — `● › NOME // ESTADO` — e não mais título solto.
+const titulos = (await p.locator('[class*="term"]').allInnerTexts()).join(' | ').toUpperCase()
 const BLOCOS = [
-  'ENTROU E SAIU, MÊS A MÊS',
-  'QUANTO TEMPO LEVA, DO BALCÃO À ENTREGA',
-  'ONDE O TRABALHO ESTÁ PARADO, AGORA',
+  'ENTROU E SAIU',
+  'QUANTO TEMPO LEVA',
+  'ONDE ESTÁ PARADO',
   'O QUE MAIS QUEBRA',
   'QUEM TRAZ O TRABALHO',
-  'FATURADO E RECEBIDO, MÊS A MÊS',
+  'FATURADO E RECEBIDO',
 ]
 for (const b of BLOCOS) {
   titulos.includes(b) ? ok(`bloco "${b}"`) : nao(`falta o bloco "${b}"`)
@@ -155,9 +212,13 @@ divergiu ? nao(`a base diverge do banco — ${divergiu}`) : ok('os 12 meses bate
 
 // E o indicador do topo é a soma da própria base — não outra consulta.
 const somaAbertas = doBanco.reduce((s, l) => s + Number(l.split(':')[1]), 0)
-const valorTopo = await p.locator('[class*="indicador"]', { hasText: /Abertas em 12 meses/i })
-  .locator('[class*="indValor"]').innerText().catch(() => '')
-valorTopo.trim() === String(somaAbertas)
+// O número-herói substituiu o indicador "Abertas em 12 meses". O rótulo para
+// leitor de tela viaja dentro dele, então a comparação tira os não-dígitos.
+// Lê o ELEMENTO DO VALOR, e não o `strong` inteiro: o rótulo para leitor de
+// tela vive lá dentro, e extrair "todos os dígitos" do conjunto colava o
+// número do rótulo no do valor.
+const valorTopo = (await p.locator('[class*="bigValor"]').first().innerText().catch(() => '')).trim()
+valorTopo === String(somaAbertas)
   ? ok(`"Abertas em 12 meses" = ${somaAbertas}, a soma da base`)
   : nao(`o indicador diz ${valorTopo} e a base soma ${somaAbertas}`)
 

@@ -259,6 +259,32 @@
   --casca-txt:   light-dark(#F1F4FA, #E8EDFA);
   --casca-txt-2: light-dark(#96A2C2, #96A2C2);
   --selo-neutro: light-dark(#EAEFF8, #182136);
+
+  /* --- O QUE É PAPEL, E NÃO TELA ---------------------------------------
+     Branco de verdade nos dois temas, e isso é decisão e não esquecimento.
+
+     Três coisas no sistema não são interface: a assinatura que o cliente
+     desenha, o QR do WhatsApp que uma câmera vai ler, e a pré-visualização do
+     documento que vai ser impresso. Todas as três precisam do mesmo branco em
+     qualquer tema — a assinatura é tinta escura e some sobre fundo escuro; o
+     leitor de QR precisa do contraste que ele espera; e pré-visualizar um
+     documento em fundo escuro esconde justamente o problema de contraste que
+     aparece no papel.
+
+     Ficam como TOKEN, e não como `#fff` solto, para que a próxima varredura
+     não os "corrija" achando que são descuido. O nome diz que são papel. */
+  --papel-branco: #FFFFFF;
+  --papel-tinta:  #0B1020;
+
+  /* O escuro atrás de um modal. Estava escrito `var(--preto, #08040F)` — e
+     `--preto` nunca existiu neste projeto, então quem valia era o segundo
+     valor: o preto-violeta da paleta antiga, sobrevivendo dentro de um
+     fallback que ninguém lia. */
+  --veu-modal: light-dark(rgba(11, 16, 32, .55), rgba(4, 7, 15, .72));
+
+  /* A varredura que atravessa o botão primário ao passar o mouse. No claro
+     ela precisa ser escura para aparecer sobre o cobalto; no escuro, clara. */
+  --lustro: light-dark(rgba(255, 255, 255, .34), rgba(255, 255, 255, .26));
 }
 
 .app {
@@ -1575,7 +1601,8 @@
   height: auto;
   margin-bottom: var(--s3);
   padding: var(--s2) var(--s3);
-  background: #fff;
+  /* Papel, não tela: a assinatura é tinta escura e sumiria no tema escuro. */
+  background: var(--papel-branco);
   border: 1px solid var(--borda);
   border-radius: var(--r-sm, 6px);
 }
@@ -2466,7 +2493,7 @@
   padding: var(--s5);
   /* O escuro por trás não é enfeite: é o que diz que a lista continua ali e
      que isto é temporário. */
-  background: color-mix(in oklab, var(--preto, #08040F) 72%, transparent);
+  background: var(--veu-modal);
   backdrop-filter: blur(3px);
   overflow-y: auto;
 }
@@ -2710,8 +2737,11 @@
   width: 9px;
   height: 9px;
   border-radius: 999px;
-  background: var(--sinal, #22C55E);
-  box-shadow: 0 0 0 0 color-mix(in oklab, var(--sinal, #22C55E) 70%, transparent);
+  /* Sem fallback: `--sinal` existe desde sempre. O `#22C55E` que estava aqui
+     era o verde de outra paleta, esperando um dia em que o token sumisse —
+     e se ele sumisse, o certo seria quebrar, não pintar de um verde de fora. */
+  background: var(--sinal);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--sinal) 70%, transparent);
   animation: pulsoAoVivo 2s ease-out infinite;
   flex: none;
 }
@@ -3677,7 +3707,7 @@
   background: linear-gradient(
     100deg,
     transparent 35%,
-    color-mix(in oklab, #fff 26%, transparent) 50%,
+    var(--lustro) 50%,
     transparent 65%
   );
   transform: translateX(-120%);
@@ -4777,8 +4807,8 @@
    impresso ou lido em PDF, e pré-visualizar em fundo escuro esconde exatamente
    o problema de contraste que aparece no papel. */
 .modeloPapel {
-  background: #FFFFFF;
-  color: #14071F;
+  background: var(--papel-branco);
+  color: var(--papel-tinta);
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
   padding: var(--s5);
@@ -5970,4 +6000,236 @@ a.calNumero:hover, a.calNumero:focus-visible {
   outline: 2px solid var(--vio);
   outline-offset: 2px;
   border-radius: var(--r-s, 4px);
+}
+
+/* ==========================================================================
+   A ASSINATURA DO CONSOLE — Term, Exec, Delta, BigNumber
+   ==========================================================================
+   As quatro peças que dão a "cara" do console. Elas vêm antes de qualquer tela
+   porque é delas que sai o salto de escala: um número de 56px ao lado de um
+   rótulo de 10px em caixa alta espaçada.
+
+   Escala média em tudo é o que deixa uma tela morna. Quando o título tem 22px,
+   o número 28 e o rótulo 13, nada é muito maior que nada — o olho não tem para
+   onde ir primeiro e lê a tela como se fosse um parágrafo.
+
+   CAIXA ALTA AQUI É `text-transform`, E NÃO O TEXTO. Leitor de tela lê
+   "RECEITA" letra por letra em vários motores. O HTML escreve "Receita"; o CSS
+   mostra RECEITA. Ver o comentário do `console.tsx`.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   TERM — `● › RECEITA // MTD`
+   -------------------------------------------------------------------------- */
+.term {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 var(--s3);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--txt-2);
+  /* A cor da linha vem do tom; `currentColor` a espalha para o pip e as barras
+     sem repetir o token em quatro lugares. */
+}
+
+/* O pip. Seis pixels e um halo — é o único elemento decorativo que brilha, e
+   ele brilha porque é o que diz "isto está vivo agora". */
+.termPip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+  box-shadow: 0 0 var(--neon-raio, 10px) -1px currentColor;
+}
+.termSeta { opacity: .55; }
+.termNome { color: var(--txt); font-weight: 700; }
+.termBarra { opacity: .5; }
+.termEstado { color: currentColor; }
+
+.termMarca  { color: var(--marca-tinta); }
+.termAlerta { color: var(--alerta); }
+.termQuieto { color: var(--txt-3); }
+/* Teal é tinta de INFERÊNCIA. Ver a nota no `console.tsx`: um Term teal num
+   painel comum apagaria a diferença entre dado e conclusão. */
+.termIa     { color: var(--ai); }
+.termIa .termPip { box-shadow: 0 0 var(--neon-raio, 10px) -1px var(--ai); }
+
+/* --------------------------------------------------------------------------
+   EXEC — `EXEC ››› DETALHES ↗`
+   -------------------------------------------------------------------------- */
+.exec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-pill, 999px);
+  background: var(--sup-2);
+  color: var(--txt-2);
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .16s var(--ease, ease), color .16s var(--ease, ease),
+              background .16s var(--ease, ease);
+}
+.exec:hover {
+  border-color: var(--marca-tinta);
+  color: var(--txt);
+  background: var(--vio-veu);
+}
+.execRotulo { opacity: .5; }
+.execSetas  { color: var(--marca-tinta); letter-spacing: 0; }
+.execTexto  { color: inherit; }
+.execSaida  { opacity: .6; }
+
+.execIa:hover { border-color: var(--ai); background: var(--ai-veu); }
+.execIa .execSetas { color: var(--ai); }
+
+/* --------------------------------------------------------------------------
+   DELTA — `↗ +12%`
+   -------------------------------------------------------------------------- */
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--r-pill, 999px);
+  border: 1px solid transparent;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+.deltaSeta { font-weight: 400; }
+
+/* O ESTADO SAUDÁVEL NÃO GANHA FUNDO VERDE.
+   Sobre azul-marinho o verde chapado fica ácido e compete com o teal da IA — e
+   se tudo colore, nada chama atenção. O bom é a TINTA verde sobre a superfície
+   neutra; só o que exige ação (âmbar, vermelho) preenche a pílula. */
+.deltaBom {
+  color: var(--sinal);
+  background: var(--sup-2);
+  border-color: var(--borda);
+}
+.deltaNeutro {
+  color: var(--txt-2);
+  background: var(--sup-2);
+  border-color: var(--borda);
+}
+.deltaAtencao {
+  color: var(--espera);
+  background: var(--espera-veu);
+  border-color: var(--espera-borda);
+}
+.deltaRuim {
+  color: var(--alerta);
+  background: var(--alerta-veu);
+  border-color: var(--alerta-borda);
+}
+.deltaIa {
+  color: var(--ai);
+  background: var(--ai-veu);
+  border-color: var(--ai-borda);
+}
+
+/* --------------------------------------------------------------------------
+   BIGNUMBER — o número-herói
+   --------------------------------------------------------------------------
+   `clamp` com `cqi`, e não `vw`: a unidade precisa responder à largura do
+   CARTÃO, não à da janela. É o mesmo erro que os cinco indicadores do
+   Financeiro já pagaram — com `vw`, o número calculado pela janela não cabe na
+   caixa onde ele é desenhado, e transborda 22 pixels em 1280px de tela.
+
+   Para o `cqi` valer, quem envolve o número precisa ser contêiner. A regra
+   abaixo faz do próprio pai o contêiner sem exigir nada de quem usa. */
+.big {
+  display: block;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 13cqi, 3.5rem);
+  letter-spacing: -.055em;
+  line-height: .95;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+}
+.big::before { content: ''; }
+:where(.big) { container-type: inline-size; }
+
+.bigValor { font: inherit; letter-spacing: inherit; }
+
+.bigSufixo {
+  font-size: .38em;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-left: .18em;
+  color: var(--txt-2);
+}
+
+/* O BRILHO SÓ EXISTE NO ESCURO.
+   Halo é luz, e luz só se vê contra o escuro: o mesmo `text-shadow` que faz o
+   número acender sobre #060A14 vira borrão cinzento sobre branco. No claro o
+   número já se destaca pelo peso e pelo tamanho — não precisa de muleta. */
+.bigMarca  { color: var(--marca-tinta); text-shadow: var(--num-glow); }
+.bigIa     { color: var(--ai); text-shadow: var(--ai-brilho); }
+.bigAlerta { color: var(--alerta); }
+
+@media (prefers-reduced-motion: reduce) {
+  .exec { transition: none; }
+}
+
+/* --------------------------------------------------------------------------
+   O CARTÃO-HERÓI
+   --------------------------------------------------------------------------
+   Ele existe para quebrar a fileira de indicadores iguais. Quatro caixas do
+   mesmo tamanho não têm hierarquia: o olho varre as quatro e não encontra a
+   resposta, porque nenhuma delas se apresenta como a principal.
+
+   A grade é `1fr auto`: o número manda na largura e a variação ocupa só o que
+   precisa. Abaixo de 720px eles empilham — lado a lado num telefone, o número
+   de 56px e a pílula disputariam a mesma linha e o número encolheria até
+   deixar de ser herói. */
+.heroi {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--s4);
+  padding: var(--s5);
+  margin-bottom: var(--s4);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  /* Card não tem sombra neste sistema. O que o separa do fundo é a borda e a
+     própria superfície — sombra em card espalha peso por toda a tela e a
+     elevação deixa de significar "isto flutua". */
+}
+.heroiEsq { min-width: 0; container-type: inline-size; }
+.heroiDir {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s2);
+  text-align: right;
+}
+.heroiNota {
+  margin: var(--s2) 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+
+@media (max-width: 720px) {
+  .heroi { grid-template-columns: 1fr; align-items: start; }
+  .heroiDir { align-items: flex-start; text-align: left; }
 }

@@ -92,7 +92,9 @@ export default function Conexao({
             alt="QR Code para conectar o WhatsApp"
             width={240}
             height={240}
-            style={{ background: '#fff', padding: 10, borderRadius: 'var(--r)' }}
+            // Papel, não tela: é uma câmera que vai ler isto, e ela espera o
+            // contraste de um QR impresso.
+            style={{ background: 'var(--papel-branco)', padding: 10, borderRadius: 'var(--r)' }}
           />
           {paircode ? (
             <p className={estilo.texto}>
