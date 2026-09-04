@@ -161,6 +161,10 @@ node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, cha
 node dashboard-operacao.mjs >"$LOGS/dop.log" 2>&1; marcar $? "o dashboard em gráficos: as bases batem com o banco, e o motorista sem dinheiro"
 node busca-barra.mjs     >"$LOGS/bb.log" 2>&1; marcar $? "a busca da barra: número, nome do cliente, e a última O.S. dele"
 node modelos-documento.mjs >"$LOGS/md.log" 2>&1; marcar $? "modelos: cinco por tipo, e a O.S. que sai sozinha para o cliente"
+# Só LÊ o desenho — não cria nem apaga nada. Podia estar em qualquer ponto da
+# fase 2; fica aqui porque varre as mesmas telas que os roteiros de cima
+# acabaram de povoar, e tela vazia esconde card com sombra.
+node azul-fase4.mjs     >"$LOGS/az4.log" 2>&1; marcar $? "Azul Máquina: a aura atrás de tudo, nenhum card com sombra, e a linha em 38px"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

@@ -226,6 +226,23 @@
   --num-glow:   light-dark(none, 0 0 42px rgba(76, 125, 255, .42));
   --gridline:   light-dark(rgba(20, 32, 70, .045), rgba(140, 165, 220, .055));
 
+  /* --- A AURA TEM TINTA PRÓPRIA, E O MOTIVO É A REGRA MAIS DURA DAQUI ----
+     Os dois halos do fundo saíam de `--vio-veu-2` e `--ai-veu` — os mesmos
+     tokens que pintam véu de seleção e superfície de IA. Reaproveitar `--ai-veu`
+     custou caro na primeira volta: em tela vazia dava para APONTAR o verde no
+     canto direito, e teal apontável no fundo apaga a única pista que o operador
+     tem para saber que o que está lendo é conclusão da máquina, e não dado.
+
+     Por isso o teal da aura é quase metade do da IA. Nesse regime ele deixa de
+     ser cor e vira temperatura: muda o que se sente daquele canto sem que
+     ninguém consiga nomear a cor. O cobalto pode ser mais forte — ele é a
+     marca, e marca no fundo é exatamente o que a aura deveria dizer.
+
+     A prova é simples e vale repetir a cada mexida: abra uma tela vazia no
+     escuro. Se você conseguir dizer "ali está verde", o valor tem de cair. */
+  --aura-marca: light-dark(rgba(43, 91, 224, .13), rgba(76, 125, 255, .20));
+  --aura-ia:    light-dark(rgba(0, 124, 113, .05), rgba(0, 224, 198, .06));
+
   /* --- A RAMPA DA ESTEIRA ----------------------------------------------
      Oito degraus de cobalto a azul-céu, codificando a proximidade da entrega.
 
@@ -3458,8 +3475,8 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(46rem 30rem at 4% 0%, var(--vio-veu-2), transparent 66%),
-    radial-gradient(40rem 34rem at 100% 30%, var(--ai-veu), transparent 68%);
+    radial-gradient(46rem 30rem at 4% 0%, var(--aura-marca), transparent 66%),
+    radial-gradient(40rem 34rem at 100% 30%, var(--aura-ia), transparent 68%);
   opacity: .8;
 }
 
@@ -3483,7 +3500,7 @@
    e é literal: a 0,45 a aura no claro é sentida ao trocar de tema e não se
    consegue apontar com a tela parada. */
 .app[data-tema='claro'] .principal::before { opacity: .45; }
-.app[data-tema='claro'] .principal::after  { opacity: .7; }
+.app[data-tema='claro'] .principal::after  { opacity: .55; }
 
 /* A barra de cima ganha um fio de luz na base. Ela já era "vidro"; o fio é o
    que faz o vidro ter borda em vez de terminar no nada. */
