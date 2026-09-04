@@ -73,6 +73,32 @@ export function formatarBRL(centavos: number): string {
 }
 
 /**
+ * 'R$ 18,4 mil' — dinheiro curto, para onde a caixa é estreita.
+ *
+ * Escala de eixo de gráfico, meta de degrau da esteira, selo dentro de cartão:
+ * lugares onde `R$ 18.470,00` não cabe, e onde os centavos não mudam decisão
+ * nenhuma. O valor cheio continua sendo o do `formatarBRL`, e é ele que aparece
+ * onde alguém vai conferir número.
+ *
+ * ISTO VIVIA DUPLICADO, E AS DUAS CÓPIAS JÁ TINHAM DIVERGIDO — uma devolvia
+ * `R$ 12,4 mil` e a outra `12,4 mil`. É exatamente o que o comentário do
+ * `calcularTotal`, logo abaixo, avisa que acontece quando uma fórmula mora em
+ * dois lugares. Esta é a de `relatorios.tsx`, promovida sem alterar um
+ * caractere. A de `operacao.tsx` FICA onde está e não foi unificada: ela
+ * formata rótulo de eixo onde a moeda já está dita no título, e omitir o `R$`
+ * ali é escolha, não desleixo — juntar as duas mudaria aquele gráfico.
+ */
+export function formatarBRLCurto(centavos: number): string {
+  const reais = centavos / 100
+  if (reais === 0) return 'R$ 0'
+  if (reais >= 1_000_000)
+    return `R$ ${(reais / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`
+  if (reais >= 1000)
+    return `R$ ${(reais / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mil`
+  return `R$ ${reais.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
+}
+
+/**
  * Total do orçamento. Fonte única da fórmula — se ela viver em dois lugares,
  * um dos dois vai divergir numa alteração futura.
  *

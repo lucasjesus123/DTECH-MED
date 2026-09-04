@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { formatarBRL } from '@/lib/dinheiro'
+import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
 import type { FaixaDeIdade, FatiaCategoria, MesDoFluxo } from '@/server/consultas/caixa'
 import estilo from '../painel.module.css'
 
@@ -222,7 +222,7 @@ function GraficoFluxo({ fluxo }: { fluxo: MesDoFluxo[] }) {
               <g key={f}>
                 <line x1={EIXO} x2={L} y1={y} y2={y} className={estilo.grafGrade} />
                 <text x={EIXO - 8} y={y + 4} textAnchor="end" className={estilo.grafEscala}>
-                  {curtoBRL(teto * f)}
+                  {formatarBRLCurto(teto * f)}
                 </text>
               </g>
             )
@@ -416,15 +416,6 @@ function arredondarParaCima(centavos: number): number {
     if (centavos <= ordem * passo) return ordem * passo
   }
   return ordem * 10
-}
-
-/** 'R$ 30 mil' — a escala do eixo, curta o bastante para caber no gutter. */
-function curtoBRL(centavos: number): string {
-  const reais = centavos / 100
-  if (reais === 0) return 'R$ 0'
-  if (reais >= 1_000_000) return `R$ ${(reais / 1_000_000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mi`
-  if (reais >= 1000) return `R$ ${(reais / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} mil`
-  return `R$ ${reais.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
 }
 
 function rotuloMes(mes: string): string {

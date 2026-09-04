@@ -979,22 +979,44 @@
   margin-bottom: var(--s6);
 }
 
-/* O trilho: uma linha que atravessa os oito, atrás deles. */
+/* O TRILHO: uma linha que atravessa os oito, POR CIMA deles.
+   =========================================================================
+   "ATRÁS" NÃO FUNCIONAVA, E O DEFEITO SÓ APARECE COM DADO NA TELA.
+   =========================================================================
+   Ele era desenhado atrás dos cartões. Só que cartão tem fundo opaco: o trilho
+   só existia nos oito pixels de vão entre um e outro. Na tela isso não lia como
+   uma linha atravessando a esteira — lia como três ou quatro risquinhos azuis
+   soltos no meio dos cartões, cada um de uma cor diferente. Parecia defeito de
+   renderização, que é o pior tipo de enfeite: chama atenção para dizer nada.
+
+   Agora ele passa por cima das faces e por baixo dos nós, e aí sim é um trilho:
+   uma linha contínua de cobalto a azul-céu, com os oito nós pousados nela. É a
+   escala inteira desenhada de uma vez, e é contra ela que cada nó diz "estou
+   aqui no caminho".
+
+   `top` pousa no CENTRO DO NÓ, e está escrito como conta e não como número
+   escolhido a olho: 1px de borda do degrau + 12px de padding + 13px de metade
+   do nó. Se o padding do degrau mudar, o trilho acompanha sozinho. */
 .esteira::before {
   content: '';
   position: absolute;
   left: 6%;
   right: 6%;
-  top: 34px;
+  top: calc(1px + var(--s3) + 13px);
   height: 2px;
+  z-index: 1;
   border-radius: 99px;
   background: linear-gradient(
     to right,
     transparent,
-    var(--borda-viva) 8%,
-    var(--borda-viva) 92%,
+    var(--e1) 8%,
+    var(--e3) 32%,
+    var(--e5) 58%,
+    var(--e7) 82%,
+    var(--e8) 92%,
     transparent
   );
+  opacity: .5;
   pointer-events: none;
 }
 
@@ -1011,9 +1033,16 @@
   border: 1px solid var(--borda);
   border-radius: var(--r-lg);
   padding: var(--s3) var(--s3) var(--s4);
-  display: grid;
+  /* FLEX, E NÃO GRID, por causa da barra. Em grid com `align-content: start`
+     as linhas são do tamanho do conteúdo e não sobra folga para distribuir —
+     `margin-top: auto` na barra não teria a que se agarrar. Em coluna flex a
+     folga do cartão vai toda para ela, e as oito barras pousam na mesma altura
+     mesmo com metas de tamanhos diferentes. É isso que faz a esteira se ler
+     como régua em vez de oito cartões parecidos. */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 5px;
-  align-content: start;
   text-decoration: none;
   transition:
     transform 180ms var(--ease),
@@ -1051,9 +1080,12 @@
   background: var(--vio-forte);
   border-radius: 2px;
 }
+/* O degrau aberto é chapado de cobalto, e tudo dentro dele vira branco — a cor
+   da etapa não sobrevive sobre o próprio cobalto. `.degrauNota` saiu daqui
+   junto com a classe: ela virou `.degrauMeta`, que carrega três informações em
+   vez de uma frase. */
 .degrauAtivo .degrauRot { color: color-mix(in oklab, var(--sobre-vio) 78%, var(--vio-claro)); }
-.degrauAtivo .degrauNum,
-.degrauAtivo .degrauNota { color: var(--sobre-vio); }
+.degrauAtivo .degrauNum { color: var(--sobre-vio); }
 
 .degrauRot {
   font-size: var(--t-xs);
@@ -1075,40 +1107,165 @@
    */
   min-height: 2.6em;
 }
+/* A CONTAGEM NA COR DA ETAPA.
+   Era `--txt` em todos os oito: oito números idênticos, e a posição no percurso
+   só existia numa faixa de 3px no topo. Na cor da rampa, o número passa a
+   dizer sozinho onde está no caminho — e continua passando 4,5:1 sobre o
+   cartão nos dois temas, que é o teto que a rampa foi calibrada para respeitar.
+   O degrau que grita e o degrau vazio sobrescrevem logo abaixo: alerta e
+   ausência mandam mais que posição. */
 .degrauNum {
   font-family: var(--f-display);
   font-size: var(--t-2xl);
   font-weight: 700;
   line-height: 1;
-  color: var(--txt);
+  color: var(--sc);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
 }
-/* Zero não é notícia. Ele recua para o número que importa saltar. */
+/* ZERO NÃO É NOTÍCIA. Ele recua para o número que importa saltar — e recua
+   inclusive da cor da etapa: um zero pintado de azul-céu chama tanto quanto um
+   sete, e chamar para o nada é o desperdício mais caro numa régua de oito.
+
+   Esta classe existia no CSS e NUNCA era aplicada: o React montava a lista de
+   classes com `degrau`, `degrauAtivo` e `degrauGrita`, e só. Oito zeros saíam
+   do mesmo tamanho e do mesmo peso dos números de verdade desde sempre. Agora
+   ela chega. */
 .degrauZero .degrauNum { color: var(--txt-3); font-weight: 600; }
 .degrauAtivo.degrauZero .degrauNum { color: var(--sobre-vio); }
+.degrauZero .degrauNo { border-color: var(--e-trilho); }
 
-.degrauNota {
-  font-size: var(--t-xs);
+/* O NÓ — 26px sobre o trilho.
+   Ele é o que faz os oito cartões lerem como UMA esteira com oito posições, e
+   não como oito indicadores enfileirados: o trilho passa atrás, o nó pousa em
+   cima, e o olho fecha a linha sozinho. Vazio enquanto ninguém aponta, cheio
+   quando o degrau está aberto — a seleção se lê pelo nó antes de se ler pelo
+   fundo. */
+.degrauNo {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--sc);
+  background: var(--carta);
+  margin-bottom: var(--s1);
+  /* Acima do trilho, que agora passa por cima das faces dos cartões. Sem isto
+     a linha cortaria o nó ao meio em vez de passar por trás dele. */
+  position: relative;
+  z-index: 2;
+  transition: background 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.degrau:hover .degrauNo { background: color-mix(in oklab, var(--sc) 18%, var(--carta)); }
+.degrauAtivo .degrauNo {
+  border-color: var(--sobre-vio);
+  background: var(--sobre-vio);
+}
+/* O nó do gargalo é o único que muda de forma. Ver a nota do selo: cor sozinha
+   não comunica estado, e quem não separa âmbar de azul precisa de outra pista
+   além da tinta. */
+.degrauGargalo .degrauNo { border-style: dashed; border-color: var(--espera); }
+
+.degrauMeta {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .02em;
   color: var(--txt-3);
   line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+.degrauAtivo .degrauMeta { color: var(--sobre-vio); }
+
+/* A BARRA — o volume em forma.
+   Ela repete o número que está logo acima, e a redundância é o ponto: de
+   longe, a silhueta da régua se lê antes de qualquer dígito. Trilho sempre
+   visível para que "quase vazio" seja diferente de "sem barra".
+
+   `margin-top: auto` É O QUE FAZ ISSO SER UMA RÉGUA. Sem ele a barra fica logo
+   abaixo da meta, e a meta tem altura variável — um degrau com três informações
+   empurra a barra dele para baixo enquanto os vizinhos ficam em cima. Oito
+   barras em oito alturas diferentes não se comparam; só se comparam se
+   estiverem todas na mesma linha. Empurrada para o fim do cartão, ela pousa
+   sempre na mesma altura, porque a grade já iguala a altura dos oito. */
+.degrauBarra {
+  height: 3px;
+  border-radius: 99px;
+  background: var(--e-trilho);
+  overflow: hidden;
+  margin-top: auto;
+  padding-top: 0;
+}
+.degrauBarra > i {
+  display: block;
+  height: 100%;
+  width: var(--parte, 0%);
+  border-radius: 99px;
+  background: var(--sc);
+}
+.degrauAtivo .degrauBarra { background: color-mix(in oklab, var(--sobre-vio) 28%, transparent); }
+.degrauAtivo .degrauBarra > i { background: var(--sobre-vio); }
+
+/* O SELO DE GARGALO.
+   =========================================================================
+   ELE NÃO É TEAL, E ISSO FOI ESCOLHA.
+   =========================================================================
+   A direção pedia `⌁ Gargalo` — o glifo e a tinta que este sistema reserva
+   para inferência da máquina. Mas a regra da tinta de IA, que o próprio
+   documento chama de a mais importante daqui, exige que toda saída de IA traga
+   selo, CONFIANÇA e FONTE CLICÁVEL: "número sem confiança não sai da máquina".
+
+   O gargalo é um `max()` sobre uma média de dias. É aritmética determinística:
+   não tem confiança para mostrar nem fonte para clicar. Vesti-lo de teal
+   ensinaria o operador a ler teal como "calculado" — e gastaria a tinta antes
+   de as funções de IA de verdade chegarem, que é exatamente a confusão que a
+   regra existe para evitar.
+
+   Então ele mora no registro de ATENÇÃO, com marcador de forma além da cor:
+   o triângulo e o nó tracejado dizem "olhe aqui" para quem não separa âmbar de
+   azul. */
+.degrauSelo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: start;
+  margin-top: var(--s1);
+  padding: 2px 7px;
+  border-radius: var(--r-pill, 999px);
+  border: 1px solid var(--espera-borda);
+  background: var(--espera-veu);
+  color: var(--espera);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.degrauSelo::before {
+  content: '▲';
+  font-size: 7px;
+  line-height: 1;
+}
+.degrauAtivo .degrauSelo {
+  border-color: color-mix(in oklab, var(--sobre-vio) 50%, transparent);
+  background: color-mix(in oklab, var(--sobre-vio) 16%, transparent);
+  color: var(--sobre-vio);
 }
 
-/* Alerta na base, não no card inteiro: precisa saltar sem transformar a tela
-   num painel de emergência. */
+/* ALERTA MANDA MAIS QUE POSIÇÃO.
+   O número passou a sair na cor da etapa; onde há ordem travada ele volta ao
+   vermelho. A ordem das prioridades no degrau é: onde estou no caminho, a
+   menos que alguma coisa esteja pegando fogo.
+
+   AQUI HAVIA UM `::after` MORTO, e vale registrar porque ele enganava a
+   leitura. Este bloco desenhava uma faixa vermelha na BASE do cartão — só que
+   a regra da rampa, lá embaixo no arquivo, também usa `.degrau::after`, com a
+   mesma especificidade e depois na ordem do documento. Ela vencia sempre. A
+   faixa de baixo nunca chegou a existir na tela: quem lia o CSS via um alerta
+   na base, e quem olhava o sistema via a faixa do topo ficar vermelha. */
 .degrauGrita .degrauNum { color: var(--alerta); }
-.degrauGrita::after {
-  content: '';
-  position: absolute;
-  left: var(--s3);
-  right: var(--s3);
-  bottom: 0;
-  height: 3px;
-  border-radius: 99px 99px 0 0;
-  background: var(--alerta);
-}
 .degrauAtivo.degrauGrita .degrauNum { color: var(--sobre-vio); }
-.degrauAtivo.degrauGrita::after { background: var(--sobre-vio); }
+.degrauGrita .degrauBarra > i { background: var(--alerta); }
+.degrauGrita .degrauNo { border-color: var(--alerta); }
 
 @media (max-width: 1100px) {
   .esteira { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -2068,18 +2225,14 @@
   box-shadow: 0 0 var(--neon-raio) var(--neon-veu);
 }
 
-/* O trilho da esteira ganha um miolo violeta: ele deixa de ser um fio cinza
-   de separação e passa a ler como a linha por onde a peça anda. */
-.esteira::before {
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--vio-borda) 8%,
-    var(--neon-veu) 50%,
-    var(--vio-borda) 92%,
-    transparent
-  );
-}
+/* O TRILHO NÃO É REDECLARADO AQUI, e a remoção vale nota.
+   Havia uma segunda `.esteira::before` neste ponto do arquivo, mil linhas
+   depois da primeira, repintando o trilho de violeta. Ela vencia em silêncio —
+   mesma especificidade, e depois na ordem do documento. Quando a rampa passou
+   a ser cobalto→azul-céu, o degradê novo foi escrito lá em cima e a tela
+   continuou mostrando o violeta antigo: o CSS dizia uma coisa e o navegador
+   pintava outra, sem erro em lugar nenhum.
+   O trilho tem UM dono agora, junto da definição da esteira. */
 
 /* --- 3. A tela em que a pessoa está --------------------------------------
    A barra da esquerda do item ativo. A lateral é a única peça que não troca
@@ -3545,21 +3698,31 @@
 .latItemAtivo .latIcone { color: var(--vio-claro); }
 
 /* --------------------------------------------------------------------------
-   A ESTEIRA COM TEMPERATURA
+   A RAMPA DA ESTEIRA
    --------------------------------------------------------------------------
-   `--passo` chega do React: a posição do degrau no percurso, de 0 a 7.
+   `--passo` chega do React: a posição do degrau no percurso, de 0 a 7. `--sc`
+   chega junto: a cor DESTE degrau, apontando para a rampa `--e1..--e8`.
 
-   `--calor` transforma isso numa proporção, e a faixa do topo mistura as duas
-   cores do sistema nessa proporção — violeta na chegada, verde na saída. O
-   resultado é uma escala contínua em vez de oito etiquetas, e ela sobrevive a
-   um degrau novo sem ninguém precisar escolher a cor dele.
+   ERA VIOLETA→VERDE, E O VERDE ERA O ERRO. A faixa misturava `--sinal` com
+   `--vio` na proporção do passo, então o oitavo degrau saía verde. Verde neste
+   sistema é ESTADO — "em dia", "saudável" —, e a esteira não fala de estado:
+   ela codifica PROXIMIDADE DA ENTREGA. Uma etapa adiantada não é boa, é
+   adiantada. O resultado prático do erro era a esteira disputar o olho com o
+   alerta, que é a única coisa ali que precisa ser vista de longe.
 
-   O fallback (`--passo: 0`) importa: se um dia a variável não vier, a faixa
-   fica violeta em todos, que é exatamente o que existia antes. Nada quebra.
+   Agora vai de cobalto a azul-céu, e PARA ANTES DO TEAL de propósito: teal é
+   tinta exclusiva de inferência da máquina, e um degrau teal diria ao operador
+   que aquela contagem é conclusão do sistema em vez de ordem contada.
+
+   Todo o desenho interno lê `var(--sc)` — nó, faixa, número e barra. É uma
+   variável e não oito regras porque a esteira pode mudar de tamanho:
+   acrescentar um degrau amanhã não deve exigir lembrar de acrescentar uma cor.
+   O fallback (`--sc: var(--e1)`) importa: se um dia a variável não vier, a
+   esteira fica cobalto inteira — discreta e correta, nunca quebrada.
    -------------------------------------------------------------------------- */
 .degrau {
   --passo: 0;
-  --calor: calc(var(--passo) / 7 * 100%);
+  --sc: var(--e1);
   overflow: hidden;
 }
 
@@ -3570,7 +3733,7 @@
   right: 0;
   top: 0;
   height: 3px;
-  background: color-mix(in oklab, var(--sinal) var(--calor), var(--vio));
+  background: var(--sc);
   opacity: .55;
   transition: opacity 200ms var(--ease), height 200ms var(--ease);
 }

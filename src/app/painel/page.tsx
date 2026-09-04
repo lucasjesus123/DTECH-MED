@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { formatarBRL } from '@/lib/dinheiro'
+import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
-import { esteira, filaDoDegrau, resumoDoDia } from '@/server/consultas/painel'
+import { esteira, filaDoDegrau, resumoDoDia, type Degrau } from '@/server/consultas/painel'
 import {
   dinheiroMensal,
   movimentoMensal,
@@ -71,7 +71,7 @@ export default async function PainelDoDia({
    * uma esteira que não usa nenhuma delas.
    */
   const [degraus, resumo, fila, leads, contatosNovos] = await Promise.all([
-    esteira(ctx),
+    esteira(ctx, { comDinheiro }),
     resumoDoDia(ctx, { comDinheiro }),
     filaDoDegrau(ctx, degrau),
     // A tira traz três; a contagem diz quantos são de verdade. Sem ela, "3
@@ -96,6 +96,7 @@ export default async function PainelDoDia({
       : null
 
   const selecionado = degraus.find((d) => d.chave === degrau) ?? degraus[0]!
+  const maiorDegrau = Math.max(...degraus.map((d) => d.total))
 
   /**
    * A aba de OPERAÇÃO sai por aqui.
@@ -169,8 +170,9 @@ export default async function PainelDoDia({
         />
       </div>
 
-      {/* A ESTEIRA. Cada degrau diz quantos estão parados e há quanto tempo —
-          é o número que faz alguém agir, e é o que o ERP antigo escondia.
+      {/* A ESTEIRA. Cada degrau diz quantos estão parados, há quanto tempo, e
+          quanto está represado ali — e um deles diz que é o gargalo. É o que
+          faz alguém agir, e é o que o ERP antigo escondia.
 
           ELA VEM PRIMEIRO, e isto foi corrigido: os contatos do site ficavam
           acima dela, com a mensagem inteira de cada um numa célula de tabela.
@@ -184,37 +186,69 @@ export default async function PainelDoDia({
       <nav className={estilo.esteira} aria-label="Etapas da esteira">
         {degraus.map((d, i) => {
           const ativo = d.chave === degrau
+          /* A BARRA É PROPORCIONAL AO MAIOR DEGRAU, e não ao total da esteira.
+             Contra o total, oito degraus equilibrados dariam oito barras de
+             12% — todas curtas, nenhuma comparável com nenhuma. Contra o
+             maior, o maior enche e os outros se leem como fração dele, que é
+             a comparação que a pessoa de fato faz ao olhar a régua. */
+          const parte = maiorDegrau > 0 ? Math.round((d.total / maiorDegrau) * 100) : 0
           return (
             <Link
               key={d.chave}
               href={`/painel?degrau=${d.chave}`}
-              className={[estilo.degrau, ativo ? estilo.degrauAtivo : '', d.travadas > 0 ? estilo.degrauGrita : '']
+              className={[
+                estilo.degrau,
+                ativo ? estilo.degrauAtivo : '',
+                d.travadas > 0 ? estilo.degrauGrita : '',
+                d.total === 0 ? estilo.degrauZero : '',
+                d.gargalo ? estilo.degrauGargalo : '',
+              ]
                 .filter(Boolean)
                 .join(' ')}
               aria-current={ativo ? 'page' : undefined}
               /**
-               * A POSIÇÃO NA ESTEIRA, entregue ao CSS.
+               * A POSIÇÃO NA ESTEIRA E A COR DELA, entregues ao CSS.
                *
-               * Com ela o degrau sabe onde está no percurso, e o desenho passa a
-               * carregar informação em vez de enfeite: a faixa de cima esquenta
-               * da chegada (frio, violeta) para a saída (quente, verde), e a
-               * entrada dos oito acontece em cascata, da esquerda para a
-               * direita — o mesmo sentido em que o trabalho anda.
+               * `--passo` é a posição no percurso, de 0 a 7: é dela que sai a
+               * entrada em cascata, da esquerda para a direita — o mesmo
+               * sentido em que o trabalho anda.
+               *
+               * `--sc` é a cor DESTE degrau, tirada da rampa. Todo o CSS
+               * interno lê `var(--sc)`, então o nó, a faixa, o número e a barra
+               * combinam sem ninguém repetir a cor em quatro regras.
+               *
+               * A RAMPA VAI DE COBALTO A AZUL-CÉU E PARA ANTES DO TEAL, e as
+               * duas pontas são deliberadas. Ela codifica PROXIMIDADE DA
+               * ENTREGA, e proximidade não é estado: uma etapa adiantada não é
+               * "boa", é adiantada. Antes era um `color-mix` que terminava em
+               * VERDE — a cor de estado saudável deste sistema —, e o efeito
+               * era a esteira competir com o alerta que precisa ser visto. O
+               * teal fica de fora porque é tinta exclusiva de inferência da
+               * máquina.
                *
                * Vem daqui e não de oito classes no CSS porque a esteira pode
                * mudar de tamanho: acrescentar um degrau amanhã não deve exigir
                * lembrar de acrescentar uma cor.
                */
-              style={{ '--passo': i } as CSSProperties}
+              style={{ '--passo': i, '--sc': `var(--e${i + 1})` } as CSSProperties}
             >
+              <span className={estilo.degrauNo} aria-hidden="true" />
               <span className={estilo.degrauRot}>{d.rotulo}</span>
               <span className={estilo.degrauNum}>{d.total}</span>
-              <span className={estilo.degrauNota}>
-                {d.travadas > 0
-                  ? `${d.travadas} há mais de 5 dias`
-                  : d.diasDaMaisAntiga != null && d.total > 0
-                    ? `mais antiga há ${d.diasDaMaisAntiga}d`
-                    : '—'}
+              <span className={estilo.degrauMeta}>{metaDoDegrau(d)}</span>
+              {d.gargalo ? <span className={estilo.degrauSelo}>Gargalo</span> : null}
+              {/* A barra REPETE em forma o número que está logo acima. É
+                  redundância de propósito: quem varre a esteira de longe lê a
+                  silhueta antes de ler qualquer dígito. Por ser redundante,
+                  fica escondida de quem ouve — o leitor de tela já disse o
+                  número, e repeti-lo como "62 por cento" só faria barulho.
+
+                  ELA É O ÚLTIMO FILHO, e isso é requisito: é o que permite ao
+                  CSS empurrá-la para o rodapé do cartão e alinhar as oito na
+                  mesma linha. Com o selo depois dela, o degrau que tem selo
+                  levantaria a barra dele e a régua se perderia. */}
+              <span className={estilo.degrauBarra} aria-hidden="true">
+                <i style={{ '--parte': `${parte}%` } as CSSProperties} />
               </span>
             </Link>
           )
@@ -374,6 +408,40 @@ function Indicador({
       <span className={estilo.indNota}>{nota}</span>
     </div>
   )
+}
+
+/**
+ * A linha de meta do degrau — `4 travadas · máx. 11d · R$ 18,4 mil`.
+ *
+ * =============================================================================
+ * A ORDEM É A DA URGÊNCIA, E ELA CORTA EM VEZ DE EMPILHAR
+ * =============================================================================
+ * Cabem três informações numa caixa de um oitavo de tela, e nem sempre as três
+ * merecem estar lá. A regra é: o que exige ação vem primeiro, e o que não muda
+ * decisão nenhuma nem entra.
+ *
+ *   · TRAVADAS abre a linha quando existe. "4 travadas" é a única das três que
+ *     diz "vá ali agora"; pôr a idade na frente dela seria enterrar o pedido de
+ *     socorro embaixo de uma estatística. É "travadas" e não "4 há mais de 5
+ *     dias" porque a caixa tem um oitavo de tela: a frase inteira quebrava em
+ *     três linhas e empurrava a barra de todos os outros degraus para baixo,
+ *     acabando com a régua. O critério dos cinco dias está no tipo `Degrau`, e
+ *     o "máx. 9d" logo ao lado já diz a ordem de grandeza.
+ *   · A IDADE só aparece a partir de um dia. "máx. 0d" ocupa espaço para
+ *     dizer que está tudo em dia, e para isso já serve o silêncio.
+ *   · O DINHEIRO fecha, e some inteiro para quem não pode vê-lo — não porque
+ *     esta função esconde, mas porque o campo chega `null` do servidor.
+ *
+ * Degrau vazio devolve travessão. Ele não é falta de dado: é a resposta, e é
+ * uma boa notícia.
+ */
+function metaDoDegrau(d: Degrau): string {
+  if (d.total === 0) return '—'
+  const partes: string[] = []
+  if (d.travadas > 0) partes.push(`${d.travadas} travadas`)
+  if (d.diasDaMaisAntiga != null && d.diasDaMaisAntiga >= 1) partes.push(`máx. ${d.diasDaMaisAntiga}d`)
+  if (d.valorEmAberto != null && d.valorEmAberto > 0) partes.push(formatarBRLCurto(d.valorEmAberto))
+  return partes.length > 0 ? partes.join(' · ') : 'em dia'
 }
 
 function saudacao(): string {
