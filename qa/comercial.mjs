@@ -95,6 +95,66 @@ await p.goto(`${QA_BASE}/painel/contatos`, { waitUntil: 'networkidle' })
 const t2 = await texto()
 t2.includes('aguardando resposta') ? ok('a aba de contatos ainda mostra o que era dela') : nao('a aba de contatos quebrou')
 
+// ---------------------------------------------------------------------------
+console.log('\n7b) A ABA DE ORÇAMENTOS PASSA A CRIAR, e não só a espelhar')
+// ---------------------------------------------------------------------------
+// Ela mostrava o que já existe e não deixava começar nada. Quem sentava para
+// orçar tinha de sair do Comercial e garimpar na lista geral de ordens quais
+// estão esperando preço, no meio das que estão na bancada e das que estão na rua.
+await p.goto(`${QA_BASE}/painel/contatos?aba=orcamentos`, { waitUntil: 'networkidle' })
+const botaoMontar = p.getByRole('button', { name: 'Montar orçamento' })
+;(await botaoMontar.count()) > 0
+  ? ok('a aba de orçamentos tem o botão de montar')
+  : nao('a aba de orçamentos continua só receptiva')
+
+await botaoMontar.click()
+await p.waitForTimeout(700)
+
+/**
+ * A lista tem de trazer EXATAMENTE as ordens em que fazer preço faz sentido.
+ *
+ * Uma lista larga demais devolveria o garimpo que o botão veio resolver; uma
+ * estreita demais esconderia trabalho. As quatro etapas abaixo são as que o
+ * servidor promete, e a conferência é contra o banco — não contra a tela.
+ */
+const esperandoNoBanco = sql(`select count(*) from ordens
+  where etapa in ('RECEBIDO_NA_EMPRESA','EM_ANALISE','ORCAMENTO_INTERNO','ORCAMENTO_REPROVADO')`)
+const naListaMontar = await p.locator('table', { hasText: 'PARADA HÁ' }).locator('tbody tr').count()
+  .catch(() => 0)
+const linhasMontar = naListaMontar || (await p.locator('a[href*="#orcamento"]').count())
+String(linhasMontar) === esperandoNoBanco
+  ? ok(`a lista traz as ${esperandoNoBanco} O.S. que esperam preço — nem mais, nem menos`)
+  : nao(`a lista não bate com o banco: tela ${linhasMontar} × banco ${esperandoNoBanco}`)
+
+// O botão leva ao lugar onde o orçamento é montado DE VERDADE — a âncora
+// dentro da O.S., com as peças do estoque, o laudo e a garantia.
+const destino = await p.locator('a[href*="#orcamento"]').first().getAttribute('href').catch(() => null)
+;/\/painel\/ordens\/[a-z0-9]+#orcamento/.test(String(destino))
+  ? ok(`"Montar" leva à O.S., na âncora do orçamento: ${destino}`)
+  : nao(`o botão de montar não leva ao orçamento da O.S.: ${destino}`)
+
+// E a O.S. de destino ABRE, com o bloco do orçamento presente. Um link que
+// leva a uma âncora que não existe é pior que link nenhum.
+if (destino) {
+  await p.goto(`${QA_BASE}${destino}`, { waitUntil: 'networkidle' })
+  const temBloco = (await p.locator('#orcamento').count()) > 0
+  temBloco
+    ? ok('a âncora existe na ficha da O.S. — o link não cai no vazio')
+    : nao('a O.S. não tem a âncora #orcamento')
+}
+
+// O contrário também: "anotar contato" não pode aparecer na aba de orçamentos,
+// e "montar orçamento" não pode aparecer na de contatos. Botão fora de assunto
+// é o que faz a pessoa parar de ler os botões.
+await p.goto(`${QA_BASE}/painel/contatos?aba=orcamentos`, { waitUntil: 'networkidle' })
+const anotarNaErrada = await p.getByRole('button', { name: 'Anotar contato' }).count()
+await p.goto(`${QA_BASE}/painel/contatos`, { waitUntil: 'networkidle' })
+const montarNaErrada = await p.getByRole('button', { name: 'Montar orçamento' }).count()
+const anotarNaCerta = await p.getByRole('button', { name: 'Anotar contato' }).count()
+anotarNaErrada === 0 && montarNaErrada === 0 && anotarNaCerta === 1
+  ? ok('cada aba tem o SEU botão de criar, e só ele')
+  : nao(`botões trocados de aba — anotar/orç:${anotarNaErrada} montar/cont:${montarNaErrada} anotar/cont:${anotarNaCerta}`)
+
 console.log('\n8) Os dois temas, em 1440 e 390')
 for (const tema of ['escuro', 'claro']) {
   await p.evaluate((x) => { document.cookie = `dtechmed_tema=${x}; path=/; max-age=31536000` }, tema)

@@ -2,10 +2,16 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirNivel, exigirAba } from '@/server/auth/guarda'
 import { formatarBRL } from '@/lib/dinheiro'
-import { listarFunil, motivosDeRecusa, resumoDoFunil } from '@/server/consultas/comercial'
+import {
+  listarFunil,
+  motivosDeRecusa,
+  ordensEsperandoOrcamento,
+  resumoDoFunil,
+} from '@/server/consultas/comercial'
 import { listarContatos } from '@/server/consultas/listas'
 import AbasComercial, { type AbaComercial } from './abas'
 import RegistrarContato from './registrar'
+import MontarOrcamento from './montar'
 import Funil from './funil'
 import Lista from './lista'
 import estilo from '../painel.module.css'
@@ -80,10 +86,15 @@ export default async function Comercial({
 
       <AbasComercial atual={aba} />
 
-      {/* Anotar contato só faz sentido na aba de CONTATOS. Na de orçamentos
-          seria um botão fora de assunto, e botão fora de assunto é o que faz a
-          pessoa parar de ler os botões. */}
+      {/* CADA ABA TEM O SEU BOTÃO DE CRIAR, e são botões diferentes porque as
+          duas criam coisas diferentes.
+
+          Anotar contato na aba de orçamentos seria um botão fora de assunto, e
+          botão fora de assunto é o que faz a pessoa parar de ler os botões. O
+          contrário também: "montar orçamento" na aba de contatos pediria uma
+          O.S. que ainda não existe — o contato do site é anterior a ela. */}
       {aba === 'contatos' ? <RegistrarContato /> : null}
+      {aba === 'orcamentos' ? <AbrirOrcamento ctx={ctx} /> : null}
 
       {aba === 'orcamentos' ? (
         <PainelOrcamentos ctx={ctx} fase={q.fase ?? ''} busca={q.busca ?? ''} dias={q.dias} />
@@ -95,6 +106,17 @@ export default async function Comercial({
 }
 
 type Ctx = Awaited<ReturnType<typeof exigirNivel>>['ctx']
+
+/**
+ * O botão de MONTAR ORÇAMENTO, com a lista de quem está esperando preço.
+ *
+ * A consulta roda aqui e não dentro do componente de cliente: `comEscopo` é de
+ * servidor, e é ele que garante que a lista traz só ordens DESTA empresa.
+ */
+async function AbrirOrcamento({ ctx }: { ctx: Ctx }) {
+  const ordens = await ordensEsperandoOrcamento(ctx)
+  return <MontarOrcamento ordens={ordens} />
+}
 
 async function PainelContatos({
   ctx,

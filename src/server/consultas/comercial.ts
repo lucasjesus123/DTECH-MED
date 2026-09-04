@@ -1,4 +1,5 @@
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 
 /**
  * O FUNIL COMERCIAL — o que ainda não virou serviço.
@@ -256,4 +257,99 @@ export async function motivosDeRecusa(ctx: ContextoAcesso, dias = 90) {
       totalCentavos: Number(l.total),
     }))
   })
+}
+
+/**
+ * AS O.S. QUE ESTÃO ESPERANDO PREÇO.
+ *
+ * =============================================================================
+ * A OUTRA PONTA DO FUNIL, QUE NÃO TINHA TELA
+ * =============================================================================
+ * O funil responde "quanto está esperando um SIM". Ele não responde a pergunta
+ * que vem ANTES dela: **de quais aparelhos ninguém fez o preço ainda**.
+ *
+ * Essas O.S. não aparecem em lugar nenhum do Comercial — elas ainda não têm
+ * orçamento, então não há linha para mostrar. Ficavam na lista geral de ordens,
+ * misturadas com as que estão na bancada e as que estão na rua, e a pessoa que
+ * senta para orçar tinha de garimpar.
+ *
+ * É por isso que a aba de Orçamentos era só espelho: dava para acompanhar o que
+ * já foi feito e não dava para COMEÇAR nada.
+ *
+ * =============================================================================
+ * POR QUE ELA LISTA ORDENS, E NÃO ABRE UM FORMULÁRIO EM BRANCO
+ * =============================================================================
+ * Orçamento não nasce de uma folha em branco: ele é o preço DE UM APARELHO que
+ * está aqui, com um defeito diagnosticado. Um botão que abrisse um formulário
+ * vazio pediria "escolha a ordem" no primeiro campo — empurrando a pessoa para
+ * a mesma escolha, dois cliques depois e com a sensação de ter sido enganada.
+ *
+ * A mesma decisão da parada e da preventiva no Calendário.
+ *
+ * =============================================================================
+ * O QUE ENTRA
+ * =============================================================================
+ * As etapas em que fazer preço faz sentido: o aparelho chegou, está em análise,
+ * o orçamento está montado mas não saiu, ou o cliente reprovou e cabe refazer.
+ *
+ * ORCAMENTO_ENVIADO fica de FORA de propósito — esse já tem preço e está
+ * esperando o cliente, que é exatamente o que a lista do funil ao lado mostra.
+ * Repeti-lo aqui faria a mesma O.S. pedir duas ações contrárias na mesma tela.
+ */
+const ESPERANDO_PRECO = [
+  'RECEBIDO_NA_EMPRESA',
+  'EM_ANALISE',
+  'ORCAMENTO_INTERNO',
+  'ORCAMENTO_REPROVADO',
+] as const
+
+export type OrdemSemPreco = {
+  id: string
+  numero: number
+  etapa: string
+  /** Traduzido AQUI: a tabela de rótulos é de servidor e não vai ao navegador. */
+  etapaRotulo: string
+  cliente: string
+  equipamento: string
+  defeito: string
+  /** Há quantos dias parada nesta etapa. É o número que denuncia a esquecida. */
+  diasParada: number
+  /** Já houve uma tentativa? Reprovado com versão anterior muda a conversa. */
+  versoes: number
+}
+
+export async function ordensEsperandoOrcamento(ctx: ContextoAcesso): Promise<OrdemSemPreco[]> {
+  const linhas = await comEscopo(ctx, (tx) =>
+    tx.ordem.findMany({
+      where: { etapa: { in: ESPERANDO_PRECO as unknown as never } },
+      // A MAIS ANTIGA PRIMEIRO. A O.S. que fica sem preço é a que está parada
+      // há duas semanas e ninguém lembra; ela nunca está no topo de uma lista
+      // ordenada por data decrescente.
+      orderBy: { atualizadoEm: 'asc' },
+      take: 60,
+      select: {
+        id: true,
+        numero: true,
+        etapa: true,
+        defeitoRelatado: true,
+        atualizadoEm: true,
+        cliente: { select: { nome: true } },
+        equipamento: { select: { marca: true, modelo: true } },
+        _count: { select: { orcamentos: true } },
+      },
+    }),
+  )
+
+  const agora = Date.now()
+  return linhas.map((o) => ({
+    id: o.id,
+    numero: o.numero,
+    etapa: o.etapa,
+    etapaRotulo: ROTULO_ETAPA[o.etapa] ?? o.etapa,
+    cliente: o.cliente.nome,
+    equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`,
+    defeito: o.defeitoRelatado,
+    diasParada: Math.floor((agora - o.atualizadoEm.getTime()) / 86_400_000),
+    versoes: o._count.orcamentos,
+  }))
 }
