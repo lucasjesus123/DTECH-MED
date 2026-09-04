@@ -160,9 +160,17 @@ noMes.includes('QA-CAL compromisso do botão')
   ? ok('o compromisso recém-criado já está na grade do mês')
   : nao('o compromisso criado não apareceu na grade')
 
-// O número do dia é o botão de marcar: um clique e o formulário está aberto.
-const diaDoMes = Number(hoje.slice(8))
-await p.locator('a[class*="calNumero"]', { hasText: new RegExp(`^${diaDoMes}$`) }).first().click()
+/**
+ * O número do dia é o botão de marcar: um clique e o formulário está aberto.
+ *
+ * A conferência casa pelo ENDEREÇO, e não pelo texto do número. A célula de
+ * hoje escreve "4 (hoje)" — o marcador é para quem usa leitor de tela, e está
+ * certo —, então casar `^4$` no texto reprovava a tela toda vez que o dia
+ * escolhido fosse o de hoje. Foi o que aconteceu na virada da meia-noite: o
+ * roteiro passou o dia inteiro verde e reprovou no dia seguinte, sem que nada
+ * no produto tivesse mudado.
+ */
+await p.locator(`a[class*="calNumero"][href*="dia=${hoje}"]`).first().click()
 await p.waitForTimeout(1500)
 ;(await p.locator('input[name=titulo]').count()) > 0
   ? ok('clicar no número do dia abre o formulário na hora')
