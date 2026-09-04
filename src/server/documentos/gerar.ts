@@ -23,7 +23,22 @@ import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
  *    emite em nome dela, o que é o que a operação de franquia exige.
  */
 
-type PedidoPdf = { ordemId: string; documento: TipoDocumento; eventoId?: string }
+type PedidoPdf = {
+  ordemId: string
+  documento: TipoDocumento
+  eventoId?: string
+  /**
+   * QUAL modelo escrever, quando não é o padrão.
+   *
+   * O disparo automático nomeia o molde: a empresa pode ter cinco ordens de
+   * serviço e escolher que a do recebimento saia com uma e a da entrega com
+   * outra. Sem isto, as cinco sairiam com o texto do padrão e a escolha da
+   * etapa não significaria nada.
+   */
+  modeloId?: string
+  /** Mandar ao cliente assim que o arquivo existir. Ver o worker. */
+  enviarAoCliente?: boolean
+}
 
 const RAIZ = () => path.resolve(env.STORAGE_LOCAL_PATH)
 
@@ -207,9 +222,14 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
 
   let usouModelo = false
   if (podeTerModelo) {
+    // O modelo NOMEADO tem precedência sobre o padrão — mas continua tendo de
+    // ser do tipo certo e estar ativo. Um id vindo de fora não escolhe texto de
+    // outra categoria nem ressuscita um molde aposentado.
     const modelo = await comEscopo(ctx, (tx) =>
       tx.modeloDocumento.findFirst({
-        where: { tipo: pedido.documento, padrao: true, ativo: true },
+        where: pedido.modeloId
+          ? { id: pedido.modeloId, tipo: pedido.documento, ativo: true }
+          : { tipo: pedido.documento, padrao: true, ativo: true },
         select: { nome: true, corpo: true },
       }),
     )
@@ -486,8 +506,8 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   await mkdir(path.dirname(destino), { recursive: true })
   await writeFile(destino, buffer)
 
-  await comEscopo(ctx, async (tx) => {
-    await tx.documento.create({
+  const criado = await comEscopo(ctx, async (tx) =>
+    tx.documento.create({
       data: {
         tenantId,
         ordemId: dados.id,
@@ -500,10 +520,20 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         // token é a única credencial — não pode ser derivado do relógio.
         tokenAcesso: novoToken(),
       },
-    })
-  })
+      select: { id: true, tokenAcesso: true },
+    }),
+  )
 
-  return { caminho: relativo, hash, bytes: buffer.length }
+  // O TOKEN VOLTA porque quem chamou pode precisar mandar o link ao cliente, e
+  // procurá-lo depois por "o último documento desta ordem" acertaria o
+  // documento errado no dia em que dois nascessem no mesmo segundo.
+  return {
+    caminho: relativo,
+    hash,
+    bytes: buffer.length,
+    documentoId: criado.id,
+    tokenAcesso: criado.tokenAcesso,
+  }
 }
 
 // ---------------------------------------------------------------------------

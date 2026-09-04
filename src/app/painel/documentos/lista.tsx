@@ -40,7 +40,11 @@ export type ModeloCartao = {
   autorNome: string | null
   tamanho: number
   corpo: string
+  /** A etapa que faz este modelo sair sozinho, ou null. */
+  dispararNaEtapa: string | null
 }
+
+export type EtapaDeDisparo = { chave: string; rotulo: string }
 
 export default function ListaDeModelos({
   tipo,
@@ -50,6 +54,8 @@ export default function ListaDeModelos({
   grupos,
   exemplos,
   podeMexer,
+  limite,
+  etapas,
 }: {
   tipo: string
   rotuloTipo: string
@@ -58,6 +64,9 @@ export default function ListaDeModelos({
   grupos: Array<[string, Variavel[]]>
   exemplos: Record<string, string>
   podeMexer: boolean
+  limite: number
+  /** Vazia nos tipos que NÃO saem sozinhos — e aí o campo nem aparece. */
+  etapas: EtapaDeDisparo[]
 }) {
   const [editando, setEditando] = useState<ModeloCartao | 'novo' | null>(null)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
@@ -74,6 +83,10 @@ export default function ListaDeModelos({
   }
 
   const temPadrao = modelos.some((m) => m.padrao && m.ativo)
+  // Aposentado não ocupa vaga: ele existe para o histórico, e cobrar vaga dele
+  // obrigaria a apagar histórico para escrever um molde novo.
+  const ativos = modelos.filter((m) => m.ativo).length
+  const lotado = ativos >= limite
 
   return (
     <>
@@ -83,12 +96,25 @@ export default function ListaDeModelos({
           <p className={estilo.texto}>
             {modelos.length === 0
               ? 'Nenhum modelo ainda.'
-              : `${modelos.length} modelo${modelos.length > 1 ? 's' : ''}${temPadrao ? '' : ' · nenhum marcado como padrão'}`}
+              : `${ativos} de ${limite} em uso${temPadrao ? '' : ' · nenhum marcado como padrão'}`}
           </p>
         </div>
         {podeMexer ? (
-          <button type="button" className={estilo.btn} onClick={() => setEditando('novo')}>
-            Novo modelo de {rotuloUm.toLowerCase()}
+          /* O botão continua VISÍVEL quando lota, e desligado com o motivo.
+             Sumir com ele faria a pessoa procurar onde se cria um modelo — e
+             o motivo real (cinco em uso) não estaria escrito em lugar nenhum. */
+          <button
+            type="button"
+            className={estilo.btn}
+            disabled={lotado}
+            title={
+              lotado
+                ? `Você já tem ${limite} em uso. Aposente ou exclua um para criar outro.`
+                : undefined
+            }
+            onClick={() => setEditando('novo')}
+          >
+            Novo modelo de {rotuloUm.toLowerCase()} ({ativos}/{limite})
           </button>
         ) : null}
       </div>
@@ -100,6 +126,14 @@ export default function ListaDeModelos({
         <p className={estilo.dica} role="status">
           Nenhum destes está marcado como padrão. Enquanto for assim, a emissão usa o texto embutido
           do sistema.
+        </p>
+      ) : null}
+
+      {lotado && podeMexer ? (
+        <p className={estilo.dica} role="status">
+          São {limite} modelos por tipo, e este chegou lá. O teto não é limitação técnica: com mais
+          que isso, na hora de emitir ninguém sabe qual está valendo. Aposente um para escrever
+          outro.
         </p>
       ) : null}
 
@@ -115,6 +149,7 @@ export default function ListaDeModelos({
           rotuloTipo={rotuloTipo}
           grupos={grupos}
           exemplos={exemplos}
+          etapas={etapas}
           modelo={editando === 'novo' ? undefined : editando}
           aoFechar={() => {
             setEditando(null)
@@ -150,6 +185,17 @@ export default function ListaDeModelos({
                 {m.padrao && m.ativo ? <span className={estilo.tag}>padrão</span> : null}
                 {!m.ativo ? <span className={estilo.tag}>aposentado</span> : null}
               </div>
+
+              {/* O SELO DO DISPARO. Um modelo que sai sozinho para o cliente
+                  não pode se parecer com um que só sai a pedido: é a diferença
+                  entre um texto guardado e um texto que a esteira manda. */}
+              {m.dispararNaEtapa && m.ativo ? (
+                <p className={`${estilo.tag} ${estilo.tagOk}`}>
+                  {/* Sem "em" antes do rótulo: metade das etapas já começa com
+                      "Em" e a frase saía "sai sozinho em Em análise". */}
+                  sai sozinho · {rotuloDaEtapa(etapas, m.dispararNaEtapa)}
+                </p>
+              ) : null}
 
               <p className={estilo.dica}>
                 {m.tamanho.toLocaleString('pt-BR')} caracteres
@@ -199,4 +245,9 @@ export default function ListaDeModelos({
       )}
     </>
   )
+}
+
+/** O rótulo da etapa, ou a chave crua se a lista não a tiver. */
+function rotuloDaEtapa(etapas: EtapaDeDisparo[], chave: string): string {
+  return etapas.find((e) => e.chave === chave)?.rotulo ?? chave
 }

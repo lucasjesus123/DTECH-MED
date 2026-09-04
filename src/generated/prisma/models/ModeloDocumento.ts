@@ -47,6 +47,7 @@ export type ModeloDocumentoMinAggregateOutputType = {
   corpo: string | null
   descricao: string | null
   padrao: boolean | null
+  dispararNaEtapa: string | null
   ativo: boolean | null
   autorId: string | null
   autorNome: string | null
@@ -62,6 +63,7 @@ export type ModeloDocumentoMaxAggregateOutputType = {
   corpo: string | null
   descricao: string | null
   padrao: boolean | null
+  dispararNaEtapa: string | null
   ativo: boolean | null
   autorId: string | null
   autorNome: string | null
@@ -77,6 +79,7 @@ export type ModeloDocumentoCountAggregateOutputType = {
   corpo: number
   descricao: number
   padrao: number
+  dispararNaEtapa: number
   ativo: number
   autorId: number
   autorNome: number
@@ -94,6 +97,7 @@ export type ModeloDocumentoMinAggregateInputType = {
   corpo?: true
   descricao?: true
   padrao?: true
+  dispararNaEtapa?: true
   ativo?: true
   autorId?: true
   autorNome?: true
@@ -109,6 +113,7 @@ export type ModeloDocumentoMaxAggregateInputType = {
   corpo?: true
   descricao?: true
   padrao?: true
+  dispararNaEtapa?: true
   ativo?: true
   autorId?: true
   autorNome?: true
@@ -124,6 +129,7 @@ export type ModeloDocumentoCountAggregateInputType = {
   corpo?: true
   descricao?: true
   padrao?: true
+  dispararNaEtapa?: true
   ativo?: true
   autorId?: true
   autorNome?: true
@@ -212,6 +218,7 @@ export type ModeloDocumentoGroupByOutputType = {
   corpo: string
   descricao: string | null
   padrao: boolean
+  dispararNaEtapa: string | null
   ativo: boolean
   autorId: string | null
   autorNome: string | null
@@ -248,6 +255,7 @@ export type ModeloDocumentoWhereInput = {
   corpo?: Prisma.StringFilter<"ModeloDocumento"> | string
   descricao?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   padrao?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
+  dispararNaEtapa?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   ativo?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
   autorId?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
@@ -264,6 +272,7 @@ export type ModeloDocumentoOrderByWithRelationInput = {
   corpo?: Prisma.SortOrder
   descricao?: Prisma.SortOrderInput | Prisma.SortOrder
   padrao?: Prisma.SortOrder
+  dispararNaEtapa?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
   autorId?: Prisma.SortOrderInput | Prisma.SortOrder
   autorNome?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -283,6 +292,7 @@ export type ModeloDocumentoWhereUniqueInput = Prisma.AtLeast<{
   corpo?: Prisma.StringFilter<"ModeloDocumento"> | string
   descricao?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   padrao?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
+  dispararNaEtapa?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   ativo?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
   autorId?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
@@ -299,6 +309,7 @@ export type ModeloDocumentoOrderByWithAggregationInput = {
   corpo?: Prisma.SortOrder
   descricao?: Prisma.SortOrderInput | Prisma.SortOrder
   padrao?: Prisma.SortOrder
+  dispararNaEtapa?: Prisma.SortOrderInput | Prisma.SortOrder
   ativo?: Prisma.SortOrder
   autorId?: Prisma.SortOrderInput | Prisma.SortOrder
   autorNome?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -320,6 +331,7 @@ export type ModeloDocumentoScalarWhereWithAggregatesInput = {
   corpo?: Prisma.StringWithAggregatesFilter<"ModeloDocumento"> | string
   descricao?: Prisma.StringNullableWithAggregatesFilter<"ModeloDocumento"> | string | null
   padrao?: Prisma.BoolWithAggregatesFilter<"ModeloDocumento"> | boolean
+  dispararNaEtapa?: Prisma.StringNullableWithAggregatesFilter<"ModeloDocumento"> | string | null
   ativo?: Prisma.BoolWithAggregatesFilter<"ModeloDocumento"> | boolean
   autorId?: Prisma.StringNullableWithAggregatesFilter<"ModeloDocumento"> | string | null
   autorNome?: Prisma.StringNullableWithAggregatesFilter<"ModeloDocumento"> | string | null
@@ -334,6 +346,7 @@ export type ModeloDocumentoCreateInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -350,6 +363,7 @@ export type ModeloDocumentoUncheckedCreateInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -364,6 +378,7 @@ export type ModeloDocumentoUpdateInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -380,6 +395,7 @@ export type ModeloDocumentoUncheckedUpdateInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -395,6 +411,7 @@ export type ModeloDocumentoCreateManyInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -409,6 +426,7 @@ export type ModeloDocumentoUpdateManyMutationInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -424,6 +442,7 @@ export type ModeloDocumentoUncheckedUpdateManyInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -449,6 +468,7 @@ export type ModeloDocumentoCountOrderByAggregateInput = {
   corpo?: Prisma.SortOrder
   descricao?: Prisma.SortOrder
   padrao?: Prisma.SortOrder
+  dispararNaEtapa?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
@@ -464,6 +484,7 @@ export type ModeloDocumentoMaxOrderByAggregateInput = {
   corpo?: Prisma.SortOrder
   descricao?: Prisma.SortOrder
   padrao?: Prisma.SortOrder
+  dispararNaEtapa?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
@@ -479,6 +500,7 @@ export type ModeloDocumentoMinOrderByAggregateInput = {
   corpo?: Prisma.SortOrder
   descricao?: Prisma.SortOrder
   padrao?: Prisma.SortOrder
+  dispararNaEtapa?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   autorId?: Prisma.SortOrder
   autorNome?: Prisma.SortOrder
@@ -535,6 +557,7 @@ export type ModeloDocumentoCreateWithoutTenantInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -549,6 +572,7 @@ export type ModeloDocumentoUncheckedCreateWithoutTenantInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -593,6 +617,7 @@ export type ModeloDocumentoScalarWhereInput = {
   corpo?: Prisma.StringFilter<"ModeloDocumento"> | string
   descricao?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   padrao?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
+  dispararNaEtapa?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   ativo?: Prisma.BoolFilter<"ModeloDocumento"> | boolean
   autorId?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
   autorNome?: Prisma.StringNullableFilter<"ModeloDocumento"> | string | null
@@ -607,6 +632,7 @@ export type ModeloDocumentoCreateManyTenantInput = {
   corpo: string
   descricao?: string | null
   padrao?: boolean
+  dispararNaEtapa?: string | null
   ativo?: boolean
   autorId?: string | null
   autorNome?: string | null
@@ -621,6 +647,7 @@ export type ModeloDocumentoUpdateWithoutTenantInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -635,6 +662,7 @@ export type ModeloDocumentoUncheckedUpdateWithoutTenantInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -649,6 +677,7 @@ export type ModeloDocumentoUncheckedUpdateManyWithoutTenantInput = {
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
   descricao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   padrao?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dispararNaEtapa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   autorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -666,6 +695,7 @@ export type ModeloDocumentoSelect<ExtArgs extends runtime.Types.Extensions.Inter
   corpo?: boolean
   descricao?: boolean
   padrao?: boolean
+  dispararNaEtapa?: boolean
   ativo?: boolean
   autorId?: boolean
   autorNome?: boolean
@@ -682,6 +712,7 @@ export type ModeloDocumentoSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   corpo?: boolean
   descricao?: boolean
   padrao?: boolean
+  dispararNaEtapa?: boolean
   ativo?: boolean
   autorId?: boolean
   autorNome?: boolean
@@ -698,6 +729,7 @@ export type ModeloDocumentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   corpo?: boolean
   descricao?: boolean
   padrao?: boolean
+  dispararNaEtapa?: boolean
   ativo?: boolean
   autorId?: boolean
   autorNome?: boolean
@@ -714,6 +746,7 @@ export type ModeloDocumentoSelectScalar = {
   corpo?: boolean
   descricao?: boolean
   padrao?: boolean
+  dispararNaEtapa?: boolean
   ativo?: boolean
   autorId?: boolean
   autorNome?: boolean
@@ -721,7 +754,7 @@ export type ModeloDocumentoSelectScalar = {
   atualizadoEm?: boolean
 }
 
-export type ModeloDocumentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "nome" | "tipo" | "corpo" | "descricao" | "padrao" | "ativo" | "autorId" | "autorNome" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["modeloDocumento"]>
+export type ModeloDocumentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "nome" | "tipo" | "corpo" | "descricao" | "padrao" | "dispararNaEtapa" | "ativo" | "autorId" | "autorNome" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["modeloDocumento"]>
 export type ModeloDocumentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
@@ -762,6 +795,18 @@ export type $ModeloDocumentoPayload<ExtArgs extends runtime.Types.Extensions.Int
      * padrões e a emissão escolheria um por acaso.
      */
     padrao: boolean
+    /**
+     * A etapa da esteira que faz este modelo SAIR SOZINHO e ir para o cliente.
+     * 
+     * Nulo é o comportamento de sempre: o modelo só sai quando alguém manda
+     * emitir. Preenchido, o motor gera o documento com ESTE texto e dispara o
+     * aviso no WhatsApp assim que a ordem chega naquela etapa.
+     * 
+     * Um por etapa, garantido por índice único parcial no banco: dois modelos
+     * ativos na mesma etapa mandariam dois documentos ao cliente no mesmo
+     * instante, e qual chegaria primeiro seria sorteio.
+     */
+    dispararNaEtapa: string | null
     /**
      * Aposentar sem apagar: documento já emitido aponta para o molde, e "com que
      * texto isto foi assinado?" precisa de resposta.
@@ -1202,6 +1247,7 @@ export interface ModeloDocumentoFieldRefs {
   readonly corpo: Prisma.FieldRef<"ModeloDocumento", 'String'>
   readonly descricao: Prisma.FieldRef<"ModeloDocumento", 'String'>
   readonly padrao: Prisma.FieldRef<"ModeloDocumento", 'Boolean'>
+  readonly dispararNaEtapa: Prisma.FieldRef<"ModeloDocumento", 'String'>
   readonly ativo: Prisma.FieldRef<"ModeloDocumento", 'Boolean'>
   readonly autorId: Prisma.FieldRef<"ModeloDocumento", 'String'>
   readonly autorNome: Prisma.FieldRef<"ModeloDocumento", 'String'>

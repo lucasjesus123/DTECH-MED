@@ -160,9 +160,20 @@ node calendario-visoes.mjs >"$LOGS/cv.log" 2>&1; marcar $? "o calendário em cin
 node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, chamar, arquivar — e arquivar não apaga"
 node dashboard-operacao.mjs >"$LOGS/dop.log" 2>&1; marcar $? "o dashboard em gráficos: as bases batem com o banco, e o motorista sem dinheiro"
 node busca-barra.mjs     >"$LOGS/bb.log" 2>&1; marcar $? "a busca da barra: número, nome do cliente, e a última O.S. dele"
+node modelos-documento.mjs >"$LOGS/md.log" 2>&1; marcar $? "modelos: cinco por tipo, e a O.S. que sai sozinha para o cliente"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"
+
+# O DISPARO DE PONTA A PONTA MEXE NO BANCO: ele abre O.S. próprias e as faz
+# andar pelo motor de verdade, com a fila e o worker. Por isso vem DEPOIS de
+# todo mundo que confere tela contra banco — inclusive do diagrama e dos
+# fluxos — e antes só da integração, que apaga tudo mesmo.
+cd "$RAIZ"
+set -a; . "$PG_ENV"; set +a
+npx tsx qa/disparo-do-modelo.mts >"$LOGS/dm.log" 2>&1
+marcar $? "o disparo automático: motor, fila, PDF do modelo e aviso com o link"
+cd "$RAIZ/qa"
 
 echo ""
 echo "═══ FASE 3 · INTEGRAÇÃO (apaga o banco: por último) ═══"

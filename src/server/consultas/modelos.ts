@@ -1,4 +1,5 @@
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { EtapaOrdem } from '@/generated/prisma/enums'
 
 /**
  * OS MOLDES DE DOCUMENTO, PARA A TELA.
@@ -42,6 +43,38 @@ export function ehTipoModelavel(t: string): t is TipoModelavel {
   return (TIPOS_MODELAVEIS as readonly string[]).includes(t)
 }
 
+/**
+ * CINCO MODELOS ATIVOS POR TIPO, E O NÚMERO APARECE NA TELA.
+ *
+ * =============================================================================
+ * POR QUE UM TETO
+ * =============================================================================
+ * Não é limitação técnica — é o que mantém a lista escolhível. Um tipo com
+ * dezoito moldes é um tipo em que ninguém sabe qual está valendo: na hora de
+ * emitir, a pessoa escolhe pelo nome que parece certo, e o contrato que sai é o
+ * que alguém escreveu para um caso que já não existe.
+ *
+ * Cinco cobre com folga o que uma assistência de fato tem — particular,
+ * convênio, hospital, órgão público, e um de reserva.
+ *
+ * O contador fica visível ("3/5") porque um teto que só aparece quando é
+ * atingido vira erro surpresa no meio do trabalho.
+ *
+ * APOSENTADO NÃO CONTA. Ele não aparece para escolher e existe só para
+ * responder "com que texto isto foi assinado?" — ocupar vaga com ele obrigaria
+ * a EXCLUIR histórico para poder escrever um molde novo.
+ */
+export const LIMITE_POR_TIPO = 5
+
+/**
+ * As etapas que podem disparar um modelo.
+ *
+ * Todas menos CANCELADO: mandar ao cliente o papel do serviço no instante em
+ * que o serviço foi cancelado é a comunicação mais confusa que o sistema
+ * conseguiria produzir.
+ */
+export const ETAPAS_DE_DISPARO = Object.values(EtapaOrdem).filter((e) => e !== EtapaOrdem.CANCELADO)
+
 export type ModeloNaLista = {
   id: string
   nome: string
@@ -51,6 +84,8 @@ export type ModeloNaLista = {
   ativo: boolean
   autorNome: string | null
   atualizadoEm: Date
+  /** A etapa que faz este modelo sair sozinho, ou `null` se ele só sai a pedido. */
+  dispararNaEtapa: string | null
   /** Só para o cartão dizer o tamanho sem carregar o texto inteiro na lista. */
   tamanho: number
 }
@@ -77,6 +112,7 @@ export async function listarModelos(ctx: ContextoAcesso, tipo: TipoModelavel): P
         ativo: true,
         autorNome: true,
         atualizadoEm: true,
+        dispararNaEtapa: true,
         corpo: true,
       },
     }),
@@ -84,10 +120,17 @@ export async function listarModelos(ctx: ContextoAcesso, tipo: TipoModelavel): P
   return linhas.map(({ corpo, ...resto }) => ({ ...resto, tamanho: corpo.length }))
 }
 
-/** Quantos moldes cada tipo tem — o número que a aba mostra ao lado do nome. */
+/**
+ * Quantos moldes ATIVOS cada tipo tem — o número que a aba mostra, e o mesmo
+ * que o teto de cinco conta.
+ *
+ * Antes contava tudo, aposentado incluído, e a aba dizia "Contratos (7)" quando
+ * havia dois em uso. Com o teto visível ao lado, contar o aposentado seria pior
+ * ainda: a tela diria 5/5 com duas vagas livres.
+ */
 export async function contarPorTipo(ctx: ContextoAcesso): Promise<Record<string, number>> {
   const linhas = await comEscopo(ctx, (tx) =>
-    tx.modeloDocumento.groupBy({ by: ['tipo'], _count: { _all: true } }),
+    tx.modeloDocumento.groupBy({ by: ['tipo'], where: { ativo: true }, _count: { _all: true } }),
   )
   const mapa: Record<string, number> = {}
   for (const l of linhas) mapa[l.tipo] = l._count._all

@@ -6,8 +6,10 @@ import { Papel } from '@/generated/prisma/enums'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
-import { ehTipoModelavel } from '@/server/consultas/modelos'
+import { ehTipoModelavel, ETAPAS_DE_DISPARO, LIMITE_POR_TIPO } from '@/server/consultas/modelos'
 import { marcadoresDe, VARIAVEIS } from '@/lib/variaveis-documento'
+import { EtapaOrdem } from '@/generated/prisma/enums'
+import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 
 /**
  * ESCREVER, GUARDAR E APOSENTAR OS MOLDES.
@@ -34,7 +36,29 @@ const schema = z.object({
   descricao: z.string().trim().max(200).optional(),
   corpo: z.string().min(1, 'O modelo está vazio — escreva o texto do documento.'),
   padrao: z.union([z.literal('on'), z.literal('true'), z.literal('')]).optional(),
+  /** Vazio = só sai a pedido. Preenchido = a etapa que o dispara sozinho. */
+  dispararNaEtapa: z.string().trim().optional(),
 })
+
+/**
+ * SÓ A ORDEM DE SERVIÇO SAI SOZINHA.
+ *
+ * =============================================================================
+ * E ISTO É PROPOSITAL, NÃO FALTA DE TEMPO
+ * =============================================================================
+ * O papel que acompanha o aparelho é informativo: mandar um a mais custa a
+ * paciência do cliente e nada além disso.
+ *
+ * O CONTRATO obriga as duas partes, e a NOTA PROMISSÓRIA é título de crédito
+ * com o valor da dívida escrito nela. Um desses saindo sozinho por causa de uma
+ * mudança de etapa é um documento vinculante enviado sem ninguém ter decidido
+ * enviá-lo — e a decisão de obrigar o cliente não pode ser efeito colateral de
+ * arrastar um cartão no quadro.
+ *
+ * Os dois continuam se emitindo à mão, na ficha da O.S., por quem pode.
+ */
+const DISPARA_SOZINHO: string[] = ['ORDEM_SERVICO']
+
 
 async function ator() {
   const sessao = await lerSessao()
@@ -79,9 +103,68 @@ export async function salvarModelo(_anterior: Resposta, form: FormData): Promise
   }
 
   const querPadrao = v.padrao === 'on' || v.padrao === 'true'
+
+  /**
+   * A ETAPA DO DISPARO É CONFERIDA AQUI, contra a lista fechada.
+   *
+   * Ela vem de um `select`, mas `select` é enfeite do navegador: o que chega ao
+   * servidor é texto, e texto de fora não escolhe em que momento da esteira o
+   * sistema manda documento para cliente.
+   */
+  const etapa = (v.dispararNaEtapa ?? '').trim()
+  let disparo: string | null = null
+  if (etapa !== '') {
+    if (!DISPARA_SOZINHO.includes(v.tipo)) {
+      return {
+        ok: false,
+        motivo:
+          'Só a Ordem de serviço sai sozinha. Contrato e nota promissória obrigam o cliente — eles continuam sendo emitidos à mão, na ficha da O.S.',
+      }
+    }
+    if (!(ETAPAS_DE_DISPARO as string[]).includes(etapa)) {
+      return { ok: false, motivo: 'Essa etapa da esteira não existe.' }
+    }
+    disparo = etapa
+  }
+
   const tenantId = exigirEmpresa(a.ctx)
 
   const r = await comEscopo(a.ctx, async (tx) => {
+    /**
+     * O TETO DE CINCO, CONTADO DENTRO DA TRANSAÇÃO.
+     *
+     * Contar antes de abrir a transação deixaria a janela clássica: duas abas
+     * salvando ao mesmo tempo contam quatro cada uma e gravam as duas, e o tipo
+     * termina com seis. Aqui a contagem e a gravação estão no mesmo lugar.
+     *
+     * Aposentado não ocupa vaga — ele existe para o histórico, e cobrar vaga
+     * dele obrigaria a apagar histórico para escrever um molde novo.
+     */
+    if (!v.id) {
+      const ativos = await tx.modeloDocumento.count({ where: { tipo: v.tipo, ativo: true } })
+      if (ativos >= LIMITE_POR_TIPO) {
+        return {
+          ok: false as const,
+          motivo: `Você já tem ${LIMITE_POR_TIPO} modelos deste tipo, que é o máximo. Aposente ou exclua um antes de criar outro — com mais que isso, ninguém sabe qual está valendo na hora de emitir.`,
+        }
+      }
+    }
+
+    // UMA ETAPA, UM MODELO. O banco tem índice único parcial garantindo isso;
+    // sem esta linha, marcar a mesma etapa noutro modelo bateria numa violação
+    // de índice e a pessoa levaria erro de banco na cara, em vez de a troca
+    // acontecer, que é o que ela pediu ao escolher a etapa.
+    if (disparo) {
+      await tx.modeloDocumento.updateMany({
+        where: {
+          tipo: v.tipo,
+          dispararNaEtapa: disparo,
+          ...(v.id ? { NOT: { id: v.id } } : {}),
+        },
+        data: { dispararNaEtapa: null },
+      })
+    }
+
     // Se este vai ser o padrão, o padrão anterior do MESMO TIPO sai antes.
     //
     // O banco tem índice único parcial garantindo um padrão por tipo — sem esta
@@ -101,6 +184,7 @@ export async function salvarModelo(_anterior: Resposta, form: FormData): Promise
       descricao: v.descricao || null,
       corpo: v.corpo,
       padrao: querPadrao,
+      dispararNaEtapa: disparo,
     }
 
     if (v.id) {
@@ -126,13 +210,25 @@ export async function salvarModelo(_anterior: Resposta, form: FormData): Promise
     acao: r.novo ? 'modelo.criado' : 'modelo.editado',
     entidade: 'modelo_documento',
     entidadeId: r.id,
-    detalhes: { tipo: v.tipo, padrao: querPadrao, variaveis: usados.length },
+    detalhes: {
+      tipo: v.tipo,
+      padrao: querPadrao,
+      variaveis: usados.length,
+      // O disparo automático fica na trilha: é a configuração que faz o sistema
+      // mandar documento para cliente sem ninguém clicar, e "quem ligou isso?"
+      // é a primeira pergunta quando um cliente recebe o que não esperava.
+      dispararNaEtapa: disparo,
+    },
   })
   revalidatePath('/painel/documentos')
   return {
     ok: true,
     id: r.id,
-    mensagem: r.novo ? 'Modelo criado.' : 'Modelo salvo.',
+    mensagem: disparo
+      ? `${r.novo ? 'Modelo criado' : 'Modelo salvo'} — ele passa a sair sozinho para o cliente em "${ROTULO_ETAPA[disparo as EtapaOrdem] ?? disparo}".`
+      : r.novo
+        ? 'Modelo criado.'
+        : 'Modelo salvo.',
   }
 }
 

@@ -28,6 +28,7 @@ export type MensagemWhatsappMinAggregateOutputType = {
   id: string | null
   tenantId: string | null
   ordemId: string | null
+  documentoId: string | null
   numero: string | null
   template: string | null
   corpo: string | null
@@ -44,6 +45,7 @@ export type MensagemWhatsappMaxAggregateOutputType = {
   id: string | null
   tenantId: string | null
   ordemId: string | null
+  documentoId: string | null
   numero: string | null
   template: string | null
   corpo: string | null
@@ -60,6 +62,7 @@ export type MensagemWhatsappCountAggregateOutputType = {
   id: number
   tenantId: number
   ordemId: number
+  documentoId: number
   numero: number
   template: number
   corpo: number
@@ -78,6 +81,7 @@ export type MensagemWhatsappMinAggregateInputType = {
   id?: true
   tenantId?: true
   ordemId?: true
+  documentoId?: true
   numero?: true
   template?: true
   corpo?: true
@@ -94,6 +98,7 @@ export type MensagemWhatsappMaxAggregateInputType = {
   id?: true
   tenantId?: true
   ordemId?: true
+  documentoId?: true
   numero?: true
   template?: true
   corpo?: true
@@ -110,6 +115,7 @@ export type MensagemWhatsappCountAggregateInputType = {
   id?: true
   tenantId?: true
   ordemId?: true
+  documentoId?: true
   numero?: true
   template?: true
   corpo?: true
@@ -199,6 +205,7 @@ export type MensagemWhatsappGroupByOutputType = {
   id: string
   tenantId: string
   ordemId: string | null
+  documentoId: string | null
   numero: string
   template: string | null
   corpo: string
@@ -236,6 +243,7 @@ export type MensagemWhatsappWhereInput = {
   id?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   tenantId?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   ordemId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
+  documentoId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   numero?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   template?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   corpo?: Prisma.StringFilter<"MensagemWhatsapp"> | string
@@ -248,12 +256,14 @@ export type MensagemWhatsappWhereInput = {
   criadoEm?: Prisma.DateTimeFilter<"MensagemWhatsapp"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
+  documento?: Prisma.XOR<Prisma.DocumentoNullableScalarRelationFilter, Prisma.DocumentoWhereInput> | null
 }
 
 export type MensagemWhatsappOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   ordemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentoId?: Prisma.SortOrderInput | Prisma.SortOrder
   numero?: Prisma.SortOrder
   template?: Prisma.SortOrderInput | Prisma.SortOrder
   corpo?: Prisma.SortOrder
@@ -266,6 +276,7 @@ export type MensagemWhatsappOrderByWithRelationInput = {
   criadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   ordem?: Prisma.OrdemOrderByWithRelationInput
+  documento?: Prisma.DocumentoOrderByWithRelationInput
 }
 
 export type MensagemWhatsappWhereUniqueInput = Prisma.AtLeast<{
@@ -275,6 +286,7 @@ export type MensagemWhatsappWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MensagemWhatsappWhereInput | Prisma.MensagemWhatsappWhereInput[]
   tenantId?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   ordemId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
+  documentoId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   numero?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   template?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   corpo?: Prisma.StringFilter<"MensagemWhatsapp"> | string
@@ -287,12 +299,14 @@ export type MensagemWhatsappWhereUniqueInput = Prisma.AtLeast<{
   criadoEm?: Prisma.DateTimeFilter<"MensagemWhatsapp"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
+  documento?: Prisma.XOR<Prisma.DocumentoNullableScalarRelationFilter, Prisma.DocumentoWhereInput> | null
 }, "id">
 
 export type MensagemWhatsappOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   ordemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentoId?: Prisma.SortOrderInput | Prisma.SortOrder
   numero?: Prisma.SortOrder
   template?: Prisma.SortOrderInput | Prisma.SortOrder
   corpo?: Prisma.SortOrder
@@ -315,6 +329,7 @@ export type MensagemWhatsappScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"MensagemWhatsapp"> | string
   tenantId?: Prisma.StringWithAggregatesFilter<"MensagemWhatsapp"> | string
   ordemId?: Prisma.StringNullableWithAggregatesFilter<"MensagemWhatsapp"> | string | null
+  documentoId?: Prisma.StringNullableWithAggregatesFilter<"MensagemWhatsapp"> | string | null
   numero?: Prisma.StringWithAggregatesFilter<"MensagemWhatsapp"> | string
   template?: Prisma.StringNullableWithAggregatesFilter<"MensagemWhatsapp"> | string | null
   corpo?: Prisma.StringWithAggregatesFilter<"MensagemWhatsapp"> | string
@@ -341,12 +356,14 @@ export type MensagemWhatsappCreateInput = {
   criadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutMensagensInput
   ordem?: Prisma.OrdemCreateNestedOneWithoutMensagensInput
+  documento?: Prisma.DocumentoCreateNestedOneWithoutMensagensInput
 }
 
 export type MensagemWhatsappUncheckedCreateInput = {
   id?: string
   tenantId: string
   ordemId?: string | null
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -373,12 +390,14 @@ export type MensagemWhatsappUpdateInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutMensagensNestedInput
   ordem?: Prisma.OrdemUpdateOneWithoutMensagensNestedInput
+  documento?: Prisma.DocumentoUpdateOneWithoutMensagensNestedInput
 }
 
 export type MensagemWhatsappUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -395,6 +414,7 @@ export type MensagemWhatsappCreateManyInput = {
   id?: string
   tenantId: string
   ordemId?: string | null
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -425,6 +445,7 @@ export type MensagemWhatsappUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -451,6 +472,7 @@ export type MensagemWhatsappCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
+  documentoId?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   template?: Prisma.SortOrder
   corpo?: Prisma.SortOrder
@@ -467,6 +489,7 @@ export type MensagemWhatsappMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
+  documentoId?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   template?: Prisma.SortOrder
   corpo?: Prisma.SortOrder
@@ -483,6 +506,7 @@ export type MensagemWhatsappMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
+  documentoId?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   template?: Prisma.SortOrder
   corpo?: Prisma.SortOrder
@@ -579,6 +603,48 @@ export type MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput = {
   deleteMany?: Prisma.MensagemWhatsappScalarWhereInput | Prisma.MensagemWhatsappScalarWhereInput[]
 }
 
+export type MensagemWhatsappCreateNestedManyWithoutDocumentoInput = {
+  create?: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput> | Prisma.MensagemWhatsappCreateWithoutDocumentoInput[] | Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput[]
+  connectOrCreate?: Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput | Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput[]
+  createMany?: Prisma.MensagemWhatsappCreateManyDocumentoInputEnvelope
+  connect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+}
+
+export type MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput = {
+  create?: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput> | Prisma.MensagemWhatsappCreateWithoutDocumentoInput[] | Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput[]
+  connectOrCreate?: Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput | Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput[]
+  createMany?: Prisma.MensagemWhatsappCreateManyDocumentoInputEnvelope
+  connect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+}
+
+export type MensagemWhatsappUpdateManyWithoutDocumentoNestedInput = {
+  create?: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput> | Prisma.MensagemWhatsappCreateWithoutDocumentoInput[] | Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput[]
+  connectOrCreate?: Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput | Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput[]
+  upsert?: Prisma.MensagemWhatsappUpsertWithWhereUniqueWithoutDocumentoInput | Prisma.MensagemWhatsappUpsertWithWhereUniqueWithoutDocumentoInput[]
+  createMany?: Prisma.MensagemWhatsappCreateManyDocumentoInputEnvelope
+  set?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  disconnect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  delete?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  connect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  update?: Prisma.MensagemWhatsappUpdateWithWhereUniqueWithoutDocumentoInput | Prisma.MensagemWhatsappUpdateWithWhereUniqueWithoutDocumentoInput[]
+  updateMany?: Prisma.MensagemWhatsappUpdateManyWithWhereWithoutDocumentoInput | Prisma.MensagemWhatsappUpdateManyWithWhereWithoutDocumentoInput[]
+  deleteMany?: Prisma.MensagemWhatsappScalarWhereInput | Prisma.MensagemWhatsappScalarWhereInput[]
+}
+
+export type MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput = {
+  create?: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput> | Prisma.MensagemWhatsappCreateWithoutDocumentoInput[] | Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput[]
+  connectOrCreate?: Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput | Prisma.MensagemWhatsappCreateOrConnectWithoutDocumentoInput[]
+  upsert?: Prisma.MensagemWhatsappUpsertWithWhereUniqueWithoutDocumentoInput | Prisma.MensagemWhatsappUpsertWithWhereUniqueWithoutDocumentoInput[]
+  createMany?: Prisma.MensagemWhatsappCreateManyDocumentoInputEnvelope
+  set?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  disconnect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  delete?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  connect?: Prisma.MensagemWhatsappWhereUniqueInput | Prisma.MensagemWhatsappWhereUniqueInput[]
+  update?: Prisma.MensagemWhatsappUpdateWithWhereUniqueWithoutDocumentoInput | Prisma.MensagemWhatsappUpdateWithWhereUniqueWithoutDocumentoInput[]
+  updateMany?: Prisma.MensagemWhatsappUpdateManyWithWhereWithoutDocumentoInput | Prisma.MensagemWhatsappUpdateManyWithWhereWithoutDocumentoInput[]
+  deleteMany?: Prisma.MensagemWhatsappScalarWhereInput | Prisma.MensagemWhatsappScalarWhereInput[]
+}
+
 export type EnumStatusMensagemFieldUpdateOperationsInput = {
   set?: $Enums.StatusMensagem
 }
@@ -596,11 +662,13 @@ export type MensagemWhatsappCreateWithoutTenantInput = {
   entregueEm?: Date | string | null
   criadoEm?: Date | string
   ordem?: Prisma.OrdemCreateNestedOneWithoutMensagensInput
+  documento?: Prisma.DocumentoCreateNestedOneWithoutMensagensInput
 }
 
 export type MensagemWhatsappUncheckedCreateWithoutTenantInput = {
   id?: string
   ordemId?: string | null
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -646,6 +714,7 @@ export type MensagemWhatsappScalarWhereInput = {
   id?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   tenantId?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   ordemId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
+  documentoId?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   numero?: Prisma.StringFilter<"MensagemWhatsapp"> | string
   template?: Prisma.StringNullableFilter<"MensagemWhatsapp"> | string | null
   corpo?: Prisma.StringFilter<"MensagemWhatsapp"> | string
@@ -671,11 +740,13 @@ export type MensagemWhatsappCreateWithoutOrdemInput = {
   entregueEm?: Date | string | null
   criadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutMensagensInput
+  documento?: Prisma.DocumentoCreateNestedOneWithoutMensagensInput
 }
 
 export type MensagemWhatsappUncheckedCreateWithoutOrdemInput = {
   id?: string
   tenantId: string
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -714,9 +785,68 @@ export type MensagemWhatsappUpdateManyWithWhereWithoutOrdemInput = {
   data: Prisma.XOR<Prisma.MensagemWhatsappUpdateManyMutationInput, Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemInput>
 }
 
+export type MensagemWhatsappCreateWithoutDocumentoInput = {
+  id?: string
+  numero: string
+  template?: string | null
+  corpo: string
+  midiaCaminho?: string | null
+  status?: $Enums.StatusMensagem
+  providerId?: string | null
+  erro?: string | null
+  enviadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  criadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutMensagensInput
+  ordem?: Prisma.OrdemCreateNestedOneWithoutMensagensInput
+}
+
+export type MensagemWhatsappUncheckedCreateWithoutDocumentoInput = {
+  id?: string
+  tenantId: string
+  ordemId?: string | null
+  numero: string
+  template?: string | null
+  corpo: string
+  midiaCaminho?: string | null
+  status?: $Enums.StatusMensagem
+  providerId?: string | null
+  erro?: string | null
+  enviadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  criadoEm?: Date | string
+}
+
+export type MensagemWhatsappCreateOrConnectWithoutDocumentoInput = {
+  where: Prisma.MensagemWhatsappWhereUniqueInput
+  create: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput>
+}
+
+export type MensagemWhatsappCreateManyDocumentoInputEnvelope = {
+  data: Prisma.MensagemWhatsappCreateManyDocumentoInput | Prisma.MensagemWhatsappCreateManyDocumentoInput[]
+  skipDuplicates?: boolean
+}
+
+export type MensagemWhatsappUpsertWithWhereUniqueWithoutDocumentoInput = {
+  where: Prisma.MensagemWhatsappWhereUniqueInput
+  update: Prisma.XOR<Prisma.MensagemWhatsappUpdateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedUpdateWithoutDocumentoInput>
+  create: Prisma.XOR<Prisma.MensagemWhatsappCreateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedCreateWithoutDocumentoInput>
+}
+
+export type MensagemWhatsappUpdateWithWhereUniqueWithoutDocumentoInput = {
+  where: Prisma.MensagemWhatsappWhereUniqueInput
+  data: Prisma.XOR<Prisma.MensagemWhatsappUpdateWithoutDocumentoInput, Prisma.MensagemWhatsappUncheckedUpdateWithoutDocumentoInput>
+}
+
+export type MensagemWhatsappUpdateManyWithWhereWithoutDocumentoInput = {
+  where: Prisma.MensagemWhatsappScalarWhereInput
+  data: Prisma.XOR<Prisma.MensagemWhatsappUpdateManyMutationInput, Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoInput>
+}
+
 export type MensagemWhatsappCreateManyTenantInput = {
   id?: string
   ordemId?: string | null
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -742,11 +872,13 @@ export type MensagemWhatsappUpdateWithoutTenantInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordem?: Prisma.OrdemUpdateOneWithoutMensagensNestedInput
+  documento?: Prisma.DocumentoUpdateOneWithoutMensagensNestedInput
 }
 
 export type MensagemWhatsappUncheckedUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -762,6 +894,7 @@ export type MensagemWhatsappUncheckedUpdateWithoutTenantInput = {
 export type MensagemWhatsappUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -777,6 +910,7 @@ export type MensagemWhatsappUncheckedUpdateManyWithoutTenantInput = {
 export type MensagemWhatsappCreateManyOrdemInput = {
   id?: string
   tenantId: string
+  documentoId?: string | null
   numero: string
   template?: string | null
   corpo: string
@@ -802,11 +936,13 @@ export type MensagemWhatsappUpdateWithoutOrdemInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutMensagensNestedInput
+  documento?: Prisma.DocumentoUpdateOneWithoutMensagensNestedInput
 }
 
 export type MensagemWhatsappUncheckedUpdateWithoutOrdemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -822,6 +958,71 @@ export type MensagemWhatsappUncheckedUpdateWithoutOrdemInput = {
 export type MensagemWhatsappUncheckedUpdateManyWithoutOrdemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  documentoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.StringFieldUpdateOperationsInput | string
+  template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corpo?: Prisma.StringFieldUpdateOperationsInput | string
+  midiaCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusMensagemFieldUpdateOperationsInput | $Enums.StatusMensagem
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enviadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MensagemWhatsappCreateManyDocumentoInput = {
+  id?: string
+  tenantId: string
+  ordemId?: string | null
+  numero: string
+  template?: string | null
+  corpo: string
+  midiaCaminho?: string | null
+  status?: $Enums.StatusMensagem
+  providerId?: string | null
+  erro?: string | null
+  enviadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  criadoEm?: Date | string
+}
+
+export type MensagemWhatsappUpdateWithoutDocumentoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.StringFieldUpdateOperationsInput | string
+  template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corpo?: Prisma.StringFieldUpdateOperationsInput | string
+  midiaCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusMensagemFieldUpdateOperationsInput | $Enums.StatusMensagem
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enviadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutMensagensNestedInput
+  ordem?: Prisma.OrdemUpdateOneWithoutMensagensNestedInput
+}
+
+export type MensagemWhatsappUncheckedUpdateWithoutDocumentoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.StringFieldUpdateOperationsInput | string
+  template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corpo?: Prisma.StringFieldUpdateOperationsInput | string
+  midiaCaminho?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusMensagemFieldUpdateOperationsInput | $Enums.StatusMensagem
+  providerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  erro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enviadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MensagemWhatsappUncheckedUpdateManyWithoutDocumentoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   numero?: Prisma.StringFieldUpdateOperationsInput | string
   template?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   corpo?: Prisma.StringFieldUpdateOperationsInput | string
@@ -840,6 +1041,7 @@ export type MensagemWhatsappSelect<ExtArgs extends runtime.Types.Extensions.Inte
   id?: boolean
   tenantId?: boolean
   ordemId?: boolean
+  documentoId?: boolean
   numero?: boolean
   template?: boolean
   corpo?: boolean
@@ -852,12 +1054,14 @@ export type MensagemWhatsappSelect<ExtArgs extends runtime.Types.Extensions.Inte
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }, ExtArgs["result"]["mensagemWhatsapp"]>
 
 export type MensagemWhatsappSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   tenantId?: boolean
   ordemId?: boolean
+  documentoId?: boolean
   numero?: boolean
   template?: boolean
   corpo?: boolean
@@ -870,12 +1074,14 @@ export type MensagemWhatsappSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }, ExtArgs["result"]["mensagemWhatsapp"]>
 
 export type MensagemWhatsappSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   tenantId?: boolean
   ordemId?: boolean
+  documentoId?: boolean
   numero?: boolean
   template?: boolean
   corpo?: boolean
@@ -888,12 +1094,14 @@ export type MensagemWhatsappSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }, ExtArgs["result"]["mensagemWhatsapp"]>
 
 export type MensagemWhatsappSelectScalar = {
   id?: boolean
   tenantId?: boolean
   ordemId?: boolean
+  documentoId?: boolean
   numero?: boolean
   template?: boolean
   corpo?: boolean
@@ -906,18 +1114,21 @@ export type MensagemWhatsappSelectScalar = {
   criadoEm?: boolean
 }
 
-export type MensagemWhatsappOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "numero" | "template" | "corpo" | "midiaCaminho" | "status" | "providerId" | "erro" | "enviadaEm" | "entregueEm" | "criadoEm", ExtArgs["result"]["mensagemWhatsapp"]>
+export type MensagemWhatsappOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "documentoId" | "numero" | "template" | "corpo" | "midiaCaminho" | "status" | "providerId" | "erro" | "enviadaEm" | "entregueEm" | "criadoEm", ExtArgs["result"]["mensagemWhatsapp"]>
 export type MensagemWhatsappInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }
 export type MensagemWhatsappIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }
 export type MensagemWhatsappIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>
+  documento?: boolean | Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>
 }
 
 export type $MensagemWhatsappPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -925,11 +1136,23 @@ export type $MensagemWhatsappPayload<ExtArgs extends runtime.Types.Extensions.In
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     ordem: Prisma.$OrdemPayload<ExtArgs> | null
+    documento: Prisma.$DocumentoPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     tenantId: string
     ordemId: string | null
+    /**
+     * O documento que ESTA mensagem entregou, quando ela entrega um.
+     * 
+     * Só o modelo que sai sozinho preenche. As mensagens de etapa anunciam um
+     * fato e não carregam papel — para elas isto é nulo.
+     * 
+     * Sem esta ligação, a tela de modelos teria de adivinhar pelo relógio qual
+     * mensagem entregou qual documento — e adivinhação erra no dia movimentado,
+     * que é quando alguém abre a tela para conferir.
+     */
+    documentoId: string | null
     numero: string
     /**
      * Chave do template usado. Ex.: "ordem.coletada".
@@ -1342,6 +1565,7 @@ export interface Prisma__MensagemWhatsappClient<T, Null = never, ExtArgs extends
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ordem<T extends Prisma.MensagemWhatsapp$ordemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MensagemWhatsapp$ordemArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  documento<T extends Prisma.MensagemWhatsapp$documentoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MensagemWhatsapp$documentoArgs<ExtArgs>>): Prisma.Prisma__DocumentoClient<runtime.Types.Result.GetResult<Prisma.$DocumentoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1374,6 +1598,7 @@ export interface MensagemWhatsappFieldRefs {
   readonly id: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
   readonly tenantId: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
   readonly ordemId: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
+  readonly documentoId: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
   readonly numero: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
   readonly template: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
   readonly corpo: Prisma.FieldRef<"MensagemWhatsapp", 'String'>
@@ -1801,6 +2026,25 @@ export type MensagemWhatsapp$ordemArgs<ExtArgs extends runtime.Types.Extensions.
    */
   include?: Prisma.OrdemInclude<ExtArgs> | null
   where?: Prisma.OrdemWhereInput
+}
+
+/**
+ * MensagemWhatsapp.documento
+ */
+export type MensagemWhatsapp$documentoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Documento
+   */
+  select?: Prisma.DocumentoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Documento
+   */
+  omit?: Prisma.DocumentoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DocumentoInclude<ExtArgs> | null
+  where?: Prisma.DocumentoWhereInput
 }
 
 /**

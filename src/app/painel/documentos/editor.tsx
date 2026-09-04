@@ -48,6 +48,7 @@ type ModeloExistente = {
   descricao: string | null
   corpo: string
   padrao: boolean
+  dispararNaEtapa: string | null
 }
 
 export default function EditorDeModelo({
@@ -55,6 +56,7 @@ export default function EditorDeModelo({
   rotuloTipo,
   grupos,
   exemplos,
+  etapas,
   modelo,
   aoFechar,
 }: {
@@ -62,6 +64,8 @@ export default function EditorDeModelo({
   rotuloTipo: string
   grupos: Array<[string, Variavel[]]>
   exemplos: Record<string, string>
+  /** Vazia nos tipos que não saem sozinhos — e aí o campo nem é desenhado. */
+  etapas: Array<{ chave: string; rotulo: string }>
   modelo?: ModeloExistente
   aoFechar: () => void
 }) {
@@ -229,6 +233,39 @@ export default function EditorDeModelo({
               </span>
             </span>
           </label>
+
+          {/* =================================================================
+              O DISPARO AUTOMÁTICO
+              =================================================================
+              Só a ordem de serviço tem este campo. Contrato e nota promissória
+              obrigam o cliente — um em instrumento, outro em título de crédito
+              com o valor da dívida escrito nele — e a decisão de obrigar
+              alguém não pode ser efeito colateral de arrastar um cartão no
+              quadro. Nos outros dois tipos a lista chega vazia e o campo não
+              existe, em vez de existir desligado: campo que nunca vai poder
+              ser usado é convite a tentar. */}
+          {etapas.length > 0 ? (
+            <label className={estilo.rotulo}>
+              Mandar sozinho para o cliente quando a O.S. chegar em…
+              <select
+                className={estilo.campo}
+                name="dispararNaEtapa"
+                defaultValue={modelo?.dispararNaEtapa ?? ''}
+              >
+                <option value="">Não mandar — só sai quando alguém emitir</option>
+                {etapas.map((e) => (
+                  <option key={e.chave} value={e.chave}>
+                    {e.rotulo}
+                  </option>
+                ))}
+              </select>
+              <span className={estilo.dica}>
+                Chegando nessa etapa, o sistema gera o documento com ESTE texto e manda o link no
+                WhatsApp do cliente, sem ninguém clicar. Uma etapa por modelo: escolher uma que já é
+                de outro modelo tira dele.
+              </span>
+            </label>
+          ) : null}
 
           <label className={estilo.rotulo}>
             O texto do documento

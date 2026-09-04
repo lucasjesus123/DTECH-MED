@@ -31,6 +31,13 @@ export type DadosMensagem = {
   prazo?: string | null
   garantiaDias?: number | null
   linkPortal?: string | null
+  /**
+   * O link do DOCUMENTO em si — o PDF, não o acompanhamento.
+   *
+   * Só o modelo que sai sozinho usa este campo. Ele é a diferença entre "seu
+   * aparelho mudou de etapa, veja o andamento" e "aqui está o papel".
+   */
+  linkDocumento?: string | null
   empresa: string
   motivo?: string | null
   tecnico?: string | null
@@ -268,6 +275,31 @@ export const TEMPLATES: Record<string, Construtor> = {
       d.motivo && `Motivo: ${d.motivo}`,
       '',
       `Se isso não estava combinado, responde aqui que a gente verifica.`,
+      `— ${d.empresa}`,
+    ]),
+
+  /**
+   * O DOCUMENTO QUE A EMPRESA CONFIGUROU PARA SAIR SOZINHO.
+   *
+   * Diferente de todos os outros deste arquivo: aqueles anunciam um FATO da
+   * esteira, e este ENTREGA UM PAPEL. Por isso o link do documento vem antes do
+   * link do acompanhamento — quem recebe esta mensagem foi avisado porque tem
+   * um documento para ler, e o andamento é o extra.
+   *
+   * O texto é curto de propósito. O conteúdo está no PDF; repetir aqui o que
+   * está lá dentro faria a mensagem competir com o documento que ela veio
+   * entregar.
+   */
+  'documento.modelo': (d) =>
+    montar([
+      saudacao(d),
+      '',
+      `Segue a ordem de serviço ${d.numeroOrdem}, de ${equipamento(d)} 📄`,
+      d.linkDocumento && '',
+      d.linkDocumento && `${d.linkDocumento}`,
+      '',
+      d.linkPortal && `Acompanhe o andamento por aqui: ${d.linkPortal}`,
+      `Qualquer dúvida é só responder nesta conversa.`,
       `— ${d.empresa}`,
     ]),
 }

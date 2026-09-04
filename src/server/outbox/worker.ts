@@ -4,6 +4,7 @@ import { env } from '@/lib/env'
 import { montarMensagem, normalizarNumero, type DadosMensagem } from '@/server/whatsapp/mensagens'
 import { enviarTexto, tokenDaEmpresaNaTx } from '@/server/whatsapp/uazapi'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { enfileirar } from '@/server/ordem/motor'
 import { formatarBRL } from '@/lib/dinheiro'
 
 /**
@@ -126,7 +127,13 @@ const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
  * é coberta por teste. Aqui só se busca o dado e se entrega ao provedor.
  */
 async function enviarAvisoDaEtapa(job: Job) {
-  const { ordemId, template } = job.payload as { ordemId: string; template: string }
+  const { ordemId, template, linkDocumento, documentoId } = job.payload as {
+    ordemId: string
+    template: string
+    /** Só o modelo que sai sozinho traz estes dois — ver `documento.modelo`. */
+    linkDocumento?: string
+    documentoId?: string
+  }
   if (!job.tenantId) throw new Error('Job de WhatsApp sem empresa definida.')
 
   const ctx = { tenantId: job.tenantId, userId: null, ehSuperAdmin: false }
@@ -180,6 +187,7 @@ async function enviarAvisoDaEtapa(job: Job) {
       prazo: orc ? `${orc.prazoExecucaoDias} dias úteis` : null,
       garantiaDias: orc?.garantiaDias ?? null,
       linkPortal: `${env.APP_URL}/os/${o.tokenPublico}`,
+      linkDocumento: linkDocumento ?? null,
       tecnico: o.tecnico?.nome ?? null,
       qtdFotos: fotos || null,
       motivo: null,
@@ -200,6 +208,7 @@ async function enviarAvisoDaEtapa(job: Job) {
       status: 'FALHOU',
       erro: 'Cliente sem WhatsApp válido no cadastro.',
       template,
+      documentoId,
     })
     return
   }
@@ -232,6 +241,7 @@ async function enviarAvisoDaEtapa(job: Job) {
     status: 'ENVIADA',
     providerId: r.providerId,
     template,
+    documentoId,
   })
 }
 
@@ -245,6 +255,8 @@ async function registrarMensagem(
     providerId?: string | null
     erro?: string
     template: string
+    /** O papel que esta mensagem entregou, quando ela entrega um. */
+    documentoId?: string | null
   },
 ) {
   await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, async (tx) => {
@@ -254,6 +266,7 @@ async function registrarMensagem(
         ordemId,
         numero: dados.numero,
         template: dados.template,
+        documentoId: dados.documentoId ?? null,
         corpo: dados.corpo,
         status: dados.status,
         providerId: dados.providerId ?? null,
@@ -268,7 +281,38 @@ async function registrarMensagem(
 async function gerarDocumento(job: Job) {
   if (!job.tenantId) throw new Error('Trabalho de documento sem empresa; nada foi gerado.')
   const { gerarPdfDaOrdem } = await import('@/server/documentos/gerar')
-  await gerarPdfDaOrdem(job.payload as never, job.tenantId)
+  const feito = await gerarPdfDaOrdem(job.payload as never, job.tenantId)
+
+  /**
+   * O DOCUMENTO QUE SAI SOZINHO É AVISADO AQUI, e não lá no motor.
+   *
+   * O aviso carrega o LINK do documento, e o link só existe depois do arquivo
+   * escrito. Enfileirar o aviso junto com a geração mandaria ao cliente um
+   * endereço para um papel que ainda não foi impresso — e o cliente que clica e
+   * não acha nada liga para perguntar, que é o oposto do que o aviso serve.
+   *
+   * O aviso é um trabalho NOVO, e não uma chamada direta: assim ele tem as
+   * mesmas seis tentativas e o mesmo backoff dos outros. Se o WhatsApp da
+   * empresa estiver fora do ar neste minuto, a mensagem sai quando ele voltar,
+   * em vez de sumir junto com este trabalho.
+   */
+  const p = job.payload as { ordemId?: string; enviarAoCliente?: boolean }
+  if (p.enviarAoCliente && p.ordemId) {
+    const empresa = job.tenantId
+    await comEscopo({ tenantId: empresa, userId: null, ehSuperAdmin: false }, (tx) =>
+      enfileirar(tx, empresa, {
+        tipo: 'whatsapp.enviar',
+        prioridade: 2,
+        dedupeKey: `zap:doc:${feito.documentoId}`,
+        payload: {
+          ordemId: p.ordemId,
+          template: 'documento.modelo',
+          documentoId: feito.documentoId,
+          linkDocumento: `${env.APP_URL}/api/documento/${feito.tokenAcesso}`,
+        },
+      }),
+    )
+  }
 }
 
 // ---------------------------------------------------------------------------

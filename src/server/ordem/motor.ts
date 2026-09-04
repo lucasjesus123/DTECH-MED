@@ -196,6 +196,45 @@ export async function avancarOrdem(
       })
     }
 
+    /**
+     * --- o modelo que sai sozinho ------------------------------------------
+     *
+     * A empresa pode escrever até cinco ordens de serviço diferentes e dizer,
+     * em cada uma, a etapa que a faz sair. Chegando nessa etapa, o documento é
+     * gerado COM AQUELE TEXTO e vai para o cliente sem ninguém clicar.
+     *
+     * Fica FORA do `gera` da transição de propósito: aquele é o que o sistema
+     * decide (o comprovante nasce da assinatura, o recibo da quitação); este é
+     * o que a EMPRESA configurou. Misturar os dois faria a configuração de uma
+     * franquia mudar o comportamento que o motor promete para todas.
+     *
+     * Quando os dois coincidem no mesmo documento, o `gera` manda: ele já
+     * gerou, e disparar de novo mandaria dois papéis idênticos ao cliente.
+     */
+    const modeloDaEtapa = await tx.modeloDocumento.findFirst({
+      where: { tipo: 'ORDEM_SERVICO', dispararNaEtapa: pedido.para, ativo: true },
+      select: { id: true },
+    })
+    if (modeloDaEtapa && val.transicao.gera !== 'ORDEM_SERVICO') {
+      await enfileirar(tx, ordem.tenantId, {
+        tipo: 'pdf.gerar',
+        prioridade: 3,
+        // A chave inclui o MODELO: trocar o modelo da etapa e repetir a
+        // transição tem de gerar de novo, com o texto novo.
+        dedupeKey: `pdf:${ordem.id}:modelo:${modeloDaEtapa.id}:${sequencia}`,
+        payload: {
+          ordemId: ordem.id,
+          documento: 'ORDEM_SERVICO',
+          modeloId: modeloDaEtapa.id,
+          eventoId: evento.id,
+          // O aviso sai DEPOIS do arquivo existir, e por isso quem o enfileira
+          // é o próprio trabalho do PDF. Enfileirar os dois aqui mandaria ao
+          // cliente um link para um documento que ainda não foi escrito.
+          enviarAoCliente: true,
+        },
+      })
+    }
+
     if (val.transicao.avisaCliente) {
       await enfileirar(tx, ordem.tenantId, {
         tipo: 'whatsapp.enviar',

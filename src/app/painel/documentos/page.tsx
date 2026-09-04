@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel, exigirAba, podeVer } from '@/server/auth/guarda'
 import {
+  LIMITE_POR_TIPO,
   ROTULO_TIPO,
   ROTULO_TIPO_UM,
   TIPOS_MODELAVEIS,
@@ -10,7 +11,9 @@ import {
   ehTipoModelavel,
   listarModelos,
   type TipoModelavel,
+  ETAPAS_DE_DISPARO,
 } from '@/server/consultas/modelos'
+import { ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { valoresDeExemplo, variaveisPorGrupo } from '@/lib/variaveis-documento'
 import { comEscopo } from '@/lib/db'
 import ListaDeModelos from './lista'
@@ -76,12 +79,26 @@ export default async function Documentos({
     comEscopo(ctx, (tx) =>
       tx.documento.findMany({
         orderBy: { geradoEm: 'desc' },
-        take: 15,
+        take: 20,
         select: {
           id: true,
           tipo: true,
+          numero: true,
           geradoEm: true,
           ordem: { select: { id: true, numero: true, cliente: { select: { nome: true } } } },
+          /**
+           * O ESTADO DO ENVIO, quando este documento foi mandado ao cliente.
+           *
+           * A mais recente: quando a primeira falha e o envio é repetido, o que
+           * interessa é como está AGORA, não como estava na tentativa que deu
+           * errado. A ligação é por chave estrangeira — antes dela, casar
+           * mensagem com documento seria adivinhar pelo relógio.
+           */
+          mensagens: {
+            orderBy: { criadoEm: 'desc' },
+            take: 1,
+            select: { status: true, erro: true, enviadaEm: true, criadoEm: true },
+          },
         },
       }),
     ),
@@ -105,8 +122,9 @@ export default async function Documentos({
           <p className={estilo.grav}>Retaguarda</p>
           <h1 className={estilo.titulo}>Modelos de documento</h1>
           <p className={estilo.texto} style={{ marginTop: 'var(--s2)' }}>
-            O texto que sai quando você emite um contrato, uma promissória ou uma O.S. Escreva
-            quantos modelos quiser e marque qual é o padrão de cada tipo.
+            O texto que sai quando você emite um contrato, uma promissória ou uma O.S. São até{' '}
+            <strong>{LIMITE_POR_TIPO} modelos por tipo</strong> — um deles é o padrão, e a ordem de
+            serviço pode <strong>sair sozinha para o cliente</strong> na etapa que você escolher.
           </p>
         </div>
       </div>
@@ -120,8 +138,11 @@ export default async function Documentos({
               className={aba === t ? `${estilo.aba} ${estilo.abaAtiva}` : estilo.aba}
               aria-current={aba === t ? 'page' : undefined}
             >
-              {ROTULO_TIPO[t]}
-              {contagem[t] ? ` (${contagem[t]})` : ''}
+              {/* O contador é "usados/teto", e não só o total. Um teto que só
+                  aparece quando é atingido vira erro surpresa no meio do
+                  trabalho — e quem está escrevendo o quinto modelo precisa
+                  saber que é o último antes de escrever. */}
+              {ROTULO_TIPO[t]} ({contagem[t] ?? 0}/{LIMITE_POR_TIPO})
             </Link>
           ))}
         </nav>
@@ -135,28 +156,116 @@ export default async function Documentos({
         grupos={grupos}
         exemplos={exemplos}
         podeMexer={podeMexer}
+        limite={LIMITE_POR_TIPO}
+        // Só a ordem de serviço sai sozinha. Contrato e promissória obrigam o
+        // cliente, e a decisão de obrigar alguém não pode ser efeito colateral
+        // de arrastar um cartão no quadro. A lista vazia é o que faz o campo
+        // do disparo nem aparecer nos outros dois tipos.
+        etapas={
+          aba === 'ORDEM_SERVICO'
+            ? ETAPAS_DE_DISPARO.map((e) => ({ chave: e, rotulo: ROTULO_ETAPA[e] ?? e }))
+            : []
+        }
       />
 
-      {/* ---- o que já saiu ---- */}
+      {/* =====================================================================
+          DOCUMENTOS ATIVOS — o que de fato saiu
+          =====================================================================
+          A tela era só configuração, e configuração sozinha não responde a
+          pergunta que traz alguém aqui na segunda-feira: "o papel do cliente
+          saiu?".
+
+          A COLUNA DO WHATSAPP É A QUE IMPORTA. Um documento gerado e não
+          entregue parece pronto em qualquer lista que só mostre "gerado em" —
+          e é exatamente o caso em que o cliente liga reclamando que não
+          recebeu nada. Falha aparece com o motivo escrito, porque quase sempre
+          o motivo é cadastro sem WhatsApp, que se resolve em dez segundos. */}
       <div className={estilo.bloco} style={{ marginTop: 'var(--s6)' }}>
-        <p className={estilo.blocoTitulo}>Documentos emitidos</p>
+        <p className={estilo.blocoTitulo}>
+          <span>Documentos ativos</span>
+          <span className={estilo.dica}>
+            {emitidos.length === 0
+              ? 'nada emitido ainda'
+              : `${emitidos.length} mais recentes`}
+          </span>
+        </p>
         {emitidos.length === 0 ? (
-          <p className={estilo.dica}>Nada emitido ainda.</p>
+          <p className={estilo.dica}>
+            Nada emitido ainda. O que for gerado — à mão ou pelo disparo automático — aparece aqui
+            com o estado do envio.
+          </p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 'var(--s2)' }}>
-            {emitidos.map((d) => (
-              <li key={d.id} className={estilo.linhaSimples}>
-                <Link href={`/painel/ordens/${d.ordem.id}`}>
-                  #{String(d.ordem.numero).padStart(4, '0')}
-                </Link>
-                <span>{d.ordem.cliente.nome}</span>
-                <span className={estilo.dica}>{d.tipo.replaceAll('_', ' ').toLowerCase()}</span>
-                <span className={estilo.dica}>
-                  {d.geradoEm.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className={estilo.rolaX}>
+            <table className={estilo.tabela}>
+              <thead>
+                <tr>
+                  <th>Documento</th>
+                  <th>O.S.</th>
+                  <th>Cliente</th>
+                  <th>WhatsApp</th>
+                  <th>Gerado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {emitidos.map((d) => {
+                  const m = d.mensagens[0]
+                  return (
+                    <tr key={d.id}>
+                      <td>
+                        {/* O rótulo do sistema, e não a chave desmontada:
+                            trocar `_` por espaço produzia "ordem servico" e
+                            "laudo tecnico", sem acento, na tela de quem
+                            confere documento com o cliente na frente. */}
+                        <span className={estilo.forte}>
+                          {ROTULO_DOCUMENTO[d.tipo] ?? d.tipo.replaceAll('_', ' ')}
+                        </span>
+                        <div className={estilo.fraco}>{d.numero}</div>
+                      </td>
+                      <td className={estilo.num}>
+                        <Link href={`/painel/ordens/${d.ordem.id}`}>
+                          #{String(d.ordem.numero).padStart(4, '0')}
+                        </Link>
+                      </td>
+                      <td>{d.ordem.cliente.nome}</td>
+                      <td>
+                        {!m ? (
+                          // Sem mensagem NÃO é falha: a maioria dos documentos
+                          // é emitida à mão e entregue no balcão. Dizer
+                          // "pendente" aqui inventaria uma fila que não existe.
+                          <span className={estilo.fraco}>não enviado</span>
+                        ) : m.status === 'ENVIADA' ? (
+                          <>
+                            <span className={`${estilo.tag} ${estilo.tagOk}`}>enviado</span>
+                            <div className={estilo.fraco}>
+                              {(m.enviadaEm ?? m.criadoEm).toLocaleString('pt-BR', {
+                                timeZone: 'America/Sao_Paulo',
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                              })}
+                            </div>
+                          </>
+                        ) : m.status === 'FALHOU' ? (
+                          <>
+                            <span className={`${estilo.tag} ${estilo.tagAlerta}`}>falhou</span>
+                            <div className={estilo.fraco}>{m.erro ?? 'sem motivo registrado'}</div>
+                          </>
+                        ) : (
+                          <span className={`${estilo.tag} ${estilo.tagNeutra}`}>na fila</span>
+                        )}
+                      </td>
+                      <td className={estilo.fraco}>
+                        {d.geradoEm.toLocaleString('pt-BR', {
+                          timeZone: 'America/Sao_Paulo',
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </>

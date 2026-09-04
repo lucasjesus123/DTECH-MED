@@ -1342,6 +1342,10 @@ model Documento {
 
   geradoEm DateTime @default(now())
 
+  /// As mensagens que entregaram este documento ao cliente. Normalmente uma;
+  /// mais de uma quando a primeira falhou e o envio foi repetido.
+  mensagens MensagemWhatsapp[]
+
   @@index([tenantId, ordemId, tipo])
   @@map("documentos")
 }
@@ -1389,6 +1393,17 @@ model MensagemWhatsapp {
 
   ordemId String?
   ordem   Ordem?  @relation(fields: [ordemId], references: [id], onDelete: SetNull)
+
+  /// O documento que ESTA mensagem entregou, quando ela entrega um.
+  ///
+  /// Só o modelo que sai sozinho preenche. As mensagens de etapa anunciam um
+  /// fato e não carregam papel — para elas isto é nulo.
+  ///
+  /// Sem esta ligação, a tela de modelos teria de adivinhar pelo relógio qual
+  /// mensagem entregou qual documento — e adivinhação erra no dia movimentado,
+  /// que é quando alguém abre a tela para conferir.
+  documentoId String?
+  documento   Documento? @relation(fields: [documentoId], references: [id], onDelete: SetNull)
 
   numero       String
   /// Chave do template usado. Ex.: "ordem.coletada".
@@ -1707,6 +1722,17 @@ model ModeloDocumento {
   /// único parcial no banco — sem ele, dois cliques rápidos deixariam dois
   /// padrões e a emissão escolheria um por acaso.
   padrao Boolean @default(false)
+
+  /// A etapa da esteira que faz este modelo SAIR SOZINHO e ir para o cliente.
+  ///
+  /// Nulo é o comportamento de sempre: o modelo só sai quando alguém manda
+  /// emitir. Preenchido, o motor gera o documento com ESTE texto e dispara o
+  /// aviso no WhatsApp assim que a ordem chega naquela etapa.
+  ///
+  /// Um por etapa, garantido por índice único parcial no banco: dois modelos
+  /// ativos na mesma etapa mandariam dois documentos ao cliente no mesmo
+  /// instante, e qual chegaria primeiro seria sorteio.
+  dispararNaEtapa String?
 
   /// Aposentar sem apagar: documento já emitido aponta para o molde, e "com que
   /// texto isto foi assinado?" precisa de resposta.

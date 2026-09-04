@@ -259,6 +259,7 @@ export type DocumentoWhereInput = {
   geradoEm?: Prisma.DateTimeFilter<"Documento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemScalarRelationFilter, Prisma.OrdemWhereInput>
+  mensagens?: Prisma.MensagemWhatsappListRelationFilter
 }
 
 export type DocumentoOrderByWithRelationInput = {
@@ -274,6 +275,7 @@ export type DocumentoOrderByWithRelationInput = {
   geradoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   ordem?: Prisma.OrdemOrderByWithRelationInput
+  mensagens?: Prisma.MensagemWhatsappOrderByRelationAggregateInput
 }
 
 export type DocumentoWhereUniqueInput = Prisma.AtLeast<{
@@ -292,6 +294,7 @@ export type DocumentoWhereUniqueInput = Prisma.AtLeast<{
   geradoEm?: Prisma.DateTimeFilter<"Documento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemScalarRelationFilter, Prisma.OrdemWhereInput>
+  mensagens?: Prisma.MensagemWhatsappListRelationFilter
 }, "id" | "tokenAcesso">
 
 export type DocumentoOrderByWithAggregationInput = {
@@ -339,6 +342,7 @@ export type DocumentoCreateInput = {
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
   ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoUncheckedCreateInput = {
@@ -352,6 +356,7 @@ export type DocumentoUncheckedCreateInput = {
   tamanhoBytes?: number | null
   tokenAcesso: string
   geradoEm?: Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoUpdateInput = {
@@ -365,6 +370,7 @@ export type DocumentoUpdateInput = {
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutDocumentosNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoUncheckedUpdateInput = {
@@ -378,6 +384,7 @@ export type DocumentoUncheckedUpdateInput = {
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoCreateManyInput = {
@@ -474,6 +481,11 @@ export type DocumentoSumOrderByAggregateInput = {
   tamanhoBytes?: Prisma.SortOrder
 }
 
+export type DocumentoNullableScalarRelationFilter = {
+  is?: Prisma.DocumentoWhereInput | null
+  isNot?: Prisma.DocumentoWhereInput | null
+}
+
 export type DocumentoCreateNestedManyWithoutTenantInput = {
   create?: Prisma.XOR<Prisma.DocumentoCreateWithoutTenantInput, Prisma.DocumentoUncheckedCreateWithoutTenantInput> | Prisma.DocumentoCreateWithoutTenantInput[] | Prisma.DocumentoUncheckedCreateWithoutTenantInput[]
   connectOrCreate?: Prisma.DocumentoCreateOrConnectWithoutTenantInput | Prisma.DocumentoCreateOrConnectWithoutTenantInput[]
@@ -562,6 +574,22 @@ export type EnumTipoDocumentoFieldUpdateOperationsInput = {
   set?: $Enums.TipoDocumento
 }
 
+export type DocumentoCreateNestedOneWithoutMensagensInput = {
+  create?: Prisma.XOR<Prisma.DocumentoCreateWithoutMensagensInput, Prisma.DocumentoUncheckedCreateWithoutMensagensInput>
+  connectOrCreate?: Prisma.DocumentoCreateOrConnectWithoutMensagensInput
+  connect?: Prisma.DocumentoWhereUniqueInput
+}
+
+export type DocumentoUpdateOneWithoutMensagensNestedInput = {
+  create?: Prisma.XOR<Prisma.DocumentoCreateWithoutMensagensInput, Prisma.DocumentoUncheckedCreateWithoutMensagensInput>
+  connectOrCreate?: Prisma.DocumentoCreateOrConnectWithoutMensagensInput
+  upsert?: Prisma.DocumentoUpsertWithoutMensagensInput
+  disconnect?: Prisma.DocumentoWhereInput | boolean
+  delete?: Prisma.DocumentoWhereInput | boolean
+  connect?: Prisma.DocumentoWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentoUpdateToOneWithWhereWithoutMensagensInput, Prisma.DocumentoUpdateWithoutMensagensInput>, Prisma.DocumentoUncheckedUpdateWithoutMensagensInput>
+}
+
 export type DocumentoCreateWithoutTenantInput = {
   id?: string
   tipo: $Enums.TipoDocumento
@@ -572,6 +600,7 @@ export type DocumentoCreateWithoutTenantInput = {
   tokenAcesso: string
   geradoEm?: Date | string
   ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoUncheckedCreateWithoutTenantInput = {
@@ -584,6 +613,7 @@ export type DocumentoUncheckedCreateWithoutTenantInput = {
   tamanhoBytes?: number | null
   tokenAcesso: string
   geradoEm?: Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoCreateOrConnectWithoutTenantInput = {
@@ -638,6 +668,7 @@ export type DocumentoCreateWithoutOrdemInput = {
   tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoUncheckedCreateWithoutOrdemInput = {
@@ -650,6 +681,7 @@ export type DocumentoUncheckedCreateWithoutOrdemInput = {
   tamanhoBytes?: number | null
   tokenAcesso: string
   geradoEm?: Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
 }
 
 export type DocumentoCreateOrConnectWithoutOrdemInput = {
@@ -678,6 +710,74 @@ export type DocumentoUpdateManyWithWhereWithoutOrdemInput = {
   data: Prisma.XOR<Prisma.DocumentoUpdateManyMutationInput, Prisma.DocumentoUncheckedUpdateManyWithoutOrdemInput>
 }
 
+export type DocumentoCreateWithoutMensagensInput = {
+  id?: string
+  tipo: $Enums.TipoDocumento
+  numero: string
+  caminho: string
+  hash: string
+  tamanhoBytes?: number | null
+  tokenAcesso: string
+  geradoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
+  ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
+}
+
+export type DocumentoUncheckedCreateWithoutMensagensInput = {
+  id?: string
+  tenantId: string
+  ordemId: string
+  tipo: $Enums.TipoDocumento
+  numero: string
+  caminho: string
+  hash: string
+  tamanhoBytes?: number | null
+  tokenAcesso: string
+  geradoEm?: Date | string
+}
+
+export type DocumentoCreateOrConnectWithoutMensagensInput = {
+  where: Prisma.DocumentoWhereUniqueInput
+  create: Prisma.XOR<Prisma.DocumentoCreateWithoutMensagensInput, Prisma.DocumentoUncheckedCreateWithoutMensagensInput>
+}
+
+export type DocumentoUpsertWithoutMensagensInput = {
+  update: Prisma.XOR<Prisma.DocumentoUpdateWithoutMensagensInput, Prisma.DocumentoUncheckedUpdateWithoutMensagensInput>
+  create: Prisma.XOR<Prisma.DocumentoCreateWithoutMensagensInput, Prisma.DocumentoUncheckedCreateWithoutMensagensInput>
+  where?: Prisma.DocumentoWhereInput
+}
+
+export type DocumentoUpdateToOneWithWhereWithoutMensagensInput = {
+  where?: Prisma.DocumentoWhereInput
+  data: Prisma.XOR<Prisma.DocumentoUpdateWithoutMensagensInput, Prisma.DocumentoUncheckedUpdateWithoutMensagensInput>
+}
+
+export type DocumentoUpdateWithoutMensagensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoDocumentoFieldUpdateOperationsInput | $Enums.TipoDocumento
+  numero?: Prisma.StringFieldUpdateOperationsInput | string
+  caminho?: Prisma.StringFieldUpdateOperationsInput | string
+  hash?: Prisma.StringFieldUpdateOperationsInput | string
+  tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
+  geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
+  ordem?: Prisma.OrdemUpdateOneRequiredWithoutDocumentosNestedInput
+}
+
+export type DocumentoUncheckedUpdateWithoutMensagensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoDocumentoFieldUpdateOperationsInput | $Enums.TipoDocumento
+  numero?: Prisma.StringFieldUpdateOperationsInput | string
+  caminho?: Prisma.StringFieldUpdateOperationsInput | string
+  hash?: Prisma.StringFieldUpdateOperationsInput | string
+  tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
+  geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type DocumentoCreateManyTenantInput = {
   id?: string
   ordemId: string
@@ -700,6 +800,7 @@ export type DocumentoUpdateWithoutTenantInput = {
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutDocumentosNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoUncheckedUpdateWithoutTenantInput = {
@@ -712,6 +813,7 @@ export type DocumentoUncheckedUpdateWithoutTenantInput = {
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoUncheckedUpdateManyWithoutTenantInput = {
@@ -748,6 +850,7 @@ export type DocumentoUpdateWithoutOrdemInput = {
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoUncheckedUpdateWithoutOrdemInput = {
@@ -760,6 +863,7 @@ export type DocumentoUncheckedUpdateWithoutOrdemInput = {
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
 }
 
 export type DocumentoUncheckedUpdateManyWithoutOrdemInput = {
@@ -775,6 +879,35 @@ export type DocumentoUncheckedUpdateManyWithoutOrdemInput = {
 }
 
 
+/**
+ * Count Type DocumentoCountOutputType
+ */
+
+export type DocumentoCountOutputType = {
+  mensagens: number
+}
+
+export type DocumentoCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  mensagens?: boolean | DocumentoCountOutputTypeCountMensagensArgs
+}
+
+/**
+ * DocumentoCountOutputType without action
+ */
+export type DocumentoCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DocumentoCountOutputType
+   */
+  select?: Prisma.DocumentoCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * DocumentoCountOutputType without action
+ */
+export type DocumentoCountOutputTypeCountMensagensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MensagemWhatsappWhereInput
+}
+
 
 export type DocumentoSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -789,6 +922,8 @@ export type DocumentoSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   geradoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
+  mensagens?: boolean | Prisma.Documento$mensagensArgs<ExtArgs>
+  _count?: boolean | Prisma.DocumentoCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["documento"]>
 
 export type DocumentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -838,6 +973,8 @@ export type DocumentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type DocumentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
+  mensagens?: boolean | Prisma.Documento$mensagensArgs<ExtArgs>
+  _count?: boolean | Prisma.DocumentoCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DocumentoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -853,6 +990,11 @@ export type $DocumentoPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     ordem: Prisma.$OrdemPayload<ExtArgs>
+    /**
+     * As mensagens que entregaram este documento ao cliente. Normalmente uma;
+     * mais de uma quando a primeira falhou e o envio foi repetido.
+     */
+    mensagens: Prisma.$MensagemWhatsappPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1265,6 +1407,7 @@ export interface Prisma__DocumentoClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ordem<T extends Prisma.OrdemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrdemDefaultArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  mensagens<T extends Prisma.Documento$mensagensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Documento$mensagensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MensagemWhatsappPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1702,6 +1845,30 @@ export type DocumentoDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many Documentos to delete.
    */
   limit?: number
+}
+
+/**
+ * Documento.mensagens
+ */
+export type Documento$mensagensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MensagemWhatsapp
+   */
+  select?: Prisma.MensagemWhatsappSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MensagemWhatsapp
+   */
+  omit?: Prisma.MensagemWhatsappOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MensagemWhatsappInclude<ExtArgs> | null
+  where?: Prisma.MensagemWhatsappWhereInput
+  orderBy?: Prisma.MensagemWhatsappOrderByWithRelationInput | Prisma.MensagemWhatsappOrderByWithRelationInput[]
+  cursor?: Prisma.MensagemWhatsappWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MensagemWhatsappScalarFieldEnum | Prisma.MensagemWhatsappScalarFieldEnum[]
 }
 
 /**
