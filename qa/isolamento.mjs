@@ -28,6 +28,12 @@ const entrar = async (email, senha) => {
 
 // A ordem da DTECH MED (empresa A), com tudo dentro dela.
 const ordemA = sql("SELECT id FROM ordens ORDER BY \"abertaEm\" DESC LIMIT 1")
+// A etapa de ANTES das tentativas. O que este roteiro prova é que a vizinha não
+// MUDA nada da outra empresa — e "não mudou" se prova comparando com o que
+// estava, não fixando uma etapa esperada. Fixar "FINALIZADO" fazia o roteiro
+// depender de qual ordem o semeador tivesse deixado por último: ele passava
+// dentro da bateria e reprovava sozinho, acusando vazamento onde não houve.
+const etapaAntes = sql(`SELECT etapa FROM ordens WHERE id='${ordemA}'`)
 const numeroA = sql(`SELECT numero FROM ordens WHERE id='${ordemA}'`)
 const clienteA = sql(`SELECT c.nome FROM clientes c JOIN ordens o ON o."clienteId"=c.id WHERE o.id='${ordemA}'`)
 const fotoA = sql(`SELECT id FROM fotos WHERE "ordemId"='${ordemA}' LIMIT 1`)
@@ -105,9 +111,20 @@ for (const [termo, oque] of [[numeroA, 'o NÚMERO da O.S. da outra empresa'],
   if (await campo.count()) {
     await campo.fill(String(termo))
     await bruno.waitForTimeout(1800)
-    const lista = await bruno.locator('#resultados-da-busca').innerText().catch(() => '')
-    const vazou = lista.includes(clienteA) || new RegExp(`#0*${numeroA}\\b`).test(lista)
-    ok(`a busca da barra da vizinha NÃO acha ${oque}`, !vazou, vazou ? 'VAZOU: ' + lista.slice(0, 120) : 'nada')
+    /**
+     * A CONFERÊNCIA É NAS LINHAS DE RESULTADO, e não no texto da caixa inteira.
+     *
+     * A primeira versão lia a caixa toda e acusava vazamento quando a busca
+     * tinha funcionado: a resposta é `Nada encontrado para "Clínica Bella
+     * Pelle"`, que repete o TERMO DIGITADO — digitado pelo próprio vizinho, e
+     * portanto informação que ele já tinha. Um teste que reprova a recusa é
+     * pior que teste nenhum: ele ensina a ignorar o vermelho.
+     */
+    const linhas = await bruno.locator('#resultados-da-busca [role=option]').allInnerTexts()
+    const achado = linhas.join(' | ')
+    const vazou = achado.includes(clienteA) || new RegExp(`#0*${numeroA}\\b`).test(achado)
+    ok(`a busca da barra da vizinha NÃO acha ${oque}`, !vazou,
+       vazou ? 'VAZOU: ' + achado.slice(0, 120) : `${linhas.length} resultado(s)`)
   } else {
     ok(`a busca da barra existe para procurar ${oque}`, false, 'campo de busca não encontrado na barra')
   }
@@ -123,7 +140,8 @@ for (const [cam, oque] of [[`/api/foto/${fotoA}`,'a FOTO da outra empresa não �
 
 // E a empresa A segue intacta.
 const etapaDepois = sql(`SELECT etapa FROM ordens WHERE id='${ordemA}'`)
-ok('a ordem da empresa A continua intacta depois das tentativas', etapaDepois === 'FINALIZADO', etapaDepois)
+ok('a ordem da empresa A continua intacta depois das tentativas',
+   etapaDepois === etapaAntes, `${etapaAntes} → ${etapaDepois}`)
 
 await bruno.screenshot({ path:'/var/tmp/qa/isolamento.png', fullPage:true })
 await nav.close()
