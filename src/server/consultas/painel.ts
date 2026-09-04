@@ -1,6 +1,6 @@
 import { EtapaOrdem } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
-import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
 
 /**
  * Consultas do painel.
@@ -79,7 +79,14 @@ export async function esteira(
   ctx: ContextoAcesso,
   opcoes: { comDinheiro: boolean },
 ): Promise<Degrau[]> {
-  return comEscopo(ctx, async (tx) => {
+  return comEscopo(ctx, (tx) => esteiraEm(tx, ctx.tenantId ?? '', opcoes))
+}
+
+async function esteiraEm(
+  tx: Transacao,
+  tenantId: string,
+  opcoes: { comDinheiro: boolean },
+): Promise<Degrau[]> {
     const linhas = await tx.$queryRaw<
       Array<{
         etapa: EtapaOrdem
@@ -99,7 +106,7 @@ export async function esteira(
              -- decidido por sorteio, sempre no primeiro da lista.
              (avg(extract(epoch FROM (now() - "atualizadoEm"))) / 86400)::float8 AS "mediaDias"
         FROM ordens
-       WHERE "tenantId" = ${ctx.tenantId}
+       WHERE "tenantId" = ${tenantId}
          AND etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO','SOLICITACAO_RECEBIDA')
        GROUP BY etapa
     `
@@ -132,7 +139,7 @@ export async function esteira(
                     ORDER BY c.versao DESC
                     LIMIT 1
                  ) u ON true
-           WHERE o."tenantId" = ${ctx.tenantId}
+           WHERE o."tenantId" = ${tenantId}
              AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO','SOLICITACAO_RECEBIDA')
            GROUP BY o.etapa
         `
@@ -196,7 +203,6 @@ export async function esteira(
     if (eleito) eleito.gargalo = true
 
     return degraus
-  })
 }
 
 export type OrdemNaFila = {
@@ -218,28 +224,30 @@ export async function filaDoDegrau(
   chave: string,
   limite = 40,
 ): Promise<OrdemNaFila[]> {
+  return comEscopo(ctx, (tx) => filaEm(tx, chave, limite))
+}
+
+async function filaEm(tx: Transacao, chave: string, limite: number): Promise<OrdemNaFila[]> {
   const degrau = DEGRAUS.find((d) => d.chave === chave) ?? DEGRAUS[5]
   const etapas = [...degrau.etapas]
 
-  const ordens = await comEscopo(ctx, (tx) =>
-    tx.ordem.findMany({
-      where: { etapa: { in: etapas } },
-      // Quem está parado há mais tempo aparece primeiro: a tela ordena pelo
-      // que precisa de atenção, não pelo que chegou por último.
-      orderBy: { atualizadoEm: 'asc' },
-      take: limite,
-      select: {
-        id: true,
-        numero: true,
-        etapa: true,
-        atualizadoEm: true,
-        prazoPrometido: true,
-        cliente: { select: { nome: true } },
-        equipamento: { select: { marca: true, modelo: true } },
-        tecnico: { select: { nome: true } },
-      },
-    }),
-  )
+  const ordens = await tx.ordem.findMany({
+    where: { etapa: { in: etapas } },
+    // Quem está parado há mais tempo aparece primeiro: a tela ordena pelo que
+    // precisa de atenção, não pelo que chegou por último.
+    orderBy: { atualizadoEm: 'asc' },
+    take: limite,
+    select: {
+      id: true,
+      numero: true,
+      etapa: true,
+      atualizadoEm: true,
+      prazoPrometido: true,
+      cliente: { select: { nome: true } },
+      equipamento: { select: { marca: true, modelo: true } },
+      tecnico: { select: { nome: true } },
+    },
+  })
 
   const agora = Date.now()
   return ordens.map((o) => ({
@@ -293,7 +301,14 @@ export async function resumoDoDia(
   ctx: ContextoAcesso,
   opcoes: { comDinheiro: boolean },
 ): Promise<ResumoDoDia> {
-  return comEscopo(ctx, async (tx) => {
+  return comEscopo(ctx, (tx) => resumoEm(tx, ctx.tenantId ?? '', opcoes))
+}
+
+async function resumoEm(
+  tx: Transacao,
+  tenantId: string,
+  opcoes: { comDinheiro: boolean },
+): Promise<ResumoDoDia> {
     const [fin] = opcoes.comDinheiro
       ? await tx.$queryRaw<Array<{ areceber: bigint; recebido: bigint }>>`
       SELECT
@@ -301,24 +316,24 @@ export async function resumoDoDia(
                  FILTER (WHERE status IN ('ABERTA','PARCIAL')), 0) AS areceber,
         coalesce(sum("valorPagoCentavos")
                  FILTER (WHERE "quitadaEm" >= date_trunc('month', now())), 0) AS recebido
-      FROM faturas WHERE "tenantId" = ${ctx.tenantId}
+      FROM faturas WHERE "tenantId" = ${tenantId}
     `
       : [null]
     const [ord] = await tx.$queryRaw<Array<{ abertas: bigint; atrasadas: bigint }>>`
       SELECT count(*) AS abertas,
              count(*) FILTER (WHERE "prazoPrometido" < now()) AS atrasadas
         FROM ordens
-       WHERE "tenantId" = ${ctx.tenantId}
+       WHERE "tenantId" = ${tenantId}
          AND etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
     `
     const [pec] = await tx.$queryRaw<Array<{ n: bigint }>>`
       SELECT count(*) AS n FROM pecas
-       WHERE "tenantId" = ${ctx.tenantId} AND ativo = true AND saldo <= "estoqueMinimo"
+       WHERE "tenantId" = ${tenantId} AND ativo = true AND saldo <= "estoqueMinimo"
     `
     const [fila] = await tx.$queryRaw<Array<{ pendentes: bigint; falhados: bigint }>>`
       SELECT count(*) FILTER (WHERE status = 'PENDENTE')   AS pendentes,
              count(*) FILTER (WHERE status = 'DESCARTADO') AS falhados
-        FROM outbox_jobs WHERE "tenantId" = ${ctx.tenantId}
+        FROM outbox_jobs WHERE "tenantId" = ${tenantId}
     `
 
     return {
@@ -330,7 +345,6 @@ export async function resumoDoDia(
       avisosNaFila: Number(fila?.pendentes ?? 0),
       avisosFalhados: Number(fila?.falhados ?? 0),
     }
-  })
 }
 
 export type Ofensor = {
@@ -382,6 +396,14 @@ export async function alertaDoDia(
   ctx: ContextoAcesso,
   opcoes: { comDinheiro: boolean },
 ): Promise<AlertaDoDia> {
+  return comEscopo(ctx, (tx) => alertaEm(tx, ctx.tenantId ?? '', opcoes))
+}
+
+async function alertaEm(
+  tx: Transacao,
+  tenantId: string,
+  opcoes: { comDinheiro: boolean },
+): Promise<AlertaDoDia> {
   const VAZIO: AlertaDoDia = {
     tipo: null,
     titulo: '',
@@ -391,7 +413,7 @@ export async function alertaDoDia(
     href: '',
   }
 
-  return comEscopo(ctx, async (tx) => {
+  {
     // 1. PRAZO VENCIDO — a única das três que quebra uma promessa já feita.
     //
     // Duas consultas quase iguais, e a diferença é a junção do valor. Elas
@@ -422,7 +444,7 @@ export async function alertaDoDia(
                     ORDER BY x.versao DESC
                     LIMIT 1
                  ) u ON true
-           WHERE o."tenantId" = ${ctx.tenantId}
+           WHERE o."tenantId" = ${tenantId}
              AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
              AND o."prazoPrometido" < now()
            ORDER BY o."prazoPrometido" ASC
@@ -433,7 +455,7 @@ export async function alertaDoDia(
                  NULL::bigint AS valor
             FROM ordens o
             JOIN clientes c ON c.id = o."clienteId"
-           WHERE o."tenantId" = ${ctx.tenantId}
+           WHERE o."tenantId" = ${tenantId}
              AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
              AND o."prazoPrometido" < now()
            ORDER BY o."prazoPrometido" ASC
@@ -466,7 +488,7 @@ export async function alertaDoDia(
     // 2. AVISO QUE NÃO SAIU — o cliente ficou sem notícia e ninguém soube.
     const descartados = await tx.$queryRaw<Array<{ n: bigint }>>`
       SELECT count(*) AS n FROM outbox_jobs
-       WHERE "tenantId" = ${ctx.tenantId} AND status = 'DESCARTADO'
+       WHERE "tenantId" = ${tenantId} AND status = 'DESCARTADO'
     `
     const quantos = Number(descartados[0]?.n ?? 0)
     if (quantos > 0) {
@@ -487,7 +509,7 @@ export async function alertaDoDia(
     // 3. ESTOQUE NO MÍNIMO — ainda não travou nada, e vai travar.
     const pecas = await tx.$queryRaw<Array<{ n: bigint }>>`
       SELECT count(*) AS n FROM pecas
-       WHERE "tenantId" = ${ctx.tenantId} AND ativo = true AND saldo <= "estoqueMinimo"
+       WHERE "tenantId" = ${tenantId} AND ativo = true AND saldo <= "estoqueMinimo"
     `
     const itens = Number(pecas[0]?.n ?? 0)
     if (itens > 0) {
@@ -503,7 +525,59 @@ export async function alertaDoDia(
     }
 
     return VAZIO
-  })
+  }
+}
+
+/**
+ * =============================================================================
+ * TUDO DO DASHBOARD NUMA TRANSAÇÃO SÓ
+ * =============================================================================
+ * Isto corrige um defeito que EU introduzi, e a medição fica registrada porque
+ * é a parte que não envelhece.
+ *
+ * Cada consulta separada abre uma transação interativa: uma conexão presa do
+ * começo ao fim, mais três `set_config` de ida e volta só para plantar o
+ * contexto de RLS. O Dashboard pedia cinco. A fase 6 acrescentou o alerta do
+ * dia e a série do herói, e passou a pedir SETE.
+ *
+ * Medido, com doze abas ao mesmo tempo:
+ *
+ *     5 transações   36 de 36 carregaram   mediana 5,6s
+ *     7 transações   32 de 36 carregaram   mediana 7,1s   ← quatro morreram
+ *
+ * O erro era "Unable to start a transaction in the given time" — pool
+ * esgotado. Não é limite teórico: é a primeira tela que qualquer pessoa abre,
+ * e alguns operadores simultâneos já a punham na fila.
+ *
+ * A saída não é aumentar o pool, que só empurra o problema para mais gente ao
+ * mesmo tempo. É parar de pedir sete conexões para desenhar uma tela: aqui os
+ * quatro blocos correm DENTRO da mesma transação — uma conexão, três
+ * `set_config`, e as consultas em sequência.
+ *
+ * SEQUÊNCIA E NÃO PARALELO, de propósito: transação interativa vive numa
+ * conexão só, então `Promise.all` aqui dentro não ganharia nada — enfileiraria
+ * no mesmo fio com aparência de concorrência.
+ *
+ * As funções soltas continuam exportadas para quem precisa de um bloco só. O
+ * corpo de cada uma virou `*Em(tx, …)`, e as duas portas dividem o mesmo
+ * código — não há como uma divergir da outra.
+ */
+export async function tudoDoDia(
+  ctx: ContextoAcesso,
+  opcoes: { comDinheiro: boolean; degrau: string },
+): Promise<{
+  degraus: Degrau[]
+  resumo: ResumoDoDia
+  fila: OrdemNaFila[]
+  alerta: AlertaDoDia
+}> {
+  const tenantId = ctx.tenantId ?? ''
+  return comEscopo(ctx, async (tx) => ({
+    degraus: await esteiraEm(tx, tenantId, opcoes),
+    resumo: await resumoEm(tx, tenantId, opcoes),
+    fila: await filaEm(tx, opcoes.degrau, 40),
+    alerta: await alertaEm(tx, tenantId, opcoes),
+  }))
 }
 
 /** O prontuário completo de uma ordem — a visão 360 do equipamento. */

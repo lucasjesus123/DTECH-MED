@@ -5,14 +5,10 @@ import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
-import {
-  alertaDoDia,
-  esteira,
-  filaDoDegrau,
-  resumoDoDia,
-  type AlertaDoDia,
-  type Degrau,
-} from '@/server/consultas/painel'
+import { tudoDoDia, type AlertaDoDia, type Degrau } from '@/server/consultas/painel'
+import { riscoDePrazo, type LinhaDeRisco } from '@/server/ia/prazo'
+import type { Saida } from '@/server/ia/contrato'
+import { BarraDeRisco, ChipsDeFonte, Confianca, SeloIA, SemBase } from './ia'
 import { BigNumber, Delta, Exec, Term } from './console'
 import {
   dinheiroMensal,
@@ -79,21 +75,33 @@ export default async function PainelDoDia({
    * de hoje seria pagar seis agregações por cada abertura de tela para desenhar
    * uma esteira que não usa nenhuma delas.
    */
-  const [degraus, resumo, fila, leads, contatosNovos, alerta, meses] = await Promise.all([
-    esteira(ctx, { comDinheiro }),
-    resumoDoDia(ctx, { comDinheiro }),
-    filaDoDegrau(ctx, degrau),
+  /**
+   * QUATRO BLOCOS NUMA TRANSAÇÃO SÓ, e não sete em paralelo.
+   *
+   * Cada consulta separada abre uma transação interativa — uma conexão presa
+   * do começo ao fim. Esta tela pedia cinco; a fase 6 acrescentou o alerta e a
+   * série do herói e passou a pedir sete. Medido com doze abas ao mesmo tempo,
+   * quatro carregamentos em trinta e seis morriam com "Unable to start a
+   * transaction in the given time". O detalhe da conta está no `tudoDoDia`.
+   *
+   * As duas que sobraram fora são de outros módulos e continuam soltas: são
+   * duas, e juntá-las exigiria arrastar `listas.ts` e `operacao.ts` para a
+   * mesma transação — refatoração maior do que o defeito que ela corrigiria.
+   */
+  const [{ degraus, resumo, fila, alerta }, leads, contatosNovos, meses, risco] = await Promise.all([
+    tudoDoDia(ctx, { comDinheiro, degrau }),
     // A tira traz três; a contagem diz quantos são de verdade. Sem ela, "3
     // pessoas chamaram" seria mentira num dia de trinta.
     leadsNovos(ctx),
     contatosNovosContagem(ctx),
-    // O problema do dia. Ele vem antes de qualquer métrica na tela, e por isso
-    // vem junto das outras na mesma viagem — carregá-lo depois faria o
-    // primeiro conteúdo da página ser o último a chegar.
-    alertaDoDia(ctx, { comDinheiro }),
     // A série do herói. Só para quem vê dinheiro: sem ela, o cartão do
     // motorista mostra outro número e esta consulta não teria para quê.
     comDinheiro ? dinheiroMensal(ctx, 12) : Promise.resolve([]),
+    // A previsão. Ela varre o histórico de eventos e é a mais pesada da tela;
+    // fica solta de propósito, porque prendê-la na transação dos quatro blocos
+    // seguraria a conexão pelo tempo dela e devolveria o problema que o
+    // `tudoDoDia` acabou de resolver.
+    riscoDePrazo(ctx),
   ])
 
   const op =
@@ -313,6 +321,19 @@ export default async function PainelDoDia({
           cortada pelo servidor. É um AVISO de que tem gente esperando, não o
           lugar de ler o que ela escreveu — isso é a tela de Contatos do site,
           que este bloco linka. */}
+      {/* ===================================================================
+          5. A PREVISÃO — a primeira conclusão de máquina da tela.
+          ===================================================================
+          Ela vem DEPOIS da esteira e dos indicadores, e não antes, porque é
+          inferência: o operador precisa ver primeiro o que está registrado, e
+          só então o que o sistema deduziu daquilo. Inverter a ordem seria pedir
+          que ele confiasse na conclusão antes de conhecer os fatos.
+
+          E ela mostra a RECUSA com o mesmo destaque com que mostraria a
+          previsão. Enquanto o histórico não der base, esse é o conteúdo — dito
+          por extenso, com o que falta. */}
+      <PrevisaoDePrazo risco={risco} />
+
       {leads.length > 0 ? (
         <section className={estilo.recados} aria-label="Contatos do site aguardando resposta">
           <div className={estilo.recadosCab}>
@@ -460,6 +481,60 @@ function Indicador({
       </strong>
       <span className={estilo.indNota}>{nota}</span>
     </div>
+  )
+}
+
+/**
+ * A PREVISÃO DE ESTOURO DE PRAZO — a primeira inferência da interface.
+ *
+ * =============================================================================
+ * AS TRÊS OBRIGAÇÕES APARECEM JUNTAS, OU NÃO APARECE NADA
+ * =============================================================================
+ * Selo, confiança com a base, e fontes clicáveis. Não é disciplina de quem
+ * escreve a tela: o tipo `Inferencia` do servidor não existe sem os três, e a
+ * saída é uma união com `Recusa` — o compilador obriga a tratar o caso em que
+ * o modelo não sabe.
+ *
+ * A CONFIANÇA FICA NO TOPO, ANTES DAS LINHAS. Ela vale para o bloco inteiro, e
+ * é a menor das linhas mostradas — não a média. Média esconderia uma linha
+ * fraca atrás de cinco fortes, e o cabeçalho anunciaria uma segurança que a
+ * pior linha não tem.
+ *
+ * CADA LINHA CARREGA O MOTIVO. Um percentual sozinho não muda decisão nenhuma:
+ * "76%" faz a pessoa perguntar "por quê?", e se a tela não responde, ela
+ * aprende a ignorar o número. O motivo é a frase que diz o que empurrou.
+ */
+function PrevisaoDePrazo({ risco }: { risco: Saida<LinhaDeRisco[]> }) {
+  return (
+    <section className={estilo.painelIa} aria-label="Previsão de risco de prazo">
+      <SeloIA>Previsão · risco de prazo</SeloIA>
+
+      {!risco.ok ? (
+        <SemBase motivo={risco.motivo} />
+      ) : (
+        <>
+          <Confianca valor={risco.confianca} base={risco.base} />
+
+          <ul className={estilo.previsaoLista}>
+            {risco.valor.map((l) => (
+              <li key={l.ordemId} className={estilo.previsaoItem}>
+                <div className={estilo.previsaoQuem}>
+                  <Link href={`/painel/ordens/${l.ordemId}`} className={estilo.previsaoOs}>
+                    OS-{String(l.numero).padStart(4, '0')}
+                  </Link>
+                  <p className={estilo.previsaoCliente}>
+                    {l.cliente} · {l.equipamento}
+                  </p>
+                  <p className={estilo.previsaoMotivo}>{l.motivo}</p>
+                  <ChipsDeFonte fontes={l.fontes} />
+                </div>
+                <BarraDeRisco valor={l.risco} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
   )
 }
 

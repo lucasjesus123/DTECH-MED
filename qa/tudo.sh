@@ -167,6 +167,16 @@ node modelos-documento.mjs >"$LOGS/md.log" 2>&1; marcar $? "modelos: cinco por t
 node azul-fase4.mjs     >"$LOGS/az4.log" 2>&1; marcar $? "Azul Máquina: a aura atrás de tudo, nenhum card com sombra, e a linha em 38px"
 node azul-fase5.mjs     >"$LOGS/az5.log" 2>&1; marcar $? "a esteira: rampa sem verde, o gargalo certo, e o motorista sem dinheiro"
 node azul-fase6.mjs     >"$LOGS/az6.log" 2>&1; marcar $? "o Dashboard na ordem certa: o problema do dia primeiro, e um herói só"
+# A previsão precisa de histórico para dizer alguma coisa: sem O.S. concluídas
+# ela RECUSA, que é o comportamento certo e a metade menos interessante de
+# conferir. O cenário já conclui algumas; este script acrescenta o bastante
+# para o modelo passar do piso e a previsão sair com número, confiança e
+# fontes. Ele só roda contra o banco de ensaio — recusa qualquer outro.
+cd "$RAIZ"
+set -a; . "$PG_ENV"; set +a
+npx tsx scripts/historico-para-previsao.mts 12 >"$LOGS/hist.log" 2>&1
+cd "$RAIZ/qa"
+node azul-fase7.mjs     >"$LOGS/az7.log" 2>&1; marcar $? "a previsão de prazo: selo, confiança, fonte clicável — e a recusa sem base"
 node diagrama.mjs       >"$LOGS/d.log" 2>&1; marcar $? "o diagrama confere com o sistema · 23 afirmações"
 QA_BLUEPRINT=blueprint.json node engine/fluxos.js >"$LOGS/f.log" 2>&1
 grep -q '11/11 fluxos' "$LOGS/f.log"; marcar $? "fluxos do diagrama · $(grep -o '[0-9]*/[0-9]* fluxos do diagrama' "$LOGS/f.log" | head -1)"

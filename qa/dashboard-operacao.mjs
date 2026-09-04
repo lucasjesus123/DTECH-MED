@@ -414,15 +414,25 @@ const cabecalhos = (await m.locator('[class*="bloco"]', { hasText: 'Quem traz o 
   ? ok('para o motorista, "Quem traz o trabalho" tem duas colunas e nenhuma é dinheiro')
   : nao(`colunas erradas para o motorista: ${cabecalhos.join(' / ')}`)
 
-// A grade dos indicadores não fica com um buraco onde estava o cartão do
-// dinheiro: três cartões, três colunas.
+// A GRADE DOS INDICADORES NÃO FICA COM BURACO — e o número de cartões mudou
+// junto com o Dashboard, então esta conferência mudou com ele.
+//
+// Ela exigia TRÊS cartões em três colunas: era o desenho de quando o motorista
+// perdia só o cartão do dinheiro. Depois que o Dashboard ganhou número-herói,
+// "Ordens abertas" SUBIU para o herói na tela de quem não vê dinheiro — e
+// repeti-lo na faixa mostraria o mesmo valor duas vezes com dois rótulos, que
+// é o jeito mais rápido de fazer alguém duvidar dos dois. Sobraram dois.
+//
+// O que a conferência guarda continua sendo o mesmo, e é isso que importa: a
+// contagem de cartões e a de colunas têm de bater. Um buraco na grade é o
+// defeito; o número exato é consequência do desenho de hoje.
 const cartoes = await m.goto(`${QA_BASE}/painel`, { waitUntil: 'networkidle' })
   .then(() => m.locator('[class*="resumo"] > [class*="indicador"]').count())
 const colunas = await m.locator('[class*="resumo"]').first()
   .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length)
-cartoes === 3 && colunas === 3
-  ? ok('sem o cartão do dinheiro, a grade vira de três — sem buraco')
-  : nao(`${cartoes} cartões em ${colunas} colunas`)
+cartoes === 2 && colunas === 2
+  ? ok('sem dinheiro e sem repetir o herói, a faixa fica com dois — e a grade acompanha')
+  : nao(`${cartoes} cartões em ${colunas} colunas; esperava 2 e 2`)
 
 // ---------------------------------------------------------------------------
 console.log('\n9) Os dois temas, em 1440 e 390')
