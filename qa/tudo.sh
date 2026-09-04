@@ -148,7 +148,7 @@ node acompanhar.mjs     >"$LOGS/ac.log" 2>&1; marcar $? "o cartão diz onde o ap
 node catalogo.mjs       >"$LOGS/cat.log" 2>&1; marcar $? "foto de peça e de equipamento: sobe, troca, sai, e não vaza"
 node cliente.mjs        >"$LOGS/cli.log" 2>&1; marcar $? "a ficha do cliente: dinheiro, aparelhos, histórico e cadastro"
 node comercial.mjs      >"$LOGS/com.log" 2>&1; marcar $? "o funil de orçamentos: última versão, ordem da urgência, taxa"
-node calendario.mjs     >"$LOGS/cal.log" 2>&1; marcar $? "o calendário junta cinco fontes, e o motorista não vê dinheiro"
+node calendario.mjs     >"$LOGS/cal.log" 2>&1; marcar $? "o calendário junta as fontes da operação — e não tem dinheiro para ninguém"
 node documentos.mjs     >"$LOGS/doc.log" 2>&1; marcar $? "contrato pelo total, promissória pelo saldo, e o técnico sem o botão"
 node lancar.mjs         >"$LOGS/lan.log" 2>&1; marcar $? "as telas que só mostravam passam a receber — e o motorista sem dinheiro"
 node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no teclado e no leitor de tela"
