@@ -2,7 +2,7 @@ import { StatusJob } from '@/generated/prisma/enums'
 import { comContextoWorker, comEscopo, prisma } from '@/lib/db'
 import { env } from '@/lib/env'
 import { montarMensagem, normalizarNumero, type DadosMensagem } from '@/server/whatsapp/mensagens'
-import { enviarTexto, tokenDaEmpresaNaTx } from '@/server/whatsapp/uazapi'
+import { enviarDocumento, enviarTexto, tokenDaEmpresaNaTx } from '@/server/whatsapp/uazapi'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { enfileirar } from '@/server/ordem/motor'
 import { formatarBRL } from '@/lib/dinheiro'
@@ -127,12 +127,25 @@ const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
  * é coberta por teste. Aqui só se busca o dado e se entrega ao provedor.
  */
 async function enviarAvisoDaEtapa(job: Job) {
-  const { ordemId, template, linkDocumento, documentoId } = job.payload as {
+  const { ordemId, template, linkDocumento, documentoId, anexarDocumento } = job.payload as {
     ordemId: string
     template: string
     /** Só o modelo que sai sozinho traz estes dois — ver `documento.modelo`. */
     linkDocumento?: string
     documentoId?: string
+    /**
+     * O TIPO DE DOCUMENTO A ANEXAR — e este campo era ESCRITO E NUNCA LIDO.
+     *
+     * O motor gravava `anexarDocumento` no trabalho desde sempre, com um
+     * comentário dizendo "o PDF é anexado pelo worker depois de gerado". O
+     * worker nunca leu o campo. O cliente recebia "sua retirada está agendada
+     * ✅" e nenhum documento — e nada em lugar nenhum acusava o buraco, porque
+     * do ponto de vista do sistema tudo tinha dado certo: o texto saiu.
+     *
+     * Campo escrito e não lido é pior que campo ausente: quem lê o código
+     * conclui que o recurso existe.
+     */
+    anexarDocumento?: string
   }
   if (!job.tenantId) throw new Error('Job de WhatsApp sem empresa definida.')
 
@@ -193,7 +206,36 @@ async function enviarAvisoDaEtapa(job: Job) {
       motivo: null,
     }
 
-    return { d, numeroBruto: o.cliente.whatsapp ?? o.cliente.telefone, ordemId: o.id }
+    /**
+     * O DOCUMENTO A ANEXAR — o MAIS RECENTE daquele tipo, e não o da transição.
+     *
+     * Buscar "o documento que esta transição gerou" não funcionaria para o caso
+     * que importa: quem GERA a ordem de retirada é a etapa anterior
+     * (`ORDEM_RETIRADA_GERADA`, que não avisa ninguém), e quem AVISA é
+     * `RETIRADA_AGENDADA`, que não gera nada. As duas metades nunca se
+     * encontravam.
+     *
+     * Pegando o mais recente do tipo, o aviso leva o PDF que existe naquele
+     * momento — e como o gerador é rodado de novo a cada etapa, o arquivo que
+     * vai junto é sempre o mais atualizado, com as fotos que já foram tiradas.
+     */
+    let anexo: { url: string; nome: string; id: string } | null = null
+    if (anexarDocumento) {
+      const doc = await tx.documento.findFirst({
+        where: { ordemId, tipo: anexarDocumento as never },
+        orderBy: { geradoEm: 'desc' },
+        select: { id: true, tokenAcesso: true, tipo: true },
+      })
+      if (doc) {
+        anexo = {
+          url: `${env.APP_URL}/api/documento/${doc.tokenAcesso}`,
+          nome: `${doc.tipo.toLowerCase().replace(/_/g, '-')}-${o.numero}.pdf`,
+          id: doc.id,
+        }
+      }
+    }
+
+    return { d, numeroBruto: o.cliente.whatsapp ?? o.cliente.telefone, ordemId: o.id, anexo }
   })
 
   if (!dados) throw new Error('Ordem não encontrada ao montar o aviso.')
@@ -233,7 +275,35 @@ async function enviarAvisoDaEtapa(job: Job) {
     throw new Error('WhatsApp da empresa não está conectado.')
   }
 
-  const r = await enviarTexto({ token, numero, texto: corpo })
+  /**
+   * COM ANEXO, O TEXTO VIRA LEGENDA — e não uma segunda mensagem.
+   *
+   * Mandar o texto e depois o PDF são duas notificações no celular do cliente,
+   * e a segunda chega sem contexto: um arquivo solto de quem ele mal conhece.
+   * Como legenda, o WhatsApp mostra o documento com a frase embaixo, numa
+   * mensagem só.
+   *
+   * Se o anexo falhar, o TEXTO AINDA SAI. Um provedor que recusa mídia — ou um
+   * arquivo que sumiu — não pode fazer o cliente deixar de ser avisado de que
+   * o motorista vai passar amanhã.
+   */
+  let r: { providerId: string | null }
+  if (dados.anexo) {
+    try {
+      r = await enviarDocumento({
+        token,
+        numero,
+        arquivo: dados.anexo.url,
+        nomeArquivo: dados.anexo.nome,
+        legenda: corpo,
+      })
+    } catch (e) {
+      console.warn(`[fila] anexo falhou (${dados.anexo.nome}), mandando só o texto:`, e)
+      r = await enviarTexto({ token, numero, texto: corpo })
+    }
+  } else {
+    r = await enviarTexto({ token, numero, texto: corpo })
+  }
 
   await registrarMensagem(job.tenantId, dados.ordemId, {
     numero,
@@ -241,7 +311,9 @@ async function enviarAvisoDaEtapa(job: Job) {
     status: 'ENVIADA',
     providerId: r.providerId,
     template,
-    documentoId,
+    // O documento que foi junto fica registrado: meses depois, "o cliente
+    // recebeu o PDF?" se responde olhando a mensagem, e não deduzindo.
+    documentoId: documentoId ?? dados.anexo?.id,
   })
 }
 

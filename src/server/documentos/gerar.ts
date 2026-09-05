@@ -68,6 +68,18 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         tecnico: { select: { nome: true } },
         eventos: { orderBy: { sequencia: 'asc' } },
         assinaturas: true,
+        /**
+         * AS FOTOS ENTRAM NO DOCUMENTO.
+         *
+         * Antes o PDF só CITAVA fotografia — "documentada por fotografia na
+         * retirada e na entrega" — e o cliente recebia a frase sem a prova. A
+         * foto existia, gravada e com hash desde sempre; faltava pô-la na
+         * folha, exatamente como faltava com a assinatura.
+         *
+         * Em ordem cronológica porque a folha conta uma história: como o
+         * aparelho saiu da clínica, o que o técnico achou, como ele voltou.
+         */
+        fotos: { orderBy: { criadoEm: 'asc' } },
         orcamentos: {
           orderBy: { versao: 'desc' },
           take: 1,
@@ -466,6 +478,104 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         .filter(Boolean)
         .join('   ·   '),
     )
+  }
+
+  // ---- as fotos -----------------------------------------------------------
+  /**
+   * AS FOTOS DO APARELHO, NA FOLHA — e é isto que faz o documento se ATUALIZAR.
+   *
+   * ===========================================================================
+   * POR QUE ELE PARECE "INTELIGENTE"
+   * ===========================================================================
+   * O PDF é gerado de novo a cada etapa que emite documento, e sempre a partir
+   * do que está no banco NAQUELE momento. Como as fotos entram por aqui, o
+   * documento da retirada sai com as fotos da retirada; o da entrega sai com
+   * essas MAIS as da bancada e as da entrega. Não há mágica e não há um
+   * "atualizador": há um gerador que lê o presente toda vez que roda.
+   *
+   * ===========================================================================
+   * DUAS DECISÕES QUE PARECEM DETALHE E NÃO SÃO
+   * ===========================================================================
+   * CADA FOTO CARREGA CATEGORIA, DATA E AUTOR. Uma grade de fotos sem carimbo
+   * não prova nada: numa discussão de garantia, "esse arranhão já existia" só
+   * se responde com a data e o nome de quem fotografou.
+   *
+   * O ARQUIVO QUE SUMIU NÃO DERRUBA O DOCUMENTO. Cada imagem entra dentro de
+   * `try`, como a assinatura: um PDF que falha inteiro porque uma foto se
+   * perdeu é pior que um PDF com uma foto a menos.
+   */
+  const FOTOS_NA_FOLHA = 8
+  if (dados.fotos.length > 0) {
+    doc.moveDown(1.4)
+    rotulo(doc, `FOTOS DO APARELHO (${dados.fotos.length})`)
+    doc.moveDown(0.5)
+
+    const LARG = 118
+    const ALT = 88
+    const VAO = 8
+    const POR_LINHA = 4
+    let col = 0
+    let topo = doc.y
+
+    for (const f of dados.fotos.slice(0, FOTOS_NA_FOLHA)) {
+      // Antes de desenhar a linha: ela cabe no que sobra da página?
+      if (col === 0 && topo + ALT + 26 > doc.page.height - 60) {
+        doc.addPage()
+        topo = doc.y
+      }
+      const x = 48 + col * (LARG + VAO)
+      try {
+        doc.image(path.join(RAIZ(), f.caminhoThumb ?? f.caminho), x, topo, {
+          fit: [LARG, ALT],
+          align: 'center',
+          valign: 'center',
+        })
+      } catch {
+        doc
+          .rect(x, topo, LARG, ALT)
+          .strokeColor('#CFCBD9')
+          .lineWidth(1)
+          .stroke()
+          .fillColor(CINZA)
+          .fontSize(6.5)
+          .font('Helvetica')
+          .text('arquivo não encontrado', x, topo + ALT / 2 - 4, { width: LARG, align: 'center' })
+      }
+      doc.fillColor(TINTA).fontSize(6.5).font('Helvetica-Bold')
+      doc.text(f.categoria.replace(/_/g, ' ').toLowerCase(), x, topo + ALT + 3, {
+        width: LARG,
+        lineBreak: false,
+      })
+      doc.fillColor(CINZA).fontSize(6).font('Courier')
+      doc.text(
+        `${f.criadoEm.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })} · ${f.autorNome}`,
+        x,
+        topo + ALT + 12,
+        { width: LARG, lineBreak: false },
+      )
+
+      col++
+      if (col === POR_LINHA) {
+        col = 0
+        topo += ALT + 26
+      }
+    }
+    doc.y = col === 0 ? topo : topo + ALT + 26
+    doc.x = 48
+
+    if (dados.fotos.length > FOTOS_NA_FOLHA) {
+      // O QUE NÃO COUBE PRECISA SER DITO. Cortar em silêncio faria o documento
+      // afirmar, por omissão, que existiam oito fotos.
+      doc.moveDown(0.4)
+      doc.fillColor(CINZA).fontSize(7).font('Helvetica')
+      doc.text(
+        `Mais ${dados.fotos.length - FOTOS_NA_FOLHA} foto(s) no acompanhamento em ` +
+          `${env.APP_URL}/os/${dados.tokenPublico}`,
+        48,
+        doc.y,
+        { width: 499 },
+      )
+    }
   }
 
   // ---- rodapé de verificação ---------------------------------------------

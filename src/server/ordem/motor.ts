@@ -246,8 +246,19 @@ export async function avancarOrdem(
           ordemId: ordem.id,
           eventoId: evento.id,
           template: val.transicao.tipo,
-          // O PDF, quando existe, é anexado pelo worker depois de gerado.
-          anexarDocumento: val.transicao.gera ?? null,
+          /**
+           * O PDF que vai junto com o aviso.
+           *
+           * `anexa` vem primeiro porque ele é o caso em que quem FALA não é
+           * quem GERA — a retirada agendada leva o documento que a etapa
+           * anterior emitiu. Sem ele, seguindo só `gera`, este campo vinha
+           * nulo justamente na mensagem que mais precisa do anexo.
+           *
+           * Quem lê este campo é o worker, que procura o documento MAIS
+           * RECENTE do tipo. Como o PDF é regerado a cada etapa que emite, o
+           * anexo é sempre a versão atual — com as fotos já tiradas.
+           */
+          anexarDocumento: val.transicao.anexa ?? val.transicao.gera ?? null,
         },
       })
     }

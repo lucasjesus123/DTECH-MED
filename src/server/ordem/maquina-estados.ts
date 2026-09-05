@@ -29,6 +29,20 @@ export type Transicao = {
   avisaCliente: boolean
   /** Gera documento em PDF ao entrar nesta etapa. */
   gera?: 'ORDEM_RETIRADA' | 'COMPROVANTE_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
+  /**
+   * DOCUMENTO A ANEXAR NO AVISO — quando quem avisa não é quem gera.
+   *
+   * O anexo seguia `gera`, e por isso o caso mais importante nunca funcionou:
+   * `ORDEM_RETIRADA_GERADA` GERA a ordem de retirada e não avisa ninguém;
+   * `RETIRADA_AGENDADA` AVISA o cliente e não gera nada. As duas metades
+   * existiam e nunca se encontravam — o cliente recebia "sua retirada está
+   * agendada ✅" sem documento nenhum.
+   *
+   * Com este campo, a etapa que fala diz qual papel levar junto. O worker
+   * procura o mais recente daquele tipo na ordem, então o anexo é sempre a
+   * versão mais atual do documento — com as fotos que já foram tiradas.
+   */
+  anexa?: 'ORDEM_RETIRADA' | 'COMPROVANTE_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
   /** Pré-condições verificadas pelo motor antes de aceitar a transição. */
   exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO' | 'PARADA_DE_RETIRADA' | 'PARADA_DE_ENTREGA' | 'ORCAMENTO_MONTADO'>
 }
@@ -59,6 +73,10 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Retirada agendada',
     papeis: CENTRAL,
     avisaCliente: true,
+    // O PDF da ordem de retirada vai JUNTO com este aviso. Quem o gerou foi a
+    // etapa anterior, que não fala com ninguém; quem fala é esta, que não gera
+    // nada. Sem esta linha o cliente recebia a frase e nenhum documento.
+    anexa: 'ORDEM_RETIRADA',
     /**
      * "Agendada" precisa ter DIA, HORA E MOTORISTA — senão é só um rótulo.
      *

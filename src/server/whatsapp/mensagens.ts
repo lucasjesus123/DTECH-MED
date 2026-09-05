@@ -93,17 +93,40 @@ export const TEMPLATES: Record<string, Construtor> = {
       `— ${d.empresa}`,
     ]),
 
+  /**
+   * A COLETA — e o texto foi corrigido em dois pontos que importavam.
+   *
+   * 1. O NOME DE QUEM RETIROU ENTRA NA FRASE, e não numa linha de etiqueta
+   *    embaixo. Quem recebe quer saber quem esteve na clínica dele; "Motorista:
+   *    Adriano" numa lista é dado, "O Adriano retirou" é notícia.
+   *
+   * 2. O ANEXO É O COMPROVANTE, e não a ordem de retirada. Esta etapa gera o
+   *    COMPROVANTE_RETIRADA — o documento que já traz a assinatura colhida no
+   *    dedo e as fotos do aparelho. O texto dizia "a ordem de retirada que você
+   *    assinou", que é outro papel: a ordem é emitida ANTES da coleta e ninguém
+   *    assinou nada nela ainda.
+   *
+   * A frase "segue em anexo" só passou a ser verdade agora: o campo que manda
+   * anexar era escrito pelo motor e nunca lido pelo worker, então esta mensagem
+   * prometia um documento que nunca ia junto.
+   */
   'ordem.coletada': (d) =>
     montar([
       saudacao(d),
       '',
-      `${equipamento(d)} saiu daí agora e já está vindo para a nossa assistência ✅`,
+      d.motorista
+        ? `O ${d.motorista} retirou ${equipamento(d)} e já está a caminho da nossa assistência ✅`
+        : `${equipamento(d)} saiu daí agora e já está vindo para a nossa assistência ✅`,
       '',
-      d.motorista && `🚚 Motorista: ${d.motorista}`,
       d.endereco && `📍 ${d.endereco}`,
       d.quando && `🕒 ${d.quando}`,
+      // `> 0` e não só `d.qtdFotos`: zero é falsy, mas o tipo do valor é
+      // número, e `0 && texto` devolve `0` — um zero solto na mensagem.
+      d.qtdFotos != null && d.qtdFotos > 0
+        ? `📸 ${d.qtdFotos} foto(s) do aparelho no ato da retirada`
+        : null,
       '',
-      `Segue em anexo a ordem de retirada que você assinou.`,
+      `Segue em anexo o comprovante, com a sua assinatura e as fotos do aparelho.`,
       d.linkPortal && `Acompanhe por aqui: ${d.linkPortal}`,
       `— ${d.empresa}`,
     ]),
