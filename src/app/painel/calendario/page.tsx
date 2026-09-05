@@ -285,6 +285,7 @@ export default async function Calendario({
           porDia={porDia}
           hoje={hoje}
           teto={NO_DIA}
+          escolhido={diaAberto}
           legenda={`Compromissos de ${periodo.titulo}, por dia`}
           url={url}
         />
@@ -300,6 +301,8 @@ export default async function Calendario({
           // de sobra para isso.
           teto={99}
           rolarCelula
+          semanaCheia
+          escolhido={diaAberto}
           legenda={`Compromissos da semana de ${periodo.titulo}`}
           url={url}
         />
@@ -368,6 +371,8 @@ function Grade({
   legenda,
   url,
   rolarCelula,
+  escolhido,
+  semanaCheia,
 }: {
   semanas: Array<Array<{ dia: string; doMes: boolean }>>
   porDia: Map<string, Evento[]>
@@ -375,6 +380,23 @@ function Grade({
   teto: number
   legenda: string
   url: Url
+  /**
+   * O dia que está com o formulário aberto embaixo.
+   *
+   * Sem esta marca, a pessoa clica num dia, a página rola até o formulário, e
+   * ao voltar com o olho para a grade não há nada dizendo em qual dos 42
+   * quadrados ela mexeu. O título do formulário diz a data por extenso; a
+   * grade precisa concordar com ele visualmente.
+   */
+  escolhido?: string | null
+  /**
+   * A semana ocupa a tela, e não uma fatia dela.
+   *
+   * Sete dias na largura de trinta e um sobram espaço em altura — e a semana
+   * existe justamente para caber o que não coube na célula do mês. Com a
+   * altura do mês, ela mostrava sete caixinhas vazias e desperdiçava a tela.
+   */
+  semanaCheia?: boolean
   /**
    * A célula rola por dentro em vez de esticar a página.
    *
@@ -387,7 +409,9 @@ function Grade({
 }) {
   return (
     <div className={estilo.rolaX}>
-      <table className={estilo.calGrade}>
+      <table
+        className={semanaCheia ? `${estilo.calGrade} ${estilo.calGradeSemana}` : estilo.calGrade}
+      >
         <caption className={estilo.soLeitor}>{legenda}</caption>
         <thead>
           <tr>
@@ -413,23 +437,51 @@ function Grade({
                       rolarCelula ? estilo.calDiaRola : '',
                       d.doMes ? '' : estilo.calForaDoMes,
                       ehHoje ? estilo.calHoje : '',
+                      d.dia === escolhido ? estilo.calDiaEscolhido : '',
                     ]
                       .filter(Boolean)
                       .join(' ')}
                   >
-                    {/* O NÚMERO DO DIA VIRA O BOTÃO DE MARCAR.
-                        Sem um botão a mais na célula: a grade tem 42 células, e
-                        um "+" em cada uma seria 42 alvos disputando atenção com
-                        o conteúdo. O número já é o lugar onde o olho vai quando
-                        a pessoa escolhe um dia. */}
+                    {/* O DIA INTEIRO É O BOTÃO DE MARCAR — a célula toda, e não
+                        só o numerozinho no canto.
+                        =====================================================
+                        Sem um botão a mais: a grade tem 42 células, e um "+"
+                        em cada uma seria 42 alvos disputando atenção com o
+                        conteúdo. Só que fazer do NÚMERO o único alvo foi para
+                        o outro extremo — um quadrado de 92px de altura em que
+                        funcionavam 14 pixels no canto superior esquerdo.
+                        Quem quer marcar alguma coisa clica NO DIA, e o dia é
+                        a célula.
+
+                        O alvo cresce por um `::after` esticado sobre a célula
+                        (ver `.calNumero::after` no CSS), e não envolvendo tudo
+                        num link: dentro da célula já existem links de evento e
+                        um `<details>`, e link dentro de link é HTML inválido —
+                        o navegador desmonta a árvore e o resultado varia de
+                        navegador para navegador.
+
+                        O `#marcar` no fim do endereço leva a página até o
+                        formulário. Sem ele, no mês, a pessoa clica e a tela
+                        parece não ter feito nada. */}
                     <Link
-                      href={url({ dia: d.dia })}
+                      href={`${url({ dia: d.dia })}#marcar`}
                       className={estilo.calNumero}
                       aria-label={`Marcar algo no dia ${Number(d.dia.slice(8))}`}
                     >
                       {Number(d.dia.slice(8))}
                       {ehHoje ? <span className={estilo.soLeitor}> (hoje)</span> : null}
                     </Link>
+                    {/* O CORPO DO DIA É UM `<div>`, E NÃO SOLTO NA CÉLULA.
+                        =====================================================
+                        A regra que faz o dia cheio rolar por dentro era
+                        `max-height` + `overflow` no próprio `<td>` — e o
+                        navegador IGNORA as duas coisas numa célula de tabela:
+                        a altura de uma célula é decidida pela linha, não por
+                        ela. A rolagem nunca aconteceu; o que acontecia era a
+                        célula esticar, e a semana ir a 1638px de altura sem
+                        ninguém perceber, porque nada dava erro.
+                        Caixa que rola tem de ser um bloco de verdade. */}
+                    <div className={estilo.calDiaCorpo}>
                     {doDia.slice(0, teto).map((e) => (
                       <Compromisso key={e.id} e={e} />
                     ))}
@@ -448,6 +500,7 @@ function Grade({
                         ))}
                       </details>
                     ) : null}
+                    </div>
                   </td>
                 )
               })}

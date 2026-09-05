@@ -173,19 +173,38 @@ foraDaRampa.length === 0
   ? ok(`os ${tela.filter((d) => !d.ativo && !d.grita && d.numero > 0).length} degraus da rampa saem em azul dominante`)
   : nao(`degrau fora da rampa (verde, âmbar ou teal): ${foraDaRampa.join(' · ')}`)
 
-// E o trilho, que é a rampa desenhada de uma vez só.
-const trilho = await p.evaluate(() => {
+// =============================================================================
+// O TRILHO NÃO EXISTE MAIS, E ESTA CONFERÊNCIA GUARDA ISSO.
+// =============================================================================
+// Aqui se conferia que o trilho carregava a rampa inteira em azul. Ele saiu: na
+// tela, uma linha atravessando a face dos oito cartões lia como arranhão, e o
+// dono do sistema apontou. Oito cartões lado a lado, na ordem, já são uma
+// sequência — a linha não tinha o que dizer.
+//
+// A conferência não foi apagada: foi INVERTIDA. Ela agora vigia os DOIS
+// pseudo-elementos, porque o enfeite era feito de dois — o `::before` desenhava
+// o trilho e o `::after` era uma luz que corria por cima dele, declarada mil
+// linhas adiante no arquivo. Ao tirar só o primeiro, a luz continuou: um risco
+// azul viajando sozinho pela tela, pior do que antes de mexer. Quem me corrigiu
+// foi `getComputedStyle`, depois de eu ler o CSS e concluir que estava limpo.
+const enfeites = await p.evaluate(() => {
   const nav = document.querySelector('nav[aria-label="Etapas da esteira"]')
-  const c = getComputedStyle(nav, '::before')
-  return { fundo: c.backgroundImage, z: c.zIndex, topo: c.top }
+  const ver = (ps) => {
+    const c = getComputedStyle(nav, ps)
+    return { content: c.content, img: c.backgroundImage, fundo: c.backgroundColor }
+  }
+  return { antes: ver('::before'), depois: ver('::after') }
 })
-const coresDoTrilho = [...trilho.fundo.matchAll(/rgba?\(([^)]+)\)/g)]
-  .map((m) => m[1].split(',').map((n) => parseFloat(n)))
-  .filter((c) => c[0] + c[1] + c[2] > 0)
-const trilhoAzul = coresDoTrilho.length > 0 && coresDoTrilho.every(([r, g, b]) => b > g && b > r)
-trilhoAzul
-  ? ok(`o trilho carrega a rampa inteira em ${coresDoTrilho.length} paradas, todas azuis`)
-  : nao(`o trilho tem cor fora da rampa: ${trilho.fundo.slice(0, 90)}`)
+for (const [nome, e] of [
+  ['::before (o trilho)', enfeites.antes],
+  ['::after (a luz que corria)', enfeites.depois],
+]) {
+  const desenha =
+    e.content !== 'none' && (e.img !== 'none' || !/rgba\(0, 0, 0, 0\)/.test(e.fundo))
+  desenha
+    ? nao(`a esteira voltou a desenhar ${nome}: ${(e.img || e.fundo).slice(0, 70)}`)
+    : ok(`nada de ${nome} atravessando os cartões`)
+}
 
 // ---------------------------------------------------------------------------
 console.log('\n2) O GARGALO é o degrau de maior represa — conferido contra o banco')

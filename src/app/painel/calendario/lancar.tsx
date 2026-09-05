@@ -66,8 +66,20 @@ export default function LancarNoDia({
     weekday: 'long',
   })
 
+  /**
+   * `id="marcar"` NÃO É ENFEITE: é o destino da âncora.
+   *
+   * Este painel sempre nasceu embaixo da grade. Na visão de SEMANA, que tem uma
+   * fileira só, ele aparecia junto — e funcionava. No MÊS, com seis fileiras na
+   * frente, ele nascia fora da tela: a pessoa clicava no dia, a página recarrega
+   * igualzinha, e a conclusão óbvia é "não abriu nada". O formulário estava lá o
+   * tempo todo, a uma rolagem de distância que ninguém tinha motivo para dar.
+   *
+   * O número do dia agora aponta para `#marcar`, e o navegador leva até aqui
+   * sozinho. Sem JavaScript, e funcionando igual no celular.
+   */
   return (
-    <div className={estilo.bloco}>
+    <div className={estilo.bloco} id="marcar">
       <p className={estilo.blocoTitulo}>Marcar em {legivel}</p>
 
       {/* SEM BARRA DE ABAS: sobrou uma coisa para escrever no dia. Uma aba
