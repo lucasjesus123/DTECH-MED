@@ -6284,6 +6284,158 @@ a.calNumero:hover, a.calNumero:focus-visible {
    mês — que não tem `.calDiaRola` — a classe saiu `undefined` no HTML. Nome de
    classe de CSS module não é conferido por ninguém: erra em silêncio. */
 .calDiaCorpo { min-width: 0; }
+
+/* ==========================================================================
+   A JANELA DO DIA
+   --------------------------------------------------------------------------
+   Ela substitui o painel que ficava embaixo da grade. Quem clica num dia quer
+   responder uma pergunta SOBRE AQUELE DIA — e para isso não pode ter de sair
+   da grade, rolar, e depois voltar para saber onde estava.
+
+   O fundo escurece E DESFOCA. Só escurecer deixa a grade legível atrás, e uma
+   grade legível atrás de um formulário disputa o olho com ele; desfocada, ela
+   continua dizendo "seu calendário está aqui atrás" sem pedir leitura.
+
+   `position: fixed` com `inset: 0` e não `absolute`: a janela tem de ficar no
+   meio da TELA, não no meio do documento. Com `absolute` numa página de seis
+   fileiras de grade ela abriria no meio da página — que é a metade do defeito
+   que ela veio consertar.
+   ========================================================================== */
+.janelaFundo {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: var(--s4);
+  background: light-dark(rgba(11, 16, 32, .45), rgba(2, 4, 10, .66));
+  backdrop-filter: blur(3px);
+  animation: janelaEntra 160ms var(--ease) both;
+}
+/* O fundo inteiro é o link de fechar; a janela fica por cima dele. */
+.janelaSaida {
+  position: absolute;
+  inset: 0;
+  cursor: default;
+}
+.janela {
+  position: relative;
+  z-index: 1;
+  width: min(680px, 100%);
+  /* A janela nunca passa da tela: o formulário tem seis campos e mais dois
+     botões de atalho, e num notebook de 768px de altura isso não cabe. O
+     cabeçalho fica parado e o CORPO rola. */
+  max-height: min(86vh, 780px);
+  display: flex;
+  flex-direction: column;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  box-shadow: 0 24px 64px -18px rgba(4, 8, 20, .5);
+  animation: janelaSobe 200ms var(--ease-firme) both;
+}
+.janelaCab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  padding: var(--s4) var(--s5);
+  border-bottom: 1px solid var(--borda);
+}
+.janelaTitulo {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--txt);
+  /* SEM `text-transform: capitalize` AQUI, e isso é decisão de português.
+     O CSS põe maiúscula em TODA palavra, e "sábado, 14 de setembro" vira
+     "Segunda-Feira, 14 De Setembro" — com "De" e "Feira" em maiúscula, que
+     não é como se escreve. Quem levanta só a primeira letra é o componente,
+     onde dá para fazer isso uma vez e certo. */
+}
+.janelaX {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r);
+  border: 1px solid var(--borda);
+  background: var(--sup-2);
+  color: var(--txt-2);
+  font-size: 20px;
+  line-height: 1;
+  text-decoration: none;
+}
+.janelaX:hover { border-color: var(--borda-viva); color: var(--txt); }
+.janelaCorpo {
+  padding: var(--s5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* O QUE JÁ ESTÁ MARCADO, antes do formulário. */
+.janelaJa { margin-bottom: var(--s5); }
+.janelaJaTitulo {
+  margin: 0 0 var(--s2);
+  font-family: var(--f-texto);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.janelaJaLista { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.janelaJaItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2);
+  padding: 8px 10px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-2);
+  text-decoration: none;
+  color: var(--txt);
+  font-size: var(--t-sm);
+}
+.janelaJaItem:hover { border-color: var(--vio); background: var(--vio-veu); }
+.janelaJaNome { font-weight: 600; }
+.janelaJaAtraso {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--alerta);
+}
+.janelaVazio {
+  margin: 0 0 var(--s5);
+  padding: var(--s4);
+  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r);
+  text-align: center;
+  color: var(--txt-3);
+  font-size: var(--t-sm);
+}
+
+@keyframes janelaEntra { from { opacity: 0; } to { opacity: 1; } }
+@keyframes janelaSobe {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+/* Quem pediu menos movimento recebe a janela parada — ela aparece igual. */
+@media (prefers-reduced-motion: reduce) {
+  .janelaFundo, .janela { animation: none; }
+}
+@media (max-width: 640px) {
+  /* No celular a janela encosta nas bordas: 680px de largura máxima já não
+     manda em nada, e o que decide é o respiro das laterais. */
+  .janelaFundo { padding: var(--s2); }
+  .janela { max-height: 92vh; }
+  .janelaCab { padding: var(--s3) var(--s4); }
+  .janelaCorpo { padding: var(--s4); }
+}
 .calDiaRola .calDiaCorpo {
   /* 420px de célula menos o número (22px + 10 de respiro) e os dois paddings
      de 10. Se a altura da semana mudar lá em cima, esta conta muda junto. */
@@ -6305,6 +6457,35 @@ a.calNumero:hover, a.calNumero:focus-visible {
   align-items: center;
   gap: var(--s2);
   white-space: nowrap;
+}
+
+/* O BOTÃO QUE É SÓ UM DESENHO.
+   =========================================================================
+   Numa tabela de sete colunas, a última não tem largura para a palavra
+   "editar". O que um ícone sozinho perde é o NOME: por isso quem o usa é
+   obrigado a passar `aria-label` com o que está sendo editado — sem ele, o
+   leitor de tela anuncia "link" e a pessoa fica sabendo que existe um botão
+   sem saber o que ele faz.
+
+   44px de alvo mínimo não cabem aqui, e o compromisso é consciente: 30px com
+   o `title` e a linha inteira grande em volta. No celular, esta tabela rola de
+   lado e o alvo continua sendo tocável porque não há nada colado nele. */
+.btnIcone {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r);
+  background: var(--sup);
+  color: var(--txt-2);
+  text-decoration: none;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+.btnIcone:hover {
+  border-color: var(--vio);
+  color: var(--vio-claro);
+  background: var(--vio-veu);
 }
 
 /* A recusa aparece NA LINHA de quem a causou. Numa carteira de duzentos nomes,

@@ -117,6 +117,12 @@ export default async function Ordens({
                 <th>Técnico</th>
                 <th>Parada</th>
                 <th className={estilo.dir}>Fatura</th>
+                {/* A coluna de ação vem por último, e o cabeçalho fica vazio
+                    para o leitor de tela porque cada lápis já se anuncia com o
+                    número da O.S. que ele edita. */}
+                <th className={estilo.dir}>
+                  <span className={estilo.soLeitor}>Ações</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -159,6 +165,42 @@ export default async function Ordens({
                     ) : (
                       <span className={estilo.fraco}>—</span>
                     )}
+                  </td>
+                  {/* O LÁPIS.
+                      O número da O.S. já levava à ficha, mas ficha é onde se
+                      TRABALHA a ordem — anda etapa, escreve laudo, monta
+                      orçamento. Corrigir o que foi digitado na abertura é outra
+                      coisa, e não tinha porta nenhuma: quem errava o defeito ou
+                      o prazo convivia com o erro, ou abria outra O.S. — que
+                      duplica o aparelho no histórico.
+
+                      Ícone e não a palavra "editar" porque a coluna é a última
+                      de sete e precisa ser estreita; o `aria-label` carrega o
+                      número da ordem, que é o que falta a um desenho sozinho. */}
+                  <td className={estilo.dir}>
+                    <span className={estilo.acoesLinha}>
+                      <Link
+                        href={`/painel/ordens/${o.id}/editar`}
+                        className={estilo.btnIcone}
+                        aria-label={`Editar a O.S. ${String(o.numero).padStart(4, '0')}`}
+                        title="Editar a O.S."
+                      >
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                      </Link>
+                    </span>
                   </td>
                 </tr>
               ))}

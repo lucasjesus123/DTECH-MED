@@ -74,7 +74,13 @@ export const dynamic = 'force-dynamic'
 export default async function Calendario({
   searchParams,
 }: {
-  searchParams: Promise<{ mes?: string; so?: string; dia?: string; ver?: string }>
+  searchParams: Promise<{
+    mes?: string
+    so?: string
+    dia?: string
+    ver?: string
+    marcar?: string
+  }>
 }) {
   const { ctx, sessao } = await exigirNivel(Papel.MOTORISTA)
   await exigirAba('calendario')
@@ -110,16 +116,27 @@ export default async function Calendario({
   const so = FILTROS.some((f) => f.chave === q.so) ? (q.so as TipoEvento) : null
 
   /**
-   * O PAINEL DE MARCAR abre quando o dia veio no endereço — e SEMPRE na visão
-   * de dia, porque ali ele não é um extra: a visão de dia existe para olhar e
-   * mexer num dia só.
+   * O DIA MARCADO NA GRADE — só o lugar, sem abrir nada.
    *
-   * No ANO ele não abre. A visão do ano é de PANORAMA — olhar doze meses e
-   * achar o pico. Um formulário de "marcar em 5 de setembro" pendurado embaixo
-   * dela oferece uma ação de escala errada, e ainda empurra os doze meses para
-   * cima da dobra em tela de notebook.
+   * No ANO não existe: a visão do ano é de PANORAMA, doze meses para achar o
+   * pico, e um quadradinho de um dia entre 365 não é um alvo de escolha.
    */
-  const diaAberto = visao === 'ano' ? null : visao === 'dia' ? periodo.dia : diaUrl
+  const diaAberto = visao === 'ano' ? null : diaUrl
+
+  /**
+   * A JANELA SÓ ABRE SE ALGUÉM PEDIU.
+   *
+   * Antes ela era um painel embaixo da grade, e abria só por existir `dia` no
+   * endereço — na visão de DIA, então, abria sempre. Painel embaixo pode ficar
+   * aberto sem incomodar; JANELA NÃO PODE. Uma janela que aparece sozinha toda
+   * vez que se troca de dia, tapando a tela que a pessoa foi olhar, vira algo
+   * para fechar antes de trabalhar.
+   *
+   * Agora é `marcar=1`, e quem o coloca é o clique no dia ou o botão
+   * "+ Novo evento" — os dois lugares onde a pessoa DISSE que quer marcar algo.
+   */
+  const diaDaJanela =
+    q.marcar === '1' && visao !== 'ano' ? (diaUrl ?? periodo.dia) : null
 
   /**
    * A visão de ANO pede CONTAGEM, não eventos.
@@ -136,9 +153,11 @@ export default async function Calendario({
     visao === 'ano'
       ? contagemPorDia(ctx, periodo.inicio, periodo.fim)
       : Promise.resolve(new Map<string, number>()),
-    // Só quando há dia aberto: a lista da equipe não é usada na grade, e
-    // buscá-la sempre seria uma consulta por carregamento de tela para nada.
-    diaAberto ? pessoasDaEmpresa(ctx) : Promise.resolve([]),
+    // Só quando a JANELA vai abrir: a lista da equipe alimenta o "quem vai" do
+    // formulário e não é usada na grade. Buscá-la a cada carregamento seria uma
+    // consulta por tela para nada — e agora "tem dia escolhido" deixou de
+    // significar "vai ter formulário".
+    diaDaJanela ? pessoasDaEmpresa(ctx) : Promise.resolve([]),
   ])
 
   const filtrados = so ? eventos.filter((e) => e.tipo === so) : eventos
@@ -154,11 +173,32 @@ export default async function Calendario({
   const naRua = filtrados.filter((e) => e.tipo === 'parada' || e.tipo === 'preventiva').length
 
   /** Monta um endereço desta tela mantendo o que não mudou. */
-  const url = (troca: { ver?: Visao; dia?: string; so?: TipoEvento | null }) => {
+  const url = (troca: {
+    ver?: Visao
+    dia?: string
+    so?: TipoEvento | null
+    /**
+     * `marcar` É O QUE ABRE E FECHA A JANELA — e ele é separado de `dia` de
+     * propósito.
+     *
+     * A janela abria só por existir `dia` no endereço, e por isso FECHAR
+     * significava tirar o dia. Sem dia, o calendário não sabe mais onde estava:
+     * quem fechasse a janela olhando a semana do mês que vem voltava para hoje,
+     * no mês. O "Fechar" antigo mandava para `?mes=`, que perdia junto a visão
+     * e o filtro de tipo.
+     *
+     * Com dois parâmetros, `dia` guarda o LUGAR e `marcar` guarda a JANELA.
+     * Fechar tira só a janela: a semana continua a mesma, o filtro continua
+     * ligado, e o dia continua marcado na grade.
+     */
+    marcar?: boolean
+  }) => {
     const v = troca.ver ?? visao
     const d = troca.dia ?? periodo.dia
     const s = troca.so === undefined ? so : troca.so
-    return `/painel/calendario?ver=${v}&dia=${d}${s ? `&so=${s}` : ''}`
+    return `/painel/calendario?ver=${v}&dia=${d}${s ? `&so=${s}` : ''}${
+      troca.marcar ? '&marcar=1' : ''
+    }`
   }
 
   /**
@@ -183,7 +223,10 @@ export default async function Calendario({
             <Link href="/painel/financeiro">Financeiro</Link>.
           </p>
         </div>
-        <Link className={estilo.btnPrimario} href={url({ ver: 'dia', dia: diaDoBotao })}>
+        <Link
+          className={estilo.btnPrimario}
+          href={url({ ver: 'dia', dia: diaDoBotao, marcar: true })}
+        >
           + Novo evento
         </Link>
       </div>
@@ -314,12 +357,26 @@ export default async function Calendario({
 
       {visao === 'ano' ? <VisaoAno ano={periodo.dia.slice(0, 4)} contagem={contagem} hoje={hoje} /> : null}
 
-      {diaAberto ? (
+      {diaDaJanela ? (
         <LancarNoDia
-          dia={diaAberto}
-          mes={diaAberto.slice(0, 7)}
+          dia={diaDaJanela}
           pessoas={pessoas}
           podeMarcarParada={podeVer(sessao.papel, Papel.ATENDENTE)}
+          /* O endereço de fechar é montado AQUI, e não lá dentro, porque só
+             esta página sabe em que visão e com que filtro a pessoa estava. O
+             "Fechar" antigo montava `?mes=` por conta própria e, ao fechar,
+             levava para o mês — perdendo a semana e o filtro de tipo. */
+          fechar={url({ marcar: false })}
+          /* O que já está marcado neste dia. Uma janela que só oferece
+             "criar" faz a pessoa fechá-la e procurar na grade o que ela já
+             tinha marcado ali. */
+          jaMarcado={(porDia.get(diaDaJanela) ?? []).map((e) => ({
+            id: e.id,
+            titulo: e.titulo,
+            detalhe: e.detalhe,
+            href: e.href,
+            atrasado: e.atrasado,
+          }))}
         />
       ) : null}
 
@@ -351,7 +408,12 @@ export default async function Calendario({
 // A GRADE — serve ao mês e à semana, com um teto diferente por célula
 // ---------------------------------------------------------------------------
 
-type Url = (troca: { ver?: Visao; dia?: string; so?: TipoEvento | null }) => string
+type Url = (troca: {
+  ver?: Visao
+  dia?: string
+  so?: TipoEvento | null
+  marcar?: boolean
+}) => string
 
 /**
  * `<table>` e não `<div>` com grid: um calendário É uma tabela — dias da semana
@@ -464,7 +526,7 @@ function Grade({
                         formulário. Sem ele, no mês, a pessoa clica e a tela
                         parece não ter feito nada. */}
                     <Link
-                      href={`${url({ dia: d.dia })}#marcar`}
+                      href={url({ dia: d.dia, marcar: true })}
                       className={estilo.calNumero}
                       aria-label={`Marcar algo no dia ${Number(d.dia.slice(8))}`}
                     >

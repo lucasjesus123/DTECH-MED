@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { salvarCompromisso } from '@/server/acoes/compromissos'
 import estilo from '../painel.module.css'
@@ -40,47 +40,143 @@ import estilo from '../painel.module.css'
  */
 
 type Pessoa = { id: string; nome: string }
+type JaMarcado = {
+  id: string
+  titulo: string
+  detalhe: string | null
+  href: string
+  atrasado: boolean
+}
 
 export default function LancarNoDia({
   dia,
-  mes,
   pessoas,
   podeMarcarParada,
+  fechar,
+  jaMarcado,
 }: {
   dia: string
-  mes: string
   pessoas: Pessoa[]
   podeMarcarParada: boolean
+  /** Endereço de volta, montado pela página — só ela sabe a visão e o filtro. */
+  fechar: string
+  /** O que já está marcado neste dia. */
+  jaMarcado: JaMarcado[]
 }) {
   const router = useRouter()
+
+  /**
+   * ESC FECHA, E O FUNDO PARA DE ROLAR.
+   *
+   * Só isto precisa de JavaScript. Todo o resto da janela é HTML servido pelo
+   * servidor: ela existe porque o endereço diz `marcar=1`, e o X e o fundo são
+   * links comuns de volta. Com o JavaScript fora do ar a janela abre, funciona
+   * e fecha — o que se perde é o ESC e a trava de rolagem, que são conforto.
+   */
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') router.push(fechar)
+    }
+    document.addEventListener('keydown', aoTeclar)
+    const antes = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', aoTeclar)
+      document.body.style.overflow = antes
+    }
+  }, [fechar, router])
 
   const [estCompromisso, acaoCompromisso, pendCompromisso] = useActionState(salvarCompromisso, {
     ok: true as const,
     mensagem: '',
   })
 
-  const legivel = new Date(`${dia}T12:00:00Z`).toLocaleDateString('pt-BR', {
+  const porExtenso = new Date(`${dia}T12:00:00Z`).toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     day: '2-digit',
     month: 'long',
     weekday: 'long',
   })
+  /**
+   * SÓ A PRIMEIRA LETRA — e não `text-transform: capitalize` no CSS.
+   *
+   * O CSS levanta TODA palavra, e "segunda-feira, 14 de setembro" saía como
+   * "Segunda-Feira, 14 De Setembro". Em português a preposição fica minúscula,
+   * e "Feira" com maiúscula no meio do nome do dia é erro que se lê de longe.
+   */
+  const legivel = porExtenso.charAt(0).toUpperCase() + porExtenso.slice(1)
 
   /**
-   * `id="marcar"` NÃO É ENFEITE: é o destino da âncora.
+   * =============================================================================
+   * ISTO É UMA JANELA, E ANTES ERA UM PAINEL EMBAIXO DA GRADE
+   * =============================================================================
+   * O painel ficava depois da tabela. Na SEMANA, que tem uma fileira só, ele
+   * aparecia junto e funcionava. No MÊS, com seis fileiras na frente, nascia
+   * fora da tela: a pessoa clicava no dia, a página recarregava igualzinha, e a
+   * conclusão óbvia era "não abriu nada".
    *
-   * Este painel sempre nasceu embaixo da grade. Na visão de SEMANA, que tem uma
-   * fileira só, ele aparecia junto — e funcionava. No MÊS, com seis fileiras na
-   * frente, ele nascia fora da tela: a pessoa clicava no dia, a página recarrega
-   * igualzinha, e a conclusão óbvia é "não abriu nada". O formulário estava lá o
-   * tempo todo, a uma rolagem de distância que ninguém tinha motivo para dar.
+   * A primeira correção foi uma âncora `#marcar`, que rolava a página até ele.
+   * Resolvia o "não abriu" e não resolvia o resto: quem clica num dia quer
+   * responder uma pergunta SOBRE AQUELE DIA, e para isso não pode ter de sair
+   * da grade e voltar. Janela no meio da tela, com o calendário atrás, é o
+   * desenho certo — e é o que o dono do sistema pediu, apontando um concorrente
+   * que faz assim.
    *
-   * O número do dia agora aponta para `#marcar`, e o navegador leva até aqui
-   * sozinho. Sem JavaScript, e funcionando igual no celular.
+   * =============================================================================
+   * SEM JAVASCRIPT PARA ABRIR
+   * =============================================================================
+   * A janela existe porque o ENDEREÇO diz `marcar=1`. Quem abre é o servidor;
+   * o X e o fundo são links comuns de volta. Não há `showModal()`, não há
+   * estado de aberto/fechado para dessincronizar, e o botão "voltar" do
+   * navegador fecha a janela como qualquer um espera.
    */
   return (
-    <div className={estilo.bloco} id="marcar">
-      <p className={estilo.blocoTitulo}>Marcar em {legivel}</p>
+    <div className={estilo.janelaFundo}>
+      {/* O FUNDO É UM LINK, e por isso clicar fora fecha. `aria-hidden` +
+          `tabIndex={-1}` porque para o leitor de tela ele não é um destino: o
+          X do cabeçalho já é o "fechar" anunciado, e dois seriam ruído. */}
+      <Link href={fechar} className={estilo.janelaSaida} aria-hidden="true" tabIndex={-1} />
+      <div
+        className={estilo.janela}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloDaJanela"
+      >
+        <div className={estilo.janelaCab}>
+          <p className={estilo.janelaTitulo} id="tituloDaJanela">
+            {legivel}
+          </p>
+          <Link href={fechar} className={estilo.janelaX} aria-label="Fechar">
+            ×
+          </Link>
+        </div>
+
+        <div className={estilo.janelaCorpo}>
+          {/* O QUE JÁ ESTÁ MARCADO VEM ANTES DO FORMULÁRIO.
+              A pergunta que traz alguém a clicar num dia é "o que tem neste
+              dia?" — e só depois "quero pôr mais uma coisa". Uma janela que só
+              oferece criar obriga a fechá-la e ir procurar na grade o que já
+              havia ali. */}
+          {jaMarcado.length > 0 ? (
+            <div className={estilo.janelaJa}>
+              <p className={estilo.janelaJaTitulo}>
+                {jaMarcado.length === 1 ? 'Já marcado neste dia' : `Já marcados neste dia (${jaMarcado.length})`}
+              </p>
+              <ul className={estilo.janelaJaLista}>
+                {jaMarcado.map((e) => (
+                  <li key={e.id}>
+                    <Link href={e.href} className={estilo.janelaJaItem}>
+                      <span className={estilo.janelaJaNome}>{e.titulo}</span>
+                      {e.detalhe ? <span className={estilo.fraco}>{e.detalhe}</span> : null}
+                      {e.atrasado ? <span className={estilo.janelaJaAtraso}>passou da data</span> : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className={estilo.janelaVazio}>Nada marcado neste dia ainda.</p>
+          )}
 
       {/* SEM BARRA DE ABAS: sobrou uma coisa para escrever no dia. Uma aba
           sozinha é um controle que não escolhe nada — ela só ocupa a linha e
@@ -144,18 +240,24 @@ export default function LancarNoDia({
         Parada de rota e visita preventiva não se marcam a partir de uma data solta: a parada precisa
         de uma O.S. com aparelho para buscar, e a preventiva é o cumprimento de um contrato.
       </p>
-      <div className={estilo.modeloCartaoAcoes}>
-        {podeMarcarParada ? (
-          <Link className={estilo.btnSec} href="/painel/rota">
-            Marcar parada na Rota
-          </Link>
-        ) : null}
-        <Link className={estilo.btnSec} href="/painel/preventiva">
-          Agendar preventiva
-        </Link>
-        <Link className={estilo.linkAcao} href={`/painel/calendario?mes=${mes}`}>
-          Fechar
-        </Link>
+          <div className={estilo.modeloCartaoAcoes}>
+            {podeMarcarParada ? (
+              <Link className={estilo.btnSec} href="/painel/rota">
+                Marcar parada na Rota
+              </Link>
+            ) : null}
+            <Link className={estilo.btnSec} href="/painel/preventiva">
+              Agendar preventiva
+            </Link>
+            {/* O "Fechar" montava `?mes=` por conta própria e, ao fechar,
+                levava para o MÊS: quem estava na semana do mês que vem, com o
+                filtro em "Preventiva", perdia os dois. O endereço agora vem
+                pronto da página, que é quem sabe onde a pessoa estava. */}
+            <Link className={estilo.linkAcao} href={fechar}>
+              Fechar
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   )

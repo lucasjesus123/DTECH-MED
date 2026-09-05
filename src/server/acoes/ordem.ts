@@ -294,6 +294,151 @@ export async function avancar(entrada: {
   return { ok: true }
 }
 
+// ---------------------------------------------------------------------------
+// Edição da ordem
+// ---------------------------------------------------------------------------
+
+const schemaEditarOrdem = z.object({
+  ordemId: z.string().min(1),
+  defeito: z.string().trim().min(10, 'Descreva o que está acontecendo com o aparelho.'),
+  prioridade: z.enum(['NORMAL', 'ALTA']),
+  /** `''` significa "sem prazo" — e apagar o prazo é uma edição legítima. */
+  prazo: z.string().trim(),
+  viaCorreio: z.string().optional(),
+  codigoRastreio: z.string().trim().max(60).optional(),
+})
+
+/**
+ * Corrige o que foi digitado ao abrir a O.S.
+ *
+ * =============================================================================
+ * O QUE ESTA AÇÃO DEIXA EDITAR — E O QUE ELA RECUSA, DE PROPÓSITO
+ * =============================================================================
+ * Não existia jeito nenhum de corrigir uma ordem depois de aberta. Quem
+ * digitasse o defeito errado, ou prometesse o prazo errado, convivia com o erro
+ * até a entrega — ou abria outra O.S., que é pior: duplica o aparelho no
+ * histórico e quebra a contagem da esteira.
+ *
+ * EDITÁVEL: o relato do cliente, a prioridade, o prazo prometido e o rastreio
+ * do correio. São campos que alguém DIGITOU e que uma pessoa pode ter digitado
+ * errado.
+ *
+ * NÃO EDITÁVEL, e a recusa é a parte importante desta função:
+ *
+ *   · O NÚMERO. Ele vem do contador da empresa e é o que o cliente cita no
+ *     WhatsApp. Trocar o número de uma ordem é trocar a identidade dela.
+ *   · A ETAPA. Ela só anda pelo motor, que valida a transição, exige o que
+ *     cada degrau exige e escreve na trilha encadeada por hash. Uma edição que
+ *     mexesse na etapa seria uma porta lateral em volta da esteira inteira.
+ *   · O CLIENTE E O APARELHO. Depois que existem fotos de recebimento e
+ *     assinatura de coleta, mudar de qual máquina a ordem trata transforma
+ *     prova de um aparelho em prova de outro. É exatamente o que a folha de
+ *     rastreabilidade existe para impedir; se o aparelho está errado, o certo
+ *     é cancelar com motivo e abrir a ordem certa.
+ *   · O LAUDO, O PARECER E O SERVIÇO EXECUTADO. Cada um tem tela própria, com
+ *     a trava de papel que lhe cabe — o técnico escreve laudo, e não prazo.
+ *
+ * A edição fica na TRILHA DE AUDITORIA com o antes e o depois. Uma correção
+ * silenciosa num campo que o cliente leu no orçamento é indistinguível de
+ * alguém reescrevendo a história do serviço.
+ */
+export async function editarOrdem(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  // A MESMA LISTA DE QUEM ABRE. Quem pode criar a ordem pode corrigir o que
+  // digitou nela; o técnico e o motorista, que não abrem, também não corrigem.
+  const podeEditar: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
+  if (!podeEditar.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não edita ordem de serviço.' }
+  }
+
+  const d = schemaEditarOrdem.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  // O prazo chega como 'AAAA-MM-DD' do `<input type="date">`. O meio-dia evita
+  // que o fuso jogue a data para o dia anterior ao virar para UTC.
+  let prazo: Date | null = null
+  if (v.prazo) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v.prazo)) return { ok: false, motivo: 'Prazo inválido.' }
+    prazo = new Date(`${v.prazo}T12:00:00-03:00`)
+  }
+
+  const feito = await comEscopo(a.ctx, async (tx) => {
+    const antes = await tx.ordem.findUnique({
+      where: { id: v.ordemId },
+      select: {
+        numero: true,
+        etapa: true,
+        defeitoRelatado: true,
+        prioridade: true,
+        prazoPrometido: true,
+        codigoRastreio: true,
+        viaCorreio: true,
+      },
+    })
+    if (!antes) return null
+
+    // ORDEM ENCERRADA NÃO SE EDITA. Depois de entregue e finalizada, o que está
+    // escrito já foi para o documento que o cliente recebeu — mexer ali é
+    // reescrever um papel que saiu da casa.
+    if (antes.etapa === EtapaOrdem.FINALIZADO || antes.etapa === EtapaOrdem.CANCELADO) {
+      return 'encerrada' as const
+    }
+
+    await tx.ordem.update({
+      where: { id: v.ordemId },
+      data: {
+        defeitoRelatado: v.defeito,
+        prioridade: v.prioridade,
+        prazoPrometido: prazo,
+        viaCorreio: v.viaCorreio === '1',
+        codigoRastreio: v.codigoRastreio || null,
+      },
+    })
+    return antes
+  })
+
+  if (feito === null) return { ok: false, motivo: 'Ordem não encontrada.' }
+  if (feito === 'encerrada') {
+    return {
+      ok: false,
+      motivo: 'Esta ordem já foi encerrada. O que está escrito nela já foi entregue ao cliente.',
+    }
+  }
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.editada',
+    entidade: 'ordem',
+    entidadeId: v.ordemId,
+    ip: await ipAtual(),
+    detalhes: {
+      numero: feito.numero,
+      // O ANTES E O DEPOIS, e só do que mudou. Registrar campo que ficou igual
+      // enche a trilha de linhas que não respondem nada.
+      ...(feito.defeitoRelatado !== v.defeito
+        ? { defeito: { de: feito.defeitoRelatado, para: v.defeito } }
+        : {}),
+      ...(feito.prioridade !== v.prioridade
+        ? { prioridade: { de: feito.prioridade, para: v.prioridade } }
+        : {}),
+      ...(String(feito.prazoPrometido ?? '') !== String(prazo ?? '')
+        ? {
+            prazo: {
+              de: feito.prazoPrometido?.toISOString().slice(0, 10) ?? null,
+              para: v.prazo || null,
+            },
+          }
+        : {}),
+    },
+  })
+
+  revalidatePath('/painel/ordens')
+  revalidatePath(`/painel/ordens/${v.ordemId}`)
+  return { ok: true }
+}
+
 /**
  * Cancela a ordem.
  *
