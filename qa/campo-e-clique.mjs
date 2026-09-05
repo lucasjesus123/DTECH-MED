@@ -93,7 +93,15 @@ console.log('\n1) O CAMPO TEM ARESTA, e o rótulo tem tinta — nos dois temas')
 // própria. Eu escrevi o endereço de cabeça e a conferência acusou "não achei
 // campo", que é o comportamento certo dela e o errado meu: rota inventada num
 // roteiro vira um vermelho que faz procurar defeito onde não há.
-const TELAS = ['/painel/ordens/nova', '/painel/calendario?ver=dia', '/painel/clientes']
+// `&marcar=1` no calendário: o formulário do dia mora numa JANELA agora, e ela
+// só abre a pedido. Sem o parâmetro não há campo nenhum naquela tela para
+// medir — e a conferência acusava ausência de campo como se fosse defeito de
+// contraste.
+const TELAS = [
+  '/painel/ordens/nova',
+  '/painel/calendario?ver=dia&marcar=1',
+  '/painel/clientes',
+]
 
 for (const tema of ['claro', 'escuro']) {
   const p = await entrar(tema)
@@ -163,29 +171,54 @@ const cx = await celula.boundingBox()
 await p.mouse.click(cx.x + cx.width / 2, cx.y + cx.height - 12)
 await p.waitForTimeout(1200)
 
-const depois = await p.evaluate(() => ({
-  url: location.href,
-  form: !!document.querySelector('#marcar'),
-  titulo: document.querySelector('#marcar [class*="blocoTitulo"]')?.innerText ?? null,
-  marcados: document.querySelectorAll('[class*="calDiaEscolhido"]').length,
-  rolagem: Math.round(window.scrollY),
-}))
+/**
+ * O QUE SE CONFERE MUDOU JUNTO COM O DESENHO — e as duas versões desta
+ * conferência contam a história.
+ *
+ * Antes o formulário era um painel EMBAIXO da grade, e o que provava que ele
+ * tinha aberto era a página ter ROLADO até ele (`window.scrollY > 200`). Agora
+ * ele é uma JANELA no meio da tela: a página não rola, e rolagem zero deixou de
+ * ser sintoma de "não abriu" para virar o comportamento correto.
+ *
+ * O que prova a abertura agora é a janela existir, estar CENTRADA e DENTRO da
+ * tela — que é o que ela promete e o que o painel antigo não conseguia dar.
+ */
+const depois = await p.evaluate(() => {
+  const j = document.querySelector('[role="dialog"][class*="janela"]')
+  const r = j?.getBoundingClientRect()
+  return {
+    url: location.href,
+    form: !!j && !!document.querySelector('input[name=titulo]'),
+    titulo: j?.querySelector('[class*="janelaTitulo"]')?.textContent ?? null,
+    marcados: document.querySelectorAll('[class*="calDiaEscolhido"]').length,
+    centrada: r ? Math.abs((r.left + r.right) / 2 - window.innerWidth / 2) < 4 : false,
+    naTela: r ? r.top >= 0 && r.bottom <= window.innerHeight + 1 : false,
+    fecharPara: j?.querySelector('[class*="janelaX"]')?.getAttribute('href') ?? null,
+  }
+})
 
 // O `;` da frente: `}))` seguido de `/` vira DIVISÃO sem ele.
 ;/\bdia=\d{4}-\d{2}-\d{2}/.test(depois.url)
   ? ok('clicar no corpo da célula escolhe o dia')
   : nao(`clicar no corpo da célula não fez nada — a URL ficou ${depois.url}`)
 
-depois.form && /marcar em/i.test(depois.titulo ?? '')
-  ? ok(`o formulário abre no dia certo: "${depois.titulo}"`)
-  : nao('o formulário de marcar não abriu')
+depois.form && /\d/.test(depois.titulo ?? '')
+  ? ok(`a janela abre no dia certo: "${depois.titulo}"`)
+  : nao(`a janela de marcar não abriu (título lido: ${depois.titulo})`)
 
-depois.rolagem > 200
-  ? ok(`e a página vai até ele (rolou ${depois.rolagem}px) — no mês ele nasce fora da tela`)
-  : nao(`a página não rolou até o formulário (${depois.rolagem}px): parece que nada abriu`)
+depois.centrada && depois.naTela
+  ? ok('ela nasce centrada e inteira dentro da tela')
+  : nao(`a janela abriu fora de lugar (centrada=${depois.centrada}, na tela=${depois.naTela})`)
+
+// FECHAR NÃO PODE PERDER O LUGAR. O "Fechar" antigo montava `?mes=` por conta
+// própria e levava para o MÊS: quem estava na semana do mês que vem, com o
+// filtro em "Preventiva", perdia os dois de uma vez.
+depois.fecharPara && !/marcar=1/.test(depois.fecharPara) && /ver=mes/.test(depois.fecharPara)
+  ? ok(`fechar volta ao mesmo lugar: ${depois.fecharPara}`)
+  : nao(`o fechar da janela vai para um lugar estranho: ${depois.fecharPara}`)
 
 depois.marcados === 1
-  ? ok('a grade marca qual dia está aberto embaixo')
+  ? ok('a grade marca qual dia está com a janela aberta')
   : nao(`${depois.marcados} dias marcados na grade — esperava exatamente 1`)
 
 // ---------------------------------------------------------------------------

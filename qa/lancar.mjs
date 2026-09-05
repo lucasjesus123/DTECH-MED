@@ -52,7 +52,13 @@ await p.waitForTimeout(700)
   ? ok('o número do dia é o botão de marcar')
   : nao('o dia não abre o painel de marcar')
 
-await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}`, { waitUntil: 'networkidle' })
+// `&marcar=1` É NOVO, E O ROTEIRO ESTAVA CERTO EM REPROVAR SEM ELE.
+// O painel de marcar virou JANELA, e janela não pode abrir sozinha: quem só
+// trocasse de dia veria um formulário tapando a grade que foi olhar. Quem abre
+// agora é o clique no dia ou o botão "+ Novo evento", e os dois põem `marcar=1`
+// no endereço. Link antigo com `?dia=` continua valendo — leva ao dia, marcado
+// na grade, sem janela na frente.
+await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}&marcar=1`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(700)
 await p.fill('input[name=titulo]', 'QA visita antes de orçar')
 await p.fill('input[name=hora]', '14:30')
@@ -77,7 +83,7 @@ console.log('\n3) o dia do calendário NÃO lança mais conta — e a conta nasc
  * calendário deixou de mostrar vencimentos: lançar ali uma conta que a grade
  * não mostra criaria algo invisível na própria tela em que foi criado.
  */
-await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}`, { waitUntil: 'networkidle' })
+await p.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}&marcar=1`, { waitUntil: 'networkidle' })
 await p.waitForTimeout(700)
 const temBotaoConta = await p.getByRole('button', { name: /^Conta$/ }).count()
 const temLancarConta = await p.getByRole('button', { name: /Lançar conta neste dia/i }).count()
@@ -136,7 +142,7 @@ quem !== 'NAO' ? ok(`aprovada por ${quem}`) : nao('não aprovou')
 
 console.log('\n6) MOTORISTA · marca compromisso e não vê dinheiro nenhum')
 const m = await entrar('adriano@dtechmed.com.br')
-await m.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}`, { waitUntil: 'networkidle' })
+await m.goto(`${QA_BASE}/painel/calendario?mes=${mes}&dia=${dia}&marcar=1`, { waitUntil: 'networkidle' })
 await m.waitForTimeout(900)
 ;(await m.locator('input[name=titulo]').count()) > 0
   ? ok('ele marca compromisso') : nao('ele não consegue marcar compromisso')
