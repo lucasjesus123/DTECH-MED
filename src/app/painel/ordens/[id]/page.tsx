@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { formatarBRL } from '@/lib/dinheiro'
-import { Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { prontuario } from '@/server/consultas/painel'
 import { listarPecas, motoristasDaEmpresa, tecnicosDaEmpresa } from '@/server/consultas/listas'
@@ -25,6 +25,27 @@ import DocumentosDaOrdem from './documentos'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
+
+/**
+ * AS ETAPAS EM QUE JÁ HOUVE BANCADA.
+ *
+ * "O que foi executado" e "testes finais" são campos de QUEM JÁ EXECUTOU. No
+ * momento do laudo o técnico acabou de abrir o aparelho: pedir ali que ele
+ * descreva o serviço e os testes é pedir que invente, e é o que fazia a tela
+ * parecer um formulário de quatro caixas para preencher item a item.
+ *
+ * A partir da manutenção eles aparecem, porque aí existe o que escrever.
+ */
+const DEPOIS_DA_BANCADA: EtapaOrdem[] = [
+  EtapaOrdem.EM_MANUTENCAO,
+  EtapaOrdem.MANUTENCAO_CONCLUIDA,
+  EtapaOrdem.APROVACAO_GESTAO,
+  EtapaOrdem.FATURAMENTO,
+  EtapaOrdem.FATURADO,
+  EtapaOrdem.EM_ROTA_ENTREGA,
+  EtapaOrdem.ENTREGUE,
+  EtapaOrdem.FINALIZADO,
+]
 
 /**
  * O prontuário do equipamento.
@@ -236,8 +257,12 @@ export default async function Prontuario({
       <div className={estilo.duasColunas}>
         {/* ===== Coluna principal ========================================== */}
         <div>
-          {/* --- Os próximos passos, no topo: é o que a pessoa veio fazer --- */}
-          <div className={estilo.bloco}>
+          {/* --- Os próximos passos, no topo: é o que a pessoa veio fazer ---
+                 `id="passos"` é o destino de quem acabou de salvar o laudo: o
+                 formulário fica no meio da ficha, e o botão do próximo passo
+                 mora aqui em cima, fora do campo de visão de quem escreveu
+                 quinze linhas. Ver o `scrollIntoView` em `diagnostico.tsx`. */}
+          <div className={estilo.bloco} id="passos">
             <p className={estilo.blocoTitulo}>
               <span>O que dá para fazer agora</span>
               {integridade.integra ? (
@@ -327,6 +352,13 @@ export default async function Prontuario({
                   parecerTecnico={o.parecerTecnico ?? ''}
                   servicoExecutado={o.servicoExecutado ?? ''}
                   testesFinais={o.testesFinais ?? ''}
+                  /* Execução e testes só existem DEPOIS que houve execução.
+                     Ver a nota no componente: pedi-los no momento do laudo é
+                     pedir ao técnico que descreva o que ainda não fez. */
+                  jaExecutou={DEPOIS_DA_BANCADA.includes(o.etapa)}
+                  /* O nome do próximo passo, para o laudo emendar nele em vez
+                     de fechar e deixar a pessoa procurando onde clicar. */
+                  proximoPasso={passos[0]?.titulo ?? null}
                 />
               </div>
             ) : null}

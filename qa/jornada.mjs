@@ -318,7 +318,15 @@ await rafael.waitForTimeout(1000)
 const laudo = rafael.locator('textarea[name=diagnostico]').first()
 if (await laudo.count()) {
   await laudo.fill('Fonte sem saída nos 24V. Capacitor C14 estufado e trilha do regulador com marca de calor.')
-  await rafael.getByRole('button', { name: /salvar laudo|salvar diagn/i }).first().click()
+  // "Salvar e seguir" — o botão mudou de nome junto com o desenho do laudo.
+  // Ele não só salva: rola a ficha até o próximo passo, porque salvar e parar
+  // deixava a pessoa numa tela que não dizia o que fazer em seguida. As duas
+  // grafias antigas continuam na expressão para o roteiro não quebrar de novo
+  // se alguém voltar atrás no nome.
+  await rafael
+    .getByRole('button', { name: /salvar e seguir|salvar laudo|salvar diagn/i })
+    .first()
+    .click()
   await rafael.waitForTimeout(2200)
 }
 await avancar(rafael, ordemId, 'Laudo concluído, orçamento em revisão')
