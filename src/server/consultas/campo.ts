@@ -1,6 +1,7 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
-import { janelaDoDia } from '@/lib/datas'
+import { diaLocal, horaLocal, janelaDoDia } from '@/lib/datas'
+import { ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
 
 /**
  * Consultas dos apps de campo.
@@ -193,6 +194,146 @@ export async function bancada(ctx: ContextoAcesso, tecnicoId: string): Promise<N
     defeito: o.defeitoRelatado,
     fotosRecebimento: porOrdem.get(o.id) ?? 0,
     desdeQuando: o.atualizadoEm,
+  }))
+}
+
+/**
+ * A AGENDA DE QUEM TRABALHA NA RUA E NA BANCADA — a semana dela, não o dia.
+ *
+ * =============================================================================
+ * POR QUE ISTO NÃO É A MESMA COISA QUE A TELA DE HOJE
+ * =============================================================================
+ * O aplicativo abre no HOJE de propósito: quem está na rua com uma mão só
+ * precisa da próxima parada, não de um calendário. Só que hoje era tudo o que
+ * existia, e o efeito é uma pessoa que não consegue responder a pergunta mais
+ * banal do trabalho dela — "amanhã eu tenho o quê?". Para saber, tinha de ligar
+ * para a central.
+ *
+ * =============================================================================
+ * O MOTORISTA E O TÉCNICO NÃO TÊM A MESMA AGENDA, E FORÇAR ISSO SERIA MENTIR
+ * =============================================================================
+ * A agenda do motorista é feita de PARADAS: hora marcada, endereço, alguém
+ * esperando. A do técnico é feita de PRAZOS: a ordem não tem hora, tem um dia
+ * em que precisa estar pronta. Espremer as duas no mesmo formato daria ao
+ * técnico uma agenda de compromissos que ele não tem, e ao motorista uma lista
+ * de prazos que não diz para onde ir.
+ *
+ * Então cada um recebe o que é dele, e o tipo de item diz qual é qual.
+ *
+ * O atrasado vem junto, e vem primeiro: prazo vencido não é passado, é a coisa
+ * mais urgente que aquela pessoa tem.
+ */
+export type ItemDaAgenda = {
+  id: string
+  ordemId: string
+  /** 'AAAA-MM-DD' em Lajeado — a chave que agrupa a tela. */
+  dia: string
+  /** 'HH:MM' quando existe hora marcada; o prazo do técnico não tem. */
+  hora: string | null
+  tipo: 'RETIRADA' | 'ENTREGA' | 'PRAZO'
+  numero: number
+  cliente: string
+  equipamento: string
+  /** Endereço só na parada — prazo de bancada não tem para onde ir. */
+  endereco: string | null
+  etapaRotulo: string
+  /** Passou da data e continua em aberto. */
+  atrasado: boolean
+}
+
+export async function agendaDeCampo(
+  ctx: ContextoAcesso,
+  papel: Papel,
+  userId: string,
+  dias = 14,
+): Promise<ItemDaAgenda[]> {
+  const { inicio } = janelaDoDia()
+  const fim = new Date(inicio.getTime() + dias * 86_400_000)
+  const agora = new Date()
+
+  if (papel === Papel.MOTORISTA) {
+    const paradas = await comEscopo(ctx, (tx) =>
+      tx.agendamento.findMany({
+        where: {
+          motoristaId: userId,
+          status: { notIn: ['CANCELADO'] },
+          // O atrasado entra pela porta de baixo: sem `gte`, tudo o que ficou
+          // para trás e não foi concluído continua aparecendo.
+          OR: [
+            { previstoPara: { gte: inicio, lt: fim } },
+            { previstoPara: { lt: inicio }, status: { notIn: ['CONCLUIDO', 'CANCELADO'] } },
+          ],
+        },
+        orderBy: [{ previstoPara: 'asc' }],
+        take: 200,
+        select: {
+          id: true,
+          tipo: true,
+          status: true,
+          previstoPara: true,
+          janelaInicio: true,
+          enderecoSnapshot: true,
+          ordem: {
+            select: {
+              id: true,
+              numero: true,
+              etapa: true,
+              cliente: { select: { nome: true } },
+              equipamento: { select: { marca: true, modelo: true } },
+            },
+          },
+        },
+      }),
+    )
+
+    return paradas.map((a) => ({
+      id: a.id,
+      ordemId: a.ordem.id,
+      dia: diaLocal(a.previstoPara),
+      hora: a.janelaInicio ? horaLocal(a.janelaInicio) : null,
+      tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
+      numero: a.ordem.numero,
+      cliente: a.ordem.cliente.nome,
+      equipamento: `${a.ordem.equipamento.marca} ${a.ordem.equipamento.modelo}`.trim(),
+      endereco: a.enderecoSnapshot,
+      etapaRotulo: ROTULO_ETAPA[a.ordem.etapa] ?? a.ordem.etapa,
+      atrasado: a.status !== 'CONCLUIDO' && a.previstoPara < agora,
+    }))
+  }
+
+  // TÉCNICO — o que ele tem para entregar, e quando.
+  const ordens = await comEscopo(ctx, (tx) =>
+    tx.ordem.findMany({
+      where: {
+        tecnicoId: userId,
+        etapa: { notIn: TERMINAIS },
+        prazoPrometido: { not: null, lt: fim },
+      },
+      orderBy: [{ prazoPrometido: 'asc' }],
+      take: 200,
+      select: {
+        id: true,
+        numero: true,
+        etapa: true,
+        prazoPrometido: true,
+        cliente: { select: { nome: true } },
+        equipamento: { select: { marca: true, modelo: true } },
+      },
+    }),
+  )
+
+  return ordens.map((o) => ({
+    id: o.id,
+    ordemId: o.id,
+    dia: diaLocal(o.prazoPrometido!),
+    hora: null,
+    tipo: 'PRAZO' as const,
+    numero: o.numero,
+    cliente: o.cliente.nome,
+    equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`.trim(),
+    endereco: null,
+    etapaRotulo: ROTULO_ETAPA[o.etapa] ?? o.etapa,
+    atrasado: o.prazoPrometido! < agora,
   }))
 }
 

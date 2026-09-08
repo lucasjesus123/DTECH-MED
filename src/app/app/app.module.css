@@ -327,3 +327,122 @@
   line-height: 1.6;
 }
 .modoGestao strong { color: var(--txt); }
+
+/* ==========================================================================
+   A BARRA DE BAIXO — três destinos, no alcance do polegar
+   --------------------------------------------------------------------------
+   Fixa embaixo porque quem usa isto está de pé, com uma mão ocupada. O alto de
+   um celular de seis polegadas não se alcança sem trocar a pegada, e trocar a
+   pegada com uma caixa no braço é como se derruba equipamento.
+
+   `env(safe-area-inset-bottom)` no padding, e não margem: no iPhone a barra
+   precisa PINTAR até a borda de baixo e só afastar o CONTEÚDO da faixa de
+   gestos. Com margem, sobra uma tira preta que parece defeito de tela.
+   ========================================================================== */
+.barra {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  z-index: 40;
+  width: min(560px, 100%);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--bg-1);
+  border-top: 1px solid var(--borda);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.barraAba {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  /* 56px de alvo: o mínimo confortável de toque é 44, e aqui a mão treme. */
+  min-height: 56px;
+  padding: 9px 4px;
+  text-decoration: none;
+  color: var(--txt-3);
+  font-size: var(--t-xs);
+  font-weight: 600;
+}
+.barraAba:active { background: var(--sup); }
+.barraAtiva {
+  color: var(--vio-claro);
+  /* O traço em cima, e não embaixo: embaixo ele brigaria com a faixa de gestos
+     do aparelho e sumiria na borda arredondada. */
+  box-shadow: inset 0 2px 0 var(--vio-claro);
+}
+
+/* ==========================================================================
+   A AGENDA DE CAMPO
+   --------------------------------------------------------------------------
+   Cada dia é uma seção com título grudento; dentro, os compromissos em cartão.
+   O atrasado vem antes de tudo, e com filete vermelho — prazo vencido não é
+   passado, é a coisa mais urgente que aquela pessoa tem hoje.
+   ========================================================================== */
+.agTitulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin: 0 0 var(--s3);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.agConta {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--sup-2);
+  font-size: 11px;
+  color: var(--txt-3);
+}
+.agLista { display: grid; gap: var(--s3); }
+.agItem {
+  display: block;
+  padding: var(--s4);
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  color: var(--txt);
+}
+.agItem:active { background: var(--sup-2); }
+.agItemAtrasado { box-shadow: inset 3px 0 0 var(--alerta); }
+.agTopo {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: 6px;
+}
+.agHora {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--vio-claro);
+}
+.agCliente {
+  margin: 2px 0 0;
+  font-size: var(--t-md, 1rem);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.agDetalhe {
+  margin: 3px 0 0;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  line-height: 1.45;
+}
+.agEtapa {
+  display: inline-block;
+  margin: var(--s3) 0 0;
+  padding: 2px 9px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}

@@ -818,3 +818,93 @@ export async function excluirUsuario(userId: string): Promise<Resposta> {
   revalidatePath('/painel/usuarios')
   return { ok: true, mensagem: `Cadastro de ${r.nome} excluído.` }
 }
+
+// ---------------------------------------------------------------------------
+// O próprio cadastro
+// ---------------------------------------------------------------------------
+
+/**
+ * O QUE CADA UM PODE MUDAR NO PRÓPRIO CADASTRO — e o que ninguém muda de si.
+ *
+ * Nome, telefone e CPF são de quem trabalha, e o próprio dono é a fonte certa:
+ * um motorista que trocou de número e depende do admin para atualizar é um
+ * motorista que a central não consegue ligar hoje. Todos os três entram em
+ * documento assinado — o termo de retirada leva o nome e o documento de quem
+ * pegou o equipamento — então mudar aqui muda o que sai impresso amanhã, e é
+ * por isso que a alteração é auditada com o antes e o depois.
+ *
+ * O QUE FICA DE FORA, e não é esquecimento:
+ *
+ *   • **E-mail.** É a chave de entrada. Trocar o próprio e-mail é trocar de
+ *     identidade no sistema, e uma conta tomada por dez minutos viraria uma
+ *     conta perdida para sempre.
+ *   • **Papel.** Ninguém se promove. A regra já vive neste arquivo, e ela não
+ *     pode ter uma porta lateral no aplicativo de campo.
+ *   • **Senha.** Tem caminho próprio (`trocarSenha`), que exige a senha atual —
+ *     sem isso, um celular esquecido aberto vira uma conta tomada em dois
+ *     cliques.
+ */
+const schemaPerfil = z.object({
+  nome: z.string().trim().min(3, 'Escreva o nome completo.'),
+  telefone: z.string().trim().max(20).optional().default(''),
+  documento: z.string().trim().max(20).optional().default(''),
+})
+
+export async function atualizarPerfil(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a || !a.sessao.userId) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  const d = schemaPerfil.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const soDigitos = (s: string) => s.replace(/\D/g, '')
+  const telefone = soDigitos(v.telefone)
+  const documento = soDigitos(v.documento)
+  if (telefone && (telefone.length < 10 || telefone.length > 13)) {
+    return { ok: false, motivo: 'O telefone precisa ter DDD e número. Ex.: 51 98044-9274.' }
+  }
+  if (documento && documento.length !== 11) {
+    return { ok: false, motivo: 'O CPF precisa ter 11 dígitos.' }
+  }
+
+  const antes = await comEscopo(a.ctx, (tx) =>
+    tx.user.findUnique({
+      where: { id: a.sessao.userId! },
+      select: { nome: true, telefone: true, documento: true },
+    }),
+  )
+  if (!antes) return { ok: false, motivo: 'Cadastro não encontrado.' }
+
+  const depois = { nome: v.nome, telefone: telefone || null, documento: documento || null }
+
+  // `updateMany` e conferência do número: `usuarios` está sob FORCE ROW LEVEL
+  // SECURITY, e escrita barrada pela policy responde "0 linhas" — não erro.
+  // Sem contar, a tela diria "salvo" para uma gravação que não aconteceu.
+  const mudadas = await comEscopo(a.ctx, async (tx) => {
+    const r = await tx.user.updateMany({ where: { id: a.sessao.userId! }, data: depois })
+    return r.count
+  })
+  if (mudadas !== 1) {
+    await auditar(a.ctx, a.sessao, { acao: 'perfil.falhou', negado: true })
+    return { ok: false, motivo: 'Não foi possível salvar. Tente de novo.' }
+  }
+
+  // Só o que MUDOU vai para a trilha. Registrar os três campos sempre encheria
+  // a auditoria de linhas em que nada aconteceu, e o dia em que o nome mudou
+  // ficaria perdido no meio delas.
+  const alterado: Record<string, { de: unknown; para: unknown }> = {}
+  for (const campo of ['nome', 'telefone', 'documento'] as const) {
+    if (antes[campo] !== depois[campo]) alterado[campo] = { de: antes[campo], para: depois[campo] }
+  }
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'perfil.atualizado',
+    entidade: 'usuario',
+    entidadeId: a.sessao.userId,
+    detalhes: alterado,
+  })
+  revalidatePath('/app/perfil')
+  revalidatePath('/painel/usuarios')
+  return { ok: true, mensagem: 'Cadastro salvo.' }
+}
