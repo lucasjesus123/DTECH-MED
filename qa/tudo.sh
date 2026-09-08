@@ -159,6 +159,7 @@ node quadro-arrasto.mjs >"$LOGS/qdar.log" 2>&1; marcar $? "o quadro: arrastar o 
 node agendar-na-ficha.mjs >"$LOGS/agf.log" 2>&1; marcar $? "agendar na ficha: a agenda do motorista, e a parada no calendário"
 node abrir-os-passo-a-passo.mjs >"$LOGS/aos.log" 2>&1; marcar $? "abrir O.S. em 3 passos: nada se perde, e 'Continuar' não emite"
 node app-agenda-perfil.mjs >"$LOGS/appap.log" 2>&1; marcar $? "apps de campo: agenda individual, perfil que salva, e o que ninguém muda de si"
+node aceite-do-campo.mjs   >"$LOGS/aceite.log" 2>&1; marcar $? "o aceite: o motorista confirma a corrida, e o técnico assume fotografando"
 node estoque.mjs        >"$LOGS/es.log" 2>&1; marcar $? "estoque: peça, insumo e ferramenta — e emprestar não baixa saldo"
 node calendario-visoes.mjs >"$LOGS/cv.log" 2>&1; marcar $? "o calendário em cinco visões, e o lugar não se perde"
 node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, chamar, arquivar — e arquivar não apaga"

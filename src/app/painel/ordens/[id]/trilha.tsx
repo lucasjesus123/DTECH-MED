@@ -47,7 +47,25 @@ export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento
         </span>
       </header>
 
-      <div className={estilo.trilhaPista}>
+      {/**
+       * A PISTA ROLA DE LADO, ENTÃO ELA PRECISA RECEBER O FOCO.
+       *
+       * Uma região que rola e não é focável é intransponível no teclado: quem
+       * não usa mouse chega ao fim da tela sem nunca ver as etapas que ficaram
+       * fora do recorte. O `axe` chama isso de `scrollable-region-focusable`, e
+       * a queixa é literal — o conteúdo aqui dentro é desenho, não link, então
+       * não há nada para o Tab pousar.
+       *
+       * `tabIndex={0}` resolve, e o `role="group"` com nome é o que faz o leitor
+       * de tela anunciar o que essa parada de foco é, em vez de um retângulo
+       * mudo no meio da ficha.
+       */}
+      <div
+        className={estilo.trilhaPista}
+        tabIndex={0}
+        role="group"
+        aria-label={`Trilha do equipamento: ${desvio ? desvio.rotulo : `passo ${cumpridos} de ${total}`}`}
+      >
         {/* O trilho de fundo e o quanto dele já foi percorrido. A largura é o
             ÚNICO valor calculado em linha: é dado, não estilo. */}
         <div className={estilo.trilhaFio} aria-hidden="true">

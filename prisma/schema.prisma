@@ -651,6 +651,17 @@ model Ordem {
   tecnicoId String?
   tecnico   User?   @relation("TecnicoResponsavel", fields: [tecnicoId], references: [id], onDelete: SetNull)
 
+  /// QUANDO O TÉCNICO ASSUMIU ESTE APARELHO — e ele assume FOTOGRAFANDO.
+  ///
+  /// `tecnicoId` diz de quem é a ordem; este campo diz que ele encostou nela. A
+  /// diferença importa quando o aparelho volta com um arranhão que ninguém sabe
+  /// de onde veio: a primeira foto é a fronteira entre o que chegou assim e o
+  /// que aconteceu aqui dentro. Por isso o aceite não é um botão que só marca
+  /// uma data — ele é a foto, e sem ela não existe (ver `aceitarOrdemDoTecnico`).
+  ///
+  /// Nulo nas ordens antigas: elas foram assumidas antes desta regra existir.
+  tecnicoAceitouEm DateTime?
+
   /// Marcos temporais — alimentam os indicadores sem precisar varrer eventos.
   /// Quando a garantia deste serviço vence. Preenchida na ENTREGA — é dali que
   /// o prazo corre, e não da aprovação do orçamento.
@@ -1291,6 +1302,22 @@ model Agendamento {
   janelaInicio DateTime?
   janelaFim    DateTime?
 
+  /// QUANDO O MOTORISTA ACEITOU ESTA CORRIDA.
+  ///
+  /// A central designa; quem vai é que confirma. Sem este campo, "designado" e
+  /// "combinado" eram a mesma coisa no banco — e não são: designar é uma linha
+  /// escrita por quem está no escritório, aceitar é alguém dizendo que vai.
+  /// Entre as duas cabe um motorista de folga, um celular sem bateria e um
+  /// aparelho que ninguém foi buscar.
+  ///
+  /// É carimbo de tempo, e não um `Boolean`, porque a pergunta que a operação
+  /// faz não é "aceitou?" — é "designei às 9h, ele aceitou quando?". A distância
+  /// entre as duas horas é o que denuncia a corrida que ficou parada.
+  ///
+  /// Nulo em toda parada que já existia: quem já saiu, saiu antes desta regra, e
+  /// inventar um aceite retroativo seria escrever no passado de alguém.
+  aceitoEm DateTime?
+
   iniciadoEm  DateTime?
   concluidoEm DateTime?
 
@@ -1312,6 +1339,8 @@ model Agendamento {
 
   @@index([tenantId, motoristaId, previstoPara])
   @@index([tenantId, status, previstoPara])
+  /// "Quem ainda não aceitou?" é a pergunta que a central faz o dia inteiro.
+  @@index([tenantId, aceitoEm, previstoPara])
   @@index([tenantId, ordemId, tipo])
   @@map("agendamentos")
 }

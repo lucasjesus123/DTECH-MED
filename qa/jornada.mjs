@@ -278,6 +278,21 @@ ok(3, 'RETIRADA_AGENDADA · dia, hora e motorista marcados', etapaNoBanco(ordemI
 const adriano = await como('adriano', 'adriano@dtechmed.com.br', SENHA)
 await adriano.goto(`${QA_BASE}/app/motorista`, { waitUntil: 'domcontentloaded' })
 await adriano.waitForTimeout(1500)
+
+/**
+ * O ACEITE ENTROU ANTES DA SAÍDA, e a jornada ganhou um passo.
+ *
+ * A central designa; quem vai é que confirma. Enquanto a corrida não é aceita,
+ * o cartão não oferece nem saída nem chegada, e `sairParaParada` recusa no
+ * servidor — então este roteiro reprovava em 04 dizendo que o motorista não
+ * marcou a saída. Ele estava certo: descrevia o aplicativo de antes.
+ */
+const aceitar = paradaComBotao(adriano, /Aceitar esta corrida/i)
+const precisavaAceitar = (await aceitar.count()) > 0
+if (precisavaAceitar) { await aceitar.click(); await adriano.waitForTimeout(2500) }
+ok(4, 'a corrida foi ACEITA pelo motorista antes de sair', precisavaAceitar &&
+  sql(`SELECT count(*) FROM agendamentos WHERE "ordemId"='${ordemId}' AND "aceitoEm" IS NOT NULL`) !== '0')
+
 const saida = paradaComBotao(adriano, /Saí para esta parada/i)
 if (await saida.count()) { await saida.click(); await adriano.waitForTimeout(2800) }
 else console.log('     [rota do motorista]', ((await adriano.locator('body').textContent()) ?? '').replace(/\s+/g,' ').slice(0, 260))
@@ -329,6 +344,28 @@ ok(5, 'COLETADO · assinado no visor pelo cliente', etapaNoBanco(ordemId) === 'C
 const rafael = await como('rafael', 'rafael@dtechmed.com.br', SENHA)
 await rafael.goto(`${QA_BASE}/app/tecnico/${ordemId}`, { waitUntil: 'domcontentloaded' })
 await rafael.waitForTimeout(1500)
+
+/**
+ * O TÉCNICO ASSUME O APARELHO ANTES DE TUDO — E ASSUMIR É FOTOGRAFAR.
+ *
+ * A tela de entrada (as seis fotos) só existe depois disto. Os dois caminhos
+ * juntos dariam ao técnico dois jeitos de fotografar ao mesmo tempo, e o
+ * primeiro — o que fecha a fronteira do "como chegou" — seria justamente o que
+ * ele pularia.
+ *
+ * Este roteiro reprovou aqui quando a regra entrou, com "Non-multiple file
+ * input can only accept single file": ele mandava as seis fotos para a entrada
+ * do aceite, que aceita uma. Reprovou com razão — descrevia o aplicativo de
+ * antes.
+ */
+const assumir = rafael.getByRole('button', { name: /Fotografar e assumir/i })
+const precisouAssumir = (await assumir.count()) > 0
+if (precisouAssumir) {
+  await rafael.locator('input[type=file]').first().setInputFiles(arquivoFoto('aceite'))
+  await rafael.waitForTimeout(5000)
+}
+ok(6, 'o técnico ASSUMIU a O.S. fotografando o aparelho como chegou',
+   precisouAssumir && sql(`SELECT count(*) FROM ordens WHERE id='${ordemId}' AND "tecnicoAceitouEm" IS NOT NULL`) === '1')
 
 // A trava das 6 fotos: o botão de dar entrada precisa estar recusando agora.
 const rotuloBotao = await rafael.getByRole('button', { name: /dar entrada|falta/i }).first().textContent().catch(() => '')
@@ -542,6 +579,12 @@ ok(16, 'a parada de entrega foi marcada na Agenda', paradaEntrega !== '')
 
 await adriano.goto(`${QA_BASE}/app/motorista`, { waitUntil: 'domcontentloaded' })
 await adriano.waitForTimeout(1500)
+
+// A entrega é uma corrida como a retirada, e pede o mesmo aceite. Ver a etapa
+// 04: a central designa, quem vai é que confirma.
+const aceitar2 = paradaComBotao(adriano, /Aceitar esta corrida/i)
+if (await aceitar2.count()) { await aceitar2.click(); await adriano.waitForTimeout(2500) }
+
 const saida2 = paradaComBotao(adriano, /Saí para esta parada/i)
 if (await saida2.count()) { await saida2.click(); await adriano.waitForTimeout(2500) }
 ok(16, 'EM_ROTA_ENTREGA · mesma rota, sentido contrário', etapaNoBanco(ordemId) === 'EM_ROTA_ENTREGA')

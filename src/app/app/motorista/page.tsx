@@ -4,7 +4,9 @@ import { Papel } from '@/generated/prisma/enums'
 import { NIVEL, exigirSessao } from '@/server/auth/guarda'
 import { rotaDoDia } from '@/server/consultas/campo'
 import { Saida } from './saida'
+import { Aceite } from './aceite'
 import { Rastro } from './rastro'
+import type { Parada } from '@/server/consultas/campo'
 import estilo from '../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -89,8 +91,19 @@ export default async function Motorista() {
 
                   {p.concluida ? (
                     <p className={estilo.feito}>Concluída</p>
+                  ) : precisaAceitar(p, sessao.userId, gerencia) ? (
+                    /* Enquanto não aceitar, esta é a ÚNICA coisa no cartão.
+                       Mostrar o mapa e o telefone junto convidaria a sair sem
+                       aceitar — e o servidor recusaria depois, com a pessoa já
+                       no carro. Ver `aceite.tsx`. */
+                    <Aceite agendamentoId={p.id} />
                   ) : (
                     <>
+                      {/* Aceita, e a hora fica à vista: é o recibo de quem
+                          combinou o quê, para os dois lados. */}
+                      {p.aceitoEm ? (
+                        <p className={estilo.aceiteFeito}>Você aceitou às {hora(p.aceitoEm)}</p>
+                      ) : null}
                       <div className={estilo.paAcoes}>
                         <a
                           className={estilo.miniBtn}
@@ -129,6 +142,36 @@ export default async function Motorista() {
     </>
   )
 }
+
+/**
+ * QUEM PRECISA ACEITAR, E QUEM NÃO PRECISA.
+ *
+ * Três condições, e cada uma tira do caminho um jeito de a regra atrapalhar
+ * quem trabalha:
+ *
+ *   • **É dele.** Parada de outro motorista, ou sem motorista designado, não
+ *     pede aceite nenhum — a sem dono é de quem pegar, e cobrar aceite de
+ *     ninguém seria travar por um campo vazio.
+ *   • **Ainda não aceitou.** Óbvio, e é o que faz o botão sumir depois.
+ *   • **Ainda não saiu.** Esta é a que protege o dia da virada: as paradas que
+ *     já estavam na rua quando a regra entrou têm `aceitoEm` nulo para sempre,
+ *     e sem isto o motorista abriria o aplicativo no meio da rota e seria
+ *     obrigado a "aceitar" uma corrida que ele já está fazendo.
+ *
+ * O modo gestão nunca vê o botão: quem olha não aceita no lugar de quem vai.
+ */
+function precisaAceitar(p: Parada, quemSou: string, gerencia: boolean): boolean {
+  if (gerencia) return false
+  return p.motoristaId === quemSou && !p.aceitoEm && !p.emRota
+}
+
+const hora = (d: Date) =>
+  new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo',
+  }).format(d)
 
 const hoje = () =>
   new Date()

@@ -5,6 +5,7 @@ import { comEscopo } from '@/lib/db'
 import { exigirSessao } from '@/server/auth/guarda'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { Recebimento } from './recebimento'
+import { AceiteDoTecnico } from './aceite'
 import estilo from '../../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,16 @@ export default async function Entrada({ params }: { params: Promise<{ id: string
   )
   if (!ordem) notFound()
 
+  /**
+   * Quem ainda precisa assumir: o TÉCNICO, numa ordem que ninguém assumiu.
+   *
+   * Ordem já assumida por ele passa direto — o aceite é uma vez só. Ordem
+   * assumida por OUTRO técnico também passa: quem chegou depois continua vendo
+   * a tela de entrada (a bancada é compartilhada de propósito), e é a ação do
+   * servidor que recusa mexer no aparelho alheio, não esta tela.
+   */
+  const precisaAssumir = sessao.papel === Papel.TECNICO && ordem.tecnicoAceitouEm === null
+
   return (
     <>
       <header className={estilo.cabecalho}>
@@ -54,12 +65,31 @@ export default async function Entrada({ params }: { params: Promise<{ id: string
           <p>{ordem.defeitoRelatado}</p>
         </section>
 
-        <Recebimento
-          ordemId={ordem.id}
-          etapa={ordem.etapa}
-          etapaRotulo={ROTULO_ETAPA[ordem.etapa]}
-          fotos={ordem.fotos}
-        />
+        {/**
+         * ENQUANTO NÃO ASSUMIU, ESTE É O ÚNICO PASSO DA TELA.
+         *
+         * O relato fica em cima porque é o que faz alguém decidir pegar o
+         * aparelho — mas as seis fotos da entrada só aparecem depois do aceite.
+         * As duas coisas juntas dariam ao técnico dois caminhos de fotografar ao
+         * mesmo tempo, e o primeiro (o que fecha a fronteira do "como chegou")
+         * seria justamente o que ele pularia.
+         *
+         * O SUPER_ADMIN vê a tela de entrada direto: ele não assume aparelho, e
+         * pedir aceite de quem não é técnico travaria a conferência da gestão.
+         */}
+        {precisaAssumir ? (
+          <AceiteDoTecnico
+            ordemId={ordem.id}
+            equipamento={`${ordem.equipamento.marca} ${ordem.equipamento.modelo}`.trim()}
+          />
+        ) : (
+          <Recebimento
+            ordemId={ordem.id}
+            etapa={ordem.etapa}
+            etapaRotulo={ROTULO_ETAPA[ordem.etapa]}
+            fotos={ordem.fotos}
+          />
+        )}
       </main>
     </>
   )

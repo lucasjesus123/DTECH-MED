@@ -31,6 +31,21 @@ export type Parada = {
   atrasada: boolean
   /** Já saiu para esta parada? É o que decide qual botão a tela oferece. */
   emRota: boolean
+  /**
+   * Quando o motorista aceitou esta corrida — nulo enquanto ele não aceitou.
+   *
+   * É o que separa "a central marcou" de "ele vai". Enquanto for nulo, o
+   * aplicativo não oferece nem a saída nem a chegada, e a `sairParaParada`
+   * recusa no servidor.
+   *
+   * Paradas de antes desta regra têm nulo aqui e continuam nulas — inventar um
+   * aceite retroativo seria escrever no passado de alguém. Por isso a tela só
+   * cobra o aceite de quem TEM motorista designado E ainda não saiu: a corrida
+   * antiga que já está na rua não volta a pedir permissão.
+   */
+  aceitoEm: Date | null
+  /** De quem é a parada, para a tela saber se é do próprio motorista. */
+  motoristaId: string | null
 }
 
 /**
@@ -90,6 +105,8 @@ export async function rotaDoDia(
     id: a.id,
     ordemId: a.ordemId,
     motorista: a.motorista?.nome ?? null,
+    motoristaId: a.motoristaId,
+    aceitoEm: a.aceitoEm,
     tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
     numero: a.ordem.numero,
     cliente: a.ordem.cliente.nome,

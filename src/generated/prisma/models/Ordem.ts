@@ -53,6 +53,7 @@ export type OrdemMinAggregateOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  tecnicoAceitouEm: Date | null
   garantiaAte: Date | null
   emGarantia: boolean | null
   ordemOrigemId: string | null
@@ -88,6 +89,7 @@ export type OrdemMaxAggregateOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  tecnicoAceitouEm: Date | null
   garantiaAte: Date | null
   emGarantia: boolean | null
   ordemOrigemId: string | null
@@ -123,6 +125,7 @@ export type OrdemCountAggregateOutputType = {
   codigoRastreio: number
   atendenteId: number
   tecnicoId: number
+  tecnicoAceitouEm: number
   garantiaAte: number
   emGarantia: number
   ordemOrigemId: number
@@ -168,6 +171,7 @@ export type OrdemMinAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  tecnicoAceitouEm?: true
   garantiaAte?: true
   emGarantia?: true
   ordemOrigemId?: true
@@ -203,6 +207,7 @@ export type OrdemMaxAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  tecnicoAceitouEm?: true
   garantiaAte?: true
   emGarantia?: true
   ordemOrigemId?: true
@@ -238,6 +243,7 @@ export type OrdemCountAggregateInputType = {
   codigoRastreio?: true
   atendenteId?: true
   tecnicoId?: true
+  tecnicoAceitouEm?: true
   garantiaAte?: true
   emGarantia?: true
   ordemOrigemId?: true
@@ -360,6 +366,7 @@ export type OrdemGroupByOutputType = {
   codigoRastreio: string | null
   atendenteId: string | null
   tecnicoId: string | null
+  tecnicoAceitouEm: Date | null
   garantiaAte: Date | null
   emGarantia: boolean
   ordemOrigemId: string | null
@@ -418,6 +425,7 @@ export type OrdemWhereInput = {
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  tecnicoAceitouEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
   ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
@@ -472,6 +480,7 @@ export type OrdemOrderByWithRelationInput = {
   codigoRastreio?: Prisma.SortOrderInput | Prisma.SortOrder
   atendenteId?: Prisma.SortOrderInput | Prisma.SortOrder
   tecnicoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tecnicoAceitouEm?: Prisma.SortOrderInput | Prisma.SortOrder
   garantiaAte?: Prisma.SortOrderInput | Prisma.SortOrder
   emGarantia?: Prisma.SortOrder
   ordemOrigemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -530,6 +539,7 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  tecnicoAceitouEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
   ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
@@ -584,6 +594,7 @@ export type OrdemOrderByWithAggregationInput = {
   codigoRastreio?: Prisma.SortOrderInput | Prisma.SortOrder
   atendenteId?: Prisma.SortOrderInput | Prisma.SortOrder
   tecnicoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tecnicoAceitouEm?: Prisma.SortOrderInput | Prisma.SortOrder
   garantiaAte?: Prisma.SortOrderInput | Prisma.SortOrder
   emGarantia?: Prisma.SortOrder
   ordemOrigemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -627,6 +638,7 @@ export type OrdemScalarWhereWithAggregatesInput = {
   codigoRastreio?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
+  tecnicoAceitouEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
   garantiaAte?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
   emGarantia?: Prisma.BoolWithAggregatesFilter<"Ordem"> | boolean
   ordemOrigemId?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
@@ -657,6 +669,7 @@ export type OrdemCreateInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -710,6 +723,7 @@ export type OrdemUncheckedCreateInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -753,6 +767,7 @@ export type OrdemUpdateInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -806,6 +821,7 @@ export type OrdemUncheckedUpdateInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -854,6 +870,7 @@ export type OrdemCreateManyInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -884,6 +901,7 @@ export type OrdemUpdateManyMutationInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -918,6 +936,7 @@ export type OrdemUncheckedUpdateManyInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -973,6 +992,7 @@ export type OrdemCountOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  tecnicoAceitouEm?: Prisma.SortOrder
   garantiaAte?: Prisma.SortOrder
   emGarantia?: Prisma.SortOrder
   ordemOrigemId?: Prisma.SortOrder
@@ -1012,6 +1032,7 @@ export type OrdemMaxOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  tecnicoAceitouEm?: Prisma.SortOrder
   garantiaAte?: Prisma.SortOrder
   emGarantia?: Prisma.SortOrder
   ordemOrigemId?: Prisma.SortOrder
@@ -1047,6 +1068,7 @@ export type OrdemMinOrderByAggregateInput = {
   codigoRastreio?: Prisma.SortOrder
   atendenteId?: Prisma.SortOrder
   tecnicoId?: Prisma.SortOrder
+  tecnicoAceitouEm?: Prisma.SortOrder
   garantiaAte?: Prisma.SortOrder
   emGarantia?: Prisma.SortOrder
   ordemOrigemId?: Prisma.SortOrder
@@ -1538,6 +1560,7 @@ export type OrdemCreateWithoutTenantInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -1589,6 +1612,7 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -1666,6 +1690,7 @@ export type OrdemScalarWhereInput = {
   codigoRastreio?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atendenteId?: Prisma.StringNullableFilter<"Ordem"> | string | null
   tecnicoId?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  tecnicoAceitouEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   garantiaAte?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   emGarantia?: Prisma.BoolFilter<"Ordem"> | boolean
   ordemOrigemId?: Prisma.StringNullableFilter<"Ordem"> | string | null
@@ -1696,6 +1721,7 @@ export type OrdemCreateWithoutTecnicoInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -1747,6 +1773,7 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   atendenteId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -1800,6 +1827,7 @@ export type OrdemCreateWithoutAtendenteInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -1851,6 +1879,7 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -1936,6 +1965,7 @@ export type OrdemCreateWithoutClienteInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -1987,6 +2017,7 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -2056,6 +2087,7 @@ export type OrdemCreateWithoutEquipamentoInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2107,6 +2139,7 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -2176,6 +2209,7 @@ export type OrdemCreateWithoutRetornosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2228,6 +2262,7 @@ export type OrdemUncheckedCreateWithoutRetornosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -2275,6 +2310,7 @@ export type OrdemCreateWithoutOrdemOrigemInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2327,6 +2363,7 @@ export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2390,6 +2427,7 @@ export type OrdemUpdateWithoutRetornosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2442,6 +2480,7 @@ export type OrdemUncheckedUpdateWithoutRetornosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2500,6 +2539,7 @@ export type OrdemCreateWithoutEventosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2552,6 +2592,7 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -2610,6 +2651,7 @@ export type OrdemUpdateWithoutEventosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2662,6 +2704,7 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2704,6 +2747,7 @@ export type OrdemCreateWithoutFotosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2756,6 +2800,7 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -2814,6 +2859,7 @@ export type OrdemUpdateWithoutFotosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2866,6 +2912,7 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2908,6 +2955,7 @@ export type OrdemCreateWithoutAssinaturasInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -2960,6 +3008,7 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -3018,6 +3067,7 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3070,6 +3120,7 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3112,6 +3163,7 @@ export type OrdemCreateWithoutOrcamentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -3164,6 +3216,7 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -3222,6 +3275,7 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3274,6 +3328,7 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3316,6 +3371,7 @@ export type OrdemCreateWithoutPecasRetiradasInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -3368,6 +3424,7 @@ export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -3426,6 +3483,7 @@ export type OrdemUpdateWithoutPecasRetiradasInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3478,6 +3536,7 @@ export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3520,6 +3579,7 @@ export type OrdemCreateWithoutVisitaPreventivaInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -3572,6 +3632,7 @@ export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -3630,6 +3691,7 @@ export type OrdemUpdateWithoutVisitaPreventivaInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3682,6 +3744,7 @@ export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3724,6 +3787,7 @@ export type OrdemCreateWithoutEmprestimosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -3776,6 +3840,7 @@ export type OrdemUncheckedCreateWithoutEmprestimosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -3834,6 +3899,7 @@ export type OrdemUpdateWithoutEmprestimosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3886,6 +3952,7 @@ export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3928,6 +3995,7 @@ export type OrdemCreateWithoutMovimentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -3980,6 +4048,7 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4038,6 +4107,7 @@ export type OrdemUpdateWithoutMovimentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4090,6 +4160,7 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4132,6 +4203,7 @@ export type OrdemCreateWithoutFaturaInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -4184,6 +4256,7 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4242,6 +4315,7 @@ export type OrdemUpdateWithoutFaturaInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4294,6 +4368,7 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4336,6 +4411,7 @@ export type OrdemCreateWithoutAgendamentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -4388,6 +4464,7 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4446,6 +4523,7 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4498,6 +4576,7 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4540,6 +4619,7 @@ export type OrdemCreateWithoutDocumentosInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -4592,6 +4672,7 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4650,6 +4731,7 @@ export type OrdemUpdateWithoutDocumentosInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4702,6 +4784,7 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4744,6 +4827,7 @@ export type OrdemCreateWithoutMensagensInput = {
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
   codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -4796,6 +4880,7 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4854,6 +4939,7 @@ export type OrdemUpdateWithoutMensagensInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4906,6 +4992,7 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4952,6 +5039,7 @@ export type OrdemCreateManyTenantInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -4982,6 +5070,7 @@ export type OrdemUpdateWithoutTenantInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5033,6 +5122,7 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5080,6 +5170,7 @@ export type OrdemUncheckedUpdateManyWithoutTenantInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5114,6 +5205,7 @@ export type OrdemCreateManyTecnicoInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   atendenteId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -5148,6 +5240,7 @@ export type OrdemCreateManyAtendenteInput = {
   viaCorreio?: boolean
   codigoRastreio?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -5178,6 +5271,7 @@ export type OrdemUpdateWithoutTecnicoInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5229,6 +5323,7 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5276,6 +5371,7 @@ export type OrdemUncheckedUpdateManyWithoutTecnicoInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5306,6 +5402,7 @@ export type OrdemUpdateWithoutAtendenteInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5357,6 +5454,7 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5404,6 +5502,7 @@ export type OrdemUncheckedUpdateManyWithoutAtendenteInput = {
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5438,6 +5537,7 @@ export type OrdemCreateManyClienteInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -5468,6 +5568,7 @@ export type OrdemUpdateWithoutClienteInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5519,6 +5620,7 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5566,6 +5668,7 @@ export type OrdemUncheckedUpdateManyWithoutClienteInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5600,6 +5703,7 @@ export type OrdemCreateManyEquipamentoInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   ordemOrigemId?: string | null
@@ -5630,6 +5734,7 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5681,6 +5786,7 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5728,6 +5834,7 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5763,6 +5870,7 @@ export type OrdemCreateManyOrdemOrigemInput = {
   codigoRastreio?: string | null
   atendenteId?: string | null
   tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
   garantiaAte?: Date | string | null
   emGarantia?: boolean
   abertaEm?: Date | string
@@ -5792,6 +5900,7 @@ export type OrdemUpdateWithoutOrdemOrigemInput = {
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5844,6 +5953,7 @@ export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5891,6 +6001,7 @@ export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
   codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
   abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6046,6 +6157,7 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  tecnicoAceitouEm?: boolean
   garantiaAte?: boolean
   emGarantia?: boolean
   ordemOrigemId?: boolean
@@ -6101,6 +6213,7 @@ export type OrdemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  tecnicoAceitouEm?: boolean
   garantiaAte?: boolean
   emGarantia?: boolean
   ordemOrigemId?: boolean
@@ -6142,6 +6255,7 @@ export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  tecnicoAceitouEm?: boolean
   garantiaAte?: boolean
   emGarantia?: boolean
   ordemOrigemId?: boolean
@@ -6183,6 +6297,7 @@ export type OrdemSelectScalar = {
   codigoRastreio?: boolean
   atendenteId?: boolean
   tecnicoId?: boolean
+  tecnicoAceitouEm?: boolean
   garantiaAte?: boolean
   emGarantia?: boolean
   ordemOrigemId?: boolean
@@ -6199,7 +6314,7 @@ export type OrdemSelectScalar = {
   atualizadoEm?: boolean
 }
 
-export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
+export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "tecnicoAceitouEm" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
 export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6324,6 +6439,18 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     codigoRastreio: string | null
     atendenteId: string | null
     tecnicoId: string | null
+    /**
+     * QUANDO O TÉCNICO ASSUMIU ESTE APARELHO — e ele assume FOTOGRAFANDO.
+     * 
+     * `tecnicoId` diz de quem é a ordem; este campo diz que ele encostou nela. A
+     * diferença importa quando o aparelho volta com um arranhão que ninguém sabe
+     * de onde veio: a primeira foto é a fronteira entre o que chegou assim e o
+     * que aconteceu aqui dentro. Por isso o aceite não é um botão que só marca
+     * uma data — ele é a foto, e sem ela não existe (ver `aceitarOrdemDoTecnico`).
+     * 
+     * Nulo nas ordens antigas: elas foram assumidas antes desta regra existir.
+     */
+    tecnicoAceitouEm: Date | null
     /**
      * Marcos temporais — alimentam os indicadores sem precisar varrer eventos.
      * Quando a garantia deste serviço vence. Preenchida na ENTREGA — é dali que
@@ -6812,6 +6939,7 @@ export interface OrdemFieldRefs {
   readonly codigoRastreio: Prisma.FieldRef<"Ordem", 'String'>
   readonly atendenteId: Prisma.FieldRef<"Ordem", 'String'>
   readonly tecnicoId: Prisma.FieldRef<"Ordem", 'String'>
+  readonly tecnicoAceitouEm: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly garantiaAte: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly emGarantia: Prisma.FieldRef<"Ordem", 'Boolean'>
   readonly ordemOrigemId: Prisma.FieldRef<"Ordem", 'String'>

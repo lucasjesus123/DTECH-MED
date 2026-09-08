@@ -446,3 +446,60 @@
   font-size: var(--t-xs);
   color: var(--txt-3);
 }
+
+/* ==========================================================================
+   O ACEITE — a central designa, quem vai é que confirma
+   --------------------------------------------------------------------------
+   Enquanto a corrida não é aceita, o botão é a única coisa no cartão. Deixar o
+   mapa e o telefone ao lado convidaria a sair sem aceitar — e o servidor
+   recusaria depois, com a pessoa já no carro.
+   ========================================================================== */
+.aguardaAceite {
+  margin: var(--s3) 0 var(--s3);
+  padding: var(--s3) var(--s4);
+  background: rgba(251, 191, 36, .1);
+  border-left: 3px solid var(--espera);
+  border-radius: 0 var(--r) var(--r) 0;
+  color: var(--espera);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+.btnAceite {
+  width: 100%;
+  min-height: 58px;
+  padding: 17px;
+  border: 0;
+  border-radius: var(--r);
+  background: var(--sinal);
+  color: #062018;
+  font-family: var(--f-texto);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btnAceite:active { filter: brightness(.93); }
+.btnAceite:disabled { opacity: .6; }
+/* Depois de aceito, vira recibo — pequeno, e no lugar do aviso. */
+.aceiteFeito {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--sinal);
+}
+
+/* O aceite do técnico é a FOTO. Ver `tecnico/[id]/aceite.tsx`. */
+.aceiteTecnico {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s5);
+  background: var(--sup);
+  border: 1px solid var(--vio-borda, var(--borda));
+  border-radius: var(--r-lg);
+}
+.aceiteTexto {
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--txt-2);
+}
+.aceiteTexto strong { color: var(--txt); }

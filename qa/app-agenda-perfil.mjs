@@ -87,7 +87,11 @@ abasMot.join('|') === 'Rota|Agenda|Perfil'
 // A aba acesa tem de aguentar a tela de dentro: `/app/motorista/<id>` continua
 // sendo "Rota". Igualdade exata apagaria a barra inteira e pareceria que a
 // pessoa saiu do aplicativo.
-const umaOrdem = sql("select \"ordemId\" from agendamentos where \"motoristaId\"='" + motoristaId + "' and status <> 'CANCELADO' limit 1")
+// A parada tem de estar ABERTA: `paradaDoMotorista` só devolve ATRIBUIDO ou
+// EM_ROTA, então uma concluída leva a tela a `notFound` — e o roteiro acusava
+// "aba acesa: nenhuma" como se a barra estivesse quebrada. Estava certo em
+// reprovar, e errado no que apontava.
+const umaOrdem = sql("select \"ordemId\" from agendamentos where \"motoristaId\"='" + motoristaId + "' and status in ('ATRIBUIDO','EM_ROTA') limit 1")
 if (umaOrdem) {
   await motorista.goto(`${QA_BASE}/app/motorista/${umaOrdem}`, { waitUntil: 'networkidle' })
   const acesa = await barra.locator('a[aria-current="page"]').innerText().catch(() => '')

@@ -691,6 +691,36 @@ export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREG
     return { ok: false, motivo: 'Só o motorista marca a saída para a rota.' }
   }
 
+  /**
+   * NÃO SE SAI PARA UMA CORRIDA QUE NÃO FOI ACEITA.
+   *
+   * A trava vive AQUI, na ação do motorista, e não na máquina de estados. A
+   * diferença decide o que acontece num dia ruim: se ela estivesse no motor,
+   * uma corrida que o motorista não aceitou travaria a esteira para TODO MUNDO
+   * — a central também não conseguiria mover a ordem, e o aparelho do cliente
+   * ficaria preso esperando alguém que talvez esteja de folga.
+   *
+   * Aqui, quem não aceitou não sai; a central continua podendo trocar o
+   * motorista ou tocar a ordem pelo painel. A regra prende quem ela deve
+   * prender, e não a operação inteira.
+   *
+   * Parada sem motorista designado passa: ela é de quem pegar, e exigir aceite
+   * de ninguém seria travar por um campo vazio.
+   */
+  const paradaDele = await comEscopo(a.ctx, (tx) =>
+    tx.agendamento.findFirst({
+      where: { ordemId, tipo, status: { notIn: ['CANCELADO'] } },
+      orderBy: { previstoPara: 'desc' },
+      select: { motoristaId: true, aceitoEm: true },
+    }),
+  )
+  if (paradaDele && paradaDele.motoristaId === a.sessao.userId && !paradaDele.aceitoEm) {
+    return {
+      ok: false,
+      motivo: 'Aceite esta corrida antes de sair. O botão de aceitar está no cartão da parada.',
+    }
+  }
+
   const r = await avancarOrdem(a.ctx, a.ator, {
     ordemId,
     para: tipo === 'RETIRADA' ? EtapaOrdem.EM_ROTA_RETIRADA : EtapaOrdem.EM_ROTA_ENTREGA,
@@ -700,5 +730,154 @@ export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREG
 
   await auditar(a.ctx, a.sessao, { acao: 'rota.saida', entidade: 'ordem', entidadeId: ordemId })
   revalidatePath('/app/motorista')
+  return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// O aceite de quem vai fazer o trabalho
+// ---------------------------------------------------------------------------
+
+/**
+ * O MOTORISTA ACEITA A CORRIDA.
+ *
+ * A central designa; quem vai é que confirma. Antes desta ação, "designado" e
+ * "combinado" eram a mesma linha no banco — e não são a mesma coisa. Entre uma
+ * e outra cabe um motorista de folga, um celular sem bateria e um aparelho que
+ * ninguém foi buscar.
+ *
+ * SÓ O DONO DA PARADA ACEITA, e a conferência é aqui, no servidor. Aceitar a
+ * corrida do colega não é curiosidade: some com ela da fila dele, e a central
+ * passa a ver como resolvido um endereço que ninguém tem.
+ */
+export async function aceitarCorrida(agendamentoId: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (a.sessao.papel !== Papel.MOTORISTA) {
+    return { ok: false, motivo: 'Só o motorista aceita a própria corrida.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const ag = await tx.agendamento.findUnique({
+      where: { id: agendamentoId },
+      select: { id: true, ordemId: true, motoristaId: true, status: true, aceitoEm: true },
+    })
+    if (!ag) return { ok: false as const, motivo: 'Parada não encontrada.' }
+    if (ag.motoristaId !== a.sessao.userId) {
+      return { ok: false as const, motivo: 'Esta corrida está no nome de outro motorista.' }
+    }
+    if (ag.status === 'CANCELADO') return { ok: false as const, motivo: 'Esta parada foi cancelada.' }
+    if (ag.status === 'CONCLUIDO') return { ok: false as const, motivo: 'Esta parada já foi concluída.' }
+    // Aceitar de novo não é erro — é um toque repetido num 4G ruim. Só não
+    // reescreve a hora: o valor da marca é ser a PRIMEIRA vez.
+    if (ag.aceitoEm) return { ok: true as const, ordemId: ag.ordemId, repetido: true }
+
+    await tx.agendamento.update({ where: { id: agendamentoId }, data: { aceitoEm: new Date() } })
+    return { ok: true as const, ordemId: ag.ordemId, repetido: false }
+  })
+  if (!r.ok) return r
+
+  if (!r.repetido) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'corrida.aceita',
+      entidade: 'ordem',
+      entidadeId: r.ordemId,
+      detalhes: { agendamentoId },
+    })
+  }
+  revalidatePath('/app/motorista')
+  revalidatePath('/app/agenda')
+  revalidatePath('/painel/rota')
+  return { ok: true }
+}
+
+/**
+ * O TÉCNICO ACEITA A O.S. — E O ACEITE É A FOTO.
+ *
+ * O pedido do dono foi "precisa ele aceitar a O.S., o primeiro passo é já tirar
+ * foto imediata", e isso podia virar duas coisas muito diferentes: um botão
+ * "aceitar" e, depois, um lembrete para fotografar; ou um aceite que só existe
+ * com a foto dentro. É a segunda, e a razão é o dia em que o aparelho volta com
+ * um arranhão que ninguém sabe de onde veio.
+ *
+ * A primeira foto é a FRONTEIRA entre o que chegou assim e o que aconteceu aqui
+ * dentro. Um aceite sem foto marcaria a hora em que o técnico assumiu um
+ * aparelho que ninguém viu — que é exatamente o buraco que a foto existe para
+ * fechar. Por isso não há caminho para aceitar sem enviar imagem: sem arquivo,
+ * esta ação recusa.
+ *
+ * Aceitar também AMARRA o técnico à ordem (`tecnicoId`). Antes, a bancada era
+ * uma fila de todo mundo e ninguém era responsável por nada até o laudo.
+ */
+export async function aceitarOrdemDoTecnico(form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (a.sessao.papel !== Papel.TECNICO) {
+    return { ok: false, motivo: 'Só o técnico assume um aparelho na bancada.' }
+  }
+
+  const ordemId = String(form.get('ordemId') ?? '')
+  const arquivo = form.get('foto')
+  if (!ordemId) return { ok: false, motivo: 'Ordem não informada.' }
+  if (!(arquivo instanceof File) || arquivo.size === 0) {
+    return {
+      ok: false,
+      motivo:
+        'O aceite é a foto. Fotografe o aparelho como ele chegou — é essa imagem que separa o que veio assim do que aconteceu aqui dentro.',
+    }
+  }
+
+  const ordem = await comEscopo(a.ctx, (tx) =>
+    tx.ordem.findUnique({
+      where: { id: ordemId },
+      select: { id: true, tecnicoId: true, tecnicoAceitouEm: true },
+    }),
+  )
+  if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+  if (ordem.tecnicoId && ordem.tecnicoId !== a.sessao.userId) {
+    return { ok: false, motivo: 'Este aparelho já está com outro técnico.' }
+  }
+
+  // A foto primeiro: se o disco recusar, ninguém fica "tendo aceitado" sem a
+  // imagem que o aceite promete.
+  const salva = await guardarFoto({ tenantId: exigirEmpresa(a.ctx), escopo: ordemId, arquivo })
+  if (!salva.ok) return { ok: false, motivo: salva.motivo }
+
+  await comEscopo(a.ctx, async (tx) => {
+    await tx.foto.create({
+      data: {
+        tenantId: exigirEmpresa(a.ctx),
+        ordemId,
+        categoria: 'RECEBIMENTO' as never,
+        legenda: 'Como chegou — foto do aceite',
+        caminho: salva.caminho,
+        caminhoThumb: salva.caminhoThumb,
+        hashArquivo: salva.hash,
+        larguraPx: salva.largura,
+        alturaPx: salva.altura,
+        tamanhoBytes: salva.bytes,
+        autorId: a.sessao.userId,
+        autorNome: a.sessao.nome,
+      },
+    })
+    await tx.ordem.update({
+      where: { id: ordemId },
+      data: {
+        tecnicoId: a.sessao.userId,
+        // Aceitar de novo não reescreve a hora: o valor da marca é ser a
+        // primeira vez. A foto extra entra na ordem de qualquer jeito.
+        ...(ordem.tecnicoAceitouEm ? {} : { tecnicoAceitouEm: new Date() }),
+      },
+    })
+  })
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.aceita_tecnico',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    detalhes: { comFoto: true },
+  })
+  revalidatePath('/app/tecnico')
+  revalidatePath(`/app/tecnico/${ordemId}`)
+  revalidatePath(`/painel/ordens/${ordemId}`)
   return { ok: true }
 }

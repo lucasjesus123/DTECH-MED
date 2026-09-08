@@ -44,6 +44,7 @@ export type AgendamentoMinAggregateOutputType = {
   previstoPara: Date | null
   janelaInicio: Date | null
   janelaFim: Date | null
+  aceitoEm: Date | null
   iniciadoEm: Date | null
   concluidoEm: Date | null
   enderecoSnapshot: string | null
@@ -67,6 +68,7 @@ export type AgendamentoMaxAggregateOutputType = {
   previstoPara: Date | null
   janelaInicio: Date | null
   janelaFim: Date | null
+  aceitoEm: Date | null
   iniciadoEm: Date | null
   concluidoEm: Date | null
   enderecoSnapshot: string | null
@@ -90,6 +92,7 @@ export type AgendamentoCountAggregateOutputType = {
   previstoPara: number
   janelaInicio: number
   janelaFim: number
+  aceitoEm: number
   iniciadoEm: number
   concluidoEm: number
   enderecoSnapshot: number
@@ -123,6 +126,7 @@ export type AgendamentoMinAggregateInputType = {
   previstoPara?: true
   janelaInicio?: true
   janelaFim?: true
+  aceitoEm?: true
   iniciadoEm?: true
   concluidoEm?: true
   enderecoSnapshot?: true
@@ -146,6 +150,7 @@ export type AgendamentoMaxAggregateInputType = {
   previstoPara?: true
   janelaInicio?: true
   janelaFim?: true
+  aceitoEm?: true
   iniciadoEm?: true
   concluidoEm?: true
   enderecoSnapshot?: true
@@ -169,6 +174,7 @@ export type AgendamentoCountAggregateInputType = {
   previstoPara?: true
   janelaInicio?: true
   janelaFim?: true
+  aceitoEm?: true
   iniciadoEm?: true
   concluidoEm?: true
   enderecoSnapshot?: true
@@ -279,6 +285,7 @@ export type AgendamentoGroupByOutputType = {
   previstoPara: Date
   janelaInicio: Date | null
   janelaFim: Date | null
+  aceitoEm: Date | null
   iniciadoEm: Date | null
   concluidoEm: Date | null
   enderecoSnapshot: string
@@ -325,6 +332,7 @@ export type AgendamentoWhereInput = {
   previstoPara?: Prisma.DateTimeFilter<"Agendamento"> | Date | string
   janelaInicio?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   janelaFim?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
+  aceitoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   iniciadoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   concluidoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   enderecoSnapshot?: Prisma.StringFilter<"Agendamento"> | string
@@ -352,6 +360,7 @@ export type AgendamentoOrderByWithRelationInput = {
   previstoPara?: Prisma.SortOrder
   janelaInicio?: Prisma.SortOrderInput | Prisma.SortOrder
   janelaFim?: Prisma.SortOrderInput | Prisma.SortOrder
+  aceitoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   iniciadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   concluidoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   enderecoSnapshot?: Prisma.SortOrder
@@ -382,6 +391,7 @@ export type AgendamentoWhereUniqueInput = Prisma.AtLeast<{
   previstoPara?: Prisma.DateTimeFilter<"Agendamento"> | Date | string
   janelaInicio?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   janelaFim?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
+  aceitoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   iniciadoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   concluidoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   enderecoSnapshot?: Prisma.StringFilter<"Agendamento"> | string
@@ -409,6 +419,7 @@ export type AgendamentoOrderByWithAggregationInput = {
   previstoPara?: Prisma.SortOrder
   janelaInicio?: Prisma.SortOrderInput | Prisma.SortOrder
   janelaFim?: Prisma.SortOrderInput | Prisma.SortOrder
+  aceitoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   iniciadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   concluidoEm?: Prisma.SortOrderInput | Prisma.SortOrder
   enderecoSnapshot?: Prisma.SortOrder
@@ -440,6 +451,7 @@ export type AgendamentoScalarWhereWithAggregatesInput = {
   previstoPara?: Prisma.DateTimeWithAggregatesFilter<"Agendamento"> | Date | string
   janelaInicio?: Prisma.DateTimeNullableWithAggregatesFilter<"Agendamento"> | Date | string | null
   janelaFim?: Prisma.DateTimeNullableWithAggregatesFilter<"Agendamento"> | Date | string | null
+  aceitoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Agendamento"> | Date | string | null
   iniciadoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Agendamento"> | Date | string | null
   concluidoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Agendamento"> | Date | string | null
   enderecoSnapshot?: Prisma.StringWithAggregatesFilter<"Agendamento"> | string
@@ -460,6 +472,7 @@ export type AgendamentoCreateInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -487,6 +500,7 @@ export type AgendamentoUncheckedCreateInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -508,6 +522,7 @@ export type AgendamentoUpdateInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -535,6 +550,7 @@ export type AgendamentoUncheckedUpdateInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -559,6 +575,7 @@ export type AgendamentoCreateManyInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -579,6 +596,7 @@ export type AgendamentoUpdateManyMutationInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -602,6 +620,7 @@ export type AgendamentoUncheckedUpdateManyInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -635,6 +654,7 @@ export type AgendamentoCountOrderByAggregateInput = {
   previstoPara?: Prisma.SortOrder
   janelaInicio?: Prisma.SortOrder
   janelaFim?: Prisma.SortOrder
+  aceitoEm?: Prisma.SortOrder
   iniciadoEm?: Prisma.SortOrder
   concluidoEm?: Prisma.SortOrder
   enderecoSnapshot?: Prisma.SortOrder
@@ -662,6 +682,7 @@ export type AgendamentoMaxOrderByAggregateInput = {
   previstoPara?: Prisma.SortOrder
   janelaInicio?: Prisma.SortOrder
   janelaFim?: Prisma.SortOrder
+  aceitoEm?: Prisma.SortOrder
   iniciadoEm?: Prisma.SortOrder
   concluidoEm?: Prisma.SortOrder
   enderecoSnapshot?: Prisma.SortOrder
@@ -685,6 +706,7 @@ export type AgendamentoMinOrderByAggregateInput = {
   previstoPara?: Prisma.SortOrder
   janelaInicio?: Prisma.SortOrder
   janelaFim?: Prisma.SortOrder
+  aceitoEm?: Prisma.SortOrder
   iniciadoEm?: Prisma.SortOrder
   concluidoEm?: Prisma.SortOrder
   enderecoSnapshot?: Prisma.SortOrder
@@ -862,6 +884,7 @@ export type AgendamentoCreateWithoutTenantInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -887,6 +910,7 @@ export type AgendamentoUncheckedCreateWithoutTenantInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -940,6 +964,7 @@ export type AgendamentoScalarWhereInput = {
   previstoPara?: Prisma.DateTimeFilter<"Agendamento"> | Date | string
   janelaInicio?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   janelaFim?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
+  aceitoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   iniciadoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   concluidoEm?: Prisma.DateTimeNullableFilter<"Agendamento"> | Date | string | null
   enderecoSnapshot?: Prisma.StringFilter<"Agendamento"> | string
@@ -960,6 +985,7 @@ export type AgendamentoCreateWithoutMotoristaInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -985,6 +1011,7 @@ export type AgendamentoUncheckedCreateWithoutMotoristaInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1032,6 +1059,7 @@ export type AgendamentoCreateWithoutOrdemInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1057,6 +1085,7 @@ export type AgendamentoUncheckedCreateWithoutOrdemInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1104,6 +1133,7 @@ export type AgendamentoCreateWithoutPosicoesInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1130,6 +1160,7 @@ export type AgendamentoUncheckedCreateWithoutPosicoesInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1166,6 +1197,7 @@ export type AgendamentoUpdateWithoutPosicoesInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1192,6 +1224,7 @@ export type AgendamentoUncheckedUpdateWithoutPosicoesInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1214,6 +1247,7 @@ export type AgendamentoCreateManyTenantInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1234,6 +1268,7 @@ export type AgendamentoUpdateWithoutTenantInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1259,6 +1294,7 @@ export type AgendamentoUncheckedUpdateWithoutTenantInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1282,6 +1318,7 @@ export type AgendamentoUncheckedUpdateManyWithoutTenantInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1304,6 +1341,7 @@ export type AgendamentoCreateManyMotoristaInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1324,6 +1362,7 @@ export type AgendamentoUpdateWithoutMotoristaInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1349,6 +1388,7 @@ export type AgendamentoUncheckedUpdateWithoutMotoristaInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1372,6 +1412,7 @@ export type AgendamentoUncheckedUpdateManyWithoutMotoristaInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1394,6 +1435,7 @@ export type AgendamentoCreateManyOrdemInput = {
   previstoPara: Date | string
   janelaInicio?: Date | string | null
   janelaFim?: Date | string | null
+  aceitoEm?: Date | string | null
   iniciadoEm?: Date | string | null
   concluidoEm?: Date | string | null
   enderecoSnapshot: string
@@ -1414,6 +1456,7 @@ export type AgendamentoUpdateWithoutOrdemInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1439,6 +1482,7 @@ export type AgendamentoUncheckedUpdateWithoutOrdemInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1462,6 +1506,7 @@ export type AgendamentoUncheckedUpdateManyWithoutOrdemInput = {
   previstoPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   janelaInicio?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   janelaFim?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aceitoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   iniciadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   concluidoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   enderecoSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1516,6 +1561,7 @@ export type AgendamentoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   previstoPara?: boolean
   janelaInicio?: boolean
   janelaFim?: boolean
+  aceitoEm?: boolean
   iniciadoEm?: boolean
   concluidoEm?: boolean
   enderecoSnapshot?: boolean
@@ -1544,6 +1590,7 @@ export type AgendamentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   previstoPara?: boolean
   janelaInicio?: boolean
   janelaFim?: boolean
+  aceitoEm?: boolean
   iniciadoEm?: boolean
   concluidoEm?: boolean
   enderecoSnapshot?: boolean
@@ -1570,6 +1617,7 @@ export type AgendamentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   previstoPara?: boolean
   janelaInicio?: boolean
   janelaFim?: boolean
+  aceitoEm?: boolean
   iniciadoEm?: boolean
   concluidoEm?: boolean
   enderecoSnapshot?: boolean
@@ -1596,6 +1644,7 @@ export type AgendamentoSelectScalar = {
   previstoPara?: boolean
   janelaInicio?: boolean
   janelaFim?: boolean
+  aceitoEm?: boolean
   iniciadoEm?: boolean
   concluidoEm?: boolean
   enderecoSnapshot?: boolean
@@ -1609,7 +1658,7 @@ export type AgendamentoSelectScalar = {
   atualizadoEm?: boolean
 }
 
-export type AgendamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "tipo" | "status" | "motoristaId" | "previstoPara" | "janelaInicio" | "janelaFim" | "iniciadoEm" | "concluidoEm" | "enderecoSnapshot" | "contatoNome" | "contatoTelefone" | "pontoReferencia" | "posicaoRota" | "observacoes" | "motivoFalha" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["agendamento"]>
+export type AgendamentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "tipo" | "status" | "motoristaId" | "previstoPara" | "janelaInicio" | "janelaFim" | "aceitoEm" | "iniciadoEm" | "concluidoEm" | "enderecoSnapshot" | "contatoNome" | "contatoTelefone" | "pontoReferencia" | "posicaoRota" | "observacoes" | "motivoFalha" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["agendamento"]>
 export type AgendamentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
@@ -1649,6 +1698,23 @@ export type $AgendamentoPayload<ExtArgs extends runtime.Types.Extensions.Interna
      */
     janelaInicio: Date | null
     janelaFim: Date | null
+    /**
+     * QUANDO O MOTORISTA ACEITOU ESTA CORRIDA.
+     * 
+     * A central designa; quem vai é que confirma. Sem este campo, "designado" e
+     * "combinado" eram a mesma coisa no banco — e não são: designar é uma linha
+     * escrita por quem está no escritório, aceitar é alguém dizendo que vai.
+     * Entre as duas cabe um motorista de folga, um celular sem bateria e um
+     * aparelho que ninguém foi buscar.
+     * 
+     * É carimbo de tempo, e não um `Boolean`, porque a pergunta que a operação
+     * faz não é "aceitou?" — é "designei às 9h, ele aceitou quando?". A distância
+     * entre as duas horas é o que denuncia a corrida que ficou parada.
+     * 
+     * Nulo em toda parada que já existia: quem já saiu, saiu antes desta regra, e
+     * inventar um aceite retroativo seria escrever no passado de alguém.
+     */
+    aceitoEm: Date | null
     iniciadoEm: Date | null
     concluidoEm: Date | null
     /**
@@ -2103,6 +2169,7 @@ export interface AgendamentoFieldRefs {
   readonly previstoPara: Prisma.FieldRef<"Agendamento", 'DateTime'>
   readonly janelaInicio: Prisma.FieldRef<"Agendamento", 'DateTime'>
   readonly janelaFim: Prisma.FieldRef<"Agendamento", 'DateTime'>
+  readonly aceitoEm: Prisma.FieldRef<"Agendamento", 'DateTime'>
   readonly iniciadoEm: Prisma.FieldRef<"Agendamento", 'DateTime'>
   readonly concluidoEm: Prisma.FieldRef<"Agendamento", 'DateTime'>
   readonly enderecoSnapshot: Prisma.FieldRef<"Agendamento", 'String'>
