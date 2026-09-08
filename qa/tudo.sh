@@ -157,6 +157,7 @@ node equipamento.mjs    >"$LOGS/eq.log" 2>&1; marcar $? "o catálogo e a O.S. se
 node quadro.mjs         >"$LOGS/qd.log" 2>&1; marcar $? "o quadro: colunas da empresa, cartão que anda, e nada some"
 node quadro-arrasto.mjs >"$LOGS/qdar.log" 2>&1; marcar $? "o quadro: arrastar o cartão, e a recusa ser de verdade"
 node agendar-na-ficha.mjs >"$LOGS/agf.log" 2>&1; marcar $? "agendar na ficha: a agenda do motorista, e a parada no calendário"
+node abrir-os-passo-a-passo.mjs >"$LOGS/aos.log" 2>&1; marcar $? "abrir O.S. em 3 passos: nada se perde, e 'Continuar' não emite"
 node estoque.mjs        >"$LOGS/es.log" 2>&1; marcar $? "estoque: peça, insumo e ferramenta — e emprestar não baixa saldo"
 node calendario-visoes.mjs >"$LOGS/cv.log" 2>&1; marcar $? "o calendário em cinco visões, e o lugar não se perde"
 node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, chamar, arquivar — e arquivar não apaga"

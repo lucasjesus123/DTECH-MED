@@ -96,11 +96,11 @@ export default async function Prontuario({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ ver?: string }>
+  searchParams: Promise<{ ver?: string; despachar?: string }>
 }) {
   const { ctx, sessao } = await exigirSessao()
   const { id } = await params
-  const { ver: verBruto } = await searchParams
+  const { ver: verBruto, despachar } = await searchParams
   const ver: Ver = verBruto === 'documentos' ? 'documentos' : 'ficha'
 
   const o = await prontuario(ctx, id)
@@ -355,6 +355,11 @@ export default async function Prontuario({
                   avisaCliente: p.avisaCliente,
                 }))}
                 parada={paradaParaMarcar}
+                /* Vindo do assistente de abertura (`?despachar=1`), a janela do
+                   despacho abre sozinha: emitir a O.S. e marcar quem vai buscar
+                   são o mesmo movimento, e separá-los em duas telas era o que
+                   fazia a pessoa emitir e ir embora sem despachar. */
+                abrirDireto={despachar === '1'}
               />
             )}
 

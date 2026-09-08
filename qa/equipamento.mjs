@@ -107,6 +107,10 @@ await sugCliente.waitFor({ timeout: 8000 }).catch(() => {})
 await sugCliente.click()
 await p.waitForTimeout(400)
 
+// O assistente de três passos: o catálogo mora no passo 2. Ver `formulario.tsx`.
+await p.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(600)
+
 // Agora o aparelho, pelo catálogo.
 await p.fill('input[placeholder*="patrimônio"]', 'Neurodyn')
 await p.waitForTimeout(1400)
@@ -137,9 +141,14 @@ puxado && marcaNoCampo === 'Ibramed' && travado !== null
 console.log('\n5) ABRIR O.S. · o aparelho ganha dono e NÃO vira uma segunda linha')
 // ---------------------------------------------------------------------------
 const antes = Number(sql(`select count(*) from equipamentos`))
+// O relato mora no passo 3 do assistente. Ver `formulario.tsx`.
+await p.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(600)
 await p.fill('textarea[name=defeito]', 'QA: liga e desliga sozinho depois de dez minutos de uso.')
-await p.getByRole('button', { name: /Abrir O\.S\./i }).click()
-await p.waitForURL(/\/painel\/ordens\/[a-z0-9]+$/, { timeout: 25000 }).catch(() => {})
+await p.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
+// `?despachar=1` entra na URL agora: emitir cai direto na janela do despacho,
+// e o endereço não termina mais no id. O `$` do padrão antigo nunca casaria.
+await p.waitForURL(/\/painel\/ordens\/[a-z0-9]+/, { timeout: 25000 }).catch(() => {})
 await p.waitForTimeout(1500)
 
 const depois = Number(sql(`select count(*) from equipamentos`))
@@ -168,6 +177,8 @@ const outro = p.locator('[role=listbox] [role=option]').first()
 await outro.waitFor({ timeout: 8000 }).catch(() => {})
 await outro.click()
 await p.waitForTimeout(400)
+await p.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(600)
 
 await p.fill('input[placeholder*="patrimônio"]', 'Neurodyn')
 await p.waitForTimeout(1400)
@@ -182,9 +193,11 @@ const aviso = await p.locator('body').innerText()
   : nao('a tela não avisa que o aparelho é de outro cliente')
 
 // A tela avisar não basta: esconder o botão impede o clique, não o pedido.
+await p.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(600)
 await p.fill('textarea[name=defeito]', 'QA: tentativa de puxar aparelho de outro cliente.')
 const ordensAntes = Number(sql(`select count(*) from ordens`))
-await p.getByRole('button', { name: /Abrir O\.S\./i }).click()
+await p.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
 await p.waitForTimeout(3000)
 const ordensDepois = Number(sql(`select count(*) from ordens`))
 const recusa = await p.locator('[role=alert]').first().innerText().catch(() => '')

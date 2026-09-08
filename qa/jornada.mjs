@@ -141,11 +141,19 @@ await nova.locator('input[name=clienteWhatsapp]').fill('51980449274')
 await nova.locator('input[name=contatoNome]').fill('Mariana Farias')
 await nova.locator('input[name=endereco]').fill('R. Sabiá, 702, Sala 03, Universitário')
 await nova.locator('input[name=cidade]').fill('Lajeado')
+// O ASSISTENTE DE TRÊS PASSOS: cliente → aparelho → ordem.
+// Os campos do passo seguinte existem no formulário mas ficam escondidos, então
+// preenchê-los exige avançar. O roteiro reprovou quando a tela virou assistente,
+// e reprovou com razão: ele descrevia a tela de antes.
+await nova.getByRole('button', { name: /^Continuar$/ }).click()
+await ana.waitForTimeout(500)
 await nova.locator('input[name=marca]').fill('Lavieen')
 await nova.locator('input[name=modelo]').fill('Duo')
 await nova.locator('input[name=numeroSerie]').fill('LA-3050-QA')
+await nova.getByRole('button', { name: /^Continuar$/ }).click()
+await ana.waitForTimeout(500)
 await nova.locator('textarea[name=defeito]').fill('Liga, mas desliga sozinho depois de uns dez minutos de uso.')
-await nova.getByRole('button', { name: /abrir O\.S\. e gerar/i }).click()
+await nova.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
 await ana.waitForTimeout(3000)
 const erroNova = await ana.locator('[role=alert], .erro').first().textContent().catch(() => '')
 if (erroNova) console.log('     formulário respondeu:', erroNova.trim().slice(0, 160))

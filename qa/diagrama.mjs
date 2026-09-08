@@ -88,10 +88,15 @@ const abrirOrdem = async (p, marca) => {
   await f.locator('input[name=contatoNome]').fill('Mariana Farias')
   await f.locator('input[name=endereco]').fill('R. Sabiá, 702, Sala 03')
   await f.locator('input[name=cidade]').fill('Lajeado')
+  // O assistente de três passos: cliente → aparelho → ordem. Ver `formulario.tsx`.
+  await f.getByRole('button', { name: /^Continuar$/ }).click()
+  await p.waitForTimeout(500)
   await f.locator('input[name=marca]').fill(marca)
   await f.locator('input[name=modelo]').fill('Duo')
+  await f.getByRole('button', { name: /^Continuar$/ }).click()
+  await p.waitForTimeout(500)
   await f.locator('textarea[name=defeito]').fill('Desliga sozinho depois de dez minutos de uso.')
-  await f.getByRole('button', { name: /abrir O\.S\. e gerar/i }).click()
+  await f.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
   // "A ordem mais recente do banco" é uma aposta: se o formulário falhar em
   // silêncio, o teste segue medindo a ficha de outro roteiro e culpa o sistema
   // por um defeito que é dele. Espera-se a ordem NOVA — a que não estava na

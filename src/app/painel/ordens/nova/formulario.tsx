@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { abrirOrdem } from '@/server/acoes/ordem'
 import QuemEOCliente from './quem-e-o-cliente'
@@ -10,14 +10,6 @@ import estilo from '../../painel.module.css'
 type Resposta = { ok: true; dados?: { id: string } } | { ok: false; motivo: string }
 const inicial: Resposta = { ok: false, motivo: '' }
 
-/**
- * Formulário de abertura.
- *
- * O campo do defeito pede o relato **em português do cliente**, não um código.
- * É esse texto que o técnico lê antes de encostar no aparelho, e traduzi-lo
- * cedo demais perde a informação que só quem usa o equipamento tem — "faz um
- * barulho quando esquenta" vale mais que "falha intermitente".
- */
 type Lead = {
   id: string
   nome: string
@@ -28,8 +20,51 @@ type Lead = {
   mensagem: string
 }
 
+const PASSOS = [
+  { n: 1, nome: 'O cliente', ajuda: 'De quem é o aparelho e para onde o motorista vai.' },
+  { n: 2, nome: 'O aparelho', ajuda: 'Qual máquina vai entrar na esteira.' },
+  { n: 3, nome: 'A ordem', ajuda: 'O que está acontecendo, e com que urgência.' },
+] as const
+
+/**
+ * ABRIR A O.S. EM TRÊS PASSOS.
+ *
+ * =============================================================================
+ * POR QUE DEIXOU DE SER UMA TELA SÓ
+ * =============================================================================
+ * Era uma tela só de propósito — para não repetir o ERP antigo, onde abrir uma
+ * O.S. custava passar por Pessoas, depois Produtos, depois O.S. O problema é que
+ * "uma tela" virou catorze campos de uma vez, e o dono do sistema disse o que
+ * isso provoca em quem abre:
+ *
+ *   "TO ACHANDO SO AINDA UM POUCO CONFUSO AO ABRIR O.S EU GOSTARIA QUE FOSSE
+ *    MAIS FLUIDO TIPO PASSO A PASSO FACIL AINDA PRA MIM TA MUITO CONFUSO TUDO"
+ *
+ * Ele tem razão, e a correção não é voltar a três telas: é uma pergunta de cada
+ * vez, na ordem em que o telefonema acontece — de quem é, qual máquina é, o que
+ * está acontecendo.
+ *
+ * =============================================================================
+ * OS PASSOS SÃO MOSTRADOS E ESCONDIDOS, NUNCA DESMONTADOS
+ * =============================================================================
+ * Este é o detalhe que decide se o assistente funciona ou destrói trabalho. Um
+ * `passo === 1 && <Cliente/>` tira os campos do formulário: no passo 3 o
+ * `FormData` sairia sem nome, sem CPF e sem endereço, e a ordem nasceria
+ * quebrada — ou o servidor recusaria uma tela cheia de campos preenchidos que a
+ * pessoa não consegue mais ver.
+ *
+ * Com `hidden`, os campos continuam no formulário e continuam sendo enviados.
+ * O preço é que um campo obrigatório vazio dentro de um passo escondido trava o
+ * envio sem mensagem nenhuma — o navegador não consegue focar o que não
+ * aparece. Por isso ninguém avança de passo sem ele estar válido: `Continuar`
+ * confere os campos DAQUELE passo e faz o próprio navegador apontar o que
+ * falta, com o campo à vista.
+ */
 export default function Formulario({ lead }: { lead: Lead | null }) {
   const [estado, acao, pendente] = useActionState(abrirOrdem, inicial)
+  const [passo, setPasso] = useState(1)
+  const [maisLonge, setMaisLonge] = useState(1)
+  const caixas = useRef<Array<HTMLDivElement | null>>([])
   const router = useRouter()
 
   /**
@@ -45,63 +80,209 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
   // o resto é o modelo. Chute útil, e a pessoa corrige em um clique se errar.
   const [marca = '', ...resto] = (lead?.equipamento ?? '').split(' ')
 
+  /**
+   * EMITIDA A ORDEM, A PRÓXIMA COISA É O DESPACHO.
+   *
+   * `?despachar=1` faz a ficha abrir já com a janela de marcar a parada — o dia
+   * e o motorista. É o passo que vem depois de emitir, e mandar a pessoa
+   * procurá-lo sozinha na tela nova seria devolver a confusão pela porta dos
+   * fundos.
+   */
   useEffect(() => {
-    if (estado.ok && estado.dados?.id) router.push(`/painel/ordens/${estado.dados.id}`)
+    if (estado.ok && estado.dados?.id) router.push(`/painel/ordens/${estado.dados.id}?despachar=1`)
   }, [estado, router])
 
+  function irPara(n: number) {
+    setPasso(n)
+    setMaisLonge((m) => Math.max(m, n))
+    // A pessoa acabou de trocar o conteúdo inteiro da tela; sem isto ela
+    // continua olhando o meio do passo anterior.
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function adiante() {
+    const caixa = caixas.current[passo - 1]
+    if (caixa) {
+      const ruim = caixa.querySelector<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+        'input:invalid, textarea:invalid, select:invalid',
+      )
+      if (ruim) {
+        ruim.reportValidity()
+        return
+      }
+    }
+    irPara(passo + 1)
+  }
+
   return (
-    <form action={acao} className={`${estilo.bloco} ${estilo.form}`} style={{ maxWidth: 900 }}>
+    <form
+      action={acao}
+      className={`${estilo.bloco} ${estilo.form}`}
+      style={{ maxWidth: 900 }}
+      /* Enter num campo do passo 1 enviaria o formulário inteiro com metade das
+         respostas. Aqui ele faz o que a pessoa quis dizer: seguir. */
+      onKeyDown={(e) => {
+        if (e.key !== 'Enter') return
+        const alvo = e.target as HTMLElement
+        if (alvo.tagName === 'TEXTAREA') return
+        if (passo < 3) {
+          e.preventDefault()
+          adiante()
+        }
+      }}
+    >
       {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
       {lead ? <input type="hidden" name="leadId" value={lead.id} /> : null}
 
-      {/* Quem é o cliente, onde buscar, e a busca que reconhece a carteira.
-          Saiu daqui para um componente próprio porque virou estado: seis campos
-          que se preenchem juntos quando alguém escolhe um cliente já cadastrado.
-          Ver `quem-e-o-cliente.tsx`. */}
-      <QuemEOCliente
-        nomeInicial={lead?.nome ?? ''}
-        telefoneInicial={lead?.telefone ?? ''}
-        contatoInicial={lead?.contato ?? ''}
-        cidadeInicial={lead?.cidade ?? ''}
-        aoMudarEscolha={setCliente}
-      />
+      {/* ---- A TRILHA: onde estou, quanto falta ------------------------- */}
+      <ol className={estilo.assistTrilho}>
+        {PASSOS.map((p) => {
+          const estadoDoPasso =
+            p.n === passo ? estilo.assistAtual : p.n <= maisLonge ? estilo.assistFeito : ''
+          return (
+            <li key={p.n} className={`${estilo.assistPasso} ${estadoDoPasso}`}>
+              <button
+                type="button"
+                className={estilo.assistBotao}
+                /* Só dá para voltar ao que já se viu. Pular para o passo 3 sem
+                   ter dito quem é o cliente deixaria campos obrigatórios vazios
+                   e escondidos — que é exatamente o travamento mudo que o
+                   cabeçalho deste arquivo descreve. */
+                disabled={p.n > maisLonge}
+                aria-current={p.n === passo ? 'step' : undefined}
+                onClick={() => irPara(p.n)}
+              >
+                <span className={estilo.assistNumero}>{p.n}</span>
+                <span className={estilo.assistNome}>{p.nome}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+      <p className={estilo.dica} style={{ marginTop: 0 }}>
+        Passo {passo} de 3 · {PASSOS[passo - 1]!.ajuda}
+      </p>
 
-      {/* O aparelho saiu daqui para um bloco próprio quando ganhou a busca no
-          catálogo. Ver `qual-e-o-aparelho.tsx`: puxar a máquina já cadastrada é
-          o que impede o mesmo laser de virar quatro linhas, cada uma com um
-          pedaço do histórico. */}
-      <QualEOAparelho
-        marcaInicial={marca}
-        modeloInicial={resto.join(' ')}
-        clienteId={cliente?.id ?? null}
-        clienteNome={cliente?.nome ?? null}
-      />
-
-      <label className={estilo.rotulo}>
-        O que está acontecendo *
-        <textarea
-          className={estilo.area}
-          name="defeito"
-          required
-          minLength={10}
-          rows={4}
-          placeholder="Do jeito que o cliente contou. Ex.: liga, mas desliga sozinho depois de uns dez minutos."
-          defaultValue={lead?.mensagem ?? ''}
+      {/* ---- 1 · O CLIENTE ---------------------------------------------- */}
+      <div ref={(el) => { caixas.current[0] = el }} hidden={passo !== 1}>
+        <QuemEOCliente
+          nomeInicial={lead?.nome ?? ''}
+          telefoneInicial={lead?.telefone ?? ''}
+          contatoInicial={lead?.contato ?? ''}
+          cidadeInicial={lead?.cidade ?? ''}
+          aoMudarEscolha={setCliente}
         />
-      </label>
+      </div>
 
-      <label className={estilo.rotulo} style={{ maxWidth: 280 }}>
-        Prioridade
-        <select className={estilo.selecao} name="prioridade" defaultValue="NORMAL" style={{ width: '100%' }}>
-          <option value="NORMAL">Normal</option>
-          <option value="ALTA">Alta — clínica parada faturando</option>
-        </select>
-      </label>
+      {/* ---- 2 · O APARELHO --------------------------------------------- */}
+      <div ref={(el) => { caixas.current[1] = el }} hidden={passo !== 2}>
+        <QualEOAparelho
+          marcaInicial={marca}
+          modeloInicial={resto.join(' ')}
+          clienteId={cliente?.id ?? null}
+          clienteNome={cliente?.nome ?? null}
+        />
+      </div>
 
+      {/* ---- 3 · A ORDEM ------------------------------------------------ */}
+      {/**
+       * O `hidden` FICA NUMA CAIXA SEM CLASSE, e isto não é preciosismo.
+       *
+       * A primeira versão era `<div hidden className={estilo.form}>`, e o passo
+       * 3 aparecia junto com o passo 1. `[hidden]` esconde por `display: none`
+       * vindo da folha do NAVEGADOR, e qualquer classe do sistema com `display`
+       * ganha dela por especificidade — `.form` é `display: grid`. O atributo
+       * continuava lá, certinho, e não escondia nada.
+       *
+       * O roteiro pegou: "o campo do defeito aparece já no passo do cliente".
+       * A correção é separar os papéis — a caixa de fora esconde, a de dentro
+       * arruma os campos.
+       */}
+      <div ref={(el) => { caixas.current[2] = el }} hidden={passo !== 3}>
+        <div className={estilo.form}>
+        <p className={estilo.blocoTitulo}>O que o cliente contou</p>
+
+        {/* O resumo do que já foi respondido. Emitir é irreversível na prática
+            — o PDF sai e o cliente recebe — e ninguém deve precisar voltar dois
+            passos só para conferir se escolheu o cliente certo. */}
+        {cliente ? (
+          <p className={estilo.avisoCaixa} role="status">
+            <strong>{cliente.nome}</strong> · da carteira.{' '}
+            <button type="button" className={estilo.linkAcao} onClick={() => irPara(1)}>
+              Conferir os dados
+            </button>
+          </p>
+        ) : null}
+
+        <label className={estilo.rotulo}>
+          O que está acontecendo *
+          <textarea
+            className={estilo.area}
+            name="defeito"
+            required
+            minLength={10}
+            rows={4}
+            placeholder="Do jeito que o cliente contou. Ex.: liga, mas desliga sozinho depois de uns dez minutos."
+            defaultValue={lead?.mensagem ?? ''}
+          />
+        </label>
+
+        <label className={estilo.rotulo} style={{ maxWidth: 280 }}>
+          Prioridade
+          <select className={estilo.selecao} name="prioridade" defaultValue="NORMAL" style={{ width: '100%' }}>
+            <option value="NORMAL">Normal</option>
+            <option value="ALTA">Alta — clínica parada faturando</option>
+          </select>
+        </label>
+
+        <p className={estilo.dica}>
+          Ao emitir, o PDF da Ordem de Serviço sai na hora e a próxima tela já abre o despacho —
+          o dia e o motorista que vai buscar.
+        </p>
+        </div>
+      </div>
+
+      {/* ---- O RODAPÉ DO ASSISTENTE ------------------------------------- */}
       <div className={estilo.acoesForm}>
-        <button type="submit" className={estilo.btn} disabled={pendente}>
-          {pendente ? 'Abrindo…' : 'Abrir O.S. e gerar o PDF de retirada'}
-        </button>
+        {passo > 1 ? (
+          <button type="button" className={estilo.btnSec} onClick={() => irPara(passo - 1)} disabled={pendente}>
+            Voltar
+          </button>
+        ) : null}
+
+        {/**
+         * AS DUAS `key` SÃO O CONSERTO DE UM DEFEITO DE VERDADE.
+         *
+         * Sem elas, o React vê um `<button>` na mesma posição da árvore nos dois
+         * ramos e REAPROVEITA o mesmo elemento do DOM, trocando só o `type` e o
+         * texto. O estrago acontece dentro de um clique só:
+         *
+         *   1. clico em "Continuar" (`type="button"`);
+         *   2. o `onClick` roda e o React repinta na hora — o MESMO botão vira
+         *      `type="submit"`;
+         *   3. o navegador só então executa a ação padrão do clique, e a lê do
+         *      elemento COMO ELE ESTÁ AGORA: submit. O formulário é enviado.
+         *
+         * Aqui isso ficou invisível por sorte: `defeito` é obrigatório e vazio,
+         * então o navegador barra o envio e mostra o balão "preencha este
+         * campo" — que foi o rastro que denunciou tudo numa foto de tela. Mas
+         * quando a O.S. vem de um contato do site, `defeito` JÁ NASCE
+         * PREENCHIDO com o que a pessoa escreveu: nada barraria, e clicar
+         * "Continuar" no passo 2 abriria a ordem sem ninguém ter visto o passo
+         * 3, com PDF emitido e cliente avisado.
+         *
+         * Com `key` diferente, são dois elementos distintos: o clicado continua
+         * sendo `type="button"` até o fim do seu próprio evento.
+         */}
+        {passo < 3 ? (
+          <button key="continuar" type="button" className={estilo.btn} onClick={adiante}>
+            Continuar
+          </button>
+        ) : (
+          <button key="emitir" type="submit" className={estilo.btn} disabled={pendente}>
+            {pendente ? 'Emitindo…' : 'Emitir Ordem de Serviço'}
+          </button>
+        )}
       </div>
     </form>
   )

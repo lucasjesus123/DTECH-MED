@@ -6057,6 +6057,81 @@ a.calNumero:hover, a.calNumero:focus-visible {
    informa nada — uma coluna agrupa quatro etapas. "Solte: Em análise técnica"
    informa. Só existe durante o gesto. */
 /* =========================================================================
+   A TRILHA DO ASSISTENTE — três passos para abrir a O.S.
+   -------------------------------------------------------------------------
+   Ela existe para responder duas perguntas sem que ninguém pergunte: onde eu
+   estou, e quanto falta. Passo já visto volta com um clique; passo à frente
+   fica desabilitado, porque pular deixaria campo obrigatório vazio e escondido
+   — e aí o envio trava sem mensagem, que é o pior jeito de falhar.
+   ========================================================================= */
+.assistTrilho {
+  list-style: none;
+  display: flex;
+  gap: var(--s2);
+  margin: 0 0 var(--s2);
+  padding: 0;
+}
+.assistPasso { flex: 1 1 0; }
+.assistBotao {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 8px 10px;
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+  border-top: 3px solid var(--borda);
+  border-radius: var(--r, 8px);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  text-align: left;
+  color: var(--txt-3);
+  cursor: pointer;
+}
+.assistBotao:disabled { cursor: default; }
+.assistBotao:not(:disabled):hover { border-color: var(--borda-viva); color: var(--txt-2); }
+.assistNumero {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.assistNome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* O passo já respondido fica marcado, mas discreto: quem olha a trilha está
+   procurando onde ESTÁ, não celebrando o que já fez. */
+.assistFeito .assistBotao { border-top-color: var(--vio-borda); color: var(--txt-2); }
+.assistFeito .assistNumero { border-color: var(--vio-borda); color: var(--vio-claro); }
+.assistAtual .assistBotao {
+  background: var(--vio-veu);
+  border-color: var(--vio-borda);
+  border-top-color: var(--vio-claro);
+  color: var(--txt);
+  font-weight: 600;
+}
+.assistAtual .assistNumero {
+  background: var(--vio-claro);
+  border-color: var(--vio-claro);
+  color: var(--bg-1);
+}
+/* No celular a trilha vira só os números: três nomes lado a lado em 360px
+   viram três reticências, que não dizem nada. */
+@media (max-width: 640px) {
+  .assistNome { display: none; }
+  .assistBotao { justify-content: center; }
+}
+
+/* =========================================================================
    MARCAR A PARADA NA FICHA — a agenda de quem vai dirigir
    -------------------------------------------------------------------------
    A grade mostra o que JÁ ESTÁ MARCADO para aquele motorista em cada dia. Ela

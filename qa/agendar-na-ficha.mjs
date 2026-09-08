@@ -81,11 +81,19 @@ await form.locator('input[name=clienteWhatsapp]').fill('51980449274')
 await form.locator('input[name=contatoNome]').fill('Mariana Farias')
 await form.locator('input[name=endereco]').fill('R. Sabiá, 702, Sala 03, Universitário')
 await form.locator('input[name=cidade]').fill('Lajeado')
+// O ASSISTENTE DE TRÊS PASSOS: cliente → aparelho → ordem.
+// Os campos do passo seguinte existem no formulário mas ficam escondidos, então
+// preenchê-los exige avançar. O roteiro reprovou quando a tela virou assistente,
+// e reprovou com razão: ele descrevia a tela de antes.
+await form.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(500)
 await form.locator('input[name=marca]').fill('Lavieen')
 await form.locator('input[name=modelo]').fill('Duo')
 await form.locator('input[name=numeroSerie]').fill(`LA-AG-${Date.now().toString().slice(-6)}`)
+await form.getByRole('button', { name: /^Continuar$/ }).click()
+await p.waitForTimeout(500)
 await form.locator('textarea[name=defeito]').fill('Não aquece. Cliente pediu retirada.')
-await form.getByRole('button', { name: /abrir O\.S\. e gerar/i }).click()
+await form.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
 await p.waitForTimeout(3500)
 
 const ordemId = sql('select id from ordens order by "abertaEm" desc limit 1')

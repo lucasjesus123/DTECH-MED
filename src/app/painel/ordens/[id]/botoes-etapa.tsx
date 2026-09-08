@@ -32,6 +32,7 @@ export default function BotoesEtapa({
   ordemId,
   passos,
   parada,
+  abrirDireto = false,
 }: {
   ordemId: string
   passos: Passo[]
@@ -40,10 +41,28 @@ export default function BotoesEtapa({
    * perfil não agenda rota) — e aí nenhum passo abre janela nenhuma.
    */
   parada?: { exigidaPor: EtapaOrdem[]; dados: DadosDaParada } | null
+  /** Chegou do assistente de abertura: a janela do despacho já abre. */
+  abrirDireto?: boolean
 }) {
   const [erro, setErro] = useState<string | null>(null)
   const [observacao, setObservacao] = useState('')
-  const [marcando, setMarcando] = useState<Passo | null>(null)
+  /**
+   * O DESPACHO QUE ABRE SOZINHO — e abre UMA VEZ.
+   *
+   * Vindo do assistente, `abrirDireto` já nasce verdadeiro, e a janela é o
+   * estado INICIAL — não um efeito depois da montagem. Duas razões, e as duas
+   * doem na tela:
+   *
+   *   • `abrirDireto` vem da URL, e a URL não muda quando a pessoa fecha a
+   *     janela. Num efeito, todo `router.refresh()` desta ficha reabriria a
+   *     janela recém-fechada, e não haveria como sair dela.
+   *   • Efeito roda DEPOIS da pintura: a janela apareceria num segundo tempo,
+   *     piscando por cima da ficha já desenhada.
+   */
+  const [marcando, setMarcando] = useState<Passo | null>(() => {
+    if (!abrirDireto || !parada) return null
+    return passos.find((p) => parada.exigidaPor.includes(p.para)) ?? null
+  })
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 

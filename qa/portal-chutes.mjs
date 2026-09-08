@@ -49,10 +49,18 @@ await f.locator('input[name=clienteWhatsapp]').fill('51980449274')
 await f.locator('input[name=contatoNome]').fill('Mariana Farias')
 await f.locator('input[name=endereco]').fill('R. Sabiá, 702, Sala 03')
 await f.locator('input[name=cidade]').fill('Lajeado')
+// O ASSISTENTE DE TRÊS PASSOS: cliente → aparelho → ordem.
+// Os campos do passo seguinte existem no formulário mas ficam escondidos, então
+// preenchê-los exige avançar. O roteiro reprovou quando a tela virou assistente,
+// e reprovou com razão: ele descrevia a tela de antes.
+await f.getByRole('button', { name: /^Continuar$/ }).click()
+await ana.waitForTimeout(500)
 await f.locator('input[name=marca]').fill('Lavieen')
 await f.locator('input[name=modelo]').fill('Duo')
+await f.getByRole('button', { name: /^Continuar$/ }).click()
+await ana.waitForTimeout(500)
 await f.locator('textarea[name=defeito]').fill('Desliga sozinho depois de dez minutos de uso.')
-await f.getByRole('button', { name: /abrir O\.S\. e gerar/i }).click()
+await f.getByRole('button', { name: /Emitir Ordem de Servi/i }).click()
 await ana.waitForTimeout(3000)
 
 const ordemId = sql('SELECT id FROM ordens ORDER BY "abertaEm" DESC LIMIT 1')
