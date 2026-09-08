@@ -1,6 +1,6 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
-import { janelaDoDia } from '@/lib/datas'
+import { diaLocal, horaLocal, janelaDoDia } from '@/lib/datas'
 import { filtroPorNumero } from '@/lib/numero-os'
 
 /**
@@ -599,6 +599,120 @@ export async function semAgendamento(ctx: ContextoAcesso) {
       },
     }),
   )
+}
+
+/**
+ * A AGENDA DE CADA MOTORISTA, dia a dia — para escolher o dia sabendo o que já
+ * está marcado.
+ *
+ * =============================================================================
+ * POR QUE ISTO NÃO É UMA CONSULTA DE "DISPONIBILIDADE"
+ * =============================================================================
+ * Seria fácil devolver "livre" e "ocupado", e seria mentira. O sistema não sabe
+ * o horário de trabalho de ninguém, não sabe quanto tempo leva cada parada, não
+ * sabe a distância entre dois endereços e não sabe que o motorista pediu folga
+ * na sexta. Um "livre" calculado sem nada disso viraria promessa de que quem
+ * marca não tem como cumprir.
+ *
+ * O que o sistema SABE com certeza é o que já está marcado: quantas paradas
+ * aquele motorista tem naquele dia, e a que horas. Isso é fato, e é o bastante
+ * para a decisão real de quem agenda — "a quinta dele está com quatro, joga na
+ * sexta". A leitura fica com a pessoa, que conhece a rua e a equipe; o sistema
+ * entrega o número honesto.
+ *
+ * Paradas SEM motorista entram numa lista à parte: elas ainda vão cair no colo
+ * de alguém, e ignorá-las faria o dia parecer mais vazio do que está.
+ */
+export type ParadaMarcada = {
+  id: string
+  /** 'AAAA-MM-DD' no fuso de Lajeado — a chave com que a tela agrupa. */
+  dia: string
+  /** 'HH:MM', ou nulo quando ninguém combinou horário. */
+  hora: string | null
+  tipo: 'RETIRADA' | 'ENTREGA'
+  numero: number
+  cliente: string
+  cidade: string | null
+}
+
+export type AgendaDeMotorista = {
+  id: string
+  nome: string
+  paradas: ParadaMarcada[]
+}
+
+export async function agendaDosMotoristas(
+  ctx: ContextoAcesso,
+  dias = 21,
+): Promise<{ dias: string[]; motoristas: AgendaDeMotorista[]; semMotorista: ParadaMarcada[] }> {
+  const { inicio } = janelaDoDia()
+  const fim = new Date(inicio.getTime() + dias * 86_400_000)
+
+  // Os dias saem DAQUI, e não do navegador. Contar dia no cliente usaria o fuso
+  // da máquina de quem abriu a tela — e às 22h de Lajeado o navegador em UTC já
+  // está em outro dia, o que faria a grade começar em "amanhã" sem avisar.
+  const chaves: string[] = []
+  for (let i = 0; i < dias; i++) chaves.push(diaLocal(new Date(inicio.getTime() + i * 86_400_000)))
+
+  const [motoristas, marcadas] = await Promise.all([
+    motoristasDaEmpresa(ctx),
+    comEscopo(ctx, (tx) =>
+      tx.agendamento.findMany({
+        where: {
+          previstoPara: { gte: inicio, lt: fim },
+          status: { notIn: ['CANCELADO'] },
+        },
+        orderBy: [{ previstoPara: 'asc' }],
+        take: 500,
+        select: {
+          id: true,
+          tipo: true,
+          previstoPara: true,
+          janelaInicio: true,
+          motoristaId: true,
+          enderecoSnapshot: true,
+          ordem: { select: { numero: true, cliente: { select: { nome: true, cidade: true } } } },
+        },
+      }),
+    ),
+  ])
+
+  const emParada = (a: (typeof marcadas)[number]): ParadaMarcada => {
+    const quando = a.janelaInicio ?? a.previstoPara
+    return {
+      id: a.id,
+      dia: diaLocal(a.previstoPara),
+      // `janelaInicio` só existe quando alguém combinou faixa de horário. Sem
+      // ela o dia continua valendo — o que não vale é inventar "09:00".
+      hora: a.janelaInicio ? horaLocal(quando) : null,
+      tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
+      numero: a.ordem.numero,
+      cliente: a.ordem.cliente.nome,
+      cidade: a.ordem.cliente.cidade,
+    }
+  }
+
+  const porMotorista = new Map<string, ParadaMarcada[]>()
+  const semMotorista: ParadaMarcada[] = []
+  for (const a of marcadas) {
+    const p = emParada(a)
+    if (!a.motoristaId) semMotorista.push(p)
+    else {
+      const lista = porMotorista.get(a.motoristaId)
+      if (lista) lista.push(p)
+      else porMotorista.set(a.motoristaId, [p])
+    }
+  }
+
+  return {
+    dias: chaves,
+    motoristas: motoristas.map((m) => ({
+      id: m.id,
+      nome: m.nome,
+      paradas: porMotorista.get(m.id) ?? [],
+    })),
+    semMotorista,
+  }
 }
 
 // ---------------------------------------------------------------------------

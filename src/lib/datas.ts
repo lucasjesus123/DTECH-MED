@@ -48,6 +48,24 @@ export function diaLocal(d: Date = new Date()): string {
   return fmt.format(d)
 }
 
+/**
+ * A hora do relógio em Lajeado, `HH:MM`.
+ *
+ * Mesma armadilha do dia, um andar abaixo: `getHours()` lê o fuso do processo,
+ * e uma parada das 08:00 apareceria como 11:00 num host em UTC. Aqui o fuso é
+ * declarado, como no resto do arquivo.
+ */
+const fmtHora = new Intl.DateTimeFormat('en-GB', {
+  timeZone: FUSO,
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+export function horaLocal(d: Date): string {
+  return fmtHora.format(d)
+}
+
 /** O dia de hoje em Lajeado. */
 export function hoje(): string {
   return diaLocal()

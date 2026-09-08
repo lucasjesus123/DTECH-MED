@@ -5,7 +5,13 @@ import { formatarBRL } from '@/lib/dinheiro'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { exigirSessao, podeVer } from '@/server/auth/guarda'
 import { prontuario } from '@/server/consultas/painel'
-import { listarPecas, motoristasDaEmpresa, tecnicosDaEmpresa } from '@/server/consultas/listas'
+import {
+  agendaDosMotoristas,
+  listarPecas,
+  motoristasDaEmpresa,
+  tecnicosDaEmpresa,
+} from '@/server/consultas/listas'
+import { enderecoDaColeta } from '@/lib/endereco'
 import { proximosPassos, ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
 import { verificarIntegridade } from '@/server/ordem/motor'
 import { env } from '@/lib/env'
@@ -128,6 +134,66 @@ export default async function Prontuario({
       sessao.papel === Papel.GESTOR) &&
     !TERMINAIS.includes(o.etapa)
   const linkPortal = `${env.APP_URL}/os/${o.tokenPublico}`
+
+  /**
+   * O PASSO QUE PEDE PARADA passa a ABRIR a marcação, em vez de recusar.
+   *
+   * Quais passos pedem parada não se escreve aqui: sai da própria máquina de
+   * estados, pelo `exige` da transição. Uma lista repetida nesta tela ficaria
+   * desencontrada no dia em que a esteira mudasse — e o sintoma seria o pior
+   * possível, um botão que abre janela para um passo que não precisa dela, ou
+   * que recusa em silêncio o que precisava.
+   *
+   * A janela só é montada quando ela vai servir: falta a parada, e o perfil
+   * agenda rota. Caso contrário a consulta da agenda dos motoristas nem roda —
+   * é trabalho de banco em toda ficha aberta, para nada.
+   */
+  const passosQuePedemParada = passos.filter((p) =>
+    p.exige?.some((e) => e === 'PARADA_DE_RETIRADA' || e === 'PARADA_DE_ENTREGA'),
+  )
+  const tipoDaParada: 'RETIRADA' | 'ENTREGA' | null = passosQuePedemParada[0]?.exige?.includes(
+    'PARADA_DE_RETIRADA',
+  )
+    ? 'RETIRADA'
+    : passosQuePedemParada.length > 0
+      ? 'ENTREGA'
+      : null
+  // Mesma lista de status que o motor usa em `PARADA_DE_RETIRADA`: uma parada
+  // cancelada não conta, e uma já concluída conta.
+  const jaTemParada =
+    tipoDaParada !== null &&
+    o.agendamentos.some((a) => a.tipo === tipoDaParada && a.status !== 'CANCELADO')
+  const podeAgendar =
+    sessao.papel === Papel.SUPER_ADMIN ||
+    sessao.papel === Papel.ADMIN_EMPRESA ||
+    sessao.papel === Papel.GESTOR ||
+    sessao.papel === Papel.ATENDENTE
+
+  const agendaDeQuemDirige =
+    tipoDaParada && !jaTemParada && podeAgendar ? await agendaDosMotoristas(ctx) : null
+
+  const paradaParaMarcar =
+    agendaDeQuemDirige && tipoDaParada
+      ? {
+          exigidaPor: passosQuePedemParada.map((p) => p.para),
+          dados: {
+            ordemId: o.id,
+            numero: o.numero,
+            tipo: tipoDaParada,
+            cliente: o.cliente.nome,
+            dias: agendaDeQuemDirige.dias,
+            motoristas: agendaDeQuemDirige.motoristas,
+            semMotorista: agendaDeQuemDirige.semMotorista,
+            endereco: enderecoDaColeta(o.cliente),
+            contatoNome: o.cliente.contatoNome ?? '',
+            contatoTelefone: o.cliente.telefone ?? '',
+            // O recado do cadastro só vale quando a coleta é em OUTRO endereço
+            // — é ele que descreve o outro lugar. No mesmo endereço, o campo
+            // costuma estar vazio ou falar de outra coisa.
+            observacoes: o.cliente.coletaMesmoEndereco ? '' : (o.cliente.coletaObservacao ?? ''),
+          },
+        }
+      : null
 
   const fotosPorCategoria = o.fotos.reduce<Record<string, typeof o.fotos>>((acc, f) => {
     ;(acc[f.categoria] ??= []).push(f)
@@ -281,7 +347,15 @@ export default async function Prontuario({
                   : 'Nenhum passo disponível para o seu perfil nesta etapa.'}
               </p>
             ) : (
-              <BotoesEtapa ordemId={o.id} passos={passos.map((p) => ({ para: p.para, titulo: p.titulo, avisaCliente: p.avisaCliente }))} />
+              <BotoesEtapa
+                ordemId={o.id}
+                passos={passos.map((p) => ({
+                  para: p.para,
+                  titulo: p.titulo,
+                  avisaCliente: p.avisaCliente,
+                }))}
+                parada={paradaParaMarcar}
+              />
             )}
 
             {podeCancelar ? <Cancelar ordemId={o.id} /> : null}

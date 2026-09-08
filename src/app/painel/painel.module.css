@@ -6056,6 +6056,133 @@ a.calNumero:hover, a.calNumero:focus-visible {
 /* A faixa que diz o que soltar ali vai FAZER. "Solte em Diagnóstico" não
    informa nada — uma coluna agrupa quatro etapas. "Solte: Em análise técnica"
    informa. Só existe durante o gesto. */
+/* =========================================================================
+   MARCAR A PARADA NA FICHA — a agenda de quem vai dirigir
+   -------------------------------------------------------------------------
+   A grade mostra o que JÁ ESTÁ MARCADO para aquele motorista em cada dia. Ela
+   não pinta "livre": o sistema não conhece a jornada de ninguém, e verde de
+   disponibilidade seria promessa que quem marca é que teria de cumprir. O
+   número é fato; a leitura é de quem agenda.
+   ========================================================================= */
+.agTiras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: 6px;
+}
+.agChip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 12px;
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-align: left;
+  color: var(--txt);
+  cursor: pointer;
+}
+.agChip:hover { border-color: var(--borda-viva); }
+.agChipAtivo {
+  background: var(--vio-veu);
+  border-color: var(--vio-claro);
+  box-shadow: 0 0 0 1px var(--vio-claro);
+  color: var(--vio-claro);
+}
+.agChipConta {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.agChipAtivo .agChipConta { color: var(--vio-claro); }
+
+/* Sete por linha: a semana é a unidade em que se pensa rota. */
+.agGradeDias {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+.agDia {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  padding: 6px 2px;
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--r, 8px);
+  cursor: pointer;
+  color: var(--txt-2);
+}
+.agDia:hover { border-color: var(--borda-viva); color: var(--txt); }
+.agDiaAtivo {
+  background: var(--vio-veu);
+  border-color: var(--vio-claro);
+  box-shadow: 0 0 0 1px var(--vio-claro);
+  color: var(--vio-claro);
+}
+.agDiaSemana {
+  font-size: 9px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.agDiaAtivo .agDiaSemana { color: var(--vio-claro); }
+.agDiaNum {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.agCarga {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt-3);
+}
+/* Quatro paradas num dia é onde a conversa muda — daí para cima o dia pede
+   atenção, e não recusa: quem decide se cabe é quem conhece a rota. */
+.agCargaCheia {
+  border-color: var(--espera);
+  color: var(--espera);
+}
+
+.agLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.agParada {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 6px 10px;
+  background: var(--sup-2);
+  border: 1px solid var(--borda);
+  border-radius: var(--r, 8px);
+  font-size: var(--t-xs);
+  color: var(--txt-2);
+}
+.agParada strong {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt);
+}
+.agParada span:nth-of-type(1) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .quadroSolte {
   margin: 0;
   padding: 7px var(--s3);
@@ -6444,6 +6571,19 @@ a.calNumero:hover, a.calNumero:focus-visible {
   text-decoration: none;
 }
 .janelaX:hover { border-color: var(--borda-viva); color: var(--txt); }
+/* As duas peças nasceram como `<a>` (a janela do calendário fecha por URL). Na
+   ficha elas são `<button>`, que traz borda, fundo e fonte próprios do
+   navegador — sem isto o pano de fundo vira um retângulo cinza por cima da
+   tela e o × sai na fonte do sistema. */
+button.janelaSaida {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+button.janelaX {
+  font-family: inherit;
+  cursor: pointer;
+}
 .janelaCorpo {
   padding: var(--s5);
   overflow-y: auto;

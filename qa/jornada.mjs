@@ -208,9 +208,46 @@ const pdfOrdem = Number(sql(`SELECT count(*) FROM outbox_jobs WHERE payload->>'o
 ok(2, 'o PDF entrou na fila junto com a etapa', pdfOrdem >= 1, `${pdfOrdem} job(s) de PDF`)
 
 // ---- TRAVA 1: "parada marcada" ---------------------------------------------
-await avancar(ana, ordemId, 'Retirada agendada')
+//
+// A FICHA MUDOU, E ESTA CONFERÊNCIA TEVE DE MUDAR JUNTO.
+//
+// Antes, clicar "Retirada agendada" na ficha batia no motor e voltava recusado
+// — e era isso que esta linha media. Agora a ficha ABRE a janela de marcação em
+// vez de recusar: mais útil para quem trabalha, e vazio como teste de trava. Se
+// eu tivesse deixado como estava, ela continuaria verde para sempre, medindo
+// "a janela abriu" e dizendo "a trava do motor funciona". Verde que não prova
+// nada é pior que vermelho.
+//
+// Então a conferência foi partida em duas. Aqui, a ficha: ela oferece resolver,
+// e a etapa não anda enquanto ninguém marcar. Logo abaixo, o QUADRO — onde o
+// botão do cartão continua chamando `avancar` direto, sem janela nenhuma — e é
+// lá que a recusa do motor continua sendo exercitada de verdade.
+await ana.goto(`${QA_BASE}/painel/ordens/${ordemId}`, { waitUntil: 'domcontentloaded' })
+await ana.waitForTimeout(900)
+await ana.getByRole('button', { name: /^Retirada agendada/ }).first().click()
+await ana.waitForTimeout(1000)
+const abriuJanela = (await ana.locator('[role="dialog"]').count()) > 0
+ok(2, 'a ficha OFERECE marcar a parada, em vez de só recusar', abriuJanela)
+
+await ana.goto(`${QA_BASE}/painel/ordens/quadro`, { waitUntil: 'domcontentloaded' })
+await ana.waitForTimeout(1500)
+const noQuadro = ana
+  .locator('li')
+  .filter({ hasText: OS })
+  .first()
+  .getByRole('button', { name: /^Retirada agendada/ })
+if (await noQuadro.count()) {
+  await noQuadro.first().click()
+  await ana.waitForTimeout(2500)
+}
 const travou1 = etapaNoBanco(ordemId) === 'ORDEM_RETIRADA_GERADA'
-ok(2, 'TRAVA · sem parada na Agenda, "agendada" é recusada', travou1)
+const disse = (await ana.locator('[role="alert"]').allInnerTexts()).map((t) => t.trim()).filter(Boolean)
+ok(
+  2,
+  'TRAVA · sem parada marcada, o motor recusa — e diz por quê',
+  travou1 && disse.length > 0,
+  disse[0]?.slice(0, 90) ?? 'sem mensagem na tela',
+)
 
 // ---------------------------------------------------------------------------
 // 03 · RETIRADA_AGENDADA — pela Agenda de rota, com dia, hora e motorista
