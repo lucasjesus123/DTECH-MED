@@ -46,9 +46,16 @@ export default async function QuadroDaOS() {
   const colunas = await montarQuadro(ctx)
   const podeDesenhar = podeVer(sessao.papel, Papel.GESTOR)
 
-  // De qual coluna é cada etapa — para dizer ao cartão para onde ele vai.
-  const colunaDaEtapa = new Map<string, string>()
-  for (const c of colunas) for (const e of c.etapas) colunaDaEtapa.set(e, c.nome)
+  /**
+   * De qual coluna é cada etapa — para dizer ao cartão para onde ele vai.
+   *
+   * Guarda o ID junto com o nome porque o arrasto casa passo com coluna, e casar
+   * por NOME quebraria no dia em que a empresa tivesse duas colunas chamadas
+   * "Aprovação": as duas acenderiam como alvo e soltar numa delas rodaria a
+   * transição da outra. O nome é o que se lê; o id é o que decide.
+   */
+  const colunaDaEtapa = new Map<string, { id: string; nome: string }>()
+  for (const c of colunas) for (const e of c.etapas) colunaDaEtapa.set(e, { id: c.id, nome: c.nome })
 
   const paraTela: Coluna[] = colunas.map((c) => ({
     id: c.id,
@@ -65,11 +72,16 @@ export default async function QuadroDaOS() {
       prioridade: k.prioridade,
       atrasada: k.atrasada,
       diasNaEtapa: k.diasNaEtapa,
-      passos: proximosPassos(k.etapa, sessao.papel).map((p) => ({
-        para: p.para,
-        titulo: p.titulo,
-        colunaDestino: colunaDaEtapa.get(p.para) ?? null,
-      })),
+      colunaId: c.id,
+      passos: proximosPassos(k.etapa, sessao.papel).map((p) => {
+        const destino = colunaDaEtapa.get(p.para)
+        return {
+          para: p.para,
+          titulo: p.titulo,
+          colunaDestino: destino?.nome ?? null,
+          colunaDestinoId: destino?.id ?? null,
+        }
+      }),
     })),
   }))
 
@@ -112,8 +124,10 @@ export default async function QuadroDaOS() {
         <Comecar podeDesenhar={podeDesenhar} />
       ) : (
         <p className={estilo.dica} style={{ marginBottom: 'var(--s3)' }}>
-          As colunas são suas — o nome e as etapas que cada uma agrupa. Mover o cartão anda a
-          esteira de verdade, com a mesma trava de perfil e o mesmo registro na trilha.
+          Arraste o cartão: acendem as colunas onde há um passo que o seu perfil pode dar, e cada
+          uma diz qual é. Passo que ainda depende de algo — agendar a parada, quitar a fatura — é
+          recusado na hora de soltar, e a tela diz o que falta. Os botões do cartão fazem o mesmo, e
+          funcionam no toque e no teclado. Mover anda a esteira de verdade, com registro na trilha.
         </p>
       )}
 

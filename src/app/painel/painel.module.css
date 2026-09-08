@@ -6030,6 +6030,81 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .quadroPasso:hover:not(:disabled) { background: var(--vio-veu-2); }
 .quadroPasso:disabled { opacity: .55; cursor: progress; }
 
+/* -------------------------------------------------------------------------
+   O ARRASTO — o quadro responde ANTES da soltura
+   -------------------------------------------------------------------------
+   Enquanto o cartão está na mão, a tela já diz onde ele cabe: as colunas de
+   destino possível ganham borda violeta, e as demais apagam. Isso é o oposto de
+   aceitar tudo e recusar depois — quando a pessoa solta, a resposta já estava
+   na tela há um segundo.
+
+   A recusa é opacidade, e não vermelho: metade do quadro fica sem saída em todo
+   arrasto, e meia dúzia de colunas vermelhas parece erro do sistema, não regra
+   do processo.
+   ------------------------------------------------------------------------- */
+.quadroAlvo {
+  border-color: var(--vio-borda);
+  box-shadow: 0 0 0 1px var(--vio-borda);
+}
+.quadroAlvoAceso {
+  border-color: var(--vio-claro);
+  box-shadow: 0 0 0 2px var(--vio-claro);
+  background: var(--vio-veu);
+}
+.quadroRecusa { opacity: .38; }
+
+/* A faixa que diz o que soltar ali vai FAZER. "Solte em Diagnóstico" não
+   informa nada — uma coluna agrupa quatro etapas. "Solte: Em análise técnica"
+   informa. Só existe durante o gesto. */
+.quadroSolte {
+  margin: 0;
+  padding: 7px var(--s3);
+  background: var(--vio-veu-2, var(--vio-veu));
+  border-bottom: 1px solid var(--vio-borda);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--vio-claro);
+  /* Uma linha só, sempre. Com dois passos a faixa ia a três linhas e empurrava
+     os cartões para baixo NO MEIO do gesto — a coluna pulava debaixo do cursor.
+     A janelinha de escolha mostra os títulos inteiros logo em seguida. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A mão aberta é o convite: sem ela ninguém descobre que o cartão sai do
+   lugar. Só aparece no cartão que TEM para onde ir. */
+.quadroPega { cursor: grab; }
+.quadroPega:active { cursor: grabbing; }
+/* O cartão continua visível no lugar de origem enquanto viaja — sumir com ele
+   deixaria a coluna pulando de altura no meio do gesto. */
+.quadroIndo { opacity: .4; border-style: dashed; }
+
+.quadroEscolha {
+  display: grid;
+  gap: 4px;
+  margin: var(--s2);
+  padding: var(--s2);
+  background: var(--vio-veu);
+  border: 1px solid var(--vio-borda);
+  border-radius: var(--r-lg);
+}
+.quadroEscolhaTitulo {
+  margin: 0 0 2px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-2);
+}
+.quadroEscolhaSair {
+  padding: 4px;
+  background: none;
+  border: 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .colunaLista {
   list-style: none;
   margin: 0;

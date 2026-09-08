@@ -155,6 +155,7 @@ node fundo-caixa.mjs    >"$LOGS/a.log" 2>&1; marcar $? "o caixa no celular, no t
 node a11y.mjs           >"$LOGS/ax.log" 2>&1; marcar $? "acessibilidade (axe-core) em 21 telas, com o papel que usa cada uma"
 node equipamento.mjs    >"$LOGS/eq.log" 2>&1; marcar $? "o catálogo e a O.S. se falam: puxar, amarrar, e não duplicar"
 node quadro.mjs         >"$LOGS/qd.log" 2>&1; marcar $? "o quadro: colunas da empresa, cartão que anda, e nada some"
+node quadro-arrasto.mjs >"$LOGS/qdar.log" 2>&1; marcar $? "o quadro: arrastar o cartão, e a recusa ser de verdade"
 node estoque.mjs        >"$LOGS/es.log" 2>&1; marcar $? "estoque: peça, insumo e ferramenta — e emprestar não baixa saldo"
 node calendario-visoes.mjs >"$LOGS/cv.log" 2>&1; marcar $? "o calendário em cinco visões, e o lugar não se perde"
 node clientes-acoes.mjs >"$LOGS/ca.log" 2>&1; marcar $? "a carteira: editar, chamar, arquivar — e arquivar não apaga"
