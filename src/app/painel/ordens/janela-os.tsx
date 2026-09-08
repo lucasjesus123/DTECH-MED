@@ -7,11 +7,14 @@ import { useActionState } from 'react'
 import { formatarBRL } from '@/lib/dinheiro'
 import { avancar } from '@/server/acoes/ordem'
 import {
+  declararSemPeca,
+  lancarPecaDaOrdem,
   marcarComoEnvioDoCliente,
   painelDaOrdem,
   salvarCombinado,
   type PainelDaOrdem,
 } from '@/server/acoes/assistente'
+import { emitir, receber } from '@/server/acoes/financeiro'
 import { FormularioDaParada } from './[id]/agendar-parada'
 import Cancelar from './[id]/cancelar'
 import estilo from '../painel.module.css'
@@ -522,6 +525,15 @@ function Agora({
         </>
       )}
 
+      {/* O PASSO 8 e o PASSO 9 aparecem DENTRO do painel do agora, e não como
+          uma tela à parte, porque eles não são um desvio do passo: eles SÃO o
+          passo. Lançar a peça é o que falta para concluir a manutenção, e
+          emitir a fatura é o que falta para o aparelho poder sair. */}
+      {d.etapa === 'EM_MANUTENCAO' ? <OQueSaiuDoEstoque painel={painel} aoMudar={aoAndar} /> : null}
+      {d.etapa === 'FATURAMENTO' || d.etapa === 'APROVACAO_GESTAO' ? (
+        <OPagamento painel={painel} aoMudar={aoAndar} />
+      ) : null}
+
       {/* O passo 1 é o único que não anda a esteira: ele guarda o que foi
           combinado antes de a ordem existir. Fica aqui embaixo, discreto, e
           disponível o tempo todo — a pergunta "quanto ficou combinado?" volta
@@ -533,6 +545,347 @@ function Agora({
             : `Combinado: ${formatarBRL(painel.valorPrevioCentavos)} — alterar`}
         </button>
       ) : null}
+    </div>
+  )
+}
+
+/* ==========================================================================
+   O PASSO 8 — o que saiu da prateleira neste serviço
+   ==========================================================================
+   A peça do orçamento já é reservada na aprovação e baixada quando a manutenção
+   começa. O que derruba a contagem do estoque é a OUTRA: o técnico abre o
+   aparelho, descobre que o fusível também foi, pega um da gaveta e fecha. Não
+   havia item de orçamento, então não houve reserva, então não houve baixa — e o
+   sistema segue dizendo que o fusível está na prateleira.
+
+   Por isso a pergunta é feita aqui, com duas saídas e nenhuma terceira: lançar
+   a peça, ou dizer que não usou. O motor recusa a conclusão enquanto nenhuma
+   das duas tiver acontecido.
+   ========================================================================== */
+function OQueSaiuDoEstoque({
+  painel,
+  aoMudar,
+}: {
+  painel: PainelDaOrdem
+  aoMudar: () => void
+}) {
+  const [estado, acao, pendente] = useActionState(lancarPecaDaOrdem, inicial)
+  const [erro, setErro] = useState<string | null>(null)
+  const [declarando, iniciar] = useTransition()
+  /**
+   * O FORMULÁRIO FECHA SOZINHO QUANDO A PEÇA ENTRA — sem efeito nenhum.
+   *
+   * Guardamos QUANTAS peças havia no instante em que ele foi aberto. Assim que
+   * o painel recarrega com uma peça a mais, a conta deixa de bater e o
+   * formulário se fecha, com os campos limpos por ter sido desmontado.
+   *
+   * Fechar dentro de um `useEffect` seria mexer em estado durante o efeito —
+   * uma segunda pintura em cascata — e o lint da casa recusa, com razão.
+   */
+  const [abertoEm, setAbertoEm] = useState<number | null>(null)
+  const abrindo = abertoEm !== null && abertoEm === painel.pecasLancadas.length
+
+  useEffect(() => {
+    if (estado.ok) aoMudar()
+  }, [estado, aoMudar])
+
+  if (!painel.podeLancarPeca) return null
+
+  const jaLancou = painel.pecasLancadas.length > 0
+  const respondido = jaLancou || painel.semPecaDeclaradoEm !== null
+
+  return (
+    <div className={estilo.osEtapaBloco}>
+      <p className={estilo.osEtapaTitulo}>
+        O que saiu do estoque
+        {respondido ? (
+          <span className={`${estilo.tag} ${estilo.tagOk}`}>respondido</span>
+        ) : (
+          <span className={`${estilo.tag} ${estilo.tagEspera}`}>falta responder</span>
+        )}
+      </p>
+
+      {jaLancou ? (
+        <ul className={estilo.osPecas}>
+          {painel.pecasLancadas.map((x) => (
+            <li key={x.id}>
+              <strong>
+                {x.quantidade}× {x.nome}
+              </strong>
+              <span className={estilo.fraco}>
+                {x.sku} · {x.quem ?? 'sem autor'} · {quando(x.quando)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : painel.semPecaDeclaradoEm ? (
+        <p className={estilo.texto}>
+          Nenhuma peça usada — declarado por{' '}
+          <strong>{painel.semPecaDeclaradoPorNome ?? 'alguém'}</strong> em{' '}
+          {quando(painel.semPecaDeclaradoEm)}.
+        </p>
+      ) : (
+        <p className={estilo.texto}>
+          Este serviço usou peça? A manutenção não fecha sem a resposta — depois
+          daqui a ordem vai para a gestão e para a rua, e a peça que não for
+          lançada não vai ser lançada nunca.
+        </p>
+      )}
+
+      {erro ? (
+        <p className={estilo.erro} role="alert">
+          {erro}
+        </p>
+      ) : null}
+      {!estado.ok && estado.motivo ? (
+        <p className={estilo.erro} role="alert">
+          {estado.motivo}
+        </p>
+      ) : null}
+
+      {abrindo ? (
+        <form action={acao} className={estilo.janelaForm}>
+          <input type="hidden" name="ordemId" value={painel.dossie.id} />
+          <div className={estilo.janelaGrade}>
+            <label className={estilo.rotulo}>
+              Peça
+              <select className={estilo.selecao} name="pecaId" required defaultValue="">
+                <option value="" disabled>
+                  Escolha…
+                </option>
+                {painel.catalogoDePecas.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.sku} · {x.nome} ({x.livre} livre)
+                  </option>
+                ))}
+              </select>
+              {painel.catalogoDePecas.length === 0 ? (
+                <span className={estilo.dica}>
+                  Nenhuma peça ativa no catálogo. Cadastre em Estoque para poder lançar.
+                </span>
+              ) : null}
+            </label>
+            <label className={estilo.rotulo}>
+              Quantidade
+              <input
+                className={estilo.campo}
+                name="quantidade"
+                type="number"
+                min="0.001"
+                step="0.001"
+                defaultValue="1"
+                required
+              />
+            </label>
+          </div>
+          <label className={estilo.rotulo}>
+            Observação (opcional)
+            <input
+              className={estilo.campo}
+              name="observacao"
+              maxLength={200}
+              placeholder="Fusível queimado junto com a fonte"
+            />
+          </label>
+          <div className={estilo.acoesForm}>
+            <button type="submit" className={estilo.btn} disabled={pendente}>
+              {pendente ? 'Lançando…' : 'Baixar do estoque'}
+            </button>
+            <button
+              type="button"
+              className={estilo.btnSec}
+              onClick={() => setAbertoEm(null)}
+              disabled={pendente}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className={estilo.acoesForm}>
+          <button type="button" className={estilo.btn} onClick={() => setAbertoEm(painel.pecasLancadas.length)}>
+            {jaLancou ? 'Lançar outra peça' : 'Lançar peça do estoque'}
+          </button>
+          {/* A declaração só é oferecida enquanto nada saiu: com peça baixada,
+              dizer "não usei" deixaria a ordem com duas respostas opostas — e o
+              servidor recusa de qualquer jeito. */}
+          {!jaLancou && !painel.semPecaDeclaradoEm ? (
+            <button
+              type="button"
+              className={estilo.btnSec}
+              disabled={declarando}
+              onClick={() => {
+                setErro(null)
+                iniciar(async () => {
+                  const r = await declararSemPeca(painel.dossie.id)
+                  if (!r.ok) setErro(r.motivo)
+                  else aoMudar()
+                })
+              }}
+            >
+              {declarando ? 'Registrando…' : 'Não usei peça nenhuma'}
+            </button>
+          ) : null}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ==========================================================================
+   O PASSO 9 — o pagamento
+   ==========================================================================
+   Era o passo que obrigava a sair da ordem: emitir a fatura e dar baixa moram
+   no Financeiro, e quem estava com o cliente ao telefone tinha de decorar o
+   número da O.S., abrir outra tela e achar a fatura na lista.
+
+   Aqui estão as duas coisas que esse passo é: marcar QUANDO vence e registrar
+   QUANDO entrou. O Financeiro continua sendo a casa do dinheiro — parcelamento,
+   estorno, multa e juros vivem lá, e o botão leva até eles.
+   ========================================================================== */
+const FORMAS: Array<[string, string]> = [
+  ['PIX', 'Pix'],
+  ['DINHEIRO', 'Dinheiro'],
+  ['CARTAO_CREDITO', 'Cartão de crédito'],
+  ['CARTAO_DEBITO', 'Cartão de débito'],
+  ['BOLETO', 'Boleto'],
+  ['TRANSFERENCIA', 'Transferência'],
+  ['CHEQUE', 'Cheque'],
+]
+
+function OPagamento({ painel, aoMudar }: { painel: PainelDaOrdem; aoMudar: () => void }) {
+  const [estado, acao, pendente] = useActionState(receber, inicial)
+  const [erro, setErro] = useState<string | null>(null)
+  const [emitindo, iniciar] = useTransition()
+  const [vencimento, setVencimento] = useState('')
+  const [forma, setForma] = useState('PIX')
+  const [valor, setValor] = useState('')
+  const f = painel.dossie.fatura
+
+  useEffect(() => {
+    if (estado.ok) aoMudar()
+  }, [estado, aoMudar])
+
+  if (!painel.podeFaturar) return null
+
+  return (
+    <div className={estilo.osEtapaBloco}>
+      <p className={estilo.osEtapaTitulo}>
+        O pagamento
+        {f ? (
+          <span
+            className={`${estilo.tag} ${f.emAbertoCentavos > 0 ? estilo.tagEspera : estilo.tagOk}`}
+          >
+            {f.emAbertoCentavos > 0 ? 'em aberto' : 'quitada'}
+          </span>
+        ) : (
+          <span className={`${estilo.tag} ${estilo.tagEspera}`}>sem fatura</span>
+        )}
+      </p>
+
+      {erro ? (
+        <p className={estilo.erro} role="alert">
+          {erro}
+        </p>
+      ) : null}
+      {!estado.ok && estado.motivo ? (
+        <p className={estilo.erro} role="alert">
+          {estado.motivo}
+        </p>
+      ) : null}
+
+      {!f ? (
+        <>
+          <p className={estilo.texto}>
+            A fatura sai do orçamento aprovado. Marque para quando ficou combinado o pagamento — é
+            essa data que faz a cobrança aparecer no Financeiro antes de vencer, e não depois.
+          </p>
+          <div className={estilo.janelaGrade}>
+            <label className={estilo.rotulo}>
+              Vence em
+              <input
+                className={estilo.campo}
+                type="date"
+                value={vencimento}
+                onChange={(e) => setVencimento(e.target.value)}
+              />
+              <span className={estilo.dica}>Em branco = sem data marcada.</span>
+            </label>
+          </div>
+          <div className={estilo.acoesForm}>
+            <button
+              type="button"
+              className={estilo.btn}
+              disabled={emitindo}
+              onClick={() => {
+                setErro(null)
+                iniciar(async () => {
+                  const r = await emitir(painel.dossie.id, vencimento || undefined)
+                  if (!r.ok) setErro(r.motivo)
+                  else aoMudar()
+                })
+              }}
+            >
+              {emitindo ? 'Emitindo…' : 'Emitir a fatura'}
+            </button>
+          </div>
+        </>
+      ) : f.emAbertoCentavos > 0 ? (
+        <form action={acao} className={estilo.janelaForm}>
+          <input type="hidden" name="faturaId" value={painel.faturaId ?? ''} />
+          <input type="hidden" name="ordemId" value={painel.dossie.id} />
+          <input
+            type="hidden"
+            name="pagamentosJson"
+            value={JSON.stringify([{ forma, valor: Number(valor.replace(',', '.')) || 0, parcelas: 1 }])}
+          />
+          <p className={estilo.texto}>
+            Faltam <strong>{formatarBRL(f.emAbertoCentavos)}</strong> de{' '}
+            {formatarBRL(f.valorTotalCentavos)}
+            {painel.faturaVence ? ` · combinado para ${diaBR(painel.faturaVence)}` : ''}. A entrega
+            só é liberada com a fatura fechada.
+          </p>
+          <div className={estilo.janelaGrade}>
+            <label className={estilo.rotulo}>
+              Quanto entrou
+              <input
+                className={estilo.campo}
+                inputMode="decimal"
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+                placeholder={(f.emAbertoCentavos / 100).toFixed(2).replace('.', ',')}
+                required
+              />
+            </label>
+            <label className={estilo.rotulo}>
+              Como
+              <select
+                className={estilo.selecao}
+                value={forma}
+                onChange={(e) => setForma(e.target.value)}
+              >
+                {FORMAS.map(([v, r]) => (
+                  <option key={v} value={v}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className={estilo.acoesForm}>
+            <button type="submit" className={estilo.btn} disabled={pendente}>
+              {pendente ? 'Registrando…' : 'Registrar recebimento'}
+            </button>
+            <Link href="/painel/financeiro" className={estilo.btnSec}>
+              Parcelar, multa e juros
+            </Link>
+          </div>
+        </form>
+      ) : (
+        <p className={estilo.texto}>
+          Fatura #{f.numero} quitada — {formatarBRL(f.valorTotalCentavos)}. A entrega está liberada.
+        </p>
+      )}
     </div>
   )
 }
@@ -563,7 +916,19 @@ function Pendencias({ painel }: { painel: PainelDaOrdem }) {
   if (d.etapa === 'ORCAMENTO_INTERNO' && (!d.orcamento || d.orcamento.totalCentavos <= 0)) {
     avisos.push('O orçamento ainda não tem itens lançados — sem eles não dá para enviar ao cliente.')
   }
-  if (d.etapa === 'FATURAMENTO' && d.fatura && d.fatura.emAbertoCentavos > 0) {
+  /**
+   * O saldo da fatura só entra aqui para quem NÃO pode recebê-lo.
+   *
+   * Para quem pode, o bloco do passo 9 logo abaixo diz a mesma coisa e ainda
+   * oferece o campo para registrar a entrada — e o mesmo aviso duas vezes na
+   * mesma tela é o tipo de repetição que faz a pessoa parar de ler os avisos.
+   */
+  if (
+    !painel.podeFaturar &&
+    d.etapa === 'FATURAMENTO' &&
+    d.fatura &&
+    d.fatura.emAbertoCentavos > 0
+  ) {
     avisos.push(
       `Faltam ${formatarBRL(d.fatura.emAbertoCentavos)} para quitar a fatura. O aparelho só sai com ela fechada.`,
     )
@@ -808,6 +1173,12 @@ function Dado({ rot, val }: { rot: string; val: string }) {
       <span className={estilo.osDadoVal}>{val}</span>
     </div>
   )
+}
+
+/** 'AAAA-MM-DD' → '14/09/2026', sem deixar o navegador escolher o fuso. */
+function diaBR(dia: string): string {
+  const [a, m, d] = dia.split('-')
+  return d && m && a ? `${d}/${m}/${a}` : dia
 }
 
 /** Data e hora no fuso da casa — o navegador de quem abre pode estar em outro. */

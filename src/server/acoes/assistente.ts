@@ -3,11 +3,12 @@
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
-import { comEscopo } from '@/lib/db'
+import { EtapaOrdem, Papel, TipoMovimentoEstoque } from '@/generated/prisma/enums'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { auditar, exigirPapel, ipDaRequisicao } from '@/server/auth/guarda'
 import { enderecoDaColeta } from '@/lib/endereco'
+import { diaLocal } from '@/lib/datas'
 import { env } from '@/lib/env'
 import { aCentavos, lerValorBR } from '@/lib/dinheiro'
 import { ROTULO_ETAPA, TERMINAIS, proximosPassos } from '@/server/ordem/maquina-estados'
@@ -18,6 +19,7 @@ import {
   type ParadaMarcada,
 } from '@/server/consultas/listas'
 import { avancarOrdem } from '@/server/ordem/motor'
+import { movimentar } from '@/server/estoque/servico'
 import { dossieDaOrdem, type Dossie } from './acompanhar'
 
 /**
@@ -84,6 +86,35 @@ export type PainelDaOrdem = {
   podeCancelar: boolean
   /** Só quem pode mexer em dinheiro vê e edita o combinado. */
   podeCombinar: boolean
+  /** O que saiu da prateleira nesta ordem, já lançado. */
+  pecasLancadas: Array<{
+    id: string
+    nome: string
+    sku: string
+    quantidade: number
+    quem: string | null
+    quando: string
+  }>
+  /** Quando alguém afirmou que este serviço não usou peça, e quem. */
+  semPecaDeclaradoEm: string | null
+  semPecaDeclaradoPorNome: string | null
+  podeLancarPeca: boolean
+  /**
+   * O catálogo para escolher a peça — só carregado quando a janela vai de fato
+   * oferecer o lançamento. Uma lista de trezentas peças em toda abertura de
+   * ordem é trabalho de banco jogado fora.
+   */
+  catalogoDePecas: Array<{ id: string; sku: string; nome: string; livre: number }>
+  /** Quem emite fatura e registra recebimento. */
+  podeFaturar: boolean
+  /**
+   * O id da fatura, que o dossiê não carrega — ele mostra o NÚMERO, que é o que
+   * o cliente cita. A baixa precisa do id, e passar o número no lugar dele daria
+   * um "fatura não encontrada" que ninguém entenderia.
+   */
+  faturaId: string | null
+  /** Quando ficou combinado o pagamento, em 'AAAA-MM-DD'. */
+  faturaVence: string | null
   /** O endereço da casa, para o aviso de envio dizer para onde mandar. */
   enderecoDaCasa: string | null
   linkPortal: string
@@ -96,6 +127,10 @@ type Resposta<T = undefined> =
 const CENTRAL: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
 /** Quem decide — e cancelar é decisão, não atendimento. */
 const GESTAO: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
+/** Quem emite fatura e dá baixa. A mesma lista da tela do Financeiro. */
+const FINANCEIRO: Papel[] = [...GESTAO, Papel.FINANCEIRO]
+/** Quem encosta em estoque. A mesma lista da tela de Estoque. */
+const PODE_LANCAR_PECA: Papel[] = [...GESTAO, Papel.TECNICO]
 
 /** O mesmo preâmbulo das outras ações: a empresa vem da sessão, nunca do form. */
 async function atorDaSessao() {
@@ -181,11 +216,27 @@ export async function painelDaOrdem(
               cep: true,
             },
           },
+          semPecaDeclaradoEm: true,
+          semPecaDeclaradoPorNome: true,
+          fatura: { select: { id: true, vencimento: true } },
           eventos: {
             orderBy: { sequencia: 'asc' },
             select: { etapaNova: true, criadoEm: true, autorNome: true },
           },
           agendamentos: { select: { tipo: true, status: true } },
+          // Só a SAÍDA: é ela que prova que a peça deixou a prateleira. A
+          // reserva é a peça separada, ainda no lugar dela.
+          movimentos: {
+            where: { tipo: 'SAIDA' },
+            orderBy: { criadoEm: 'asc' },
+            select: {
+              id: true,
+              quantidade: true,
+              autorNome: true,
+              criadoEm: true,
+              peca: { select: { nome: true, sku: true } },
+            },
+          },
         },
       }),
     ),
@@ -212,16 +263,28 @@ export async function painelDaOrdem(
         ? 'ENTREGA'
         : null
 
-  const passos: PassoOferecido[] = passosDaMaquina.map((p) => ({
-    para: p.para,
-    titulo: p.titulo,
-    avisaCliente: p.avisaCliente,
-    // A retirada pelo correio não tem parada para marcar: o motor dispensa a
-    // exigência, e oferecer a janela do calendário aqui seria pedir motorista
-    // para uma viagem que ninguém vai fazer.
-    pedeParada:
-      tipoQuePede(p.exige) === 'RETIRADA' && extra.viaCorreio ? null : tipoQuePede(p.exige),
-  }))
+  const passos: PassoOferecido[] = passosDaMaquina
+    /**
+     * O APARELHO QUE VEM PELO CORREIO NÃO TEM MOTORISTA SAINDO PARA BUSCÁ-LO.
+     *
+     * A transição `EM_ROTA_RETIRADA` continua existindo na máquina — ela é o
+     * caminho normal, e não é papel desta tela apagar caminho. O que ela não
+     * pode é OFERECER, lado a lado, "o cliente vai despachar" e "o motorista
+     * saiu para buscar": são as duas metades de uma escolha que já foi feita, e
+     * clicar na errada manda ao cliente um aviso dizendo que alguém está a
+     * caminho da porta dele.
+     */
+    .filter((p) => !(extra.viaCorreio && p.para === EtapaOrdem.EM_ROTA_RETIRADA))
+    .map((p) => ({
+      para: p.para,
+      titulo: p.titulo,
+      avisaCliente: p.avisaCliente,
+      // A retirada pelo correio não tem parada para marcar: o motor dispensa a
+      // exigência, e oferecer a janela do calendário aqui seria pedir motorista
+      // para uma viagem que ninguém vai fazer.
+      pedeParada:
+        tipoQuePede(p.exige) === 'RETIRADA' && extra.viaCorreio ? null : tipoQuePede(p.exige),
+    }))
 
   const pedindo = passos.filter((p) => p.pedeParada !== null)
   const tipoDaParada = pedindo[0]?.pedeParada ?? null
@@ -237,6 +300,33 @@ export async function painelDaOrdem(
   // fato oferecer o calendário. Fora disso ela nem roda.
   const agenda =
     tipoDaParada && !jaTemParada && podeAgendar ? await agendaDosMotoristas(ctx) : null
+
+  const podeLancarPeca = PODE_LANCAR_PECA.includes(sessao.papel)
+
+  /**
+   * O catálogo só é lido no passo em que ele serve.
+   *
+   * Fora da manutenção, oferecer "lançar peça" seria oferecer uma baixa de
+   * estoque para uma ordem que ainda nem foi orçada — e carregar a lista
+   * inteira de peças em toda abertura de janela é trabalho de banco para nada.
+   */
+  const catalogoDePecas =
+    extra.etapa === EtapaOrdem.EM_MANUTENCAO && podeLancarPeca
+      ? (
+          await comEscopo(ctx, (tx) =>
+            tx.peca.findMany({
+              where: { ativo: true },
+              orderBy: { nome: 'asc' },
+              select: { id: true, sku: true, nome: true, saldo: true, saldoReservado: true },
+            }),
+          )
+        ).map((p) => ({
+          id: p.id,
+          sku: p.sku,
+          nome: p.nome,
+          livre: Number(p.saldo) - Number(p.saldoReservado),
+        }))
+      : []
 
   const parada: ParadaParaMarcar | null =
     agenda && tipoDaParada
@@ -279,6 +369,21 @@ export async function painelDaOrdem(
       parada,
       podeCancelar: GESTAO.includes(sessao.papel) && !TERMINAIS.includes(extra.etapa),
       podeCombinar: CENTRAL.includes(sessao.papel),
+      pecasLancadas: extra.movimentos.map((m) => ({
+        id: m.id,
+        nome: m.peca.nome,
+        sku: m.peca.sku,
+        quantidade: Number(m.quantidade),
+        quem: m.autorNome,
+        quando: m.criadoEm.toISOString(),
+      })),
+      semPecaDeclaradoEm: extra.semPecaDeclaradoEm?.toISOString() ?? null,
+      semPecaDeclaradoPorNome: extra.semPecaDeclaradoPorNome,
+      podeLancarPeca,
+      catalogoDePecas,
+      podeFaturar: FINANCEIRO.includes(sessao.papel),
+      faturaId: extra.fatura?.id ?? null,
+      faturaVence: extra.fatura?.vencimento ? diaLocal(extra.fatura.vencimento) : null,
       enderecoDaCasa: enderecoDaCasa(extra.tenant),
       linkPortal: `${env.APP_URL}/os/${extra.tokenPublico}`,
     },
@@ -453,5 +558,134 @@ export async function marcarComoEnvioDoCliente(
 
   revalidatePath('/painel/ordens')
   revalidatePath('/painel')
+  return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// O passo 8: o que saiu da prateleira neste serviço
+// ---------------------------------------------------------------------------
+
+const schemaPeca = z.object({
+  ordemId: z.string().min(1),
+  pecaId: z.string().min(1, 'Escolha a peça.'),
+  quantidade: z.coerce.number().positive('A quantidade precisa ser maior que zero.'),
+  observacao: z.string().trim().max(200).optional(),
+})
+
+/**
+ * LANÇA A PEÇA USADA, AMARRADA À ORDEM.
+ *
+ * =============================================================================
+ * POR QUE ELA NÃO É A MESMA COISA QUE A RESERVA DO ORÇAMENTO
+ * =============================================================================
+ * A peça que o cliente aprovou no orçamento já é reservada na aprovação e
+ * baixada quando a manutenção começa. Isso cobre o caso planejado — e o caso
+ * planejado não é o que faz o estoque derivar.
+ *
+ * O que derruba a contagem é a peça que ninguém previu: o técnico abre o
+ * aparelho, descobre que o fusível também foi, pega um da gaveta e fecha. Não
+ * havia item de orçamento para ela, então não havia reserva, então não havia
+ * baixa — e o sistema segue dizendo que o fusível está na prateleira até
+ * alguém procurar e não achar.
+ *
+ * Este lançamento é para essa peça. Ele gera SAÍDA amarrada à ordem, com quem,
+ * quanto e quando, e aparece na ficha do equipamento e no prontuário.
+ */
+export async function lancarPecaDaOrdem(_anterior: unknown, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_LANCAR_PECA.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não lança peça do estoque.' }
+  }
+
+  const d = schemaPeca.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const ordem = await tx.ordem.findUnique({ where: { id: v.ordemId }, select: { id: true } })
+    if (!ordem) return { ok: false as const, motivo: 'Ordem não encontrada.' }
+
+    const m = await movimentar(tx, exigirEmpresa(a.ctx), a.ator, {
+      pecaId: v.pecaId,
+      tipo: TipoMovimentoEstoque.SAIDA,
+      quantidade: v.quantidade,
+      ordemId: v.ordemId,
+      motivo: v.observacao || 'Peça usada no serviço',
+    })
+    if (!m.ok) return { ok: false as const, motivo: m.motivo }
+
+    /**
+     * LANÇAR PEÇA APAGA O "NÃO USEI PEÇA NENHUMA".
+     *
+     * Sem isto a ordem ficaria com as duas respostas ao mesmo tempo: uma
+     * declaração dizendo que não saiu nada e um movimento provando que saiu.
+     * Quem lesse o prontuário depois não saberia em qual acreditar — e a
+     * declaração é justamente o registro que existe para ser acreditado.
+     */
+    await tx.ordem.update({
+      where: { id: v.ordemId },
+      data: { semPecaDeclaradoEm: null, semPecaDeclaradoPorNome: null },
+    })
+    return { ok: true as const }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.peca_lancada',
+    entidade: 'ordem',
+    entidadeId: v.ordemId,
+    detalhes: { pecaId: v.pecaId, quantidade: v.quantidade },
+  })
+
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel/estoque')
+  return { ok: true }
+}
+
+/**
+ * "NÃO USEI PEÇA NENHUMA" — a outra resposta da mesma pergunta.
+ *
+ * Ela precisa existir porque a ausência de movimento não diz nada: "não usei" e
+ * "esqueci de lançar" são o mesmo silêncio no banco. Com a declaração, passam a
+ * ser coisas diferentes — uma tem nome e hora, a outra continua sendo silêncio,
+ * e o motor recusa o fechamento enquanto for silêncio.
+ */
+export async function declararSemPeca(ordemId: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_LANCAR_PECA.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não declara o consumo de peça.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const saiu = await tx.movimentoEstoque.count({
+      where: { ordemId, tipo: TipoMovimentoEstoque.SAIDA },
+    })
+    if (saiu > 0) {
+      return {
+        ok: false as const,
+        motivo:
+          'Esta ordem já tem peça baixada do estoque. Se a baixa está errada, corrija pelo Estoque — declarar "sem peça" por cima deixaria a ordem com duas respostas opostas.',
+      }
+    }
+    const feito = await tx.ordem.updateMany({
+      where: { id: ordemId },
+      // O nome fica congelado: se a pessoa for desligada depois, o prontuário
+      // continua dizendo quem afirmou isto, e quando.
+      data: { semPecaDeclaradoEm: new Date(), semPecaDeclaradoPorNome: a.sessao.nome },
+    })
+    if (feito.count === 0) return { ok: false as const, motivo: 'Ordem não encontrada.' }
+    return { ok: true as const }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.sem_peca',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+  })
+
+  revalidatePath('/painel/ordens')
   return { ok: true }
 }

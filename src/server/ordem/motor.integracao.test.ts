@@ -357,6 +357,30 @@ describe('a jornada completa chega ao fim', () => {
     })
 
     expect((await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.EM_MANUTENCAO })).ok).toBe(true)
+
+    /**
+     * A MANUTENÇÃO NÃO FECHA SEM DIZER O QUE SAIU DA PRATELEIRA.
+     *
+     * Este orçamento é só de serviço — não há peça nele, então não houve
+     * reserva nem baixa, e o motor recusa a conclusão. É a trava funcionando:
+     * "não usei peça" e "esqueci de lançar" precisam ser coisas diferentes.
+     */
+    const semDeclarar = await avancarOrdem(A.ctx, ator(A, 'tecnico'), {
+      ordemId: A.ordemId,
+      para: E.MANUTENCAO_CONCLUIDA,
+    })
+    expect(semDeclarar.ok).toBe(false)
+    if (!semDeclarar.ok) expect(semDeclarar.motivo).toMatch(/estoque/i)
+
+    // O técnico declara que este serviço não usou peça — a mesma coisa que o
+    // botão da janela faz.
+    await comEscopo(A.ctx, (tx) =>
+      tx.ordem.update({
+        where: { id: A.ordemId },
+        data: { semPecaDeclaradoEm: new Date(), semPecaDeclaradoPorNome: 'Rafael Souza' },
+      }),
+    )
+
     expect((await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.MANUTENCAO_CONCLUIDA })).ok).toBe(true)
     expect((await avancarOrdem(A.ctx, ator(A, 'tecnico'), { ordemId: A.ordemId, para: E.APROVACAO_GESTAO })).ok).toBe(true)
     expect((await avancarOrdem(A.ctx, ator(A, 'gestor'), { ordemId: A.ordemId, para: E.FATURAMENTO })).ok).toBe(true)

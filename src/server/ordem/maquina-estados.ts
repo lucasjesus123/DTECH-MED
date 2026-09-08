@@ -44,7 +44,7 @@ export type Transicao = {
    */
   anexa?: 'ORDEM_RETIRADA' | 'COMPROVANTE_RETIRADA' | 'LAUDO_TECNICO' | 'ORCAMENTO' | 'CONTRATO_MANUTENCAO' | 'ORDEM_SERVICO' | 'COMPROVANTE_ENTREGA' | 'RECIBO_PAGAMENTO'
   /** Pré-condições verificadas pelo motor antes de aceitar a transição. */
-  exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO' | 'PARADA_DE_RETIRADA' | 'PARADA_DE_ENTREGA' | 'ORCAMENTO_MONTADO'>
+  exige?: Array<'ASSINATURA_RETIRADA' | 'MIN_6_FOTOS' | 'ORCAMENTO_APROVADO' | 'FATURA_QUITADA' | 'ASSINATURA_ENTREGA' | 'DIAGNOSTICO' | 'PARADA_DE_RETIRADA' | 'PARADA_DE_ENTREGA' | 'ORCAMENTO_MONTADO' | 'PECAS_DECLARADAS'>
 }
 
 const T = EtapaOrdem
@@ -235,6 +235,33 @@ export const TRANSICOES: Transicao[] = [
     titulo: 'Manutenção concluída, testes aprovados',
     papeis: [P.TECNICO],
     avisaCliente: true,
+    /**
+     * O SERVIÇO NÃO FECHA SEM SE SABER O QUE SAIU DA PRATELEIRA.
+     *
+     * =========================================================================
+     * POR QUE AQUI, E NÃO NA ABERTURA DA MANUTENÇÃO
+     * =========================================================================
+     * O pedido do dono foi: *"MANUTENÇÃO INICIADA (CASO PRECISE DE PEÇA PRECISA
+     * LANÇAR A PEÇA DO ESTOQUE) - OBRIGATÓRIO"*. A intenção é clara e o momento
+     * literal não funciona: ninguém sabe qual peça vai precisar ANTES de abrir
+     * o aparelho. Exigir na entrada travaria o técnico na bancada com a chave
+     * na mão, e a saída dele seria lançar qualquer coisa para destravar.
+     *
+     * Na SAÍDA a exigência é honesta: quem acabou de consertar sabe exatamente
+     * o que usou, e é o último instante em que ele ainda se lembra. Depois daqui
+     * a ordem vai para a gestão, para o financeiro e para a rua — e a peça que
+     * não foi lançada nunca mais vai ser.
+     *
+     * =========================================================================
+     * O QUE SATISFAZ A EXIGÊNCIA
+     * =========================================================================
+     * Ou existe movimento de SAÍDA amarrado a esta ordem — a peça saiu, com
+     * quem, quanto e quando —, ou alguém declarou expressamente que não usou
+     * peça nenhuma. Não há terceira resposta, e é essa a diferença que fazia o
+     * estoque derivar: sem a declaração, "não usei" e "esqueci de lançar" são o
+     * mesmo silêncio.
+     */
+    exige: ['PECAS_DECLARADAS'],
   },
 
   // ---- 12 a 13: gestão libera e o financeiro cobra ------------------------

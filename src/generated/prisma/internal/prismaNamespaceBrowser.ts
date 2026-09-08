@@ -285,6 +285,8 @@ export const OrdemScalarFieldEnum = {
   entregueEm: 'entregueEm',
   finalizadaEm: 'finalizadaEm',
   prazoPrometido: 'prazoPrometido',
+  semPecaDeclaradoEm: 'semPecaDeclaradoEm',
+  semPecaDeclaradoPorNome: 'semPecaDeclaradoPorNome',
   atualizadoEm: 'atualizadoEm'
 } as const
 

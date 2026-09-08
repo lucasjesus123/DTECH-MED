@@ -71,6 +71,8 @@ export type OrdemMinAggregateOutputType = {
   entregueEm: Date | null
   finalizadaEm: Date | null
   prazoPrometido: Date | null
+  semPecaDeclaradoEm: Date | null
+  semPecaDeclaradoPorNome: string | null
   atualizadoEm: Date | null
 }
 
@@ -109,6 +111,8 @@ export type OrdemMaxAggregateOutputType = {
   entregueEm: Date | null
   finalizadaEm: Date | null
   prazoPrometido: Date | null
+  semPecaDeclaradoEm: Date | null
+  semPecaDeclaradoPorNome: string | null
   atualizadoEm: Date | null
 }
 
@@ -147,6 +151,8 @@ export type OrdemCountAggregateOutputType = {
   entregueEm: number
   finalizadaEm: number
   prazoPrometido: number
+  semPecaDeclaradoEm: number
+  semPecaDeclaradoPorNome: number
   atualizadoEm: number
   _all: number
 }
@@ -197,6 +203,8 @@ export type OrdemMinAggregateInputType = {
   entregueEm?: true
   finalizadaEm?: true
   prazoPrometido?: true
+  semPecaDeclaradoEm?: true
+  semPecaDeclaradoPorNome?: true
   atualizadoEm?: true
 }
 
@@ -235,6 +243,8 @@ export type OrdemMaxAggregateInputType = {
   entregueEm?: true
   finalizadaEm?: true
   prazoPrometido?: true
+  semPecaDeclaradoEm?: true
+  semPecaDeclaradoPorNome?: true
   atualizadoEm?: true
 }
 
@@ -273,6 +283,8 @@ export type OrdemCountAggregateInputType = {
   entregueEm?: true
   finalizadaEm?: true
   prazoPrometido?: true
+  semPecaDeclaradoEm?: true
+  semPecaDeclaradoPorNome?: true
   atualizadoEm?: true
   _all?: true
 }
@@ -398,6 +410,8 @@ export type OrdemGroupByOutputType = {
   entregueEm: Date | null
   finalizadaEm: Date | null
   prazoPrometido: Date | null
+  semPecaDeclaradoEm: Date | null
+  semPecaDeclaradoPorNome: string | null
   atualizadoEm: Date
   _count: OrdemCountAggregateOutputType | null
   _avg: OrdemAvgAggregateOutputType | null
@@ -459,6 +473,8 @@ export type OrdemWhereInput = {
   entregueEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   finalizadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   prazoPrometido?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atualizadoEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   cliente?: Prisma.XOR<Prisma.ClienteScalarRelationFilter, Prisma.ClienteWhereInput>
@@ -516,6 +532,8 @@ export type OrdemOrderByWithRelationInput = {
   entregueEm?: Prisma.SortOrderInput | Prisma.SortOrder
   finalizadaEm?: Prisma.SortOrderInput | Prisma.SortOrder
   prazoPrometido?: Prisma.SortOrderInput | Prisma.SortOrder
+  semPecaDeclaradoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  semPecaDeclaradoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   cliente?: Prisma.ClienteOrderByWithRelationInput
@@ -577,6 +595,8 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   entregueEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   finalizadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   prazoPrometido?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atualizadoEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   cliente?: Prisma.XOR<Prisma.ClienteScalarRelationFilter, Prisma.ClienteWhereInput>
@@ -634,6 +654,8 @@ export type OrdemOrderByWithAggregationInput = {
   entregueEm?: Prisma.SortOrderInput | Prisma.SortOrder
   finalizadaEm?: Prisma.SortOrderInput | Prisma.SortOrder
   prazoPrometido?: Prisma.SortOrderInput | Prisma.SortOrder
+  semPecaDeclaradoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  semPecaDeclaradoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   _count?: Prisma.OrdemCountOrderByAggregateInput
   _avg?: Prisma.OrdemAvgOrderByAggregateInput
@@ -680,6 +702,8 @@ export type OrdemScalarWhereWithAggregatesInput = {
   entregueEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
   finalizadaEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
   prazoPrometido?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   atualizadoEm?: Prisma.DateTimeWithAggregatesFilter<"Ordem"> | Date | string
 }
 
@@ -712,6 +736,8 @@ export type OrdemCreateInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -769,6 +795,8 @@ export type OrdemUncheckedCreateInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -814,6 +842,8 @@ export type OrdemUpdateInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -871,6 +901,8 @@ export type OrdemUncheckedUpdateInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -922,6 +954,8 @@ export type OrdemCreateManyInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -954,6 +988,8 @@ export type OrdemUpdateManyMutationInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -992,6 +1028,8 @@ export type OrdemUncheckedUpdateManyInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1050,6 +1088,8 @@ export type OrdemCountOrderByAggregateInput = {
   entregueEm?: Prisma.SortOrder
   finalizadaEm?: Prisma.SortOrder
   prazoPrometido?: Prisma.SortOrder
+  semPecaDeclaradoEm?: Prisma.SortOrder
+  semPecaDeclaradoPorNome?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
 
@@ -1093,6 +1133,8 @@ export type OrdemMaxOrderByAggregateInput = {
   entregueEm?: Prisma.SortOrder
   finalizadaEm?: Prisma.SortOrder
   prazoPrometido?: Prisma.SortOrder
+  semPecaDeclaradoEm?: Prisma.SortOrder
+  semPecaDeclaradoPorNome?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
 
@@ -1131,6 +1173,8 @@ export type OrdemMinOrderByAggregateInput = {
   entregueEm?: Prisma.SortOrder
   finalizadaEm?: Prisma.SortOrder
   prazoPrometido?: Prisma.SortOrder
+  semPecaDeclaradoEm?: Prisma.SortOrder
+  semPecaDeclaradoPorNome?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
 }
 
@@ -1625,6 +1669,8 @@ export type OrdemCreateWithoutTenantInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
@@ -1680,6 +1726,8 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1760,6 +1808,8 @@ export type OrdemScalarWhereInput = {
   entregueEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   finalizadaEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
   prazoPrometido?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoEm?: Prisma.DateTimeNullableFilter<"Ordem"> | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.StringNullableFilter<"Ordem"> | string | null
   atualizadoEm?: Prisma.DateTimeFilter<"Ordem"> | Date | string
 }
 
@@ -1792,6 +1842,8 @@ export type OrdemCreateWithoutTecnicoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -1847,6 +1899,8 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -1902,6 +1956,8 @@ export type OrdemCreateWithoutAtendenteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -1957,6 +2013,8 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2044,6 +2102,8 @@ export type OrdemCreateWithoutClienteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
@@ -2099,6 +2159,8 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2170,6 +2232,8 @@ export type OrdemCreateWithoutEquipamentoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -2225,6 +2289,8 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2296,6 +2362,8 @@ export type OrdemCreateWithoutRetornosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -2352,6 +2420,8 @@ export type OrdemUncheckedCreateWithoutRetornosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
   emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2401,6 +2471,8 @@ export type OrdemCreateWithoutOrdemOrigemInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -2456,6 +2528,8 @@ export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2522,6 +2596,8 @@ export type OrdemUpdateWithoutRetornosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -2578,6 +2654,8 @@ export type OrdemUncheckedUpdateWithoutRetornosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
   emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2638,6 +2716,8 @@ export type OrdemCreateWithoutEventosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -2694,6 +2774,8 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2754,6 +2836,8 @@ export type OrdemUpdateWithoutEventosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -2810,6 +2894,8 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -2854,6 +2940,8 @@ export type OrdemCreateWithoutFotosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -2910,6 +2998,8 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -2970,6 +3060,8 @@ export type OrdemUpdateWithoutFotosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -3026,6 +3118,8 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3070,6 +3164,8 @@ export type OrdemCreateWithoutAssinaturasInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -3126,6 +3222,8 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3186,6 +3284,8 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -3242,6 +3342,8 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3286,6 +3388,8 @@ export type OrdemCreateWithoutOrcamentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -3342,6 +3446,8 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3402,6 +3508,8 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -3458,6 +3566,8 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3502,6 +3612,8 @@ export type OrdemCreateWithoutPecasRetiradasInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -3558,6 +3670,8 @@ export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3618,6 +3732,8 @@ export type OrdemUpdateWithoutPecasRetiradasInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -3674,6 +3790,8 @@ export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3718,6 +3836,8 @@ export type OrdemCreateWithoutVisitaPreventivaInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -3774,6 +3894,8 @@ export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -3834,6 +3956,8 @@ export type OrdemUpdateWithoutVisitaPreventivaInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -3890,6 +4014,8 @@ export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3934,6 +4060,8 @@ export type OrdemCreateWithoutEmprestimosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -3990,6 +4118,8 @@ export type OrdemUncheckedCreateWithoutEmprestimosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -4050,6 +4180,8 @@ export type OrdemUpdateWithoutEmprestimosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -4106,6 +4238,8 @@ export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4150,6 +4284,8 @@ export type OrdemCreateWithoutMovimentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -4206,6 +4342,8 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -4266,6 +4404,8 @@ export type OrdemUpdateWithoutMovimentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -4322,6 +4462,8 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4366,6 +4508,8 @@ export type OrdemCreateWithoutFaturaInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -4422,6 +4566,8 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -4482,6 +4628,8 @@ export type OrdemUpdateWithoutFaturaInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -4538,6 +4686,8 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4582,6 +4732,8 @@ export type OrdemCreateWithoutAgendamentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -4638,6 +4790,8 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -4698,6 +4852,8 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -4754,6 +4910,8 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -4798,6 +4956,8 @@ export type OrdemCreateWithoutDocumentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -4854,6 +5014,8 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -4914,6 +5076,8 @@ export type OrdemUpdateWithoutDocumentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -4970,6 +5134,8 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5014,6 +5180,8 @@ export type OrdemCreateWithoutMensagensInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
   cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
@@ -5070,6 +5238,8 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
   retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
@@ -5130,6 +5300,8 @@ export type OrdemUpdateWithoutMensagensInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -5186,6 +5358,8 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5235,6 +5409,8 @@ export type OrdemCreateManyTenantInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -5267,6 +5443,8 @@ export type OrdemUpdateWithoutTenantInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
@@ -5322,6 +5500,8 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5372,6 +5552,8 @@ export type OrdemUncheckedUpdateManyWithoutTenantInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -5409,6 +5591,8 @@ export type OrdemCreateManyTecnicoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -5446,6 +5630,8 @@ export type OrdemCreateManyAtendenteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -5478,6 +5664,8 @@ export type OrdemUpdateWithoutTecnicoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -5533,6 +5721,8 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5583,6 +5773,8 @@ export type OrdemUncheckedUpdateManyWithoutTecnicoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -5615,6 +5807,8 @@ export type OrdemUpdateWithoutAtendenteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -5670,6 +5864,8 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5720,6 +5916,8 @@ export type OrdemUncheckedUpdateManyWithoutAtendenteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -5757,6 +5955,8 @@ export type OrdemCreateManyClienteInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -5789,6 +5989,8 @@ export type OrdemUpdateWithoutClienteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
@@ -5844,6 +6046,8 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -5894,6 +6098,8 @@ export type OrdemUncheckedUpdateManyWithoutClienteInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -5931,6 +6137,8 @@ export type OrdemCreateManyEquipamentoInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -5963,6 +6171,8 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -6018,6 +6228,8 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -6068,6 +6280,8 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -6105,6 +6319,8 @@ export type OrdemCreateManyOrdemOrigemInput = {
   entregueEm?: Date | string | null
   finalizadaEm?: Date | string | null
   prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
   atualizadoEm?: Date | string
 }
 
@@ -6137,6 +6353,8 @@ export type OrdemUpdateWithoutOrdemOrigemInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
   cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
@@ -6192,6 +6410,8 @@ export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
   pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
@@ -6242,6 +6462,8 @@ export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
   entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -6401,6 +6623,8 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   entregueEm?: boolean
   finalizadaEm?: boolean
   prazoPrometido?: boolean
+  semPecaDeclaradoEm?: boolean
+  semPecaDeclaradoPorNome?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6459,6 +6683,8 @@ export type OrdemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   entregueEm?: boolean
   finalizadaEm?: boolean
   prazoPrometido?: boolean
+  semPecaDeclaradoEm?: boolean
+  semPecaDeclaradoPorNome?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6503,6 +6729,8 @@ export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   entregueEm?: boolean
   finalizadaEm?: boolean
   prazoPrometido?: boolean
+  semPecaDeclaradoEm?: boolean
+  semPecaDeclaradoPorNome?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6547,10 +6775,12 @@ export type OrdemSelectScalar = {
   entregueEm?: boolean
   finalizadaEm?: boolean
   prazoPrometido?: boolean
+  semPecaDeclaradoEm?: boolean
+  semPecaDeclaradoPorNome?: boolean
   atualizadoEm?: boolean
 }
 
-export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "valorPrevioCentavos" | "condicaoCombinada" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "tecnicoAceitouEm" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
+export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "valorPrevioCentavos" | "condicaoCombinada" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "tecnicoAceitouEm" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "semPecaDeclaradoEm" | "semPecaDeclaradoPorNome" | "atualizadoEm", ExtArgs["result"]["ordem"]>
 export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6730,6 +6960,17 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      * Prazo prometido ao cliente. Alimenta o alerta de atraso.
      */
     prazoPrometido: Date | null
+    /**
+     * QUANDO ALGUÉM DECLAROU QUE ESTE SERVIÇO NÃO USOU PEÇA.
+     * 
+     * A manutenção não fecha sem se saber o que saiu da prateleira. Quando saiu
+     * peça, o movimento de estoque responde sozinho — ele tem quem, quanto e
+     * quando. Quando não saiu, não há movimento nenhum, e a ausência de registro
+     * é indistinguível de "o técnico esqueceu de lançar". Esta coluna é a
+     * resposta explícita, com o nome de quem a deu congelado ao lado.
+     */
+    semPecaDeclaradoEm: Date | null
+    semPecaDeclaradoPorNome: string | null
     atualizadoEm: Date
   }, ExtArgs["result"]["ordem"]>
   composites: {}
@@ -7207,6 +7448,8 @@ export interface OrdemFieldRefs {
   readonly entregueEm: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly finalizadaEm: Prisma.FieldRef<"Ordem", 'DateTime'>
   readonly prazoPrometido: Prisma.FieldRef<"Ordem", 'DateTime'>
+  readonly semPecaDeclaradoEm: Prisma.FieldRef<"Ordem", 'DateTime'>
+  readonly semPecaDeclaradoPorNome: Prisma.FieldRef<"Ordem", 'String'>
   readonly atualizadoEm: Prisma.FieldRef<"Ordem", 'DateTime'>
 }
     

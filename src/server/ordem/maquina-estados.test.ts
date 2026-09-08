@@ -8,6 +8,27 @@ import {
   validarTransicao,
 } from './maquina-estados'
 
+describe('as travas que protegem a prova e o estoque', () => {
+  const exigencia = (de: E, para: E) =>
+    TRANSICOES.find((t) => t.de === de && t.para === para)?.exige ?? []
+
+  it('não conclui manutenção sem dizer o que saiu do estoque', () => {
+    // A peça não lançada aqui não é lançada nunca: depois deste ponto a ordem
+    // vai para a gestão, para o financeiro e para a rua.
+    expect(exigencia(E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA)).toContain('PECAS_DECLARADAS')
+  })
+
+  it('não coleta nem entrega sem assinatura', () => {
+    expect(exigencia(E.EM_ROTA_RETIRADA, E.COLETADO)).toContain('ASSINATURA_RETIRADA')
+    expect(exigencia(E.EM_ROTA_ENTREGA, E.ENTREGUE)).toContain('ASSINATURA_ENTREGA')
+  })
+
+  it('não agenda retirada nem entrega sem parada marcada', () => {
+    expect(exigencia(E.ORDEM_RETIRADA_GERADA, E.RETIRADA_AGENDADA)).toContain('PARADA_DE_RETIRADA')
+    expect(exigencia(E.FATURADO, E.EM_ROTA_ENTREGA)).toContain('PARADA_DE_ENTREGA')
+  })
+})
+
 describe('integridade da tabela de transições', () => {
   it('toda etapa tem rótulo humano', () => {
     for (const etapa of Object.values(E)) {

@@ -322,6 +322,22 @@ async function conferirPreCondicoes(
         }
         break
       }
+      case 'PECAS_DECLARADAS': {
+        // A SAÍDA é a prova de que a peça deixou a prateleira. Reserva não
+        // serve: ela é a peça separada, ainda no lugar dela.
+        const saiu = await tx.movimentoEstoque.count({ where: { ordemId, tipo: 'SAIDA' } })
+        if (saiu > 0) break
+        const o = await tx.ordem.findUnique({
+          where: { id: ordemId },
+          select: { semPecaDeclaradoEm: true },
+        })
+        if (o?.semPecaDeclaradoEm) break
+        return (
+          'Antes de concluir, diga o que saiu do estoque neste serviço: lance a peça usada, ' +
+          'ou marque que não usou peça nenhuma. Depois daqui a ordem vai para a gestão e para a ' +
+          'rua, e a peça que não for lançada não vai ser lançada nunca.'
+        )
+      }
       case 'ORCAMENTO_MONTADO': {
         const o = await tx.orcamento.findFirst({
           where: { ordemId, status: { in: ['RASCUNHO', 'EM_REVISAO', 'ENVIADO', 'APROVADO'] } },

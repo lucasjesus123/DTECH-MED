@@ -704,6 +704,16 @@ model Ordem {
   /// Prazo prometido ao cliente. Alimenta o alerta de atraso.
   prazoPrometido DateTime?
 
+  /// QUANDO ALGUÉM DECLAROU QUE ESTE SERVIÇO NÃO USOU PEÇA.
+  ///
+  /// A manutenção não fecha sem se saber o que saiu da prateleira. Quando saiu
+  /// peça, o movimento de estoque responde sozinho — ele tem quem, quanto e
+  /// quando. Quando não saiu, não há movimento nenhum, e a ausência de registro
+  /// é indistinguível de "o técnico esqueceu de lançar". Esta coluna é a
+  /// resposta explícita, com o nome de quem a deu congelado ao lado.
+  semPecaDeclaradoEm      DateTime?
+  semPecaDeclaradoPorNome String?
+
   atualizadoEm DateTime @updatedAt
 
   eventos      EventoOrdem[]

@@ -7973,3 +7973,47 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .linhaBotao:hover { text-decoration: underline; }
 .osPassoConta { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ----- Os passos que acontecem DENTRO do painel do agora ----------------- */
+/* Lançar a peça e emitir a fatura não são desvio do passo: são o passo. Por
+   isso eles moram aqui dentro, com uma borda que os separa sem os mandar para
+   outra tela. */
+.osEtapaBloco {
+  margin-top: var(--s4);
+  padding: var(--s4);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+}
+.osEtapaTitulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  margin: 0 0 var(--s3);
+  font-family: var(--f-display);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--txt-2);
+}
+.osPecas {
+  list-style: none;
+  margin: 0 0 var(--s3);
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.osPecas li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: 8px 10px;
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-2);
+  font-size: var(--t-sm);
+}
