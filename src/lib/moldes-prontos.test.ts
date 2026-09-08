@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { MOLDES_PRONTOS } from './moldes-prontos'
 import { VARIAVEIS, marcadoresDe, renderizarModelo, valoresDeExemplo } from './variaveis-documento'
-import { TIPOS_MODELAVEIS } from '@/server/consultas/modelos'
+import { TIPOS_MODELAVEIS } from './tipos-de-documento'
 
 /**
  * Um molde pronto com marcador errado é pior que nenhum: ele sai IMPRESSO no

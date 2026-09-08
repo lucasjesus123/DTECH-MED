@@ -1,4 +1,4 @@
-import type { TipoModelavel } from '@/server/consultas/modelos'
+import type { TipoModelavel } from './tipos-de-documento'
 
 /**
  * OS MOLDES PRONTOS — o texto que a empresa começa a partir de, e não do zero.

@@ -4,7 +4,7 @@ import { useActionState, useEffect, useMemo, useRef, useState } from 'react'
 import { salvarModelo } from '@/server/acoes/modelos'
 import { renderizarModelo, type Variavel } from '@/lib/variaveis-documento'
 import { MOLDES_PRONTOS } from '@/lib/moldes-prontos'
-import { ehTipoModelavel } from '@/server/consultas/modelos'
+import { ehTipoModelavel } from '@/lib/tipos-de-documento'
 import estilo from '../painel.module.css'
 
 /**

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { registrarPosicao } from '@/server/acoes/rastro'
 import estilo from '../app.module.css'
 
@@ -28,26 +28,60 @@ import estilo from '../app.module.css'
  *    servidor recusa de qualquer jeito — a trava não depende desta tela.
  *  • Não avisa erro a cada tentativa. Sinal ruim é normal na rua; encher a tela
  *    de aviso vermelho ensina a ignorar aviso vermelho.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE ELE PRECISOU LEMBRAR QUE ESTAVA LIGADO
+ * ---------------------------------------------------------------------------
+ * `watchPosition` vive enquanto a tela vive. O motorista tocava em
+ * "Compartilhar minha rota", abria a parada para ver o endereço, o celular
+ * bloqueava no bolso, o navegador descarregava a aba — e o rastro morria sem
+ * dizer nada. Do lado de cá o botão voltava a dizer "Compartilhar minha rota",
+ * e do lado da central o ponto no mapa ficava parado onde ele passou.
+ *
+ * Agora a decisão fica gravada no aparelho, por parada. Voltando à tela, o
+ * rastro se rearma sozinho — a permissão de localização já foi dada, e o
+ * navegador não exige toque de novo para quem já autorizou.
+ *
+ * A marca é por PARADA, e some ao desligar. Quando a parada é concluída, este
+ * componente deixa de ser desenhado — ele só existe para parada em rota — então
+ * uma marca esquecida no aparelho não rearma coisa nenhuma: ela fica sem tela
+ * que a leia.
  */
+const CHAVE = 'dtechmed:rastro:'
+
 export function Rastro({ agendamentoId }: { agendamentoId: string }) {
   const [ligado, setLigado] = useState(false)
   const [ultima, setUltima] = useState<Date | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const vigia = useRef<number | null>(null)
 
-  useEffect(() => {
-    return () => {
-      if (vigia.current !== null) navigator.geolocation.clearWatch(vigia.current)
+  const desligar = useCallback(() => {
+    if (vigia.current !== null) {
+      navigator.geolocation.clearWatch(vigia.current)
+      vigia.current = null
     }
-  }, [])
+    // `try` porque navegador em aba anônima com armazenamento bloqueado lança
+    // aqui — e não é motivo para o rastro parar de funcionar.
+    try {
+      localStorage.removeItem(CHAVE + agendamentoId)
+    } catch {
+      /* sem memória, o rastro simplesmente não se rearma. */
+    }
+    setLigado(false)
+  }, [agendamentoId])
 
-  function ligar() {
+  const ligar = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setAviso('Este aparelho não informa localização.')
       return
     }
     setAviso(null)
     setLigado(true)
+    try {
+      localStorage.setItem(CHAVE + agendamentoId, '1')
+    } catch {
+      /* idem: sem memória, ele vale só enquanto esta tela estiver aberta. */
+    }
 
     vigia.current = navigator.geolocation.watchPosition(
       (pos) => {
@@ -77,15 +111,23 @@ export function Rastro({ agendamentoId }: { agendamentoId: string }) {
       },
       { enableHighAccuracy: true, maximumAge: 15_000, timeout: 30_000 },
     )
-  }
+  }, [agendamentoId, desligar])
 
-  function desligar() {
-    if (vigia.current !== null) {
-      navigator.geolocation.clearWatch(vigia.current)
-      vigia.current = null
+  useEffect(() => {
+    let marcado = false
+    try {
+      marcado = localStorage.getItem(CHAVE + agendamentoId) === '1'
+    } catch {
+      /* sem memória: começa desligado, como antes. */
     }
-    setLigado(false)
-  }
+    // O `setTimeout(0)` tira o `ligar()` do corpo do efeito: ele mexe em estado,
+    // e estado mexido dentro do efeito faz uma segunda pintura em cascata.
+    const t = marcado ? setTimeout(ligar, 0) : null
+    return () => {
+      if (t) clearTimeout(t)
+      if (vigia.current !== null) navigator.geolocation.clearWatch(vigia.current)
+    }
+  }, [agendamentoId, ligar])
 
   return (
     <div className={estilo.rastro}>

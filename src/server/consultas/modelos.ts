@@ -23,25 +23,19 @@ import { EtapaOrdem } from '@/generated/prisma/enums'
  * usado, parecendo defeito.
  */
 
-export const TIPOS_MODELAVEIS = ['CONTRATO_PRESTACAO', 'NOTA_PROMISSORIA', 'ORDEM_SERVICO'] as const
-export type TipoModelavel = (typeof TIPOS_MODELAVEIS)[number]
-
-export const ROTULO_TIPO: Record<TipoModelavel, string> = {
-  CONTRATO_PRESTACAO: 'Contratos',
-  NOTA_PROMISSORIA: 'Notas promissórias',
-  ORDEM_SERVICO: 'Ordem de serviço',
-}
-
-/** O singular, para quando a tela fala de UM. */
-export const ROTULO_TIPO_UM: Record<TipoModelavel, string> = {
-  CONTRATO_PRESTACAO: 'Contrato',
-  NOTA_PROMISSORIA: 'Nota promissória',
-  ORDEM_SERVICO: 'Ordem de serviço',
-}
-
-export function ehTipoModelavel(t: string): t is TipoModelavel {
-  return (TIPOS_MODELAVEIS as readonly string[]).includes(t)
-}
+/**
+ * A LISTA DOS TIPOS mora em `@/lib/tipos-de-documento`, sem banco, porque o
+ * editor de modelo roda no navegador e precisa dela. Reexportada aqui para que
+ * quem já importava deste arquivo continue funcionando.
+ */
+export {
+  TIPOS_MODELAVEIS,
+  ROTULO_TIPO,
+  ROTULO_TIPO_UM,
+  ehTipoModelavel,
+  type TipoModelavel,
+} from '@/lib/tipos-de-documento'
+import { type TipoModelavel } from '@/lib/tipos-de-documento'
 
 /**
  * CINCO MODELOS ATIVOS POR TIPO, E O NÚMERO APARECE NA TELA.
