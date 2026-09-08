@@ -28,10 +28,12 @@ export type AggregateOrdem = {
 
 export type OrdemAvgAggregateOutputType = {
   numero: number | null
+  valorPrevioCentavos: number | null
 }
 
 export type OrdemSumAggregateOutputType = {
   numero: number | null
+  valorPrevioCentavos: number | null
 }
 
 export type OrdemMinAggregateOutputType = {
@@ -47,6 +49,8 @@ export type OrdemMinAggregateOutputType = {
   parecerTecnico: string | null
   servicoExecutado: string | null
   testesFinais: string | null
+  valorPrevioCentavos: number | null
+  condicaoCombinada: string | null
   prioridade: string | null
   origem: $Enums.OrigemLead | null
   viaCorreio: boolean | null
@@ -83,6 +87,8 @@ export type OrdemMaxAggregateOutputType = {
   parecerTecnico: string | null
   servicoExecutado: string | null
   testesFinais: string | null
+  valorPrevioCentavos: number | null
+  condicaoCombinada: string | null
   prioridade: string | null
   origem: $Enums.OrigemLead | null
   viaCorreio: boolean | null
@@ -119,6 +125,8 @@ export type OrdemCountAggregateOutputType = {
   parecerTecnico: number
   servicoExecutado: number
   testesFinais: number
+  valorPrevioCentavos: number
+  condicaoCombinada: number
   prioridade: number
   origem: number
   viaCorreio: number
@@ -146,10 +154,12 @@ export type OrdemCountAggregateOutputType = {
 
 export type OrdemAvgAggregateInputType = {
   numero?: true
+  valorPrevioCentavos?: true
 }
 
 export type OrdemSumAggregateInputType = {
   numero?: true
+  valorPrevioCentavos?: true
 }
 
 export type OrdemMinAggregateInputType = {
@@ -165,6 +175,8 @@ export type OrdemMinAggregateInputType = {
   parecerTecnico?: true
   servicoExecutado?: true
   testesFinais?: true
+  valorPrevioCentavos?: true
+  condicaoCombinada?: true
   prioridade?: true
   origem?: true
   viaCorreio?: true
@@ -201,6 +213,8 @@ export type OrdemMaxAggregateInputType = {
   parecerTecnico?: true
   servicoExecutado?: true
   testesFinais?: true
+  valorPrevioCentavos?: true
+  condicaoCombinada?: true
   prioridade?: true
   origem?: true
   viaCorreio?: true
@@ -237,6 +251,8 @@ export type OrdemCountAggregateInputType = {
   parecerTecnico?: true
   servicoExecutado?: true
   testesFinais?: true
+  valorPrevioCentavos?: true
+  condicaoCombinada?: true
   prioridade?: true
   origem?: true
   viaCorreio?: true
@@ -360,6 +376,8 @@ export type OrdemGroupByOutputType = {
   parecerTecnico: string | null
   servicoExecutado: string | null
   testesFinais: string | null
+  valorPrevioCentavos: number | null
+  condicaoCombinada: string | null
   prioridade: string
   origem: $Enums.OrigemLead
   viaCorreio: boolean
@@ -419,6 +437,8 @@ export type OrdemWhereInput = {
   parecerTecnico?: Prisma.StringNullableFilter<"Ordem"> | string | null
   servicoExecutado?: Prisma.StringNullableFilter<"Ordem"> | string | null
   testesFinais?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  valorPrevioCentavos?: Prisma.IntNullableFilter<"Ordem"> | number | null
+  condicaoCombinada?: Prisma.StringNullableFilter<"Ordem"> | string | null
   prioridade?: Prisma.StringFilter<"Ordem"> | string
   origem?: Prisma.EnumOrigemLeadFilter<"Ordem"> | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFilter<"Ordem"> | boolean
@@ -474,6 +494,8 @@ export type OrdemOrderByWithRelationInput = {
   parecerTecnico?: Prisma.SortOrderInput | Prisma.SortOrder
   servicoExecutado?: Prisma.SortOrderInput | Prisma.SortOrder
   testesFinais?: Prisma.SortOrderInput | Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrderInput | Prisma.SortOrder
+  condicaoCombinada?: Prisma.SortOrderInput | Prisma.SortOrder
   prioridade?: Prisma.SortOrder
   origem?: Prisma.SortOrder
   viaCorreio?: Prisma.SortOrder
@@ -533,6 +555,8 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   parecerTecnico?: Prisma.StringNullableFilter<"Ordem"> | string | null
   servicoExecutado?: Prisma.StringNullableFilter<"Ordem"> | string | null
   testesFinais?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  valorPrevioCentavos?: Prisma.IntNullableFilter<"Ordem"> | number | null
+  condicaoCombinada?: Prisma.StringNullableFilter<"Ordem"> | string | null
   prioridade?: Prisma.StringFilter<"Ordem"> | string
   origem?: Prisma.EnumOrigemLeadFilter<"Ordem"> | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFilter<"Ordem"> | boolean
@@ -588,6 +612,8 @@ export type OrdemOrderByWithAggregationInput = {
   parecerTecnico?: Prisma.SortOrderInput | Prisma.SortOrder
   servicoExecutado?: Prisma.SortOrderInput | Prisma.SortOrder
   testesFinais?: Prisma.SortOrderInput | Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrderInput | Prisma.SortOrder
+  condicaoCombinada?: Prisma.SortOrderInput | Prisma.SortOrder
   prioridade?: Prisma.SortOrder
   origem?: Prisma.SortOrder
   viaCorreio?: Prisma.SortOrder
@@ -632,6 +658,8 @@ export type OrdemScalarWhereWithAggregatesInput = {
   parecerTecnico?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   servicoExecutado?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   testesFinais?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
+  valorPrevioCentavos?: Prisma.IntNullableWithAggregatesFilter<"Ordem"> | number | null
+  condicaoCombinada?: Prisma.StringNullableWithAggregatesFilter<"Ordem"> | string | null
   prioridade?: Prisma.StringWithAggregatesFilter<"Ordem"> | string
   origem?: Prisma.EnumOrigemLeadWithAggregatesFilter<"Ordem"> | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolWithAggregatesFilter<"Ordem"> | boolean
@@ -665,6 +693,8 @@ export type OrdemCreateInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -717,6 +747,8 @@ export type OrdemUncheckedCreateInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -763,6 +795,8 @@ export type OrdemUpdateInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -815,6 +849,8 @@ export type OrdemUncheckedUpdateInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -864,6 +900,8 @@ export type OrdemCreateManyInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -897,6 +935,8 @@ export type OrdemUpdateManyMutationInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -930,6 +970,8 @@ export type OrdemUncheckedUpdateManyInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -986,6 +1028,8 @@ export type OrdemCountOrderByAggregateInput = {
   parecerTecnico?: Prisma.SortOrder
   servicoExecutado?: Prisma.SortOrder
   testesFinais?: Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrder
+  condicaoCombinada?: Prisma.SortOrder
   prioridade?: Prisma.SortOrder
   origem?: Prisma.SortOrder
   viaCorreio?: Prisma.SortOrder
@@ -1011,6 +1055,7 @@ export type OrdemCountOrderByAggregateInput = {
 
 export type OrdemAvgOrderByAggregateInput = {
   numero?: Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrder
 }
 
 export type OrdemMaxOrderByAggregateInput = {
@@ -1026,6 +1071,8 @@ export type OrdemMaxOrderByAggregateInput = {
   parecerTecnico?: Prisma.SortOrder
   servicoExecutado?: Prisma.SortOrder
   testesFinais?: Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrder
+  condicaoCombinada?: Prisma.SortOrder
   prioridade?: Prisma.SortOrder
   origem?: Prisma.SortOrder
   viaCorreio?: Prisma.SortOrder
@@ -1062,6 +1109,8 @@ export type OrdemMinOrderByAggregateInput = {
   parecerTecnico?: Prisma.SortOrder
   servicoExecutado?: Prisma.SortOrder
   testesFinais?: Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrder
+  condicaoCombinada?: Prisma.SortOrder
   prioridade?: Prisma.SortOrder
   origem?: Prisma.SortOrder
   viaCorreio?: Prisma.SortOrder
@@ -1087,6 +1136,7 @@ export type OrdemMinOrderByAggregateInput = {
 
 export type OrdemSumOrderByAggregateInput = {
   numero?: Prisma.SortOrder
+  valorPrevioCentavos?: Prisma.SortOrder
 }
 
 export type OrdemScalarRelationFilter = {
@@ -1556,6 +1606,8 @@ export type OrdemCreateWithoutTenantInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1606,6 +1658,8 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1684,6 +1738,8 @@ export type OrdemScalarWhereInput = {
   parecerTecnico?: Prisma.StringNullableFilter<"Ordem"> | string | null
   servicoExecutado?: Prisma.StringNullableFilter<"Ordem"> | string | null
   testesFinais?: Prisma.StringNullableFilter<"Ordem"> | string | null
+  valorPrevioCentavos?: Prisma.IntNullableFilter<"Ordem"> | number | null
+  condicaoCombinada?: Prisma.StringNullableFilter<"Ordem"> | string | null
   prioridade?: Prisma.StringFilter<"Ordem"> | string
   origem?: Prisma.EnumOrigemLeadFilter<"Ordem"> | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFilter<"Ordem"> | boolean
@@ -1717,6 +1773,8 @@ export type OrdemCreateWithoutTecnicoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1768,6 +1826,8 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1823,6 +1883,8 @@ export type OrdemCreateWithoutAtendenteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1874,6 +1936,8 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -1961,6 +2025,8 @@ export type OrdemCreateWithoutClienteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2011,6 +2077,8 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2083,6 +2151,8 @@ export type OrdemCreateWithoutEquipamentoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2133,6 +2203,8 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2205,6 +2277,8 @@ export type OrdemCreateWithoutRetornosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2256,6 +2330,8 @@ export type OrdemUncheckedCreateWithoutRetornosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2306,6 +2382,8 @@ export type OrdemCreateWithoutOrdemOrigemInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2357,6 +2435,8 @@ export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2423,6 +2503,8 @@ export type OrdemUpdateWithoutRetornosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2474,6 +2556,8 @@ export type OrdemUncheckedUpdateWithoutRetornosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2535,6 +2619,8 @@ export type OrdemCreateWithoutEventosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2586,6 +2672,8 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2647,6 +2735,8 @@ export type OrdemUpdateWithoutEventosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2698,6 +2788,8 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2743,6 +2835,8 @@ export type OrdemCreateWithoutFotosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2794,6 +2888,8 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -2855,6 +2951,8 @@ export type OrdemUpdateWithoutFotosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2906,6 +3004,8 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2951,6 +3051,8 @@ export type OrdemCreateWithoutAssinaturasInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3002,6 +3104,8 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3063,6 +3167,8 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3114,6 +3220,8 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3159,6 +3267,8 @@ export type OrdemCreateWithoutOrcamentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3210,6 +3320,8 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3271,6 +3383,8 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3322,6 +3436,8 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3367,6 +3483,8 @@ export type OrdemCreateWithoutPecasRetiradasInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3418,6 +3536,8 @@ export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3479,6 +3599,8 @@ export type OrdemUpdateWithoutPecasRetiradasInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3530,6 +3652,8 @@ export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3575,6 +3699,8 @@ export type OrdemCreateWithoutVisitaPreventivaInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3626,6 +3752,8 @@ export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3687,6 +3815,8 @@ export type OrdemUpdateWithoutVisitaPreventivaInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3738,6 +3868,8 @@ export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3783,6 +3915,8 @@ export type OrdemCreateWithoutEmprestimosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3834,6 +3968,8 @@ export type OrdemUncheckedCreateWithoutEmprestimosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -3895,6 +4031,8 @@ export type OrdemUpdateWithoutEmprestimosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3946,6 +4084,8 @@ export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3991,6 +4131,8 @@ export type OrdemCreateWithoutMovimentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4042,6 +4184,8 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4103,6 +4247,8 @@ export type OrdemUpdateWithoutMovimentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4154,6 +4300,8 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4199,6 +4347,8 @@ export type OrdemCreateWithoutFaturaInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4250,6 +4400,8 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4311,6 +4463,8 @@ export type OrdemUpdateWithoutFaturaInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4362,6 +4516,8 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4407,6 +4563,8 @@ export type OrdemCreateWithoutAgendamentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4458,6 +4616,8 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4519,6 +4679,8 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4570,6 +4732,8 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4615,6 +4779,8 @@ export type OrdemCreateWithoutDocumentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4666,6 +4832,8 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4727,6 +4895,8 @@ export type OrdemUpdateWithoutDocumentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4778,6 +4948,8 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4823,6 +4995,8 @@ export type OrdemCreateWithoutMensagensInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4874,6 +5048,8 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -4935,6 +5111,8 @@ export type OrdemUpdateWithoutMensagensInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4986,6 +5164,8 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5033,6 +5213,8 @@ export type OrdemCreateManyTenantInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5066,6 +5248,8 @@ export type OrdemUpdateWithoutTenantInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5116,6 +5300,8 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5164,6 +5350,8 @@ export type OrdemUncheckedUpdateManyWithoutTenantInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5200,6 +5388,8 @@ export type OrdemCreateManyTecnicoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5235,6 +5425,8 @@ export type OrdemCreateManyAtendenteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5267,6 +5459,8 @@ export type OrdemUpdateWithoutTecnicoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5318,6 +5512,8 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5366,6 +5562,8 @@ export type OrdemUncheckedUpdateManyWithoutTecnicoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5398,6 +5596,8 @@ export type OrdemUpdateWithoutAtendenteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5449,6 +5649,8 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5497,6 +5699,8 @@ export type OrdemUncheckedUpdateManyWithoutAtendenteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5531,6 +5735,8 @@ export type OrdemCreateManyClienteInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5564,6 +5770,8 @@ export type OrdemUpdateWithoutClienteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5614,6 +5822,8 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5662,6 +5872,8 @@ export type OrdemUncheckedUpdateManyWithoutClienteInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5697,6 +5909,8 @@ export type OrdemCreateManyEquipamentoInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5730,6 +5944,8 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5780,6 +5996,8 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5828,6 +6046,8 @@ export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5864,6 +6084,8 @@ export type OrdemCreateManyOrdemOrigemInput = {
   parecerTecnico?: string | null
   servicoExecutado?: string | null
   testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
   prioridade?: string
   origem?: $Enums.OrigemLead
   viaCorreio?: boolean
@@ -5896,6 +6118,8 @@ export type OrdemUpdateWithoutOrdemOrigemInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5947,6 +6171,8 @@ export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5995,6 +6221,8 @@ export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
   parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   prioridade?: Prisma.StringFieldUpdateOperationsInput | string
   origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
   viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6151,6 +6379,8 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   parecerTecnico?: boolean
   servicoExecutado?: boolean
   testesFinais?: boolean
+  valorPrevioCentavos?: boolean
+  condicaoCombinada?: boolean
   prioridade?: boolean
   origem?: boolean
   viaCorreio?: boolean
@@ -6207,6 +6437,8 @@ export type OrdemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   parecerTecnico?: boolean
   servicoExecutado?: boolean
   testesFinais?: boolean
+  valorPrevioCentavos?: boolean
+  condicaoCombinada?: boolean
   prioridade?: boolean
   origem?: boolean
   viaCorreio?: boolean
@@ -6249,6 +6481,8 @@ export type OrdemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   parecerTecnico?: boolean
   servicoExecutado?: boolean
   testesFinais?: boolean
+  valorPrevioCentavos?: boolean
+  condicaoCombinada?: boolean
   prioridade?: boolean
   origem?: boolean
   viaCorreio?: boolean
@@ -6291,6 +6525,8 @@ export type OrdemSelectScalar = {
   parecerTecnico?: boolean
   servicoExecutado?: boolean
   testesFinais?: boolean
+  valorPrevioCentavos?: boolean
+  condicaoCombinada?: boolean
   prioridade?: boolean
   origem?: boolean
   viaCorreio?: boolean
@@ -6314,7 +6550,7 @@ export type OrdemSelectScalar = {
   atualizadoEm?: boolean
 }
 
-export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "tecnicoAceitouEm" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
+export type OrdemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "numero" | "clienteId" | "equipamentoId" | "etapa" | "tokenPublico" | "defeitoRelatado" | "diagnostico" | "parecerTecnico" | "servicoExecutado" | "testesFinais" | "valorPrevioCentavos" | "condicaoCombinada" | "prioridade" | "origem" | "viaCorreio" | "codigoRastreio" | "atendenteId" | "tecnicoId" | "tecnicoAceitouEm" | "garantiaAte" | "emGarantia" | "ordemOrigemId" | "abertaEm" | "coletadaEm" | "recebidaEm" | "orcadaEm" | "aprovadaEm" | "concluidaEm" | "faturadaEm" | "entregueEm" | "finalizadaEm" | "prazoPrometido" | "atualizadoEm", ExtArgs["result"]["ordem"]>
 export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   cliente?: boolean | Prisma.ClienteDefaultArgs<ExtArgs>
@@ -6427,6 +6663,22 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
      * Resultado dos testes finais.
      */
     testesFinais: string | null
+    /**
+     * O VALOR COMBINADO NO TELEFONE, antes de existir orçamento técnico.
+     * 
+     * Não é o orçamento do conserto — esse nasce depois do laudo, com o aparelho
+     * na bancada, e vive em `Orcamento`. Este é o que se acerta na ligação que
+     * abre a O.S.: a taxa de retirada, a avaliação, o deslocamento.
+     * 
+     * NULO significa "não foi combinado nada", e é diferente de zero, que
+     * significa "combinamos que não se cobra". A diferença aparece na janela da
+     * O.S. e no dia em que o cliente ligar cobrando o que foi dito.
+     */
+    valorPrevioCentavos: number | null
+    /**
+     * O que está incluso no valor acima, em uma linha. Sai no aviso ao cliente.
+     */
+    condicaoCombinada: string | null
     /**
      * ALTA para equipamento parado em clínica faturando.
      */
@@ -6933,6 +7185,8 @@ export interface OrdemFieldRefs {
   readonly parecerTecnico: Prisma.FieldRef<"Ordem", 'String'>
   readonly servicoExecutado: Prisma.FieldRef<"Ordem", 'String'>
   readonly testesFinais: Prisma.FieldRef<"Ordem", 'String'>
+  readonly valorPrevioCentavos: Prisma.FieldRef<"Ordem", 'Int'>
+  readonly condicaoCombinada: Prisma.FieldRef<"Ordem", 'String'>
   readonly prioridade: Prisma.FieldRef<"Ordem", 'String'>
   readonly origem: Prisma.FieldRef<"Ordem", 'OrigemLead'>
   readonly viaCorreio: Prisma.FieldRef<"Ordem", 'Boolean'>

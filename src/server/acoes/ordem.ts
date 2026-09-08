@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { hashDocumento, novoToken } from '@/lib/cripto'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
+import { aCentavos, lerValorBR } from '@/lib/dinheiro'
 import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
@@ -67,6 +68,19 @@ const schemaNovaOrdem = z.object({
   acessorios: z.string().trim().optional(),
   defeito: z.string().trim().min(10, 'Descreva o que está acontecendo com o aparelho.'),
   prioridade: z.enum(['NORMAL', 'ALTA']).default('NORMAL'),
+  /**
+   * O QUE FOI COMBINADO NO TELEFONE — o passo 1 do dia de quem atende.
+   *
+   * Não é o orçamento do conserto: esse nasce depois do laudo, com o aparelho
+   * na bancada, e vive em `Orcamento`. Este é o valor que se acerta na própria
+   * ligação que abre a O.S. — a taxa de retirada, a avaliação, o deslocamento.
+   *
+   * Opcional de propósito. Muita O.S. abre sem nada combinado ainda, e exigir
+   * um número aqui só faria alguém digitar zero para passar da tela — o que é
+   * pior que vazio: zero diz "combinamos que é de graça".
+   */
+  valorCombinado: z.string().trim().max(20).optional(),
+  condicaoCombinada: z.string().trim().max(200).optional(),
   /** Quando a ordem nasce de um contato do site, fecha o ciclo daquele lead. */
   leadId: z.string().nullish(),
 })
@@ -88,6 +102,14 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
   const d = schemaNovaOrdem.safeParse(Object.fromEntries(form))
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
   const v = d.data
+
+  // `lerValorBR` é quem sabe que "1.200" é mil e duzentos aqui e um vírgula dois
+  // para o `Number`. Adivinhar isso na mão multiplica a conta por mil.
+  const reaisCombinados = v.valorCombinado ? lerValorBR(v.valorCombinado) : null
+  if (v.valorCombinado && (reaisCombinados === null || reaisCombinados < 0)) {
+    return { ok: false, motivo: 'O valor combinado está inválido. Escreva como 250,00.' }
+  }
+  const combinadoEmCentavos = reaisCombinados === null ? null : aCentavos(reaisCombinados)
 
   const feito = await comEscopo(a.ctx, async (tx) => {
     const cliente = await tx.cliente.upsert({
@@ -217,6 +239,11 @@ export async function abrirOrdem(_anterior: Resposta, form: FormData): Promise<R
         ordemOrigemId: cobertura.ordem?.id ?? null,
         defeitoRelatado: v.defeito,
         prioridade: v.prioridade,
+        // Vazio vira NULO, e não zero: "não foi combinado nada" e "combinamos
+        // que não se cobra" são respostas diferentes para o cliente que liga
+        // três semanas depois perguntando quanto era.
+        valorPrevioCentavos: combinadoEmCentavos,
+        condicaoCombinada: v.condicaoCombinada || null,
         // O link do portal é a credencial do cliente: 256 bits de randomBytes,
         // não o cuid do Prisma, cujo começo é derivado do relógio.
         tokenPublico: novoToken(),

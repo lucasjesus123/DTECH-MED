@@ -263,6 +263,8 @@ export const OrdemScalarFieldEnum = {
   parecerTecnico: 'parecerTecnico',
   servicoExecutado: 'servicoExecutado',
   testesFinais: 'testesFinais',
+  valorPrevioCentavos: 'valorPrevioCentavos',
+  condicaoCombinada: 'condicaoCombinada',
   prioridade: 'prioridade',
   origem: 'origem',
   viaCorreio: 'viaCorreio',

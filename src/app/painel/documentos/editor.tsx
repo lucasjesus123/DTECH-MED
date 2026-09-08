@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useMemo, useRef, useState } from 'react'
 import { salvarModelo } from '@/server/acoes/modelos'
 import { renderizarModelo, type Variavel } from '@/lib/variaveis-documento'
+import { MOLDES_PRONTOS } from '@/lib/moldes-prontos'
+import { ehTipoModelavel } from '@/server/consultas/modelos'
 import estilo from '../painel.module.css'
 
 /**
@@ -74,11 +76,24 @@ export default function EditorDeModelo({
     mensagem: '',
   })
   const [corpo, setCorpo] = useState(modelo?.corpo ?? '')
+  /**
+   * Nome e descrição passaram a ser CONTROLADOS por causa do molde pronto.
+   *
+   * Com `defaultValue`, carregar o molde encheria o texto e deixaria os dois
+   * campos em branco — a pessoa salvaria "sem nome" ou teria de digitar de novo
+   * o que o molde já sabe se chamar.
+   */
+  const [nome, setNome] = useState(modelo?.nome ?? '')
+  const [descricao, setDescricao] = useState(modelo?.descricao ?? '')
   const [preenchido, setPreenchido] = useState(true)
   const [filtro, setFiltro] = useState('')
   const area = useRef<HTMLTextAreaElement>(null)
 
   const previa = useMemo(() => renderizarModelo(corpo, exemplos), [corpo, exemplos])
+
+  // O molde pronto do tipo que está aberto. `tipo` chega como texto da rota, e
+  // um valor fora do catálogo simplesmente não tem molde — nada quebra.
+  const pronto = ehTipoModelavel(tipo) ? MOLDES_PRONTOS[tipo] : null
 
   /**
    * SALVOU, FECHA.
@@ -107,6 +122,26 @@ export default function EditorDeModelo({
       })
       .filter(([, lista]) => lista.length > 0)
   }, [grupos, filtro])
+
+  /**
+   * CARREGA O MOLDE PRONTO DA CASA.
+   *
+   * Ele não salva nada: enche os três campos e sai da frente. O que vai para o
+   * banco é o que a pessoa deixar escrito — o molde é ponto de partida, não
+   * decisão tomada.
+   *
+   * A confirmação só aparece quando há texto para perder. Perguntar "tem
+   * certeza?" numa folha em branco é a pergunta que ensina a clicar em "sim"
+   * sem ler.
+   */
+  function usarPronto() {
+    if (!pronto) return
+    if (corpo.trim() && !confirm('Isto substitui o texto que já está escrito. Continuar?')) return
+    setCorpo(pronto.corpo)
+    if (!nome.trim()) setNome(pronto.nome)
+    if (!descricao.trim()) setDescricao(pronto.descricao)
+    requestAnimationFrame(() => area.current?.focus())
+  }
 
   /** Insere no cursor, substituindo o que estiver selecionado. */
   function inserir(chave: string) {
@@ -207,7 +242,8 @@ export default function EditorDeModelo({
                 name="nome"
                 required
                 maxLength={120}
-                defaultValue={modelo?.nome}
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
                 placeholder="Ex.: Contrato hospital"
               />
             </label>
@@ -217,7 +253,8 @@ export default function EditorDeModelo({
                 className={estilo.campo}
                 name="descricao"
                 maxLength={200}
-                defaultValue={modelo?.descricao ?? ''}
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
                 placeholder="Uma linha que diferencie dos outros"
               />
             </label>
@@ -265,6 +302,15 @@ export default function EditorDeModelo({
                 de outro modelo tira dele.
               </span>
             </label>
+          ) : null}
+
+          {pronto ? (
+            <p className={estilo.avisoCaixa}>
+              <strong>{pronto.nome}</strong> — {pronto.descricao}{' '}
+              <button type="button" className={estilo.linkAcao} onClick={usarPronto}>
+                {corpo.trim() ? 'Substituir pelo modelo pronto' : 'Começar deste modelo'}
+              </button>
+            </p>
           ) : null}
 
           <label className={estilo.rotulo}>

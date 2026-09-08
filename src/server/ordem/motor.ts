@@ -78,7 +78,7 @@ export async function avancarOrdem(
     })
     if (!val.ok) return { ok: false, motivo: val.motivo }
 
-    const barreira = await conferirPreCondicoes(tx, ordem.id, val.transicao)
+    const barreira = await conferirPreCondicoes(tx, ordem, val.transicao)
     if (barreira) return { ok: false, motivo: barreira }
 
     // --- evento imutável, encadeado ---------------------------------------
@@ -275,10 +275,11 @@ export async function avancarOrdem(
  */
 async function conferirPreCondicoes(
   tx: Transacao,
-  ordemId: string,
+  ordem: { id: string; viaCorreio: boolean },
   t: Transicao,
 ): Promise<string | null> {
   if (!t.exige?.length) return null
+  const ordemId = ordem.id
 
   for (const regra of t.exige) {
     switch (regra) {
@@ -295,6 +296,22 @@ async function conferirPreCondicoes(
       case 'PARADA_DE_RETIRADA':
       case 'PARADA_DE_ENTREGA': {
         const tipo = regra === 'PARADA_DE_RETIRADA' ? 'RETIRADA' : 'ENTREGA'
+        /**
+         * O APARELHO QUE VEM PELO CORREIO NÃO TEM PARADA — e não deveria ter.
+         *
+         * A trava existe para impedir o estrago do lado de cá: "sua retirada
+         * está agendada" no WhatsApp do cliente e nenhum motorista com esse
+         * endereço na rota. Quando é o CLIENTE que despacha, não há motorista
+         * nenhum para agendar, e exigir a parada tornava impossível registrar
+         * pelo caminho honesto os 10% que chegam de transportadora — a ordem
+         * ficava presa em "ordem de retirada gerada" para sempre, ou alguém
+         * marcava uma parada de mentira só para destravar, o que é pior: entra
+         * na rota de um motorista que não vai a lugar nenhum.
+         *
+         * A dispensa vale só para a IDA. Na volta o aparelho é nosso e sai
+         * daqui: alguém dirige, e a parada de entrega continua obrigatória.
+         */
+        if (regra === 'PARADA_DE_RETIRADA' && ordem.viaCorreio) break
         const n = await tx.agendamento.count({
           where: { ordemId, tipo, status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] } },
         })

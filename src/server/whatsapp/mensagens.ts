@@ -42,6 +42,10 @@ export type DadosMensagem = {
   motivo?: string | null
   tecnico?: string | null
   qtdFotos?: number | null
+  /** O cliente é que despacha o aparelho — não há motorista nesta ordem. */
+  viaCorreio?: boolean | null
+  /** O código de rastreio do envio, quando ele foi informado. */
+  rastreio?: string | null
 }
 
 /** Monta o corpo juntando só as linhas que têm conteúdo. */
@@ -67,20 +71,48 @@ type Construtor = (d: DadosMensagem) => string
  * aparece na hora: o motor não acha o template e registra o aviso.
  */
 export const TEMPLATES: Record<string, Construtor> = {
+  /**
+   * ESTA MENSAGEM TEM DUAS VERSÕES, e escrever uma só era mentir para 10% dos
+   * clientes.
+   *
+   * A mesma etapa da esteira — `RETIRADA_AGENDADA` — cobre os dois jeitos de o
+   * aparelho chegar até a bancada: um motorista nosso vai buscar, ou o cliente
+   * despacha. O texto único dizia "sua retirada está agendada 🚚" para quem
+   * tinha acabado de combinar que ia postar o equipamento, e ficava sem hora,
+   * sem endereço e sem motorista — três linhas vazias e uma frase errada.
+   *
+   * Quem despacha precisa de outra coisa: o endereço PARA ONDE mandar e o
+   * pedido do código de rastreio. É outra mensagem, e por isso ela é escrita
+   * separada em vez de remendada com condicionais dentro da primeira.
+   */
   'retirada.agendada': (d) =>
-    montar([
-      saudacao(d),
-      '',
-      `Sua retirada está agendada ✅`,
-      '',
-      `📦 ${equipamento(d)}`,
-      d.quando && `🕒 ${d.quando}`,
-      d.endereco && `📍 ${d.endereco}`,
-      d.motorista && `🚚 Quem vai buscar: ${d.motorista}`,
-      '',
-      `Qualquer imprevisto é só responder por aqui.`,
-      `— ${d.empresa}`,
-    ]),
+    d.viaCorreio
+      ? montar([
+          saudacao(d),
+          '',
+          `Combinado: você envia ${equipamento(d)} até nós 📦`,
+          '',
+          d.endereco && `📍 Endereço para envio: ${d.endereco}`,
+          d.rastreio && `🔎 Rastreio informado: ${d.rastreio}`,
+          !d.rastreio && `Quando postar, é só nos mandar o código de rastreio por aqui.`,
+          '',
+          `Assim que o aparelho chegar, avisamos e já começamos a avaliação.`,
+          `Ordem ${d.numeroOrdem}.`,
+          `— ${d.empresa}`,
+        ])
+      : montar([
+          saudacao(d),
+          '',
+          `Sua retirada está agendada ✅`,
+          '',
+          `📦 ${equipamento(d)}`,
+          d.quando && `🕒 ${d.quando}`,
+          d.endereco && `📍 ${d.endereco}`,
+          d.motorista && `🚚 Quem vai buscar: ${d.motorista}`,
+          '',
+          `Qualquer imprevisto é só responder por aqui.`,
+          `— ${d.empresa}`,
+        ]),
 
   'retirada.em_rota': (d) =>
     montar([

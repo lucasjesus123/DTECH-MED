@@ -20,11 +20,27 @@ type Lead = {
   mensagem: string
 }
 
+/**
+ * OS QUATRO PASSOS, na ordem da ligação.
+ *
+ * O ORÇAMENTO ENTROU NA FRENTE porque é onde a conversa começa: o cliente
+ * pergunta quanto custa antes de dizer o nome dele. Registrar isso depois, ou
+ * não registrar, é como a frase "mas você me falou 250" chega três semanas
+ * depois sem nada escrito de nenhum lado.
+ *
+ * Ele é o único passo que se pode pular inteiro — e o botão de pular está lá,
+ * dito com todas as letras. Um campo de dinheiro obrigatório na primeira tela
+ * de toda O.S. faria alguém digitar zero para passar, e zero é uma afirmação:
+ * "combinamos que não se cobra".
+ */
 const PASSOS = [
-  { n: 1, nome: 'O cliente', ajuda: 'De quem é o aparelho e para onde o motorista vai.' },
-  { n: 2, nome: 'O aparelho', ajuda: 'Qual máquina vai entrar na esteira.' },
-  { n: 3, nome: 'A ordem', ajuda: 'O que está acontecendo, e com que urgência.' },
+  { n: 1, nome: 'O combinado', ajuda: 'O que já foi acertado no telefone. Dá para pular.' },
+  { n: 2, nome: 'O cliente', ajuda: 'De quem é o aparelho e para onde o motorista vai.' },
+  { n: 3, nome: 'O aparelho', ajuda: 'Qual máquina vai entrar na esteira.' },
+  { n: 4, nome: 'A ordem', ajuda: 'O que está acontecendo, e com que urgência.' },
 ] as const
+
+const ULTIMO = PASSOS.length
 
 /**
  * ABRIR A O.S. EM TRÊS PASSOS.
@@ -60,7 +76,18 @@ const PASSOS = [
  * confere os campos DAQUELE passo e faz o próprio navegador apontar o que
  * falta, com o campo à vista.
  */
-export default function Formulario({ lead }: { lead: Lead | null }) {
+export default function Formulario({
+  lead,
+  aoAbrir,
+}: {
+  lead: Lead | null
+  /**
+   * Chamado com o id da ordem recém-aberta, quando o assistente está DENTRO de
+   * uma janela. Sem ele, a página troca para a ficha — que é o certo quando o
+   * assistente é a página inteira, em `/painel/ordens/nova`.
+   */
+  aoAbrir?: (id: string) => void
+}) {
   const [estado, acao, pendente] = useActionState(abrirOrdem, inicial)
   const [passo, setPasso] = useState(1)
   const [maisLonge, setMaisLonge] = useState(1)
@@ -89,8 +116,13 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
    * fundos.
    */
   useEffect(() => {
-    if (estado.ok && estado.dados?.id) router.push(`/painel/ordens/${estado.dados.id}?despachar=1`)
-  }, [estado, router])
+    if (!estado.ok || !estado.dados?.id) return
+    // Dentro da janela, quem assume é ela: a O.S. recém-aberta vira a janela do
+    // passo a passo, já no passo 3, que é o "quem vai buscar". Trocar de página
+    // aqui jogaria fora a lista e o filtro que a pessoa tinha atrás.
+    if (aoAbrir) aoAbrir(estado.dados.id)
+    else router.push(`/painel/ordens/${estado.dados.id}?despachar=1`)
+  }, [estado, router, aoAbrir])
 
   function irPara(n: number) {
     setPasso(n)
@@ -125,7 +157,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         if (e.key !== 'Enter') return
         const alvo = e.target as HTMLElement
         if (alvo.tagName === 'TEXTAREA') return
-        if (passo < 3) {
+        if (passo < ULTIMO) {
           e.preventDefault()
           adiante()
         }
@@ -160,11 +192,54 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         })}
       </ol>
       <p className={estilo.dica} style={{ marginTop: 0 }}>
-        Passo {passo} de 3 · {PASSOS[passo - 1]!.ajuda}
+        Passo {passo} de {ULTIMO} · {PASSOS[passo - 1]!.ajuda}
       </p>
 
-      {/* ---- 1 · O CLIENTE ---------------------------------------------- */}
+      {/* ---- 1 · O COMBINADO -------------------------------------------- */}
+      {/* A caixa de fora só ESCONDE; a de dentro arruma os campos. `[hidden]`
+          vem da folha do navegador e perde de qualquer classe com `display` —
+          foi assim que, numa versão anterior, o passo 3 aparecia junto com o 1. */}
       <div ref={(el) => { caixas.current[0] = el }} hidden={passo !== 1}>
+        <div className={estilo.form}>
+          <p className={estilo.blocoTitulo}>O que já foi combinado</p>
+
+          <p className={estilo.dica} style={{ marginTop: 0 }}>
+            O valor acertado nesta ligação — retirada, avaliação, deslocamento. Não é o orçamento
+            do conserto: esse nasce depois do laudo, com o aparelho na bancada.
+          </p>
+
+          <div className={estilo.janelaGrade}>
+            <label className={estilo.rotulo}>
+              Valor combinado
+              <input
+                className={estilo.campo}
+                name="valorCombinado"
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="250,00"
+              />
+            </label>
+            <label className={estilo.rotulo}>
+              O que está incluso
+              <input
+                className={estilo.campo}
+                name="condicaoCombinada"
+                maxLength={200}
+                placeholder="Retirada e avaliação, abatidos no conserto"
+              />
+            </label>
+          </div>
+
+          <div className={estilo.acoesForm}>
+            <button type="button" className={estilo.btnSec} onClick={() => irPara(2)}>
+              Não combinei nada ainda — seguir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ---- 2 · O CLIENTE ---------------------------------------------- */}
+      <div ref={(el) => { caixas.current[1] = el }} hidden={passo !== 2}>
         <QuemEOCliente
           nomeInicial={lead?.nome ?? ''}
           telefoneInicial={lead?.telefone ?? ''}
@@ -174,8 +249,8 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         />
       </div>
 
-      {/* ---- 2 · O APARELHO --------------------------------------------- */}
-      <div ref={(el) => { caixas.current[1] = el }} hidden={passo !== 2}>
+      {/* ---- 3 · O APARELHO --------------------------------------------- */}
+      <div ref={(el) => { caixas.current[2] = el }} hidden={passo !== 3}>
         <QualEOAparelho
           marcaInicial={marca}
           modeloInicial={resto.join(' ')}
@@ -184,7 +259,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         />
       </div>
 
-      {/* ---- 3 · A ORDEM ------------------------------------------------ */}
+      {/* ---- 4 · A ORDEM ------------------------------------------------ */}
       {/**
        * O `hidden` FICA NUMA CAIXA SEM CLASSE, e isto não é preciosismo.
        *
@@ -198,7 +273,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
        * A correção é separar os papéis — a caixa de fora esconde, a de dentro
        * arruma os campos.
        */}
-      <div ref={(el) => { caixas.current[2] = el }} hidden={passo !== 3}>
+      <div ref={(el) => { caixas.current[3] = el }} hidden={passo !== 4}>
         <div className={estilo.form}>
         <p className={estilo.blocoTitulo}>O que o cliente contou</p>
 
@@ -208,7 +283,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
         {cliente ? (
           <p className={estilo.avisoCaixa} role="status">
             <strong>{cliente.nome}</strong> · da carteira.{' '}
-            <button type="button" className={estilo.linkAcao} onClick={() => irPara(1)}>
+            <button type="button" className={estilo.linkAcao} onClick={() => irPara(2)}>
               Conferir os dados
             </button>
           </p>
@@ -274,7 +349,7 @@ export default function Formulario({ lead }: { lead: Lead | null }) {
          * Com `key` diferente, são dois elementos distintos: o clicado continua
          * sendo `type="button"` até o fim do seu próprio evento.
          */}
-        {passo < 3 ? (
+        {passo < ULTIMO ? (
           <button key="continuar" type="button" className={estilo.btn} onClick={adiante}>
             Continuar
           </button>

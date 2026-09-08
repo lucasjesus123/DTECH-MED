@@ -638,6 +638,19 @@ model Ordem {
   /// Resultado dos testes finais.
   testesFinais     String?
 
+  /// O VALOR COMBINADO NO TELEFONE, antes de existir orçamento técnico.
+  ///
+  /// Não é o orçamento do conserto — esse nasce depois do laudo, com o aparelho
+  /// na bancada, e vive em `Orcamento`. Este é o que se acerta na ligação que
+  /// abre a O.S.: a taxa de retirada, a avaliação, o deslocamento.
+  ///
+  /// NULO significa "não foi combinado nada", e é diferente de zero, que
+  /// significa "combinamos que não se cobra". A diferença aparece na janela da
+  /// O.S. e no dia em que o cliente ligar cobrando o que foi dito.
+  valorPrevioCentavos Int?
+  /// O que está incluso no valor acima, em uma linha. Sai no aviso ao cliente.
+  condicaoCombinada   String?
+
   /// ALTA para equipamento parado em clínica faturando.
   prioridade     String     @default("NORMAL")
   origem         OrigemLead @default(SITE)

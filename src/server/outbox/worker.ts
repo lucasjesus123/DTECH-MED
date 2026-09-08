@@ -126,6 +126,26 @@ const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
  * Note que a montagem do texto acontece na função pura de `mensagens.ts`, que
  * é coberta por teste. Aqui só se busca o dado e se entrega ao provedor.
  */
+/**
+ * O endereço da casa numa linha, para o cliente que vai postar o aparelho.
+ *
+ * Junta só o que está preenchido: uma empresa que ainda não completou o cadastro
+ * manda o que tem em vez de mandar "null, null — /".
+ */
+function enderecoDaCasa(t: {
+  logradouro: string | null
+  numero: string | null
+  bairro: string | null
+  cidade: string | null
+  uf: string | null
+  cep: string | null
+}): string | null {
+  const rua = [t.logradouro, t.numero].filter(Boolean).join(', ')
+  const praca = [t.cidade, t.uf].filter(Boolean).join('/')
+  const linha = [rua, t.bairro, praca, t.cep && `CEP ${t.cep}`].filter(Boolean).join(' — ')
+  return linha || null
+}
+
 async function enviarAvisoDaEtapa(job: Job) {
   const { ordemId, template, linkDocumento, documentoId, anexarDocumento } = job.payload as {
     ordemId: string
@@ -158,7 +178,19 @@ async function enviarAvisoDaEtapa(job: Job) {
         cliente: true,
         equipamento: true,
         tecnico: { select: { nome: true } },
-        tenant: { select: { nome: true } },
+        // O endereço da CASA entra porque o aviso de envio precisa dizer para
+        // onde mandar o aparelho. Nas outras mensagens ele não é usado.
+        tenant: {
+          select: {
+            nome: true,
+            logradouro: true,
+            numero: true,
+            bairro: true,
+            cidade: true,
+            uf: true,
+            cep: true,
+          },
+        },
         fatura: { select: { valorTotalCentavos: true } },
         orcamentos: {
           where: { status: { in: ['ENVIADO', 'APROVADO'] } },
@@ -195,7 +227,15 @@ async function enviarAvisoDaEtapa(job: Job) {
           })
         : null,
       motorista: ag?.motorista?.nome ?? null,
-      endereco: ag?.enderecoSnapshot ?? null,
+      /**
+       * DE QUAL ENDEREÇO A MENSAGEM FALA — e são dois lugares diferentes.
+       *
+       * Na retirada nossa, é o endereço PARA ONDE o motorista vai: o do
+       * cliente, congelado na parada. Quando é o cliente que despacha, é o
+       * endereço PARA ONDE ele manda: o nosso. Mandar o endereço do próprio
+       * cliente para ele postar o aparelho seria mandá-lo enviar para si mesmo.
+       */
+      endereco: o.viaCorreio ? enderecoDaCasa(o.tenant) : (ag?.enderecoSnapshot ?? null),
       valor: orc ? formatarBRL(orc.totalCentavos) : null,
       prazo: orc ? `${orc.prazoExecucaoDias} dias úteis` : null,
       garantiaDias: orc?.garantiaDias ?? null,
@@ -204,6 +244,10 @@ async function enviarAvisoDaEtapa(job: Job) {
       tecnico: o.tecnico?.nome ?? null,
       qtdFotos: fotos || null,
       motivo: null,
+      // Quem despacha o aparelho recebe outro texto na etapa do agendamento:
+      // sem motorista e sem hora, com o endereço para onde mandar.
+      viaCorreio: o.viaCorreio,
+      rastreio: o.codigoRastreio,
     }
 
     /**

@@ -7702,3 +7702,274 @@ i.riscoBaixo { background: var(--txt-3); }
   .rastroNegado { box-shadow: inset 3px 0 0 #000; background: #fff; }
   .rastroSelo { color: #000; }
 }
+
+/* =========================================================================
+   A JANELA DA O.S. — o passo a passo numa tela só
+   =========================================================================
+   Ela é mais larga que as outras janelas do painel (680px) porque carrega uma
+   régua de onze posições. Numa janela estreita as bolinhas ficariam com 40px
+   cada e o nome do passo sumiria — e o nome é o que faz a régua ser lida em
+   vez de contada.
+   ========================================================================= */
+.osJan { width: min(860px, 100%); }
+.osJanCab { min-width: 0; display: grid; gap: 4px; }
+.osJanEquip { font-weight: 500; color: var(--txt-2); }
+.osJanSub {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+.osJanEtapa {
+  font-weight: 600;
+  color: var(--vio-claro);
+}
+
+/* ----- A régua dos onze passos ------------------------------------------ */
+.osReguaCaixa {
+  margin-bottom: var(--s5);
+  padding: var(--s4);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+}
+.osReguaTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+.osReguaAgora {
+  font-family: var(--f-display);
+  font-weight: 700;
+  color: var(--txt);
+}
+.osReguaConta {
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--txt-3);
+}
+.osReguaPista {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--borda);
+  overflow: hidden;
+}
+.osReguaFio,
+.osReguaFioParado {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 240ms var(--ease);
+}
+.osReguaFio { background: var(--vio); }
+/* A ordem que saiu do caminho não continua roxa: a cor diz que a régua parou. */
+.osReguaFioParado { background: var(--alerta); }
+
+.osReguaNos {
+  list-style: none;
+  margin: var(--s3) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 4px;
+}
+@media (max-width: 720px) {
+  /* No celular onze colunas dariam 28px cada. Seis por linha continua legível
+     e mantém a leitura da esquerda para a direita. */
+  .osReguaNos { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+.osNo {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: var(--s2) 2px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+.osNo:hover { border-color: var(--borda-viva); }
+.osNoNum {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.osNoNome {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--txt-3);
+  overflow-wrap: anywhere;
+}
+.osNoFeito .osNoNum { background: var(--vio); color: var(--sobre-vio); }
+.osNoFeito .osNoNome { color: var(--txt-2); }
+.osNoAgora .osNoNum {
+  background: var(--sup);
+  color: var(--vio-claro);
+  border: 2px solid var(--vio);
+  box-shadow: 0 0 0 4px var(--vio-veu);
+}
+.osNoAgora .osNoNome { color: var(--txt); font-weight: 700; }
+.osNoAdiante .osNoNum {
+  background: var(--sup);
+  border: 1px solid var(--borda-viva);
+  color: var(--txt-3);
+}
+.osNoEspiado { border-color: var(--vio); background: var(--vio-veu); }
+
+/* ----- O painel do "agora" ---------------------------------------------- */
+.osPainel {
+  padding: var(--s4);
+  border: 1px solid var(--vio-borda);
+  border-radius: var(--r-lg);
+  background: var(--vio-veu);
+}
+.osPainelTitulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin: 0 0 var(--s2);
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  color: var(--txt);
+}
+.osPainelQuem {
+  font-family: var(--f-texto);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osVoltar {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--vio-claro);
+  cursor: pointer;
+}
+.osVoltar:hover { text-decoration: underline; }
+
+/* O que falta, dito ANTES de o botão recusar. Âmbar, e não vermelho: não é
+   erro, é a lista do que ainda precisa acontecer. */
+.osFaltas {
+  list-style: none;
+  margin: var(--s3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.osFaltas li {
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--espera-borda);
+  border-radius: var(--r);
+  background: var(--espera-veu);
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+
+/* ----- A escolha do passo 3 --------------------------------------------- */
+/* Dois cartões grandes, lado a lado. A decisão muda o resto da ordem — quem
+   vai buscar, que mensagem sai, se existe motorista — e por isso ela não pode
+   parecer mais um botão na fila de "avançar etapa". */
+.osEscolha {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s3);
+}
+@media (max-width: 640px) { .osEscolha { grid-template-columns: 1fr; } }
+.osEscolhaCartao {
+  display: grid;
+  gap: 6px;
+  padding: var(--s4);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.osEscolhaCartao:hover { border-color: var(--vio); box-shadow: var(--sombra-2); }
+.osEscolhaCartao strong {
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  color: var(--txt);
+}
+.osEscolhaCartao span { font-size: var(--t-sm); line-height: 1.5; color: var(--txt-2); }
+
+.osLinkBaixo {
+  margin-top: var(--s4);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.osLinkBaixo:hover { color: var(--vio-claro); }
+
+/* ----- O resumo, sempre à vista ----------------------------------------- */
+.osResumo {
+  margin-top: var(--s5);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3) var(--s5);
+}
+@media (max-width: 640px) { .osResumo { grid-template-columns: 1fr; } }
+.osDado { display: grid; gap: 2px; min-width: 0; }
+.osDadoRot {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osDadoVal { font-size: var(--t-sm); color: var(--txt); overflow-wrap: anywhere; }
+
+.osJanRodape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--borda);
+}
+
+/* A linha da lista de O.S. abre a janela: o cursor e o realce dizem isso antes
+   do clique. Sem eles, uma tabela que reage ao clique parece defeito. */
+.linhaAbre { cursor: pointer; }
+.linhaAbre:hover { background: var(--vio-veu); }
+.linhaBotao {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--vio-claro);
+  font-weight: 600;
+  cursor: pointer;
+}
+.linhaBotao:hover { text-decoration: underline; }
+.osPassoConta { font-weight: 700; font-variant-numeric: tabular-nums; }

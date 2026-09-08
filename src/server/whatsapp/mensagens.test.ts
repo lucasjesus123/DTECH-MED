@@ -55,6 +55,41 @@ describe('todo template sobrevive ao mínimo de dados', () => {
   }
 })
 
+describe('quando é o cliente que envia o aparelho', () => {
+  const envio: DadosMensagem = {
+    ...completo,
+    viaCorreio: true,
+    motorista: null,
+    quando: null,
+    endereco: 'Av. Benjamin Constant, 1180 — Lajeado/RS',
+  }
+
+  it('não promete motorista nenhum', () => {
+    const m = montarMensagem('retirada.agendada', envio)!
+    expect(m).not.toMatch(/retirada está agendada/i)
+    expect(m).not.toMatch(/quem vai buscar/i)
+    expect(m).toMatch(/você envia/i)
+  })
+
+  it('diz para onde mandar e pede o rastreio quando ele falta', () => {
+    const m = montarMensagem('retirada.agendada', envio)!
+    expect(m).toContain('Av. Benjamin Constant, 1180 — Lajeado/RS')
+    expect(m).toMatch(/código de rastreio/i)
+  })
+
+  it('com rastreio informado, mostra o código em vez de pedi-lo', () => {
+    const m = montarMensagem('retirada.agendada', { ...envio, rastreio: 'BR123456789BR' })!
+    expect(m).toContain('BR123456789BR')
+    expect(m).not.toMatch(/é só nos mandar o código/i)
+  })
+
+  it('a retirada nossa continua exatamente como era', () => {
+    const m = montarMensagem('retirada.agendada', completo)!
+    expect(m).toMatch(/retirada está agendada/i)
+    expect(m).toContain('Adriano Martins')
+  })
+})
+
 describe('saudação', () => {
   it('chama a pessoa pelo nome quando ele existe', () => {
     expect(montarMensagem('ordem.coletada', completo)).toMatch(/^Oi, Mariana!/)
