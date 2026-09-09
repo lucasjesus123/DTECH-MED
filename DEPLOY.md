@@ -944,6 +944,68 @@ bash infra/subir.sh
 
 Isso resolve tudo que for código. **A migração NÃO volta por aqui** — o Prisma não desfaz migração aplicada, e `prisma migrate reset` apaga o banco inteiro (está na lista do que não fazer, mais abaixo). Se o problema for a própria forma do banco, o caminho é restaurar o dump do passo 3, e aí me chame antes: restaurar por cima de um banco em uso perde tudo o que entrou desde o dump.
 
+### Ligar o aviso no celular do motorista
+
+O aviso que chega ao celular quando a central marca uma parada. Instalações
+novas já nascem com ele ligado — o `infra/gerar-env.sh` gera o par de chaves
+junto com os outros segredos. Este bloco é para uma instalação que subiu antes
+disso e tem o `.env` sem as linhas `VAPID_`.
+
+Sem as chaves nada quebra: o aplicativo do motorista mostra *"o aviso ainda não
+está ligado no servidor"* e a agenda continua funcionando pela tela.
+
+```bash
+cd /opt/gavetas/DTECHMED
+
+if grep -q '^VAPID_PUBLIC_KEY=..' .env; then
+  echo "JÁ EXISTE UM PAR NO .env — pare aqui, não troque."
+else
+  DER=$(mktemp) && chmod 600 "$DER"
+  openssl ecparam -name prime256v1 -genkey -noout -outform DER -out "$DER"
+  {
+    echo ""
+    echo "# ---------- Aviso no celular ----------"
+    echo "VAPID_PUBLIC_KEY=$(tail -c +57 "$DER" | head -c 65 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
+    echo "VAPID_PRIVATE_KEY=$(tail -c +8  "$DER" | head -c 32 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
+    echo "VAPID_SUBJECT=mailto:contato@dtechmed.com.br"
+  } >> .env
+  rm -f "$DER"
+  echo "par gerado"
+fi
+
+grep '^VAPID_' .env
+```
+
+Guarde a cópia nova do `.env` no gerenciador de senhas **antes** de seguir.
+
+O `env_file` só é lido quando o contêiner nasce, então recriar é obrigatório —
+um `restart` não enxerga a linha nova:
+
+```bash
+docker compose -p dtechmed up -d --force-recreate app worker
+
+# as duas têm que imprimir a MESMA chave pública
+docker compose -p dtechmed exec app    printenv VAPID_PUBLIC_KEY
+docker compose -p dtechmed exec worker printenv VAPID_PUBLIC_KEY
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5400/api/health
+```
+
+`bash infra/subir.sh` também recria e serve igual.
+
+**Confira de ponta a ponta:** abra `/app` no celular do motorista, toque em
+**Ligar o aviso** e aceite a permissão. Depois, na central, marque uma parada
+para ele. O celular tem que apitar, e tocar no aviso tem que abrir a parada.
+
+> **A chave não pode mudar depois.** A pública fica gravada dentro da inscrição
+> de cada aparelho. Trocar o par não desliga o aviso — deixa cada celular já
+> inscrito com uma chave que o servidor push do fabricante não reconhece mais,
+> e o envio passa a falhar em silêncio. Se um dia precisar mesmo trocar, todo
+> mundo tem que desligar e ligar o aviso de novo no aplicativo.
+
+> **No iPhone o aviso só funciona com o aplicativo instalado na tela de início**
+> (Compartilhar → Adicionar à Tela de Início). É regra do próprio iOS, não do
+> sistema: o Safari não entrega push para uma aba comum.
+
 ### Quando os avisos param de sair
 
 ```bash

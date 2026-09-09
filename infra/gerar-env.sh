@@ -54,6 +54,34 @@ ENCRYPTION_KEY="$(openssl rand -base64 32)"
 DOCUMENT_HASH_SALT="$(openssl rand -hex 24)"
 UAZAPI_WEBHOOK_SECRET="$(openssl rand -hex 24)"
 
+# O par VAPID do aviso no celular do motorista. É uma chave P-256: a pública
+# viaja até o navegador e fica gravada DENTRO da inscrição de cada aparelho; a
+# privada assina cada envio. Por isso ela entra aqui junto com as outras, e não
+# num passo manual depois: um sistema que sobe com o aviso desligado é um
+# sistema em que ninguém liga o aviso.
+#
+# E por isso também ela não pode ser trocada depois. Trocar o par não desliga o
+# aviso — deixa cada aparelho já inscrito com uma chave que o servidor push do
+# fabricante não reconhece mais, e o envio passa a falhar calado.
+#
+# Os deslocamentos abaixo não são chute. Para a prime256v1 a chave privada em
+# DER (SEC1) tem 121 bytes de estrutura fixa: o escalar privado ocupa os bytes
+# 8..39 e o ponto público não comprimido os bytes 57..121, começando pelo
+# marcador 0x04. O `if` confere as duas coisas antes de cortar. Se um dia o
+# openssl devolver outro formato, o par sai vazio — e o sistema sobe com o
+# aviso desligado, que é ruim, em vez de subir com uma chave cortada do lugar
+# errado, que seria um envio falhando sem ninguém entender por quê.
+VAPID_DER="$(mktemp)"
+trap 'rm -f "$VAPID_DER"' EXIT
+openssl ecparam -name prime256v1 -genkey -noout -outform DER -out "$VAPID_DER" 2>/dev/null
+VAPID_PUBLIC_KEY=""
+VAPID_PRIVATE_KEY=""
+if [[ "$(wc -c < "$VAPID_DER")" -eq 121 \
+   && "$(tail -c +57 "$VAPID_DER" | head -c 1 | od -An -tx1 | tr -d ' ')" == "04" ]]; then
+  VAPID_PRIVATE_KEY="$(tail -c +8  "$VAPID_DER" | head -c 32 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
+  VAPID_PUBLIC_KEY="$(tail  -c +57 "$VAPID_DER" | head -c 65 | openssl base64 -A | tr '+/' '-_' | tr -d '=')"
+fi
+
 cat > .env <<EOF
 # =============================================================================
 # DTECH MED — produção
@@ -89,6 +117,14 @@ DOCUMENT_HASH_SALT=${DOCUMENT_HASH_SALT}
 UAZAPI_BASE_URL=https://free.uazapi.com
 UAZAPI_ADMIN_TOKEN=
 UAZAPI_WEBHOOK_SECRET=${UAZAPI_WEBHOOK_SECRET}
+
+# ---------- Aviso no celular ----------
+# O aviso que chega ao motorista quando a central marca uma parada para ele.
+# Gerado acima. Não troque este par depois que alguém já tiver ligado o aviso
+# no celular: as inscrições existentes param de funcionar em silêncio.
+VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+VAPID_SUBJECT=mailto:contato@dtechmed.com.br
 
 # ---------- Armazenamento ----------
 STORAGE_DRIVER=local
@@ -140,5 +176,6 @@ echo "     SEED_SUPERADMIN_PASSWORD (uma senha forte, só sua)"
 echo
 echo "  Guarde uma cópia do arquivo num gerenciador de senhas ANTES de seguir."
 echo "  A ENCRYPTION_KEY e o DOCUMENT_HASH_SALT não podem ser trocados depois"
-echo "  que o sistema entrar em uso."
+echo "  que o sistema entrar em uso. As chaves VAPID também não, depois que o"
+echo "  primeiro motorista ligar o aviso no celular."
 echo
