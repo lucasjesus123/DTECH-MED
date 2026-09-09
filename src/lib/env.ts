@@ -38,6 +38,26 @@ const schema = z.object({
   UAZAPI_ADMIN_TOKEN: z.string().optional(),
   UAZAPI_WEBHOOK_SECRET: z.string().optional(),
 
+  /**
+   * OS AVISOS NO CELULAR DE QUEM ESTÁ NA RUA — e por que as três são opcionais.
+   *
+   * Sem elas o sistema sobe igual e o aplicativo diz, com todas as letras, que
+   * o aviso não está ligado nesta empresa. Torná-las obrigatórias faria toda
+   * instalação existente parar de subir no dia da atualização — inclusive as
+   * que nunca vão querer notificação.
+   *
+   * As duas chaves são um PAR: uma sem a outra não assina nada, e é por isso
+   * que o `refine` abaixo recusa meio par. Gerar:
+   *
+   *     npx web-push generate-vapid-keys
+   *
+   * `VAPID_SUBJECT` é o contato que o servidor push do fabricante usa para
+   * falar com você quando algo dá errado do lado dele. `mailto:` ou uma URL.
+   */
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default('mailto:contato@dtechmed.com.br'),
+
   STORAGE_DRIVER: z.enum(['local', 's3']).default('local'),
   STORAGE_LOCAL_PATH: z.string().default('./storage'),
 
@@ -76,6 +96,24 @@ const schema = z.object({
   LEAD_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().default(10 * 60_000),
   LEAD_RATE_LIMIT_MAX: z.coerce.number().int().default(5),
 })
+  /**
+   * MEIO PAR DE CHAVE VAPID É PIOR QUE NENHUM.
+   *
+   * Com só a pública, o aplicativo pede permissão ao motorista, ele aceita, o
+   * aparelho se inscreve — e nenhum aviso sai nunca, porque não há chave para
+   * assinar. Ele desiste do recurso achando que não funciona, e ninguém
+   * descobre por quê: não há erro em lugar nenhum, só silêncio.
+   *
+   * Com só a privada, o aplicativo nem oferece o botão.
+   *
+   * A recusa aqui é na subida do servidor, com a frase dizendo o que falta.
+   */
+  .refine((v) => Boolean(v.VAPID_PUBLIC_KEY) === Boolean(v.VAPID_PRIVATE_KEY), {
+    message:
+      'VAPID_PUBLIC_KEY e VAPID_PRIVATE_KEY são um par: ou as duas, ou nenhuma. ' +
+      'Gere com: npx web-push generate-vapid-keys',
+    path: ['VAPID_PUBLIC_KEY'],
+  })
 
 /**
  * Os valores de mentira que o Dockerfile usa para a construção passar.

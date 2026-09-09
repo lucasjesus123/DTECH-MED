@@ -6,6 +6,7 @@ import { enviarDocumento, enviarTexto, tokenDaEmpresaNaTx } from '@/server/whats
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { enfileirar } from '@/server/ordem/motor'
 import { formatarBRL } from '@/lib/dinheiro'
+import { aparelhosDe, enviarAviso, ligado } from '@/server/push/avisos'
 
 /**
  * O worker da fila de automação.
@@ -117,6 +118,7 @@ async function falhar(job: Job, erro: unknown) {
 
 const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
   'whatsapp.enviar': enviarAvisoDaEtapa,
+  'push.enviar': enviarAvisoNoCelular,
   'pdf.gerar': gerarDocumento,
 }
 
@@ -144,6 +146,111 @@ function enderecoDaCasa(t: {
   const praca = [t.cidade, t.uf].filter(Boolean).join('/')
   const linha = [rua, t.bairro, praca, t.cep && `CEP ${t.cep}`].filter(Boolean).join(' — ')
   return linha || null
+}
+
+/**
+ * O AVISO NO CELULAR DE QUEM VAI DIRIGIR.
+ *
+ * =============================================================================
+ * POR QUE ELE PASSA PELA FILA, E NÃO SAI DIRETO DO `agendar`
+ * =============================================================================
+ * Enviar é rede: três servidores push diferentes (Google, Apple, Mozilla), cada
+ * um com o seu tempo e as suas quedas. Fazer isso dentro do clique de quem
+ * marca a parada significa a central esperando a Apple responder para a tela
+ * dela voltar — e, quando a Apple estiver fora do ar, a parada não ser marcada.
+ *
+ * Na fila, a parada é gravada na hora e o aviso sai logo atrás. Se falhar, o
+ * worker tenta de novo sozinho.
+ *
+ * =============================================================================
+ * SEM CHAVE VAPID ISTO É UM NÃO-FAZER-NADA, DE PROPÓSITO
+ * =============================================================================
+ * A empresa que não configurou o par de chaves não tem aviso no celular, e o
+ * job precisa CONCLUIR em vez de falhar: um job que falha volta seis vezes e
+ * depois fica marcado como erro para sempre, enchendo a tela de quem cuida da
+ * fila de vermelho por um recurso que ninguém pediu.
+ */
+async function enviarAvisoNoCelular(job: Job) {
+  const { agendamentoId } = (job.payload ?? {}) as { agendamentoId?: string }
+  if (!agendamentoId) throw new Error('Aviso de celular sem agendamento.')
+  if (!job.tenantId) throw new Error('Aviso de celular sem empresa definida.')
+  if (!ligado()) return
+
+  const ctx = { tenantId: job.tenantId, userId: null, ehSuperAdmin: false }
+
+  const dados = await comEscopo(ctx, async (tx) => {
+    const a = await tx.agendamento.findUnique({
+      where: { id: agendamentoId },
+      select: {
+        tipo: true,
+        status: true,
+        previstoPara: true,
+        enderecoSnapshot: true,
+        motoristaId: true,
+        ordem: { select: { numero: true, cliente: { select: { nome: true } } } },
+      },
+    })
+    if (!a || !a.motoristaId) return null
+    // A parada cancelada entre o agendamento e o envio não avisa ninguém: o
+    // motorista sairia para um endereço que já não é dele.
+    if (a.status === 'CANCELADO') return null
+    return { a, aparelhos: await aparelhosDe(tx, a.motoristaId) }
+  })
+  if (!dados || dados.aparelhos.length === 0) return
+
+  const { a, aparelhos } = dados
+  const quando = a.previstoPara.toLocaleString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  const r = await enviarAviso(aparelhos, {
+    titulo: a.tipo === 'RETIRADA' ? 'Retirada marcada para você' : 'Entrega marcada para você',
+    // Cliente, hora e endereço: é o que decide se ele aceita agora ou liga para
+    // a central. O número da O.S. entra porque é o que ele cita ao telefone.
+    corpo: `${a.ordem.cliente.nome} · ${quando}\n${a.enderecoSnapshot} · O.S. #${String(a.ordem.numero).padStart(4, '0')}`,
+    destino: '/app/motorista',
+    // Uma etiqueta por parada: remarcar a mesma corrida substitui o aviso
+    // anterior no aparelho em vez de empilhar mais um.
+    etiqueta: `parada-${agendamentoId}`,
+  })
+
+  /**
+   * O QUE O FABRICANTE RECUSOU DE VEZ É APAGADO AQUI.
+   *
+   * 404 e 410 querem dizer "este aparelho não existe mais" — aplicativo
+   * desinstalado, inscrição revogada. Guardar a linha faria toda corrida futura
+   * gastar uma tentativa num endereço que nunca mais vai responder.
+   */
+  if (r.mortos.length > 0) {
+    await comEscopo(ctx, (tx) =>
+      tx.pushInscricao.deleteMany({ where: { endpoint: { in: r.mortos } } }),
+    )
+  }
+  if (r.enviados > 0) {
+    await comEscopo(ctx, (tx) =>
+      tx.pushInscricao.updateMany({
+        where: { endpoint: { notIn: [...r.mortos, ...r.falharam] }, usuarioId: a.motoristaId! },
+        data: { ultimoEnvioEm: new Date(), falhas: 0 },
+      }),
+    )
+  }
+  if (r.falharam.length > 0) {
+    await comEscopo(ctx, (tx) =>
+      tx.pushInscricao.updateMany({
+        where: { endpoint: { in: r.falharam } },
+        data: { falhas: { increment: 1 } },
+      }),
+    )
+  }
+
+  console.log(
+    `[fila] push da parada ${agendamentoId}: ${r.enviados} enviado(s), ` +
+      `${r.mortos.length} aparelho(s) apagado(s), ${r.falharam.length} falha(s).`,
+  )
 }
 
 async function enviarAvisoDaEtapa(job: Job) {

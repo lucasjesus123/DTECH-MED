@@ -422,6 +422,7 @@ export const ModelName = {
   MensagemWhatsapp: 'MensagemWhatsapp',
   TemplateMensagem: 'TemplateMensagem',
   WhatsappInstance: 'WhatsappInstance',
+  PushInscricao: 'PushInscricao',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
@@ -450,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "pushInscricao" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2304,6 +2305,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PushInscricao: {
+      payload: Prisma.$PushInscricaoPayload<ExtArgs>
+      fields: Prisma.PushInscricaoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PushInscricaoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PushInscricaoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        findFirst: {
+          args: Prisma.PushInscricaoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PushInscricaoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        findMany: {
+          args: Prisma.PushInscricaoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>[]
+        }
+        create: {
+          args: Prisma.PushInscricaoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        createMany: {
+          args: Prisma.PushInscricaoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PushInscricaoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>[]
+        }
+        delete: {
+          args: Prisma.PushInscricaoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        update: {
+          args: Prisma.PushInscricaoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        deleteMany: {
+          args: Prisma.PushInscricaoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PushInscricaoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PushInscricaoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>[]
+        }
+        upsert: {
+          args: Prisma.PushInscricaoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushInscricaoPayload>
+        }
+        aggregate: {
+          args: Prisma.PushInscricaoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePushInscricao>
+        }
+        groupBy: {
+          args: Prisma.PushInscricaoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushInscricaoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PushInscricaoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushInscricaoCountAggregateOutputType> | number
+        }
+      }
+    }
     Lead: {
       payload: Prisma.$LeadPayload<ExtArgs>
       fields: Prisma.LeadFieldRefs
@@ -3890,6 +3965,22 @@ export const WhatsappInstanceScalarFieldEnum = {
 export type WhatsappInstanceScalarFieldEnum = (typeof WhatsappInstanceScalarFieldEnum)[keyof typeof WhatsappInstanceScalarFieldEnum]
 
 
+export const PushInscricaoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  usuarioId: 'usuarioId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  aparelho: 'aparelho',
+  criadoEm: 'criadoEm',
+  ultimoEnvioEm: 'ultimoEnvioEm',
+  falhas: 'falhas'
+} as const
+
+export type PushInscricaoScalarFieldEnum = (typeof PushInscricaoScalarFieldEnum)[keyof typeof PushInscricaoScalarFieldEnum]
+
+
 export const LeadScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -4737,6 +4828,7 @@ export type GlobalOmitConfig = {
   mensagemWhatsapp?: Prisma.MensagemWhatsappOmit
   templateMensagem?: Prisma.TemplateMensagemOmit
   whatsappInstance?: Prisma.WhatsappInstanceOmit
+  pushInscricao?: Prisma.PushInscricaoOmit
   lead?: Prisma.LeadOmit
   auditLog?: Prisma.AuditLogOmit
   lancamento?: Prisma.LancamentoOmit

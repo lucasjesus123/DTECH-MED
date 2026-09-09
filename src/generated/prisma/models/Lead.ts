@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Lead
- * Contato que chegou pelo site antes de virar cliente.
+ * 
  */
 export type LeadModel = runtime.Types.Result.DefaultSelection<Prisma.$LeadPayload>
 

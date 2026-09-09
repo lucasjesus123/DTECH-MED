@@ -643,3 +643,35 @@ details[open] > .feitasResumo::after { transform: rotate(-135deg); }
 }
 .chegadaEnd { font-size: var(--t-sm); line-height: 1.55; font-weight: 600; }
 .chegadaRef { margin-top: 5px; font-size: var(--t-xs); color: var(--txt-2); line-height: 1.5; }
+
+/* ---- O relógio silencioso da rota --------------------------------------- */
+.atualizando {
+  text-align: center;
+  font-size: var(--t-xs); color: var(--txt-3); line-height: 1.5;
+}
+
+/* ---- Ligar o aviso no celular ------------------------------------------- */
+.avisos {
+  padding: var(--s4);
+  border: 1px dashed var(--borda-viva); border-radius: var(--r-lg);
+  background: var(--bg-1);
+}
+.avisosTitulo {
+  display: flex; align-items: center; gap: var(--s2);
+  font-size: var(--t-sm); font-weight: 600; margin-bottom: 4px;
+}
+/* O ponto verde é o "está ligado" que se lê sem ler. */
+.avisosPonto {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--sinal); flex: none;
+}
+.avisosLigar, .avisosDesligar {
+  width: 100%; min-height: 48px; margin-top: var(--s3);
+  border-radius: var(--r); font-family: var(--f-texto);
+  font-size: var(--t-sm); font-weight: 600; cursor: pointer;
+}
+.avisosLigar { border: 0; background: var(--vio-forte); color: #fff; }
+.avisosDesligar {
+  border: 1px solid var(--borda-viva); background: var(--sup); color: var(--txt-2);
+}
+.avisosLigar:disabled, .avisosDesligar:disabled { opacity: .6; cursor: not-allowed; }

@@ -76,6 +76,7 @@ export const ModelName = {
   MensagemWhatsapp: 'MensagemWhatsapp',
   TemplateMensagem: 'TemplateMensagem',
   WhatsappInstance: 'WhatsappInstance',
+  PushInscricao: 'PushInscricao',
   Lead: 'Lead',
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
@@ -690,6 +691,22 @@ export const WhatsappInstanceScalarFieldEnum = {
 } as const
 
 export type WhatsappInstanceScalarFieldEnum = (typeof WhatsappInstanceScalarFieldEnum)[keyof typeof WhatsappInstanceScalarFieldEnum]
+
+
+export const PushInscricaoScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  usuarioId: 'usuarioId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  aparelho: 'aparelho',
+  criadoEm: 'criadoEm',
+  ultimoEnvioEm: 'ultimoEnvioEm',
+  falhas: 'falhas'
+} as const
+
+export type PushInscricaoScalarFieldEnum = (typeof PushInscricaoScalarFieldEnum)[keyof typeof PushInscricaoScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {

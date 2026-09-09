@@ -181,8 +181,22 @@ export type TemplateMensagem = Prisma.TemplateMensagemModel
  */
 export type WhatsappInstance = Prisma.WhatsappInstanceModel
 /**
- * Model Lead
+ * Model PushInscricao
  * Contato que chegou pelo site antes de virar cliente.
+ * UM CELULAR QUE ACEITA RECEBER AVISO.
+ * 
+ * O passo 5 do processo promete "calendário e notificação" no aplicativo do
+ * motorista. O calendário existia; a notificação não existia no código, e o
+ * motorista só descobria uma corrida nova se abrisse o aplicativo por conta
+ * própria — sendo que é ele quem está dirigindo.
+ * 
+ * A inscrição é POR APARELHO, e não por pessoa: o mesmo motorista com dois
+ * celulares tem duas linhas, e as duas tocam.
+ */
+export type PushInscricao = Prisma.PushInscricaoModel
+/**
+ * Model Lead
+ * 
  */
 export type Lead = Prisma.LeadModel
 /**

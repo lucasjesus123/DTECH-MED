@@ -121,3 +121,76 @@ self.addEventListener('fetch', (evento) => {
     )
   }
 })
+
+/* ===========================================================================
+   O AVISO QUE CHEGA COM O APLICATIVO FECHADO
+   ===========================================================================
+   Estes dois ouvintes são o que faz a notificação existir. Sem eles, o servidor
+   push do fabricante entrega a mensagem e ela morre aqui dentro, sem nada
+   aparecer na tela — e do lado do servidor tudo parece ter dado certo.
+
+   O `push` roda mesmo com o aplicativo fechado: é o service worker que o
+   sistema operacional acorda. Por isso ele não pode depender de nada da página.
+   =========================================================================== */
+
+self.addEventListener('push', (evento) => {
+  /**
+   * O CORPO PODE VIR QUEBRADO, E ISSO NÃO PODE ENGOLIR O AVISO.
+   *
+   * Um `JSON.parse` que estoura aqui derruba o ouvinte inteiro e o motorista
+   * não vê nada. Melhor um aviso genérico — que ainda o faz abrir o aplicativo
+   * e descobrir a corrida — do que silêncio.
+   */
+  let d = {}
+  try {
+    d = evento.data ? evento.data.json() : {}
+  } catch {
+    d = {}
+  }
+
+  const titulo = d.titulo || 'DTECH MED'
+  const opcoes = {
+    body: d.corpo || 'Você tem novidade na sua rota.',
+    icon: '/icone-192.png',
+    badge: '/icone-192.png',
+    // A etiqueta faz o aviso novo SUBSTITUIR o antigo do mesmo assunto, em vez
+    // de empilhar. Três remarcações da mesma parada deixam um aviso, o último.
+    tag: d.etiqueta || 'dtechmed',
+    renotify: true,
+    // Vibra porque quem recebe está dirigindo ou carregando um aparelho: o som
+    // some no barulho da rua, o tremor no bolso não.
+    vibrate: [120, 60, 120],
+    data: { destino: d.destino || '/app' },
+    // Não desaparece sozinho. Uma corrida nova é decisão, não informação de
+    // passagem — ela espera a pessoa poder olhar.
+    requireInteraction: true,
+  }
+
+  evento.waitUntil(self.registration.showNotification(titulo, opcoes))
+})
+
+self.addEventListener('notificationclick', (evento) => {
+  evento.notification.close()
+  const destino = (evento.notification.data && evento.notification.data.destino) || '/app'
+
+  evento.waitUntil(
+    (async () => {
+      /**
+       * REAPROVEITA A ABA ABERTA, em vez de abrir a décima.
+       *
+       * Sem isto, cada toque numa notificação abre uma janela nova do
+       * aplicativo. Ao fim de um dia o motorista tem oito abas iguais e nenhuma
+       * delas é a que ele estava usando.
+       */
+      const abas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      for (const aba of abas) {
+        if (aba.url.includes('/app')) {
+          await aba.focus()
+          if ('navigate' in aba) await aba.navigate(destino)
+          return
+        }
+      }
+      await self.clients.openWindow(destino)
+    })(),
+  )
+})

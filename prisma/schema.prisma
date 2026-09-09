@@ -330,6 +330,8 @@ model Tenant {
   @@index([ativo])
   @@map("tenants")
   colunasQuadro ColunaQuadro[]
+  pushInscricoes  PushInscricao[]
+
 }
 
 /// Usuário do sistema. `tenantId` nulo apenas para SUPER_ADMIN.
@@ -414,6 +416,8 @@ model User {
   @@index([tenantId, papel, ativo])
   @@index([email])
   @@map("usuarios")
+  pushInscricoes  PushInscricao[]
+
 }
 
 /// Sessão ativa. Guardamos só o hash do token — vazamento do banco não
@@ -1522,6 +1526,44 @@ model WhatsappInstance {
 }
 
 /// Contato que chegou pelo site antes de virar cliente.
+/// UM CELULAR QUE ACEITA RECEBER AVISO.
+///
+/// O passo 5 do processo promete "calendário e notificação" no aplicativo do
+/// motorista. O calendário existia; a notificação não existia no código, e o
+/// motorista só descobria uma corrida nova se abrisse o aplicativo por conta
+/// própria — sendo que é ele quem está dirigindo.
+///
+/// A inscrição é POR APARELHO, e não por pessoa: o mesmo motorista com dois
+/// celulares tem duas linhas, e as duas tocam.
+model PushInscricao {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  usuarioId String
+  usuario   User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  /// O endereço que o servidor push do fabricante deu a este aparelho.
+  /// Único no banco: reinstalar o app devolve o mesmo endereço, e sem a
+  /// unicidade cada reinstalação faria o celular tocar mais uma vez.
+  endpoint String @unique
+  /// As duas chaves da criptografia ponta a ponta do Web Push.
+  p256dh   String
+  auth     String
+
+  /// Qual aparelho é este, para a pessoa reconhecer o que está desligando.
+  aparelho String?
+
+  criadoEm      DateTime  @default(now())
+  ultimoEnvioEm DateTime?
+  /// Falhas SEGUIDAS. O 404/410 do fabricante apaga a linha na hora; este
+  /// contador é para a falha passageira, e serve para parar de insistir.
+  falhas        Int       @default(0)
+
+  @@index([tenantId, usuarioId])
+  @@map("push_inscricoes")
+}
+
 model Lead {
   id       String @id @default(cuid())
   tenantId String

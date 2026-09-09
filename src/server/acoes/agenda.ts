@@ -6,7 +6,7 @@ import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
-import { avancarOrdem } from '@/server/ordem/motor'
+import { avancarOrdem, enfileirar } from '@/server/ordem/motor'
 
 /**
  * Agenda de retirada e entrega.
@@ -67,7 +67,7 @@ export async function agendar(_anterior: Resposta, form: FormData): Promise<Resp
     })
     if (!ordem) return { ok: false as const, motivo: 'Ordem não encontrada.' }
 
-    await tx.agendamento.create({
+    const ag = await tx.agendamento.create({
       data: {
         tenantId: exigirEmpresa(a.ctx),
         ordemId: v.ordemId,
@@ -83,7 +83,34 @@ export async function agendar(_anterior: Resposta, form: FormData): Promise<Resp
         pontoReferencia: v.pontoReferencia || null,
         observacoes: v.observacoes || null,
       },
+      select: { id: true },
     })
+
+    /**
+     * O TOQUE NO CELULAR DE QUEM VAI DIRIGIR — o passo 5 do processo.
+     *
+     * Marcar a corrida e não avisar era o buraco: a central escrevia, o
+     * aparelho do cliente ficava esperando, e o motorista só descobria se
+     * abrisse o aplicativo por vontade própria. Ele está na rua.
+     *
+     * Entra na MESMA transação do agendamento, pela fila: ou a parada existe e
+     * o aviso está enfileirado, ou nenhum dos dois aconteceu. Um aviso de
+     * corrida que não existe é pior que nenhum.
+     *
+     * Sem motorista designado não há a quem avisar — a parada sem dono é de
+     * quem pegar, e ela aparece na Agenda de rota da central.
+     */
+    if (v.motoristaId) {
+      await enfileirar(tx, exigirEmpresa(a.ctx), {
+        tipo: 'push.enviar',
+        prioridade: 1,
+        // Uma parada, um aviso. Se a transação for repetida por retry de rede,
+        // o job já existe e o celular não toca duas vezes.
+        dedupeKey: `push:parada:${ag.id}`,
+        payload: { motivo: 'parada.designada', agendamentoId: ag.id },
+      })
+    }
+
     return { ok: true as const, etapa: ordem.etapa }
   })
   if (!r.ok) return r

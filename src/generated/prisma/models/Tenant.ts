@@ -367,6 +367,7 @@ export type TenantWhereInput = {
   compromissos?: Prisma.CompromissoListRelationFilter
   modelosDocumento?: Prisma.ModeloDocumentoListRelationFilter
   colunasQuadro?: Prisma.ColunaQuadroListRelationFilter
+  pushInscricoes?: Prisma.PushInscricaoListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -427,6 +428,7 @@ export type TenantOrderByWithRelationInput = {
   compromissos?: Prisma.CompromissoOrderByRelationAggregateInput
   modelosDocumento?: Prisma.ModeloDocumentoOrderByRelationAggregateInput
   colunasQuadro?: Prisma.ColunaQuadroOrderByRelationAggregateInput
+  pushInscricoes?: Prisma.PushInscricaoOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -490,6 +492,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   compromissos?: Prisma.CompromissoListRelationFilter
   modelosDocumento?: Prisma.ModeloDocumentoListRelationFilter
   colunasQuadro?: Prisma.ColunaQuadroListRelationFilter
+  pushInscricoes?: Prisma.PushInscricaoListRelationFilter
 }, "id" | "slug" | "cnpj">
 
 export type TenantOrderByWithAggregationInput = {
@@ -610,6 +613,7 @@ export type TenantCreateInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -670,6 +674,7 @@ export type TenantUncheckedCreateInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -730,6 +735,7 @@ export type TenantUpdateInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -790,6 +796,7 @@ export type TenantUncheckedUpdateInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -1306,6 +1313,20 @@ export type TenantUpdateOneRequiredWithoutInstanciaWhatsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutInstanciaWhatsInput, Prisma.TenantUpdateWithoutInstanciaWhatsInput>, Prisma.TenantUncheckedUpdateWithoutInstanciaWhatsInput>
 }
 
+export type TenantCreateNestedOneWithoutPushInscricoesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPushInscricoesInput, Prisma.TenantUncheckedCreateWithoutPushInscricoesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPushInscricoesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutPushInscricoesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPushInscricoesInput, Prisma.TenantUncheckedCreateWithoutPushInscricoesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPushInscricoesInput
+  upsert?: Prisma.TenantUpsertWithoutPushInscricoesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutPushInscricoesInput, Prisma.TenantUpdateWithoutPushInscricoesInput>, Prisma.TenantUncheckedUpdateWithoutPushInscricoesInput>
+}
+
 export type TenantCreateNestedOneWithoutLeadsInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutLeadsInput, Prisma.TenantUncheckedCreateWithoutLeadsInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutLeadsInput
@@ -1507,6 +1528,7 @@ export type TenantCreateWithoutUsuariosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsuariosInput = {
@@ -1566,6 +1588,7 @@ export type TenantUncheckedCreateWithoutUsuariosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsuariosInput = {
@@ -1641,6 +1664,7 @@ export type TenantUpdateWithoutUsuariosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsuariosInput = {
@@ -1700,6 +1724,7 @@ export type TenantUncheckedUpdateWithoutUsuariosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutClientesInput = {
@@ -1759,6 +1784,7 @@ export type TenantCreateWithoutClientesInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutClientesInput = {
@@ -1818,6 +1844,7 @@ export type TenantUncheckedCreateWithoutClientesInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutClientesInput = {
@@ -1893,6 +1920,7 @@ export type TenantUpdateWithoutClientesInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutClientesInput = {
@@ -1952,6 +1980,7 @@ export type TenantUncheckedUpdateWithoutClientesInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutEquipamentosInput = {
@@ -2011,6 +2040,7 @@ export type TenantCreateWithoutEquipamentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutEquipamentosInput = {
@@ -2070,6 +2100,7 @@ export type TenantUncheckedCreateWithoutEquipamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutEquipamentosInput = {
@@ -2145,6 +2176,7 @@ export type TenantUpdateWithoutEquipamentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutEquipamentosInput = {
@@ -2204,6 +2236,7 @@ export type TenantUncheckedUpdateWithoutEquipamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutOrdensInput = {
@@ -2263,6 +2296,7 @@ export type TenantCreateWithoutOrdensInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutOrdensInput = {
@@ -2322,6 +2356,7 @@ export type TenantUncheckedCreateWithoutOrdensInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutOrdensInput = {
@@ -2397,6 +2432,7 @@ export type TenantUpdateWithoutOrdensInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutOrdensInput = {
@@ -2456,6 +2492,7 @@ export type TenantUncheckedUpdateWithoutOrdensInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutEventosInput = {
@@ -2515,6 +2552,7 @@ export type TenantCreateWithoutEventosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutEventosInput = {
@@ -2574,6 +2612,7 @@ export type TenantUncheckedCreateWithoutEventosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutEventosInput = {
@@ -2649,6 +2688,7 @@ export type TenantUpdateWithoutEventosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutEventosInput = {
@@ -2708,6 +2748,7 @@ export type TenantUncheckedUpdateWithoutEventosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutFotosInput = {
@@ -2767,6 +2808,7 @@ export type TenantCreateWithoutFotosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutFotosInput = {
@@ -2826,6 +2868,7 @@ export type TenantUncheckedCreateWithoutFotosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutFotosInput = {
@@ -2901,6 +2944,7 @@ export type TenantUpdateWithoutFotosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutFotosInput = {
@@ -2960,6 +3004,7 @@ export type TenantUncheckedUpdateWithoutFotosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAssinaturasInput = {
@@ -3019,6 +3064,7 @@ export type TenantCreateWithoutAssinaturasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAssinaturasInput = {
@@ -3078,6 +3124,7 @@ export type TenantUncheckedCreateWithoutAssinaturasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAssinaturasInput = {
@@ -3153,6 +3200,7 @@ export type TenantUpdateWithoutAssinaturasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAssinaturasInput = {
@@ -3212,6 +3260,7 @@ export type TenantUncheckedUpdateWithoutAssinaturasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutOrcamentosInput = {
@@ -3271,6 +3320,7 @@ export type TenantCreateWithoutOrcamentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutOrcamentosInput = {
@@ -3330,6 +3380,7 @@ export type TenantUncheckedCreateWithoutOrcamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutOrcamentosInput = {
@@ -3405,6 +3456,7 @@ export type TenantUpdateWithoutOrcamentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutOrcamentosInput = {
@@ -3464,6 +3516,7 @@ export type TenantUncheckedUpdateWithoutOrcamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutItensOrcamentoInput = {
@@ -3523,6 +3576,7 @@ export type TenantCreateWithoutItensOrcamentoInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutItensOrcamentoInput = {
@@ -3582,6 +3636,7 @@ export type TenantUncheckedCreateWithoutItensOrcamentoInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutItensOrcamentoInput = {
@@ -3657,6 +3712,7 @@ export type TenantUpdateWithoutItensOrcamentoInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutItensOrcamentoInput = {
@@ -3716,6 +3772,7 @@ export type TenantUncheckedUpdateWithoutItensOrcamentoInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPecasRetiradasInput = {
@@ -3775,6 +3832,7 @@ export type TenantCreateWithoutPecasRetiradasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPecasRetiradasInput = {
@@ -3834,6 +3892,7 @@ export type TenantUncheckedCreateWithoutPecasRetiradasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPecasRetiradasInput = {
@@ -3909,6 +3968,7 @@ export type TenantUpdateWithoutPecasRetiradasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPecasRetiradasInput = {
@@ -3968,6 +4028,7 @@ export type TenantUncheckedUpdateWithoutPecasRetiradasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutContratosManutencaoInput = {
@@ -4027,6 +4088,7 @@ export type TenantCreateWithoutContratosManutencaoInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutContratosManutencaoInput = {
@@ -4086,6 +4148,7 @@ export type TenantUncheckedCreateWithoutContratosManutencaoInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutContratosManutencaoInput = {
@@ -4161,6 +4224,7 @@ export type TenantUpdateWithoutContratosManutencaoInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutContratosManutencaoInput = {
@@ -4220,6 +4284,7 @@ export type TenantUncheckedUpdateWithoutContratosManutencaoInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutVisitasPreventivasInput = {
@@ -4279,6 +4344,7 @@ export type TenantCreateWithoutVisitasPreventivasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutVisitasPreventivasInput = {
@@ -4338,6 +4404,7 @@ export type TenantUncheckedCreateWithoutVisitasPreventivasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutVisitasPreventivasInput = {
@@ -4413,6 +4480,7 @@ export type TenantUpdateWithoutVisitasPreventivasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutVisitasPreventivasInput = {
@@ -4472,6 +4540,7 @@ export type TenantUncheckedUpdateWithoutVisitasPreventivasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPecasInput = {
@@ -4531,6 +4600,7 @@ export type TenantCreateWithoutPecasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPecasInput = {
@@ -4590,6 +4660,7 @@ export type TenantUncheckedCreateWithoutPecasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPecasInput = {
@@ -4665,6 +4736,7 @@ export type TenantUpdateWithoutPecasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPecasInput = {
@@ -4724,6 +4796,7 @@ export type TenantUncheckedUpdateWithoutPecasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutEmprestimosInput = {
@@ -4783,6 +4856,7 @@ export type TenantCreateWithoutEmprestimosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutEmprestimosInput = {
@@ -4842,6 +4916,7 @@ export type TenantUncheckedCreateWithoutEmprestimosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutEmprestimosInput = {
@@ -4917,6 +4992,7 @@ export type TenantUpdateWithoutEmprestimosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutEmprestimosInput = {
@@ -4976,6 +5052,7 @@ export type TenantUncheckedUpdateWithoutEmprestimosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutMovimentosInput = {
@@ -5035,6 +5112,7 @@ export type TenantCreateWithoutMovimentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMovimentosInput = {
@@ -5094,6 +5172,7 @@ export type TenantUncheckedCreateWithoutMovimentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMovimentosInput = {
@@ -5169,6 +5248,7 @@ export type TenantUpdateWithoutMovimentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMovimentosInput = {
@@ -5228,6 +5308,7 @@ export type TenantUncheckedUpdateWithoutMovimentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutFaturasInput = {
@@ -5287,6 +5368,7 @@ export type TenantCreateWithoutFaturasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutFaturasInput = {
@@ -5346,6 +5428,7 @@ export type TenantUncheckedCreateWithoutFaturasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutFaturasInput = {
@@ -5421,6 +5504,7 @@ export type TenantUpdateWithoutFaturasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutFaturasInput = {
@@ -5480,6 +5564,7 @@ export type TenantUncheckedUpdateWithoutFaturasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPagamentosInput = {
@@ -5539,6 +5624,7 @@ export type TenantCreateWithoutPagamentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPagamentosInput = {
@@ -5598,6 +5684,7 @@ export type TenantUncheckedCreateWithoutPagamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPagamentosInput = {
@@ -5673,6 +5760,7 @@ export type TenantUpdateWithoutPagamentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPagamentosInput = {
@@ -5732,6 +5820,7 @@ export type TenantUncheckedUpdateWithoutPagamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAgendamentosInput = {
@@ -5791,6 +5880,7 @@ export type TenantCreateWithoutAgendamentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAgendamentosInput = {
@@ -5850,6 +5940,7 @@ export type TenantUncheckedCreateWithoutAgendamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAgendamentosInput = {
@@ -5925,6 +6016,7 @@ export type TenantUpdateWithoutAgendamentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAgendamentosInput = {
@@ -5984,6 +6076,7 @@ export type TenantUncheckedUpdateWithoutAgendamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutDocumentosInput = {
@@ -6043,6 +6136,7 @@ export type TenantCreateWithoutDocumentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutDocumentosInput = {
@@ -6102,6 +6196,7 @@ export type TenantUncheckedCreateWithoutDocumentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutDocumentosInput = {
@@ -6177,6 +6272,7 @@ export type TenantUpdateWithoutDocumentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutDocumentosInput = {
@@ -6236,6 +6332,7 @@ export type TenantUncheckedUpdateWithoutDocumentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutJobsInput = {
@@ -6295,6 +6392,7 @@ export type TenantCreateWithoutJobsInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutJobsInput = {
@@ -6354,6 +6452,7 @@ export type TenantUncheckedCreateWithoutJobsInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutJobsInput = {
@@ -6429,6 +6528,7 @@ export type TenantUpdateWithoutJobsInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutJobsInput = {
@@ -6488,6 +6588,7 @@ export type TenantUncheckedUpdateWithoutJobsInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutMensagensInput = {
@@ -6547,6 +6648,7 @@ export type TenantCreateWithoutMensagensInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMensagensInput = {
@@ -6606,6 +6708,7 @@ export type TenantUncheckedCreateWithoutMensagensInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMensagensInput = {
@@ -6681,6 +6784,7 @@ export type TenantUpdateWithoutMensagensInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMensagensInput = {
@@ -6740,6 +6844,7 @@ export type TenantUncheckedUpdateWithoutMensagensInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutTemplatesInput = {
@@ -6799,6 +6904,7 @@ export type TenantCreateWithoutTemplatesInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutTemplatesInput = {
@@ -6858,6 +6964,7 @@ export type TenantUncheckedCreateWithoutTemplatesInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutTemplatesInput = {
@@ -6933,6 +7040,7 @@ export type TenantUpdateWithoutTemplatesInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutTemplatesInput = {
@@ -6992,6 +7100,7 @@ export type TenantUncheckedUpdateWithoutTemplatesInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutInstanciaWhatsInput = {
@@ -7051,6 +7160,7 @@ export type TenantCreateWithoutInstanciaWhatsInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutInstanciaWhatsInput = {
@@ -7110,6 +7220,7 @@ export type TenantUncheckedCreateWithoutInstanciaWhatsInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutInstanciaWhatsInput = {
@@ -7185,6 +7296,7 @@ export type TenantUpdateWithoutInstanciaWhatsInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutInstanciaWhatsInput = {
@@ -7235,6 +7347,263 @@ export type TenantUncheckedUpdateWithoutInstanciaWhatsInput = {
   jobs?: Prisma.OutboxJobUncheckedUpdateManyWithoutTenantNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutTenantNestedInput
   templates?: Prisma.TemplateMensagemUncheckedUpdateManyWithoutTenantNestedInput
+  auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
+  contadores?: Prisma.ContadorUncheckedUpdateManyWithoutTenantNestedInput
+  posicoesRota?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutTenantNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutTenantNestedInput
+  lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutTenantNestedInput
+  recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutTenantNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
+  modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
+  colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutPushInscricoesInput = {
+  id?: string
+  slug: string
+  nome: string
+  razaoSocial?: string | null
+  cnpj?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  logoUrl?: string | null
+  corPrimaria?: string
+  corSecundaria?: string
+  ativo?: boolean
+  plano?: string
+  bloqueado?: boolean
+  motivoBloqueio?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  usuarios?: Prisma.UserCreateNestedManyWithoutTenantInput
+  clientes?: Prisma.ClienteCreateNestedManyWithoutTenantInput
+  equipamentos?: Prisma.EquipamentoCreateNestedManyWithoutTenantInput
+  ordens?: Prisma.OrdemCreateNestedManyWithoutTenantInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutTenantInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutTenantInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutTenantInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutTenantInput
+  itensOrcamento?: Prisma.OrcamentoItemCreateNestedManyWithoutTenantInput
+  pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutTenantInput
+  contratosManutencao?: Prisma.ContratoManutencaoCreateNestedManyWithoutTenantInput
+  visitasPreventivas?: Prisma.VisitaPreventivaCreateNestedManyWithoutTenantInput
+  pecas?: Prisma.PecaCreateNestedManyWithoutTenantInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutTenantInput
+  faturas?: Prisma.FaturaCreateNestedManyWithoutTenantInput
+  pagamentos?: Prisma.PagamentoCreateNestedManyWithoutTenantInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutTenantInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutTenantInput
+  leads?: Prisma.LeadCreateNestedManyWithoutTenantInput
+  jobs?: Prisma.OutboxJobCreateNestedManyWithoutTenantInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutTenantInput
+  templates?: Prisma.TemplateMensagemCreateNestedManyWithoutTenantInput
+  instanciaWhats?: Prisma.WhatsappInstanceCreateNestedOneWithoutTenantInput
+  auditoria?: Prisma.AuditLogCreateNestedManyWithoutTenantInput
+  contadores?: Prisma.ContadorCreateNestedManyWithoutTenantInput
+  posicoesRota?: Prisma.PosicaoRotaCreateNestedManyWithoutTenantInput
+  recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutTenantInput
+  lancamentos?: Prisma.LancamentoCreateNestedManyWithoutTenantInput
+  recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutTenantInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
+  modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
+  colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutPushInscricoesInput = {
+  id?: string
+  slug: string
+  nome: string
+  razaoSocial?: string | null
+  cnpj?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  logoUrl?: string | null
+  corPrimaria?: string
+  corSecundaria?: string
+  ativo?: boolean
+  plano?: string
+  bloqueado?: boolean
+  motivoBloqueio?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  usuarios?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  clientes?: Prisma.ClienteUncheckedCreateNestedManyWithoutTenantInput
+  equipamentos?: Prisma.EquipamentoUncheckedCreateNestedManyWithoutTenantInput
+  ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutTenantInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutTenantInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutTenantInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutTenantInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTenantInput
+  itensOrcamento?: Prisma.OrcamentoItemUncheckedCreateNestedManyWithoutTenantInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutTenantInput
+  contratosManutencao?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutTenantInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUncheckedCreateNestedManyWithoutTenantInput
+  pecas?: Prisma.PecaUncheckedCreateNestedManyWithoutTenantInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutTenantInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutTenantInput
+  faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutTenantInput
+  pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutTenantInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutTenantInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutTenantInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutTenantInput
+  jobs?: Prisma.OutboxJobUncheckedCreateNestedManyWithoutTenantInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutTenantInput
+  templates?: Prisma.TemplateMensagemUncheckedCreateNestedManyWithoutTenantInput
+  instanciaWhats?: Prisma.WhatsappInstanceUncheckedCreateNestedOneWithoutTenantInput
+  auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTenantInput
+  contadores?: Prisma.ContadorUncheckedCreateNestedManyWithoutTenantInput
+  posicoesRota?: Prisma.PosicaoRotaUncheckedCreateNestedManyWithoutTenantInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutTenantInput
+  lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutTenantInput
+  recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutTenantInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
+  modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
+  colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutPushInscricoesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPushInscricoesInput, Prisma.TenantUncheckedCreateWithoutPushInscricoesInput>
+}
+
+export type TenantUpsertWithoutPushInscricoesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutPushInscricoesInput, Prisma.TenantUncheckedUpdateWithoutPushInscricoesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPushInscricoesInput, Prisma.TenantUncheckedCreateWithoutPushInscricoesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutPushInscricoesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutPushInscricoesInput, Prisma.TenantUncheckedUpdateWithoutPushInscricoesInput>
+}
+
+export type TenantUpdateWithoutPushInscricoesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cnpj?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corPrimaria?: Prisma.StringFieldUpdateOperationsInput | string
+  corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  plano?: Prisma.StringFieldUpdateOperationsInput | string
+  bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usuarios?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  clientes?: Prisma.ClienteUpdateManyWithoutTenantNestedInput
+  equipamentos?: Prisma.EquipamentoUpdateManyWithoutTenantNestedInput
+  ordens?: Prisma.OrdemUpdateManyWithoutTenantNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutTenantNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutTenantNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutTenantNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutTenantNestedInput
+  itensOrcamento?: Prisma.OrcamentoItemUpdateManyWithoutTenantNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutTenantNestedInput
+  contratosManutencao?: Prisma.ContratoManutencaoUpdateManyWithoutTenantNestedInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUpdateManyWithoutTenantNestedInput
+  pecas?: Prisma.PecaUpdateManyWithoutTenantNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutTenantNestedInput
+  faturas?: Prisma.FaturaUpdateManyWithoutTenantNestedInput
+  pagamentos?: Prisma.PagamentoUpdateManyWithoutTenantNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutTenantNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutTenantNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutTenantNestedInput
+  jobs?: Prisma.OutboxJobUpdateManyWithoutTenantNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutTenantNestedInput
+  templates?: Prisma.TemplateMensagemUpdateManyWithoutTenantNestedInput
+  instanciaWhats?: Prisma.WhatsappInstanceUpdateOneWithoutTenantNestedInput
+  auditoria?: Prisma.AuditLogUpdateManyWithoutTenantNestedInput
+  contadores?: Prisma.ContadorUpdateManyWithoutTenantNestedInput
+  posicoesRota?: Prisma.PosicaoRotaUpdateManyWithoutTenantNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutTenantNestedInput
+  lancamentos?: Prisma.LancamentoUpdateManyWithoutTenantNestedInput
+  recorrencias?: Prisma.RecorrenciaUpdateManyWithoutTenantNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
+  modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
+  colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutPushInscricoesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cnpj?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  corPrimaria?: Prisma.StringFieldUpdateOperationsInput | string
+  corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  plano?: Prisma.StringFieldUpdateOperationsInput | string
+  bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usuarios?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  clientes?: Prisma.ClienteUncheckedUpdateManyWithoutTenantNestedInput
+  equipamentos?: Prisma.EquipamentoUncheckedUpdateManyWithoutTenantNestedInput
+  ordens?: Prisma.OrdemUncheckedUpdateManyWithoutTenantNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutTenantNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutTenantNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutTenantNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutTenantNestedInput
+  itensOrcamento?: Prisma.OrcamentoItemUncheckedUpdateManyWithoutTenantNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutTenantNestedInput
+  contratosManutencao?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutTenantNestedInput
+  visitasPreventivas?: Prisma.VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput
+  pecas?: Prisma.PecaUncheckedUpdateManyWithoutTenantNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutTenantNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutTenantNestedInput
+  faturas?: Prisma.FaturaUncheckedUpdateManyWithoutTenantNestedInput
+  pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutTenantNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutTenantNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutTenantNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutTenantNestedInput
+  jobs?: Prisma.OutboxJobUncheckedUpdateManyWithoutTenantNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutTenantNestedInput
+  templates?: Prisma.TemplateMensagemUncheckedUpdateManyWithoutTenantNestedInput
+  instanciaWhats?: Prisma.WhatsappInstanceUncheckedUpdateOneWithoutTenantNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutTenantNestedInput
   contadores?: Prisma.ContadorUncheckedUpdateManyWithoutTenantNestedInput
   posicoesRota?: Prisma.PosicaoRotaUncheckedUpdateManyWithoutTenantNestedInput
@@ -7303,6 +7672,7 @@ export type TenantCreateWithoutLeadsInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutLeadsInput = {
@@ -7362,6 +7732,7 @@ export type TenantUncheckedCreateWithoutLeadsInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutLeadsInput = {
@@ -7437,6 +7808,7 @@ export type TenantUpdateWithoutLeadsInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutLeadsInput = {
@@ -7496,6 +7868,7 @@ export type TenantUncheckedUpdateWithoutLeadsInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAuditoriaInput = {
@@ -7555,6 +7928,7 @@ export type TenantCreateWithoutAuditoriaInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAuditoriaInput = {
@@ -7614,6 +7988,7 @@ export type TenantUncheckedCreateWithoutAuditoriaInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAuditoriaInput = {
@@ -7689,6 +8064,7 @@ export type TenantUpdateWithoutAuditoriaInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAuditoriaInput = {
@@ -7748,6 +8124,7 @@ export type TenantUncheckedUpdateWithoutAuditoriaInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutLancamentosInput = {
@@ -7807,6 +8184,7 @@ export type TenantCreateWithoutLancamentosInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutLancamentosInput = {
@@ -7866,6 +8244,7 @@ export type TenantUncheckedCreateWithoutLancamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutLancamentosInput = {
@@ -7941,6 +8320,7 @@ export type TenantUpdateWithoutLancamentosInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutLancamentosInput = {
@@ -8000,6 +8380,7 @@ export type TenantUncheckedUpdateWithoutLancamentosInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCompromissosInput = {
@@ -8059,6 +8440,7 @@ export type TenantCreateWithoutCompromissosInput = {
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCompromissosInput = {
@@ -8118,6 +8500,7 @@ export type TenantUncheckedCreateWithoutCompromissosInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCompromissosInput = {
@@ -8193,6 +8576,7 @@ export type TenantUpdateWithoutCompromissosInput = {
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCompromissosInput = {
@@ -8252,6 +8636,7 @@ export type TenantUncheckedUpdateWithoutCompromissosInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutModelosDocumentoInput = {
@@ -8311,6 +8696,7 @@ export type TenantCreateWithoutModelosDocumentoInput = {
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutTenantInput
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutModelosDocumentoInput = {
@@ -8370,6 +8756,7 @@ export type TenantUncheckedCreateWithoutModelosDocumentoInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutTenantInput
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutModelosDocumentoInput = {
@@ -8445,6 +8832,7 @@ export type TenantUpdateWithoutModelosDocumentoInput = {
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutTenantNestedInput
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutModelosDocumentoInput = {
@@ -8504,6 +8892,7 @@ export type TenantUncheckedUpdateWithoutModelosDocumentoInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutTenantNestedInput
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutRecorrenciasInput = {
@@ -8563,6 +8952,7 @@ export type TenantCreateWithoutRecorrenciasInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutRecorrenciasInput = {
@@ -8622,6 +9012,7 @@ export type TenantUncheckedCreateWithoutRecorrenciasInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutRecorrenciasInput = {
@@ -8697,6 +9088,7 @@ export type TenantUpdateWithoutRecorrenciasInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutRecorrenciasInput = {
@@ -8756,6 +9148,7 @@ export type TenantUncheckedUpdateWithoutRecorrenciasInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutRecuperacoesInput = {
@@ -8815,6 +9208,7 @@ export type TenantCreateWithoutRecuperacoesInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutRecuperacoesInput = {
@@ -8874,6 +9268,7 @@ export type TenantUncheckedCreateWithoutRecuperacoesInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutRecuperacoesInput = {
@@ -8949,6 +9344,7 @@ export type TenantUpdateWithoutRecuperacoesInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutRecuperacoesInput = {
@@ -9008,6 +9404,7 @@ export type TenantUncheckedUpdateWithoutRecuperacoesInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutContadoresInput = {
@@ -9067,6 +9464,7 @@ export type TenantCreateWithoutContadoresInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutContadoresInput = {
@@ -9126,6 +9524,7 @@ export type TenantUncheckedCreateWithoutContadoresInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutContadoresInput = {
@@ -9201,6 +9600,7 @@ export type TenantUpdateWithoutContadoresInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutContadoresInput = {
@@ -9260,6 +9660,7 @@ export type TenantUncheckedUpdateWithoutContadoresInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPosicoesRotaInput = {
@@ -9319,6 +9720,7 @@ export type TenantCreateWithoutPosicoesRotaInput = {
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPosicoesRotaInput = {
@@ -9378,6 +9780,7 @@ export type TenantUncheckedCreateWithoutPosicoesRotaInput = {
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPosicoesRotaInput = {
@@ -9453,6 +9856,7 @@ export type TenantUpdateWithoutPosicoesRotaInput = {
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPosicoesRotaInput = {
@@ -9512,6 +9916,7 @@ export type TenantUncheckedUpdateWithoutPosicoesRotaInput = {
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
   colunasQuadro?: Prisma.ColunaQuadroUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutColunasQuadroInput = {
@@ -9571,6 +9976,7 @@ export type TenantCreateWithoutColunasQuadroInput = {
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutTenantInput
   compromissos?: Prisma.CompromissoCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutColunasQuadroInput = {
@@ -9630,6 +10036,7 @@ export type TenantUncheckedCreateWithoutColunasQuadroInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutTenantInput
   compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutTenantInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedCreateNestedManyWithoutTenantInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutColunasQuadroInput = {
@@ -9705,6 +10112,7 @@ export type TenantUpdateWithoutColunasQuadroInput = {
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutTenantNestedInput
   compromissos?: Prisma.CompromissoUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutColunasQuadroInput = {
@@ -9764,6 +10172,7 @@ export type TenantUncheckedUpdateWithoutColunasQuadroInput = {
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutTenantNestedInput
   compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutTenantNestedInput
   modelosDocumento?: Prisma.ModeloDocumentoUncheckedUpdateManyWithoutTenantNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -9804,6 +10213,7 @@ export type TenantCountOutputType = {
   compromissos: number
   modelosDocumento: number
   colunasQuadro: number
+  pushInscricoes: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -9839,6 +10249,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   compromissos?: boolean | TenantCountOutputTypeCountCompromissosArgs
   modelosDocumento?: boolean | TenantCountOutputTypeCountModelosDocumentoArgs
   colunasQuadro?: boolean | TenantCountOutputTypeCountColunasQuadroArgs
+  pushInscricoes?: boolean | TenantCountOutputTypeCountPushInscricoesArgs
 }
 
 /**
@@ -10075,6 +10486,13 @@ export type TenantCountOutputTypeCountColunasQuadroArgs<ExtArgs extends runtime.
   where?: Prisma.ColunaQuadroWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountPushInscricoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushInscricaoWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -10134,6 +10552,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   compromissos?: boolean | Prisma.Tenant$compromissosArgs<ExtArgs>
   modelosDocumento?: boolean | Prisma.Tenant$modelosDocumentoArgs<ExtArgs>
   colunasQuadro?: boolean | Prisma.Tenant$colunasQuadroArgs<ExtArgs>
+  pushInscricoes?: boolean | Prisma.Tenant$pushInscricoesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -10253,6 +10672,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   compromissos?: boolean | Prisma.Tenant$compromissosArgs<ExtArgs>
   modelosDocumento?: boolean | Prisma.Tenant$modelosDocumentoArgs<ExtArgs>
   colunasQuadro?: boolean | Prisma.Tenant$colunasQuadroArgs<ExtArgs>
+  pushInscricoes?: boolean | Prisma.Tenant$pushInscricoesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -10294,6 +10714,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     compromissos: Prisma.$CompromissoPayload<ExtArgs>[]
     modelosDocumento: Prisma.$ModeloDocumentoPayload<ExtArgs>[]
     colunasQuadro: Prisma.$ColunaQuadroPayload<ExtArgs>[]
+    pushInscricoes: Prisma.$PushInscricaoPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -10759,6 +11180,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   compromissos<T extends Prisma.Tenant$compromissosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$compromissosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompromissoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   modelosDocumento<T extends Prisma.Tenant$modelosDocumentoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$modelosDocumentoArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModeloDocumentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   colunasQuadro<T extends Prisma.Tenant$colunasQuadroArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$colunasQuadroArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ColunaQuadroPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushInscricoes<T extends Prisma.Tenant$pushInscricoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$pushInscricoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushInscricaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11989,6 +12411,30 @@ export type Tenant$colunasQuadroArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ColunaQuadroScalarFieldEnum | Prisma.ColunaQuadroScalarFieldEnum[]
+}
+
+/**
+ * Tenant.pushInscricoes
+ */
+export type Tenant$pushInscricoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushInscricao
+   */
+  select?: Prisma.PushInscricaoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushInscricao
+   */
+  omit?: Prisma.PushInscricaoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushInscricaoInclude<ExtArgs> | null
+  where?: Prisma.PushInscricaoWhereInput
+  orderBy?: Prisma.PushInscricaoOrderByWithRelationInput | Prisma.PushInscricaoOrderByWithRelationInput[]
+  cursor?: Prisma.PushInscricaoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushInscricaoScalarFieldEnum | Prisma.PushInscricaoScalarFieldEnum[]
 }
 
 /**

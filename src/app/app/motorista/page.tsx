@@ -6,6 +6,8 @@ import { rotaDoDia } from '@/server/consultas/campo'
 import { Saida } from './saida'
 import { Aceite } from './aceite'
 import { Rastro } from './rastro'
+import { AtualizaRota } from './atualiza'
+import { AvisosNoCelular } from '../avisos'
 import type { Parada } from '@/server/consultas/campo'
 import estilo from '../app.module.css'
 
@@ -161,6 +163,12 @@ export default async function Motorista() {
             </ul>
           </details>
         ) : null}
+
+        {/* O aviso no celular e o relógio da tela ficam no fim: são ajuste, não
+            trabalho. Quem abre o aplicativo vem fazer parada, e o que ele veio
+            fazer ocupa o alto. */}
+        {!gerencia ? <AvisosNoCelular /> : null}
+        {pendentes.length > 0 ? <AtualizaRota /> : null}
       </main>
     </>
   )
