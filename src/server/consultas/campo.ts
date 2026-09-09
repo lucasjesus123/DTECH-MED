@@ -25,7 +25,28 @@ export type Parada = {
   equipamento: string
   endereco: string
   referencia: string | null
+  /**
+   * O RECADO QUE A CENTRAL ESCREVE E O MOTORISTA NUNCA VIA.
+   *
+   * O formulário de marcar a parada tem um campo "Recado para o motorista", com
+   * o exemplo "Levar carrinho, estacionar nos fundos". Ele era gravado em
+   * `agendamentos.observacoes` e parava ali: nenhuma tela do aplicativo lia esta
+   * coluna. Quem escrevia achava que estava avisando; quem precisava do aviso
+   * chegava sem ele, e descobria o carrinho na hora de carregar.
+   */
+  observacoes: string | null
+  /**
+   * Com quem falar NAQUELE endereço — congelado na parada, não no cadastro.
+   *
+   * A tela usava o contato do CLIENTE, que muitas vezes é outra pessoa: quem
+   * assina o contrato não é quem abre a porta do depósito. A parada tem os
+   * dados de quem está lá, e são eles que servem para tocar a campainha.
+   */
+  contatoDaParada: string | null
+  telefoneDaParada: string | null
   previstoPara: Date
+  /** O fim da janela combinada — "entre 14h e 17h" — quando existe. */
+  janelaFim: Date | null
   status: string
   concluida: boolean
   atrasada: boolean
@@ -111,11 +132,17 @@ export async function rotaDoDia(
     numero: a.ordem.numero,
     cliente: a.ordem.cliente.nome,
     contato: a.ordem.cliente.contatoNome,
-    telefone: a.ordem.cliente.whatsapp ?? a.ordem.cliente.telefone,
+    // O da PARADA na frente: é o número de quem está no local. O do cadastro
+    // fica de reserva, para a parada antiga que não tem contato próprio.
+    telefone: a.contatoTelefone ?? a.ordem.cliente.whatsapp ?? a.ordem.cliente.telefone,
     equipamento: `${a.ordem.equipamento.marca} ${a.ordem.equipamento.modelo}`.trim(),
     endereco: a.enderecoSnapshot,
     referencia: a.pontoReferencia,
+    observacoes: a.observacoes,
+    contatoDaParada: a.contatoNome,
+    telefoneDaParada: a.contatoTelefone,
     previstoPara: a.previstoPara,
+    janelaFim: a.janelaFim,
     status: a.status,
     concluida: a.status === 'CONCLUIDO',
     atrasada: a.status !== 'CONCLUIDO' && a.previstoPara.getTime() < agora,
@@ -273,12 +300,24 @@ export async function agendaDeCampo(
       tx.agendamento.findMany({
         where: {
           motoristaId: userId,
-          status: { notIn: ['CANCELADO'] },
+          /**
+           * A AGENDA É O QUE VEM PELA FRENTE — e a concluída saiu dela.
+           *
+           * Ela listava também as paradas já cumpridas que caíssem na janela de
+           * 14 dias, o que na prática significa TODAS as de hoje. Num dia com 30
+           * entregas feitas, a pergunta "o que eu tenho amanhã?" era respondida
+           * com trinta cartões de ontem à frente da resposta.
+           *
+           * Parada concluída não é compromisso: é histórico. Ela continua a um
+           * toque de distância na tela da Rota, no bloco recolhido das
+           * concluídas de hoje, que é onde alguém procura por ela.
+           */
+          status: { notIn: ['CANCELADO', 'CONCLUIDO'] },
           // O atrasado entra pela porta de baixo: sem `gte`, tudo o que ficou
           // para trás e não foi concluído continua aparecendo.
           OR: [
             { previstoPara: { gte: inicio, lt: fim } },
-            { previstoPara: { lt: inicio }, status: { notIn: ['CONCLUIDO', 'CANCELADO'] } },
+            { previstoPara: { lt: inicio } },
           ],
         },
         orderBy: [{ previstoPara: 'asc' }],
@@ -307,7 +346,16 @@ export async function agendaDeCampo(
       id: a.id,
       ordemId: a.ordem.id,
       dia: diaLocal(a.previstoPara),
-      hora: a.janelaInicio ? horaLocal(a.janelaInicio) : null,
+      /**
+       * A hora sai de `janelaInicio`, com `previstoPara` de reserva.
+       *
+       * As duas são preenchidas juntas quando a parada nasce no formulário de
+       * agendar. Mas `previstoPara` é obrigatória e `janelaInicio` é opcional —
+       * então uma parada criada por qualquer outro caminho (importação, script,
+       * código futuro) tinha hora no banco e aparecia aqui como "sem hora
+       * combinada". Ler a obrigatória como reserva custa nada e fecha o buraco.
+       */
+      hora: horaLocal(a.janelaInicio ?? a.previstoPara),
       tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
       numero: a.ordem.numero,
       cliente: a.ordem.cliente.nome,

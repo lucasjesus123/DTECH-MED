@@ -43,6 +43,30 @@ export default async function Assinar({ params }: { params: Promise<{ id: string
       </header>
 
       <main className={estilo.corpo}>
+        {/* ONDE ELE ESTÁ E COM QUEM FALAR — que esta tela não dizia.
+            Ela abria direto nas fotos e na assinatura, e o endereço só aparecia
+            lá embaixo, em letra miúda, depois do quadro de assinar. Quem chega
+            num prédio com três portas precisa da referência e do nome de quem
+            procurar ANTES de guardar o celular, não depois.
+
+            O recado da central entra aqui pelo mesmo motivo que entra na rota:
+            ele era gravado e nenhuma tela do aplicativo o lia. */}
+        <section className={estilo.chegada}>
+          <p className={estilo.chegadaEnd}>{parada.enderecoSnapshot}</p>
+          {parada.pontoReferencia ? (
+            <p className={estilo.chegadaRef}>Referência: {parada.pontoReferencia}</p>
+          ) : null}
+          {parada.contatoNome ? (
+            <p className={estilo.chegadaRef}>Procurar por {parada.contatoNome}</p>
+          ) : null}
+          {parada.observacoes ? (
+            <p className={estilo.paRecado}>
+              <span className={estilo.paRecadoRot}>Recado da central</span>
+              {parada.observacoes}
+            </p>
+          ) : null}
+        </section>
+
         {jaAssinou ? (
           <p className={estilo.feitoGrande}>
             Esta parada já foi assinada. Volte para a rota e siga para a próxima.

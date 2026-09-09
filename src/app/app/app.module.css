@@ -503,3 +503,143 @@
   color: var(--txt-2);
 }
 .aceiteTexto strong { color: var(--txt); }
+
+/* ==========================================================================
+   A ROTA REORGANIZADA — o que falta na frente, o que foi feito atrás
+   ==========================================================================
+   A tela antiga empilhava as 32 paradas do dia em ordem cronológica, todas do
+   mesmo tamanho. Num dia real isso deu 11,9 telas de rolagem, com a primeira
+   parada que dava para FAZER começando a 8,2 telas do topo. O que segue existe
+   para que o trabalho de agora caiba na primeira tela.
+   ========================================================================== */
+
+/* O selo da parada de agora: ele diz três coisas numa linha só — que é ESTA, em
+   que ponto da fila ela está, e a que horas foi combinada. */
+.paSelo {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2);
+  padding: var(--s2) var(--s4);
+  background: var(--vio-veu);
+  border-bottom: 1px solid var(--vio-borda);
+  font-size: var(--t-xs); font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--vio-claro);
+}
+.paSeloPos { color: var(--txt-3); font-weight: 600; }
+.paSelo .paHora, .paSelo .paHoraAtrasada { margin-left: auto; }
+
+/* A HORA, que a tela não mostrava em canto nenhum.
+   `tabular-nums` porque dígito de largura variável faz o horário dançar entre
+   um cartão e outro, e a coluna de horas é justamente o que se lê de relance. */
+.paHora, .paHoraAtrasada {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-xs);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.paHora { color: var(--txt-2); }
+/* Atrasada não é enfeite: é a informação mais urgente daquele cartão. */
+.paHoraAtrasada { color: var(--alerta); font-weight: 700; }
+
+/* ---- A parada fechada (as pendentes que não são a de agora) --------------
+   `<details>` do navegador: abre sem JavaScript, o leitor de tela anuncia
+   sozinho, e no 4G ruim não depende de nada carregar. */
+.paResumo {
+  display: grid; gap: 4px;
+  padding: var(--s4);
+  cursor: pointer;
+  /* Alvo de toque grande: quem abre isto está de pé, com uma mão. */
+  min-height: 64px;
+  list-style: none;
+}
+.paResumo::-webkit-details-marker { display: none; }
+.paResumoTopo {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3);
+}
+.paResumoCliente { font-size: var(--t-base); font-weight: 600; line-height: 1.25; }
+.paResumoLinha { font-size: var(--t-xs); color: var(--txt-2); line-height: 1.5; }
+/* A seta que diz que aquilo abre. Sem ela o cartão fechado parece um item
+   morto, e ninguém toca no que parece morto. */
+.paResumo::after {
+  content: '';
+  justify-self: end; margin-top: -18px;
+  width: 9px; height: 9px;
+  border-right: 2px solid var(--txt-3); border-bottom: 2px solid var(--txt-3);
+  transform: rotate(45deg);
+  transition: transform 160ms var(--ease);
+}
+details[open] > .paResumo::after { transform: rotate(-135deg); }
+
+/* ---- O recado da central -------------------------------------------------
+   Ele era gravado no agendamento e nenhuma tela do aplicativo o lia. Chega
+   agora, e chega marcado: é a única coisa do cartão que o motorista não
+   consegue descobrir sozinho ao chegar no endereço. */
+.paRecado {
+  margin-top: var(--s4);
+  padding: var(--s3) var(--s4);
+  border-left: 3px solid var(--espera);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--espera-veu);
+  font-size: var(--t-sm); line-height: 1.55;
+  color: var(--txt);
+}
+.paRecadoRot {
+  display: block; margin-bottom: 3px;
+  font-family: var(--f-mono); font-size: var(--t-xs);
+  letter-spacing: .07em; text-transform: uppercase;
+  color: var(--espera);
+}
+.paContato { margin-top: var(--s3); font-size: var(--t-sm); color: var(--txt-2); }
+/* De quem é a parada — só o modo gestão desenha. */
+.paQuem { margin-top: 6px; font-size: var(--t-xs); color: var(--txt-3); }
+
+/* ---- O dia cumprido ------------------------------------------------------ */
+.diaFechado {
+  padding: var(--s5) var(--s4); text-align: center;
+  border: 1px solid var(--sinal-borda); border-radius: var(--r-lg);
+  background: var(--sinal-veu);
+  font-size: var(--t-sm); line-height: 1.6; color: var(--txt-2);
+}
+.diaFechado strong { color: var(--txt); }
+
+/* ---- As concluídas, recolhidas ------------------------------------------ */
+.feitasBloco {
+  border: 1px dashed var(--borda-viva); border-radius: var(--r-lg);
+  background: var(--bg-1);
+}
+.feitasResumo {
+  padding: var(--s4);
+  min-height: 56px; display: flex; align-items: center;
+  cursor: pointer; list-style: none;
+  font-size: var(--t-sm); font-weight: 600; color: var(--txt-2);
+}
+.feitasResumo::-webkit-details-marker { display: none; }
+.feitasResumo::after {
+  content: ''; margin-left: auto;
+  width: 9px; height: 9px;
+  border-right: 2px solid var(--txt-3); border-bottom: 2px solid var(--txt-3);
+  transform: rotate(45deg); transition: transform 160ms var(--ease);
+}
+details[open] > .feitasResumo::after { transform: rotate(-135deg); }
+.feitasLista { list-style: none; margin: 0; padding: 0 var(--s4) var(--s4); display: grid; gap: 2px; }
+.feitasLista li {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s2);
+  padding: 10px 0;
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm);
+}
+.feitasTipo { color: var(--txt-2); }
+.feitasCliente { font-weight: 600; }
+.feitasQuem { margin-left: auto; font-size: var(--t-xs); color: var(--txt-3); }
+
+/* ---- A chegada: onde ele está e com quem falar --------------------------
+   A tela da parada abria direto nas fotos, e o endereço só aparecia depois do
+   quadro de assinatura, em letra miúda. Quem chega num prédio com três portas
+   precisa disto antes de guardar o celular. */
+.chegada {
+  padding: var(--s4);
+  border: 1px solid var(--borda); border-radius: var(--r-lg);
+  background: var(--sup);
+}
+.chegadaEnd { font-size: var(--t-sm); line-height: 1.55; font-weight: 600; }
+.chegadaRef { margin-top: 5px; font-size: var(--t-xs); color: var(--txt-2); line-height: 1.5; }
