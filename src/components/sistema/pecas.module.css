@@ -879,8 +879,25 @@ a.stat:hover { border-color: var(--brand); box-shadow: var(--luz); }
    Uma coluna só, respiro folgado e um vão embaixo do tamanho da bottom-nav.
    Sem o vão, o último item da lista fica eternamente atrás da barra — e é
    sempre o último que a pessoa precisa alcançar no fim do dia.
+
+   ELA SE CHAMAVA `.campo`, E ISSO CUSTOU CARO.
+   --------------------------------------------------------------------------
+   "Campo" é palavra de dois sentidos aqui dentro: o app de CAMPO (a rua) e o
+   CAMPO de formulário (o input com rótulo). As duas classes tinham o mesmo
+   nome neste mesmo arquivo, e num módulo CSS a de baixo simplesmente vence.
+
+   O resultado: TODO campo de formulário do sistema novo — as cinco folhas de
+   fluxo, o gerador de modelos, a captura do motorista — herdava
+   `min-height: 100dvh`. Um campo de texto de 44px passava a ocupar a tela
+   inteira. Medido no celular do motorista: a folha da coleta tinha 3541px de
+   altura, 4,2 telas, com "Quem está recebendo", "CPF" e "Observações"
+   valendo 844px cada. Para assinar uma coleta o motorista rolava quatro
+   telas de vão vazio, na porta do cliente.
+
+   O nome novo é feio de propósito: `cascaDoCampo` não se confunde com campo
+   de formulário nem por descuido, nem na busca do editor.
    ========================================================================== */
-.campo {
+.cascaDoCampo {
   min-height: 100dvh;
   background: var(--bg);
   color: var(--text);

@@ -100,7 +100,7 @@ export default async function LayoutCampo({ children }: { children: React.ReactN
           assinatura, foto e mudança de etapa só valem confirmadas pelo
           servidor. */}
       <RegistrarSW />
-      <main className={estilo.campo}>{children}</main>
+      <main className={estilo.cascaDoCampo}>{children}</main>
       <MobileTabBar abas={ABAS} />
     </div>
   )

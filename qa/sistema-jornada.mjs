@@ -468,6 +468,42 @@ try {
      adriano.url().includes('/campo/parada/'), adriano.url().replace(QA_BASE, '').slice(0, 55))
 
   /**
+   * A FOLHA CABE NA MÃO — e esta medida existe porque ela já não coube.
+   *
+   * =========================================================================
+   * O DEFEITO QUE ESTA CONFERÊNCIA GUARDA
+   * =========================================================================
+   * "Campo" é palavra de dois sentidos neste sistema: o app de CAMPO (a rua) e
+   * o CAMPO de formulário. As duas classes se chamavam `.campo` no mesmo
+   * módulo CSS, e num módulo CSS a de baixo vence. Todo campo de formulário do
+   * sistema novo passou a herdar `min-height: 100dvh`.
+   *
+   * Um input de 44px virava a tela inteira. Esta folha tinha 3541px — 4,2
+   * telas de celular — com "Quem está recebendo", "CPF" e "Observações"
+   * valendo 844px cada. O motorista rolava quatro telas de vão vazio para
+   * assinar, na porta do cliente, com o aparelho na mão.
+   *
+   * Nenhum teste via isso: a página respondia 200, não tinha rolagem lateral,
+   * passava no axe-core e o contraste estava perfeito. Alto demais não é erro
+   * para nenhuma ferramenta — é erro para quem usa.
+   *
+   * O limite abaixo não é gosto: é o que separa "rolar um pouco" de "procurar
+   * o botão". Duas telas e meia numa folha de cinco campos já seria generoso.
+   */
+  const alturaDaFolha = await adriano.evaluate(() => document.documentElement.scrollHeight)
+  ok(5, 'a folha da coleta cabe em duas telas e meia de celular',
+     alturaDaFolha < 844 * 2.5, `${alturaDaFolha}px = ${(alturaDaFolha / 844).toFixed(1)} telas`)
+
+  const rotulosGigantes = await adriano.evaluate(() =>
+    [...document.querySelectorAll('label')]
+      .map((l) => Math.round(l.getBoundingClientRect().height))
+      .filter((h) => h > 200),
+  )
+  ok(5, 'nenhum campo de formulário virou uma tela inteira',
+     rotulosGigantes.length === 0,
+     rotulosGigantes.length ? `${rotulosGigantes.length} campo(s): ${rotulosGigantes.join(', ')}px` : '')
+
+  /**
    * NO CAMPO, A FOTO FICA NO APARELHO ATÉ O ENVIO ÚNICO.
    *
    * Escolher a foto NÃO sobe nada: ela vira miniatura local, e tudo — as fotos,
@@ -663,6 +699,17 @@ try {
   await rafael.waitForURL(/fluxo=orcamento/, { timeout: 20000 }).catch(() => {})
   await rafael.waitForLoadState('networkidle').catch(() => {})
   ok(9, 'a esteira já oferece o passo que faltava: montar e enviar', rafael.url().includes('fluxo=orcamento'))
+
+  // A mesma doença atingia as folhas de mesa. A folha do orçamento é a mais
+  // densa das cinco — se alguma voltar a esticar, é ela.
+  const gigantesNaMesa = await rafael.evaluate(() =>
+    [...document.querySelectorAll('label')]
+      .map((l) => Math.round(l.getBoundingClientRect().height))
+      .filter((h) => h > 300),
+  )
+  ok(9, 'e os campos da folha do orçamento têm tamanho de campo',
+     gigantesNaMesa.length === 0,
+     gigantesNaMesa.length ? `${gigantesNaMesa.length} campo(s): ${gigantesNaMesa.join(', ')}px` : '')
 
   // Duas linhas: a peça e a mão de obra. É o orçamento mais comum da casa.
   const linhas = rafael.locator('input[placeholder*="placa de potência"]')
