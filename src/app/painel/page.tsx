@@ -409,7 +409,7 @@ export default async function PainelDoDia({
         <ul className={estilo.lista}>
           {fila.map((o) => (
             <li key={o.id}>
-              <Link href={`/painel/ordens/${o.id}`} className={estilo.cardOrdem}>
+              <Link href={`/painel/ordens?abrir=${o.id}`} className={estilo.cardOrdem}>
                 <div className={estilo.cardTopo}>
                   <span className={estilo.cardOs}>#{String(o.numero).padStart(4, '0')}</span>
                   <span className={estilo.selo}>{ROTULO_ETAPA[o.etapa]}</span>
@@ -533,7 +533,7 @@ function PrevisaoDePrazo({ risco }: { risco: Saida<LinhaDeRisco[]> }) {
             {risco.valor.map((l) => (
               <li key={l.ordemId} className={estilo.previsaoItem}>
                 <div className={estilo.previsaoQuem}>
-                  <Link href={`/painel/ordens/${l.ordemId}`} className={estilo.previsaoOs}>
+                  <Link href={`/painel/ordens?abrir=${l.ordemId}`} className={estilo.previsaoOs}>
                     OS-{String(l.numero).padStart(4, '0')}
                   </Link>
                   <p className={estilo.previsaoCliente}>
@@ -585,7 +585,7 @@ function BannerDoDia({ alerta }: { alerta: AlertaDoDia }) {
           <ul className={estilo.alertaChips}>
             {alerta.ofensores.map((o) => (
               <li key={o.id}>
-                <Link href={`/painel/ordens/${o.id}`} className={estilo.alertaChip}>
+                <Link href={`/painel/ordens?abrir=${o.id}`} className={estilo.alertaChip}>
                   <span className={estilo.alertaChipOs}>OS-{String(o.numero).padStart(4, '0')}</span>
                   <span className={estilo.alertaChipQuem}>{o.cliente}</span>
                   <span className={estilo.alertaChipDias}>

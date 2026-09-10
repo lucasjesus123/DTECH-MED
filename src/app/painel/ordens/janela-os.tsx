@@ -17,6 +17,9 @@ import {
 import { emitir, receber } from '@/server/acoes/financeiro'
 import { atribuirMotorista, remarcarParada } from '@/server/acoes/agenda'
 import { FormularioDaParada } from './[id]/agendar-parada'
+import Diagnostico from './[id]/diagnostico'
+import Responsavel from './[id]/responsavel'
+import Orcamento from './[id]/orcamento'
 import Cancelar from './[id]/cancelar'
 import estilo from '../painel.module.css'
 
@@ -589,6 +592,72 @@ function Agora({
           </label>
         </>
       )}
+
+      {/* -------------------------------------------------------------------
+          O PASSO 7 — laudo, responsável e orçamento, aqui dentro
+          -------------------------------------------------------------------
+          A janela conduzia os onze passos e sabia executar dois: a peça (8) e o
+          pagamento (9). O 7 — que é onde a O.S. passa mais tempo — mandava a
+          pessoa fechar a janela, abrir a ficha longa e rolar até o bloco. Ela
+          lia "o técnico escreve o laudo e a gestão manda o orçamento" e não
+          tinha onde escrever nem um nem outro.
+
+          São os MESMOS componentes da ficha, com os mesmos servidores por trás.
+          Não há segunda versão do laudo para divergir da primeira. */}
+      {painel.laudo && painel.responsavel ? (
+        <div className={estilo.osPasso7}>
+          <details className={estilo.osDobra} open={!painel.laudo.diagnostico}>
+            <summary className={estilo.osDobraTitulo}>
+              O laudo do técnico
+              {painel.laudo.diagnostico ? (
+                <span className={estilo.osDobraOk}>escrito</span>
+              ) : (
+                <span className={estilo.osDobraFalta}>falta</span>
+              )}
+            </summary>
+            <Diagnostico
+              ordemId={d.id}
+              diagnostico={painel.laudo.diagnostico}
+              parecerTecnico={painel.laudo.parecerTecnico}
+              servicoExecutado={painel.laudo.servicoExecutado}
+              testesFinais={painel.laudo.testesFinais}
+              jaExecutou={painel.laudo.jaExecutou}
+              proximoPasso={painel.passos[0]?.titulo ?? null}
+              aoSalvar={aoAndar}
+            />
+          </details>
+
+          <details className={estilo.osDobra}>
+            <summary className={estilo.osDobraTitulo}>
+              Técnico e prazo
+              <span className={estilo.osDobraOk}>
+                {painel.dossie.tecnico ?? 'ninguém ainda'}
+              </span>
+            </summary>
+            <Responsavel
+              ordemId={d.id}
+              tecnicoAtualId={painel.responsavel.tecnicoAtualId}
+              prazoPrometido={painel.responsavel.prazoPrometido}
+              prioridade={painel.prioridade}
+              tecnicos={painel.responsavel.tecnicos}
+              aoSalvar={aoAndar}
+            />
+          </details>
+        </div>
+      ) : null}
+
+      {painel.orcamento ? (
+        <div className={estilo.osPasso7}>
+          <Orcamento
+            ordemId={d.id}
+            etapa={d.etapa}
+            papel={painel.meuPapel}
+            orcamentos={painel.orcamento.versoes}
+            pecas={painel.orcamento.pecas}
+            aoMudar={aoAndar}
+          />
+        </div>
+      ) : null}
 
       {/* O PASSO 8 e o PASSO 9 aparecem DENTRO do painel do agora, e não como
           uma tela à parte, porque eles não são um desvio do passo: eles SÃO o

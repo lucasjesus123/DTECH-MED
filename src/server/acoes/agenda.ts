@@ -67,6 +67,31 @@ export async function agendar(_anterior: Resposta, form: FormData): Promise<Resp
     })
     if (!ordem) return { ok: false as const, motivo: 'Ordem não encontrada.' }
 
+    /**
+     * O MOTORISTA É OBRIGATÓRIO — quando existe motorista para escolher.
+     *
+     * O pedido do dono, com estas palavras: *"agenda o calendário e marca o
+     * motorista (OBRIGATÓRIO)"*. E o motivo é o passo seguinte: a parada só
+     * entra no aplicativo e só faz o celular apitar quando tem dono. Sem
+     * motorista ela nasce `PENDENTE`, não aparece para ninguém na rua, e o
+     * cliente já ouviu uma data.
+     *
+     * A exceção é honesta: a casa que ainda não cadastrou motorista nenhum
+     * pode marcar o dia mesmo assim, e definir quem vai depois — recusar aqui
+     * seria travar a primeira O.S. de uma empresa nova por um cadastro que ela
+     * ainda vai fazer.
+     */
+    if (!v.motoristaId) {
+      const motoristas = await tx.user.count({ where: { papel: Papel.MOTORISTA, ativo: true } })
+      if (motoristas > 0) {
+        return {
+          ok: false as const,
+          motivo:
+            'Escolha quem vai. Sem motorista a parada não entra no aplicativo de ninguém e o celular não avisa.',
+        }
+      }
+    }
+
     const ag = await tx.agendamento.create({
       data: {
         tenantId: exigirEmpresa(a.ctx),

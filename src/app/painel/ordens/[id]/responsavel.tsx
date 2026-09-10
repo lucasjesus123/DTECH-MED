@@ -19,12 +19,15 @@ export default function Responsavel({
   prazoPrometido,
   prioridade,
   tecnicos,
+  aoSalvar,
 }: {
   ordemId: string
   tecnicoAtualId: string | null
   prazoPrometido: string
   prioridade: 'NORMAL' | 'ALTA'
   tecnicos: Array<{ id: string; nome: string }>
+  /** Mesmo motivo do laudo: a janela guarda o painel em estado próprio. */
+  aoSalvar?: () => void
 }) {
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [pendente, iniciar] = useTransition()
@@ -35,7 +38,10 @@ export default function Responsavel({
     iniciar(async () => {
       const r = await definirResponsavel(form)
       setMsg(r.ok ? { ok: true, texto: 'Salvo.' } : { ok: false, texto: r.motivo })
-      if (r.ok) router.refresh()
+      if (r.ok) {
+        router.refresh()
+        aoSalvar?.()
+      }
     })
   }
 

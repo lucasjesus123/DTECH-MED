@@ -129,7 +129,7 @@ export function Cartoes({
               <div className={estilo.trilhaMiniTxt}>
                 <span>{o.agora}</span>
                 <span>
-                  {o.cumpridos}/{o.total}
+                  passo {o.cumpridos} de {o.total}
                 </span>
               </div>
             </div>

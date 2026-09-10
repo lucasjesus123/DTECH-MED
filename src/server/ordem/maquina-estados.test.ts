@@ -214,3 +214,39 @@ describe('próximos passos por papel', () => {
     expect(p.map((t) => t.para)).not.toContain(E.ORCAMENTO_APROVADO)
   })
 })
+
+/**
+ * QUEM PODE FECHAR O LAUDO E A MANUTENÇÃO.
+ *
+ * Estes dois passos eram exclusivos do técnico, e numa oficina de três pessoas
+ * o dono faz os dois papéis. O que protege a esteira aqui NÃO é o papel — é a
+ * exigência: sem diagnóstico o laudo não fecha, sem declaração de peça a
+ * manutenção não conclui, para quem quer que seja. Estes testes prendem as
+ * duas metades: a gestão entrou, o motorista continua de fora.
+ */
+describe('a gestão fecha pelo técnico, o resto da casa não', () => {
+  const podem: Array<[E, E, P]> = [
+    [E.EM_ANALISE, E.ORCAMENTO_INTERNO, P.ADMIN_EMPRESA],
+    [E.EM_ANALISE, E.ORCAMENTO_INTERNO, P.GESTOR],
+    [E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA, P.ADMIN_EMPRESA],
+    [E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA, P.GESTOR],
+  ]
+  for (const [de, para, papel] of podem) {
+    it(`${papel} fecha ${de} → ${para}`, () => {
+      expect(validarTransicao({ de, para, papel }).ok).toBe(true)
+    })
+  }
+
+  const naoPodem: Array<[E, E, P]> = [
+    [E.EM_ANALISE, E.ORCAMENTO_INTERNO, P.MOTORISTA],
+    [E.EM_ANALISE, E.ORCAMENTO_INTERNO, P.ATENDENTE],
+    [E.EM_ANALISE, E.ORCAMENTO_INTERNO, P.FINANCEIRO],
+    [E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA, P.MOTORISTA],
+    [E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA, P.ATENDENTE],
+  ]
+  for (const [de, para, papel] of naoPodem) {
+    it(`${papel} NÃO fecha ${de} → ${para}`, () => {
+      expect(validarTransicao({ de, para, papel }).ok).toBe(false)
+    })
+  }
+})

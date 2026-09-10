@@ -128,7 +128,7 @@ export default async function Agenda() {
                         </span>
                       </td>
                       <td className={estilo.num}>
-                        <Link href={`/painel/ordens/${p.ordem.id}`}>#{String(p.ordem.numero).padStart(4, '0')}</Link>
+                        <Link href={`/painel/ordens?abrir=${p.ordem.id}`}>#{String(p.ordem.numero).padStart(4, '0')}</Link>
                       </td>
                       <td>
                         <span className={estilo.forte}>{p.ordem.cliente.nome}</span>

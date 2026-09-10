@@ -161,6 +161,9 @@ export function FormularioDaParada({
   }, [estado, router, aoFechar, aoMarcar])
 
   const escolhido = dados.motoristas.find((m) => m.id === motoristaId) ?? null
+  // Só cobra motorista de quem tem motorista: a casa sem nenhum cadastrado
+  // marca o dia e define quem vai depois. A mesma exceção vale no servidor.
+  const faltaMotorista = dados.motoristas.length > 0 && !motoristaId
 
   /** Quantas paradas cada dia tem, para o motorista escolhido. */
   const carga = useMemo(() => {
@@ -206,7 +209,7 @@ export function FormularioDaParada({
 
         {/* ---- 1. QUEM VAI ------------------------------------------- */}
         <div>
-          <p className={estilo.rotulo}>Quem vai</p>
+          <p className={estilo.rotulo}>Quem vai{dados.motoristas.length > 0 ? ' *' : ''}</p>
           <div className={estilo.agTiras}>
             {dados.motoristas.map((m) => (
               <button
@@ -370,15 +373,26 @@ export function FormularioDaParada({
           />
         </label>
 
+        {/* O MOTORISTA É OBRIGATÓRIO quando há motorista para escolher.
+            A regra mora no servidor (`agendar` recusa); aqui a tela só não
+            oferece o que ia falhar, e diz o que falta em vez de deixar a
+            pessoa preencher sete campos para levar a recusa no fim. */}
         <div className={estilo.acoesForm}>
-          <button type="submit" className={estilo.btn} disabled={pendente || !dia}>
+          <button type="submit" className={estilo.btn} disabled={pendente || !dia || faltaMotorista}>
             {pendente ? 'Marcando…' : 'Marcar e avisar o cliente'}
           </button>
           <button type="button" className={estilo.btnSec} onClick={aoFechar} disabled={pendente}>
             Cancelar
           </button>
         </div>
-        {!dia ? <p className={estilo.dica}>O botão libera quando você escolher o dia.</p> : null}
+        {faltaMotorista ? (
+          <p className={estilo.dica}>
+            <strong>Falta escolher quem vai.</strong> Sem motorista a parada não entra no
+            aplicativo de ninguém e o celular não avisa.
+          </p>
+        ) : !dia ? (
+          <p className={estilo.dica}>O botão libera quando você escolher o dia.</p>
+        ) : null}
       </form>
     </>
   )

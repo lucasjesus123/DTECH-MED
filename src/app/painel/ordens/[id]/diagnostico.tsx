@@ -46,6 +46,7 @@ export default function Diagnostico({
   testesFinais,
   jaExecutou,
   proximoPasso,
+  aoSalvar,
 }: {
   ordemId: string
   diagnostico: string
@@ -56,6 +57,13 @@ export default function Diagnostico({
   jaExecutou: boolean
   /** O nome do próximo passo da esteira, para o laudo emendar nele. */
   proximoPasso: string | null
+  /**
+   * Chamado depois de salvar. A ficha longa não precisa — o `router.refresh()
+      aoSalvar?.()`
+   * a redesenha inteira. A JANELA da O.S. precisa: ela guarda o painel em
+   * estado próprio, e o refresh da rota não o toca.
+   */
+  aoSalvar?: () => void
 }) {
   const [aberto, setAberto] = useState(!diagnostico)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
@@ -75,6 +83,7 @@ export default function Diagnostico({
       setSalvou(true)
       setAberto(false)
       router.refresh()
+      aoSalvar?.()
       /**
        * SALVAR PRECISA EMENDAR NO PRÓXIMO PASSO.
        *

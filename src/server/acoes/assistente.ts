@@ -16,7 +16,9 @@ import { ROTULO_ETAPA, TERMINAIS, proximosPassos } from '@/server/ordem/maquina-
 import { montarRoteiro, type Roteiro } from '@/server/ordem/roteiro'
 import {
   agendaDosMotoristas,
+  listarPecas,
   motoristasDaEmpresa,
+  tecnicosDaEmpresa,
   type AgendaDeMotorista,
   type ParadaMarcada,
 } from '@/server/consultas/listas'
@@ -112,6 +114,34 @@ export type ParadaMarcadaNaOrdem = {
   fechada: boolean
 }
 
+/** O recorte de orçamento que a janela desenha. Igual ao da ficha longa. */
+export type OrcamentoNaJanela = {
+  id: string
+  numero: number
+  versao: number
+  status: string
+  totalCentavos: number
+  subtotalPecas: number
+  subtotalServicos: number
+  descontoCentavos: number
+  acrescimoCentavos: number
+  garantiaDias: number
+  prazoExecucaoDias: number
+  validoAte: string | null
+  enviadoEm: string | null
+  respondidoEm: string | null
+  aprovadoPorNome: string | null
+  motivoReprovacao: string | null
+  itens: Array<{
+    id: string
+    tipo: string
+    descricao: string
+    quantidade: number
+    valorUnitCentavos: number
+    valorTotalCentavos: number
+  }>
+}
+
 export type PainelDaOrdem = {
   dossie: Dossie
   roteiro: Roteiro
@@ -165,6 +195,45 @@ export type PainelDaOrdem = {
    * assim não pode derrubar a janela.
    */
   cliente: FichaDoCliente | null
+  /**
+   * O QUE O PASSO 7 E O PASSO 8 PRECISAM PARA ACONTECER AQUI DENTRO.
+   *
+   * =============================================================================
+   * POR QUE ISTO ENTROU NA JANELA
+   * =============================================================================
+   * A janela conduzia os onze passos e sabia executar dois deles: a peça (8) e o
+   * pagamento (9). Os passos 7 — laudo e orçamento — continuavam só na ficha
+   * longa. Quem estava na janela lia *"o técnico dá entrada, escreve o laudo, e
+   * a gestão manda o orçamento"* e não tinha onde escrever nem o laudo nem o
+   * orçamento: precisava fechar, abrir a ficha, rolar até o bloco.
+   *
+   * Era o buraco do meio do processo — justamente onde a O.S. passa mais tempo.
+   *
+   * Tudo isto só é carregado NA ETAPA em que serve. Fora dela, `null` e lista
+   * vazia: carregar o catálogo de peças com preço em toda abertura de janela é
+   * trabalho de banco para desenhar coisa nenhuma.
+   */
+  laudo: {
+    diagnostico: string
+    parecerTecnico: string
+    servicoExecutado: string
+    testesFinais: string
+    /** A ordem já passou pela bancada? Só então execução e testes existem. */
+    jaExecutou: boolean
+  } | null
+  /** Técnico responsável e prazo, para o passo 7 designar sem sair daqui. */
+  responsavel: {
+    tecnicoAtualId: string | null
+    prazoPrometido: string
+    tecnicos: Array<{ id: string; nome: string }>
+  } | null
+  /** O orçamento desta ordem, e o catálogo com preço para montá-lo. */
+  orcamento: {
+    versoes: OrcamentoNaJanela[]
+    pecas: Array<{ id: string; sku: string; nome: string; precoVendaCentavos: number; livre: number }>
+  } | null
+  /** O papel de quem abriu — o editor de orçamento decide o que oferecer. */
+  meuPapel: Papel
   /** Quem emite fatura e registra recebimento. */
   podeFaturar: boolean
   /**
@@ -276,6 +345,15 @@ export async function painelDaOrdem(
               uf: true,
               cep: true,
             },
+          },
+          parecerTecnico: true,
+          servicoExecutado: true,
+          testesFinais: true,
+          tecnicoId: true,
+          prazoPrometido: true,
+          orcamentos: {
+            orderBy: { versao: 'desc' },
+            include: { itens: { orderBy: { ordem: 'asc' } } },
           },
           semPecaDeclaradoEm: true,
           semPecaDeclaradoPorNome: true,
@@ -423,6 +501,84 @@ export async function painelDaOrdem(
       : []
 
   /**
+   * O PASSO 7 INTEIRO — laudo, responsável e orçamento — carregado só nele.
+   *
+   * As quatro etapas que o roteiro agrupa no passo 7 são onde a O.S. passa mais
+   * tempo, e eram as únicas do assistente sem nada para fazer dentro da janela.
+   * Fora delas isto tudo é `null`: a lista de peças com preço e as versões de
+   * orçamento não têm por que atravessar a rede numa ordem que acabou de nascer.
+   */
+  const NO_PASSO_7 =
+    extra.etapa === EtapaOrdem.RECEBIDO_NA_EMPRESA ||
+    extra.etapa === EtapaOrdem.EM_ANALISE ||
+    extra.etapa === EtapaOrdem.ORCAMENTO_INTERNO ||
+    extra.etapa === EtapaOrdem.ORCAMENTO_ENVIADO ||
+    extra.etapa === EtapaOrdem.ORCAMENTO_REPROVADO
+
+  const laudo = NO_PASSO_7
+    ? {
+        diagnostico: extra.diagnostico ?? '',
+        parecerTecnico: extra.parecerTecnico ?? '',
+        servicoExecutado: extra.servicoExecutado ?? '',
+        testesFinais: extra.testesFinais ?? '',
+        // Execução e testes só existem depois que o aparelho entra na bancada.
+        jaExecutou: false,
+      }
+    : null
+
+  const [tecnicosDaCasa, pecasComPreco] = await Promise.all([
+    NO_PASSO_7 && podeAgendar ? tecnicosDaEmpresa(ctx) : Promise.resolve([]),
+    NO_PASSO_7 ? listarPecas(ctx) : Promise.resolve([]),
+  ])
+
+  const responsavel = NO_PASSO_7
+    ? {
+        tecnicoAtualId: extra.tecnicoId,
+        prazoPrometido: extra.prazoPrometido ? diaLocal(extra.prazoPrometido) : '',
+        tecnicos: tecnicosDaCasa.map((t) => ({ id: t.id, nome: t.nome })),
+      }
+    : null
+
+  const orcamento = NO_PASSO_7
+    ? {
+        versoes: extra.orcamentos.map((o) => ({
+          id: o.id,
+          numero: o.numero,
+          versao: o.versao,
+          status: o.status,
+          totalCentavos: o.totalCentavos,
+          subtotalPecas: o.subtotalPecas,
+          subtotalServicos: o.subtotalServicos,
+          descontoCentavos: o.descontoCentavos,
+          acrescimoCentavos: o.acrescimoCentavos,
+          garantiaDias: o.garantiaDias,
+          prazoExecucaoDias: o.prazoExecucaoDias,
+          validoAte: o.validoAte?.toISOString() ?? null,
+          enviadoEm: o.enviadoEm?.toISOString() ?? null,
+          respondidoEm: o.respondidoEm?.toISOString() ?? null,
+          aprovadoPorNome: o.aprovadoPorNome,
+          motivoReprovacao: o.motivoReprovacao,
+          itens: o.itens.map((i) => ({
+            id: i.id,
+            tipo: i.tipo,
+            descricao: i.descricao,
+            // `Decimal` do Prisma não atravessa a fronteira servidor→cliente.
+            quantidade: Number(i.quantidade),
+            valorUnitCentavos: i.valorUnitCentavos,
+            valorTotalCentavos: i.valorTotalCentavos,
+          })),
+        })),
+        pecas: pecasComPreco.map((x) => ({
+          id: x.id,
+          sku: x.sku,
+          nome: x.nome,
+          precoVendaCentavos: x.precoVendaCentavos,
+          livre: x.livre,
+        })),
+      }
+    : null
+
+  /**
    * QUEM MEXE NA ROTA — a mesma lista que a ação `agendar` confere.
    *
    * A janela desenha os controles a partir daqui, e a ação recusa por conta
@@ -543,6 +699,10 @@ export async function painelDaOrdem(
       podeLancarPeca,
       catalogoDePecas,
       cliente,
+      laudo,
+      responsavel,
+      orcamento,
+      meuPapel: sessao.papel,
       podeFaturar: FINANCEIRO.includes(sessao.papel),
       faturaId: extra.fatura?.id ?? null,
       faturaVence: extra.fatura?.vencimento ? diaLocal(extra.fatura.vencimento) : null,

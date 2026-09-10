@@ -132,7 +132,7 @@ export default async function Equipamentos({
                     {ultima ? (
                       <>
                         última:{' '}
-                        <Link href={`/painel/ordens/${ultima.id}`}>
+                        <Link href={`/painel/ordens?abrir=${ultima.id}`}>
                           #{String(ultima.numero).padStart(4, '0')}
                         </Link>{' '}
                         · {ROTULO_ETAPA[ultima.etapa]}

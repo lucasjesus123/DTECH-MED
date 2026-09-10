@@ -79,12 +79,19 @@ export default function Orcamento({
   papel,
   orcamentos,
   pecas,
+  aoMudar,
 }: {
   ordemId: string
   etapa: string
   papel: Papel
   orcamentos: OrcamentoView[]
   pecas: Array<{ id: string; sku: string; nome: string; precoVendaCentavos: number; livre: number }>
+  /**
+   * Chamado depois de salvar ou enviar. A ficha longa não precisa dele — o
+   * `router.refresh()` já a redesenha inteira. A JANELA da O.S. precisa: ela
+   * guarda o painel em estado próprio, e o refresh da rota não o toca.
+   */
+  aoMudar?: () => void
 }) {
   const atual = orcamentos[0] ?? null
   const editavel =
@@ -150,6 +157,7 @@ export default function Orcamento({
       )
       setAbrirEditor(false)
       router.refresh()
+      aoMudar?.()
     })
   }
 
@@ -162,7 +170,10 @@ export default function Orcamento({
           ? { ok: true, texto: 'Enviado. O cliente recebeu o link e o PDF no WhatsApp.' }
           : { ok: false, texto: r.motivo },
       )
-      if (r.ok) router.refresh()
+      if (r.ok) {
+        router.refresh()
+        aoMudar?.()
+      }
     })
   }
 

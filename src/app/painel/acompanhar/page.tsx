@@ -4,6 +4,7 @@ import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
 import { ondeEsta } from '@/server/ordem/onde-esta'
 import { montarTrilha } from '@/server/ordem/trilha'
+import { TOTAL_DE_PASSOS, passoDaEtapa } from '@/server/ordem/roteiro'
 import { Cartoes, type CartaoOrdem } from './cartoes'
 import AbasOS from '../os-abas'
 import estilo from '../painel.module.css'
@@ -154,10 +155,19 @@ export default async function Acompanhar({
         (o.equipamento.numeroSerie ? ` · ${o.equipamento.numeroSerie}` : ''),
       atrasada: !!o.prazoPrometido && o.prazoPrometido < agora,
       agora: trilha.agora,
-      porcento: trilha.porcento,
+      /**
+       * A BARRA CONTA NOS ONZE PASSOS, e não nas dezoito etapas.
+       *
+       * A lista de O.S. diz "7/11", a janela diz "passo 7 de 11", e este cartão
+       * dizia "9/18" para a MESMA ordem. Três números para uma coisa só, e o
+       * dono do sistema conta em onze — é o passo a passo dele. As dezoito
+       * etapas continuam existindo na ficha completa, para quem investiga; o
+       * que a pessoa vê de relance tem de bater com o que ela lê ao abrir.
+       */
+      porcento: Math.max(0, Math.min(100, ((passoDaEtapa(o.etapa) - 1) / (TOTAL_DE_PASSOS - 1)) * 100)),
       desvio: !!trilha.desvio,
-      cumpridos: trilha.cumpridos,
-      total: trilha.total,
+      cumpridos: passoDaEtapa(o.etapa),
+      total: TOTAL_DE_PASSOS,
       valorCentavos: o.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? null,
       emAbertoCentavos: o.fatura ? o.fatura.valorTotalCentavos - o.fatura.valorPagoCentavos : null,
       fotos: o._count.fotos,

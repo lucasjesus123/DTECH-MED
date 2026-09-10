@@ -82,7 +82,7 @@ export default function Agendador({
             {pendentes.map((p) => (
               <tr key={p.ordemId}>
                 <td className={estilo.num}>
-                  <Link href={`/painel/ordens/${p.ordemId}`}>#{String(p.numero).padStart(4, '0')}</Link>
+                  <Link href={`/painel/ordens?abrir=${p.ordemId}`}>#{String(p.numero).padStart(4, '0')}</Link>
                 </td>
                 <td>
                   <span className={estilo.tag}>{p.tipo === 'RETIRADA' ? 'retirada' : 'entrega'}</span>

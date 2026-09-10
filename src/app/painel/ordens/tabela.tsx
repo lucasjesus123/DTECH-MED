@@ -89,7 +89,7 @@ export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
               <th>Passo</th>
               <th>Etapa</th>
               <th>Técnico</th>
-              <th>Parada</th>
+              <th>Última mexida</th>
               <th className={estilo.dir}>Fatura</th>
             </tr>
           </thead>

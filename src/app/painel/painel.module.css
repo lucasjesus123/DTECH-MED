@@ -1430,13 +1430,40 @@
   }
   /* A lateral vira uma faixa rolável no topo: no celular a navegação lateral
      fixa comeria metade da tela. */
+  /* DUAS FILEIRAS, E NÃO UMA.
+     -----------------------------------------------------------------------
+     A versão anterior deitava tudo numa linha só e mandava rolar de lado. O
+     que acontecia de verdade: com dezesseis itens de menu mais a marca, o
+     seletor de tema e o botão Sair na mesma linha, o navegador encolhia todos
+     e eles se escreviam por cima. E, mesmo se rolasse, "Sair" ficaria depois
+     de dezesseis itens — a distância errada para o botão que a pessoa aperta
+     quando quer sair rápido de um sistema que tem dado do cliente na tela.
+
+     Fileira de cima, FIXA: marca, tema, quem é você, Sair. Fileira de baixo,
+     ROLÁVEL: as telas. Cada uma com o comportamento que o conteúdo pede. */
+  /* DUAS FILEIRAS, E NÃO UMA — e sem mexer no HTML.
+     -----------------------------------------------------------------------
+     A versão anterior deitava tudo numa linha só e mandava rolar de lado. O
+     que acontecia de verdade: com dezesseis itens de menu mais a marca, o
+     seletor de tema e o botão Sair na mesma linha, o navegador encolhia todos
+     e eles se escreviam por cima. E, mesmo se rolasse, "Sair" ficaria depois
+     de dezesseis itens — a distância errada para o botão que a pessoa aperta
+     quando quer fechar rápido um sistema com dado de cliente na tela.
+
+     Uma grade de duas fileiras resolve sem tocar na árvore: a de cima leva a
+     marca e o rodapé (tema, quem é você, Sair); a de baixo leva as telas e é
+     a única que rola. O `grid-area` reordena sem reordenar o DOM, então a
+     ordem de leitura de quem usa leitor de tela continua a mesma. */
   .lateral {
     position: static;
     height: auto;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'marca pe'
+      'nav nav';
     align-items: center;
-    gap: var(--s2);
-    overflow-x: auto;
+    gap: var(--s3);
     border-right: 0;
     border-bottom: 1px solid var(--borda);
     padding: var(--s3) var(--s4);
@@ -1451,12 +1478,93 @@
     margin: 0;
     padding: 0;
   }
-  .latItem {
+  /* A FAIXA SÓ ANDA DE LADO SE O QUE ESTÁ DENTRO DELA TAMBÉM ANDAR.
+     -----------------------------------------------------------------------
+     A regra virava a `.lateral` para `row` e parava aí. Dentro dela, o `<nav>`
+     continuava sendo `display: grid` — uma coluna — e os `<div>` de cada grupo
+     continuavam empilhando. O resultado no celular: a marca e o crachá no meio
+     da página, dezesseis itens de menu descendo numa coluna estreita, e o
+     conteúdo da tela empurrado para 800px abaixo do topo.
+
+     Não bastava esconder o título do grupo: era preciso desmontar as três
+     caixas — nav, grupo e item — para a mesma linha. */
+  /* A faixa das telas rola de lado; o `<nav>` e os grupos, que eram grid e
+     coluna, precisam virar linha junto — esconder só o título do grupo deixava
+     as caixas empilhando do mesmo jeito. */
+  .latNav {
+    display: flex;
+    gap: var(--s2);
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Sangra até a borda: o último item encosta na margem em vez de parecer
+       que a lista acabou. */
+    margin: 0 calc(var(--s4) * -1);
+    padding: 0 var(--s4);
+  }
+  .latNav::-webkit-scrollbar { display: none; }
+  .latNav > div {
+    display: flex;
+    gap: var(--s2);
+  }
+  /* Nada encolhe: é o encolhimento que fazia os itens se sobreporem. */
+  .latNav > div > a { flex: 0 0 auto; }
+  .latItem,
+  .latItemAtivo {
     white-space: nowrap;
     border-left: 0;
     border-radius: var(--r);
+    margin: 0;
     padding: 8px 12px;
   }
+  /* O traço da esquerda marcava a aba aberta numa coluna. Deitado, ele vira um
+     risco no meio do texto; embaixo, continua dizendo a mesma coisa. */
+  .latItemAtivo::before {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: -6px;
+    transform: none;
+    width: auto;
+    height: 2px;
+  }
+  /* A marca fica; o crachá some. Numa faixa de 390px ele custa metade da
+     largura para dizer o nome de uma empresa que a pessoa já sabe qual é. */
+  .cracha { display: none; }
+  .latMarca { grid-area: marca; }
+  .latNav { grid-area: nav; }
+  .latPe {
+    grid-area: pe;
+    justify-self: end;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    border: 0;
+    padding: 0;
+  }
+  /* A BARRA DE CIMA PARA DE SE ESCREVER POR CIMA.
+     -----------------------------------------------------------------------
+     Ela é `display:flex` com altura fixa de 56px: a busca, o selo da empresa,
+     o do WhatsApp e a data numa linha só. Em 390px isso não cabe, e o que
+     acontece não é quebrar — é encolher até um desenhar em cima do outro.
+
+     No celular ela deixa de ter altura fixa e passa a quebrar. A busca é a
+     primeira e ocupa a linha inteira, porque é o que se usa com o telefone no
+     ombro; os selos vão para a segunda. A DATA sai: quem está com o celular na
+     mão tem a data na barra de status do próprio aparelho, dois centímetros
+     acima. */
+  .barra {
+    height: auto;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    padding: var(--s3) var(--s4);
+  }
+  /* A busca é o primeiro filho da barra e tem classe própria — mirar nela pelo
+     nome é mais honesto que mirar em "o primeiro `div`", que muda de sentido
+     no dia em que alguém puser outra coisa antes. */
+  .barra > .busca { flex: 1 0 100%; }
+  .data { display: none; }
+
   .rolagem {
     padding: var(--s5) var(--s4) var(--s7);
   }
@@ -8319,3 +8427,58 @@ a.osListaItem:hover { background: var(--sup-1); }
 .osHistAdiante { opacity: .5; }
 .osHistNome { font-size: var(--t-sm); font-weight: 500; }
 .osHistQuando { font-size: var(--t-xs); color: var(--txt-3); margin-top: 1px; }
+
+/* ---------------------------------------------------------------------------
+   O PASSO 7 DENTRO DA JANELA — laudo, técnico e orçamento
+   ---------------------------------------------------------------------------
+   Eles são o passo, não um anexo dele, e por isso ficam dentro do painel do
+   agora. Mas são TRÊS coisas compridas, e três formulários abertos ao mesmo
+   tempo transformariam a janela do passo a passo numa página de rolagem — que
+   é exatamente o que ela veio substituir.
+
+   `<details>` resolve sem JavaScript: o que falta abre sozinho (o laudo, quando
+   não há laudo), o resto fica a um toque. O selo à direita diz o estado sem
+   precisar abrir — "escrito" / "falta" é a resposta que a pessoa procurava ao
+   clicar.
+   --------------------------------------------------------------------------- */
+.osPasso7 { margin-top: var(--s4); display: grid; gap: var(--s2); }
+.osDobra {
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-1);
+}
+.osDobraTitulo {
+  cursor: pointer;
+  padding: var(--s3) var(--s4);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  list-style: none;
+}
+.osDobraTitulo::-webkit-details-marker { display: none; }
+.osDobraTitulo::after {
+  content: '▾';
+  margin-left: auto;
+  color: var(--txt-3);
+  font-size: var(--t-xs);
+}
+.osDobra[open] > .osDobraTitulo::after { content: '▴'; }
+.osDobra > *:not(summary) { padding: 0 var(--s4) var(--s4); }
+.osDobraOk, .osDobraFalta {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+.osDobraOk { color: var(--txt-3); background: var(--sup-2); }
+/* Âmbar, e não vermelho: falta laudo não é erro, é o trabalho de agora. */
+.osDobraFalta {
+  color: var(--espera);
+  background: rgba(251, 191, 36, .12);
+  border: 1px solid rgba(251, 191, 36, .3);
+}
+.osPasso7 .bloco { border: 0; background: none; padding: 0; }

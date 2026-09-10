@@ -150,7 +150,17 @@ export const TRANSICOES: Transicao[] = [
     para: T.ORCAMENTO_INTERNO,
     tipo: 'orcamento.para_revisao',
     titulo: 'Laudo concluído, orçamento em revisão',
-    papeis: [P.TECNICO],
+    /**
+     * A GESTÃO TAMBÉM FECHA O LAUDO — e não fechava.
+     *
+     * Só o técnico podia dar este passo. Numa oficina de três pessoas o dono
+     * abre a O.S., recebe o aparelho, digita o laudo que o técnico ditou e
+     * manda o orçamento — e a janela dizia a ele "nada para fazer agora com o
+     * seu perfil", com o laudo escrito na tela. O papel não era o que protegia
+     * o passo; a EXIGÊNCIA era: sem `DIAGNOSTICO` gravado ele continua não
+     * andando, para quem quer que seja. A trilha registra quem foi.
+     */
+    papeis: [P.TECNICO, P.ADMIN_EMPRESA, P.GESTOR],
     avisaCliente: false,
     gera: 'LAUDO_TECNICO',
     exige: ['DIAGNOSTICO'],
@@ -233,7 +243,10 @@ export const TRANSICOES: Transicao[] = [
     para: T.MANUTENCAO_CONCLUIDA,
     tipo: 'manutencao.concluida',
     titulo: 'Manutenção concluída, testes aprovados',
-    papeis: [P.TECNICO],
+    // Mesma razão do laudo: quem protege o passo é `PECAS_DECLARADAS`, não o
+    // papel. A gestão que fecha o serviço pelo técnico continua tendo de dizer
+    // o que saiu da prateleira.
+    papeis: [P.TECNICO, P.ADMIN_EMPRESA, P.GESTOR],
     avisaCliente: true,
     /**
      * O SERVIÇO NÃO FECHA SEM SE SABER O QUE SAIU DA PRATELEIRA.
