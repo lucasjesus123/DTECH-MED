@@ -124,20 +124,14 @@ describe('o botão-da-vez', () => {
 })
 
 describe('a fusão é elástica — ela anda até onde o papel alcança', () => {
-  it('para o TÉCNICO, "emitir laudo" para no laudo: enviar orçamento é da gestão', () => {
-    const acao = acaoDaVez(EtapaOrdem.EM_ANALISE, Papel.TECNICO)
-    expect(acao).not.toBeNull()
-    expect(acao!.passos).toEqual([EtapaOrdem.ORCAMENTO_INTERNO])
-    expect(acao!.fundida).toBe(false)
-    // O rótulo precisa contar a verdade do que o clique vai fazer. Prometer
-    // "laudo + orçamento" e entregar só o laudo é pior que dois botões.
-    expect(acao!.rotulo).toBe('Emitir laudo')
-  })
-
-  it('para a GESTÃO, o mesmo botão vale por dois saltos', () => {
-    for (const papel of [Papel.GESTOR, Papel.ADMIN_EMPRESA]) {
+  it('"emitir laudo + orçamento" vale por dois saltos para o técnico E para a gestão', () => {
+    // O técnico entrou nesta lista por decisão do dono, com o custo na mesa:
+    // o segundo par de olhos antes do envio deixou de existir, e o que protege
+    // o passo passou a ser a exigência de orçamento montado mais a trilha. O
+    // porquê está escrito na própria transição, em `maquina-estados.ts`.
+    for (const papel of [Papel.TECNICO, Papel.GESTOR, Papel.ADMIN_EMPRESA]) {
       const acao = acaoDaVez(EtapaOrdem.EM_ANALISE, papel)
-      expect(acao).not.toBeNull()
+      expect(acao, `${papel} deveria ter o botão`).not.toBeNull()
       expect(acao!.passos).toEqual([
         EtapaOrdem.ORCAMENTO_INTERNO,
         EtapaOrdem.ORCAMENTO_ENVIADO,
@@ -145,6 +139,10 @@ describe('a fusão é elástica — ela anda até onde o papel alcança', () => 
       expect(acao!.fundida).toBe(true)
       expect(acao!.rotulo).toBe('Emitir laudo + orçamento')
     }
+  })
+
+  it('o ATENDENTE não emite laudo — a elasticidade não virou passe livre', () => {
+    expect(acaoDaVez(EtapaOrdem.EM_ANALISE, Papel.ATENDENTE)).toBeNull()
   })
 
   it('"aprovar conferência" funde conferir e liberar, e é só da gestão', () => {

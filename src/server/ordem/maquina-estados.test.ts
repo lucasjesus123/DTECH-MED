@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { EtapaOrdem as E, Papel as P } from '@/generated/prisma/enums'
 import {
+  AUTOMATICAS,
   ROTULO_ETAPA,
   TERMINAIS,
   TRANSICOES,
@@ -247,6 +248,111 @@ describe('a gestão fecha pelo técnico, o resto da casa não', () => {
   for (const [de, para, papel] of naoPodem) {
     it(`${papel} NÃO fecha ${de} → ${para}`, () => {
       expect(validarTransicao({ de, para, papel }).ok).toBe(false)
+    })
+  }
+})
+
+
+/**
+ * O PASSO QUE O SISTEMA DÁ SOZINHO.
+ *
+ * =============================================================================
+ * O RISCO QUE ESTES TESTES GUARDAM
+ * =============================================================================
+ * `viaSistema` existe para uma coisa só: encerrar a O.S. entregue que já está
+ * paga, sem obrigar a gestão a clicar no que não tem decisão nenhuma.
+ *
+ * O jeito de isso dar errado é o sinal virar um passe livre — hoje por
+ * conveniência, amanhã por pressa, e um dia alguém contornaria a esteira
+ * inteira passando `viaSistema: true`. Os testes abaixo existem para que essa
+ * tentativa quebre um teste antes de quebrar a auditoria de alguém.
+ */
+describe('o que o sistema pode fazer sozinho', () => {
+  it('é uma lista curta, e cada par dela existe de verdade na esteira', () => {
+    expect(AUTOMATICAS.length).toBeGreaterThan(0)
+    for (const a of AUTOMATICAS) {
+      const existe = TRANSICOES.some((t) => t.de === a.de && t.para === a.para)
+      expect(existe, `${a.de} → ${a.para} não é uma transição da esteira`).toBe(true)
+    }
+  })
+
+  it('encerra a entrega assinada — o passo que a baixa automática precisa', () => {
+    const r = validarTransicao({
+      de: E.ENTREGUE,
+      para: E.FINALIZADO,
+      // O papel do ator automático é indiferente aqui: quem autoriza é a lista.
+      papel: P.MOTORISTA,
+      viaSistema: true,
+    })
+    expect(r.ok).toBe(true)
+  })
+
+  it('NÃO vira passe livre: fora da lista, o sinal não autoriza nada', () => {
+    const forasDaLista: Array<[E, E]> = [
+      // Faturar sem o financeiro.
+      [E.FATURAMENTO, E.FATURADO],
+      // Aprovar o orçamento no lugar do cliente — o pior de todos.
+      [E.ORCAMENTO_ENVIADO, E.ORCAMENTO_APROVADO],
+      // Liberar o faturamento sem a conferência da gestão.
+      [E.APROVACAO_GESTAO, E.FATURAMENTO],
+      // Dar entrada na bancada sem as fotos.
+      [E.COLETADO, E.RECEBIDO_NA_EMPRESA],
+    ]
+    for (const [de, para] of forasDaLista) {
+      const r = validarTransicao({ de, para, papel: P.MOTORISTA, viaSistema: true })
+      expect(r.ok, `${de} → ${para} foi autorizado por viaSistema, e não deveria`).toBe(false)
+    }
+  })
+
+  it('não inventa transição: um par que não existe continua não existindo', () => {
+    const r = validarTransicao({
+      de: E.SOLICITACAO_RECEBIDA,
+      para: E.FINALIZADO,
+      papel: P.ADMIN_EMPRESA,
+      viaSistema: true,
+    })
+    expect(r.ok).toBe(false)
+  })
+
+  it('não ressuscita ordem encerrada', () => {
+    for (const terminal of TERMINAIS) {
+      const r = validarTransicao({
+        de: terminal,
+        para: E.EM_MANUTENCAO,
+        papel: P.ADMIN_EMPRESA,
+        viaSistema: true,
+      })
+      expect(r.ok).toBe(false)
+    }
+  })
+})
+
+/**
+ * O TÉCNICO PASSOU A ENVIAR ORÇAMENTO — decisão do dono, com o custo na mesa.
+ *
+ * O segundo par de olhos antes do envio deixou de existir. O que continua
+ * protegendo o passo é a exigência de orçamento montado (nada de valor zerado
+ * indo para o cliente) e a trilha, que grava quem enviou.
+ *
+ * Este teste marca a decisão. Se um dia ela for revertida, é aqui que a
+ * reversão aparece — e não numa tela que passou a esconder um botão.
+ */
+describe('quem manda o orçamento para o cliente', () => {
+  const enviam: P[] = [P.TECNICO, P.GESTOR, P.ADMIN_EMPRESA]
+  for (const papel of enviam) {
+    it(`${papel} envia`, () => {
+      expect(
+        validarTransicao({ de: E.ORCAMENTO_INTERNO, para: E.ORCAMENTO_ENVIADO, papel }).ok,
+      ).toBe(true)
+    })
+  }
+
+  const naoEnviam: P[] = [P.ATENDENTE, P.FINANCEIRO, P.MOTORISTA]
+  for (const papel of naoEnviam) {
+    it(`${papel} NÃO envia`, () => {
+      expect(
+        validarTransicao({ de: E.ORCAMENTO_INTERNO, para: E.ORCAMENTO_ENVIADO, papel }).ok,
+      ).toBe(false)
     })
   }
 })

@@ -1,5 +1,4 @@
-import { EtapaOrdem } from '@/generated/prisma/enums'
-import type { Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { hashEvento } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
 import { validarTransicao, type Transicao } from './maquina-estados'
@@ -34,6 +33,12 @@ export type PedidoTransicao = {
   payload?: Record<string, unknown>
   /** Aprovação e recusa chegam do portal, sem usuário logado. */
   viaPortalCliente?: boolean
+  /**
+   * O motor agindo por conta própria, nos pares de `AUTOMATICAS`.
+   *
+   * Serve também de trava de recursão: um passo automático nunca dispara outro.
+   */
+  viaSistema?: boolean
   /** Nome de quem agiu quando não há usuário (cliente no portal). */
   autorExterno?: string
   ip?: string | null
@@ -57,6 +62,102 @@ export async function avancarOrdem(
   ator: Ator,
   pedido: PedidoTransicao,
 ): Promise<ResultadoTransicao> {
+  const r = await executarTransicao(ctx, ator, pedido)
+  if (!r.ok) return r
+
+  /**
+   * A BAIXA AUTOMÁTICA DA ENTREGA PAGA.
+   *
+   * ===========================================================================
+   * POR QUE ELA ACONTECE AQUI, E NÃO NA TELA
+   * ===========================================================================
+   * A regra é do negócio, não do desenho: uma O.S. entregue, assinada e já paga
+   * não tem mais nenhuma decisão pendente. Escrevê-la numa tela faria valer só
+   * naquela tela — e a entrega é registrada pelo aplicativo do motorista, pela
+   * ficha da O.S. no painel antigo e pelo sistema novo. Três lugares, e um dia
+   * um deles esqueceria.
+   *
+   * ===========================================================================
+   * FORA DA TRANSAÇÃO DA ENTREGA, DE PROPÓSITO
+   * ===========================================================================
+   * São dois fatos distintos, com dois horários e dois registros na trilha: "o
+   * cliente recebeu" e "a ordem foi encerrada". Amarrá-los na mesma transação
+   * faria a falha do segundo desfazer o primeiro — e o primeiro é a assinatura
+   * de alguém, que não se apaga.
+   *
+   * Se a baixa não acontecer, a O.S. fica em ENTREGUE e aparece na fila de
+   * Conferência da gestão, com o botão de sempre. É exatamente o comportamento
+   * anterior: o pior caso desta automação é o sistema de ontem.
+   */
+  if (r.etapa === EtapaOrdem.ENTREGUE && !pedido.viaSistema) {
+    await finalizarSePago(ctx, pedido.ordemId, pedido.ip ?? null)
+  }
+
+  /**
+   * O resultado devolvido é o da transição PEDIDA, e não o da baixa.
+   *
+   * Quem chamou pediu "entregue" e conseguiu; `eventoId` e `sequencia` apontam
+   * para esse fato. Trocar a etapa aqui devolveria um evento de entrega com o
+   * rótulo de finalização colado nele. A tela se atualiza pela revalidação, que
+   * relê o banco e já encontra a ordem encerrada.
+   */
+  return r
+}
+
+/**
+ * Encerra a ordem quando a entrega chega com a fatura já quitada.
+ *
+ * O evento fica carimbado como AUTOMÁTICO — `autorId` nulo e autor "Sistema" —
+ * para que a pergunta que a folha de rastreabilidade existe para responder,
+ * *"quem fez isso?"*, continue tendo resposta honesta. Ela passa a ser "o
+ * sistema, por esta regra", e não o nome de alguém que não clicou em nada.
+ *
+ * SEM FATURA não finaliza. Uma devolução sem reparo chega em ENTREGUE sem nada
+ * a cobrar, e encerrá-la sozinho tiraria da gestão a única conferência que
+ * sobra nesse caso.
+ */
+async function finalizarSePago(
+  ctx: ContextoAcesso,
+  ordemId: string,
+  ip: string | null,
+): Promise<void> {
+  const quitada = await comEscopo(ctx, async (tx) => {
+    const f = await tx.fatura.findUnique({ where: { ordemId }, select: { status: true } })
+    return f?.status === 'QUITADA'
+  })
+  if (!quitada) return
+
+  await executarTransicao(ctx, ATOR_SISTEMA, {
+    ordemId,
+    para: EtapaOrdem.FINALIZADO,
+    viaSistema: true,
+    autorExterno: 'Sistema',
+    observacao: 'Baixa automática: entrega assinada com a fatura já quitada.',
+    payload: { automatico: true, regra: 'entrega_assinada_fatura_quitada' },
+    ip,
+  })
+  // Uma recusa aqui não é tratada, e é escolha: a entrega já valeu, e a O.S.
+  // fica na fila de Conferência esperando a baixa da gestão — como sempre foi.
+}
+
+/**
+ * O AUTOR DOS PASSOS QUE NINGUÉM DEU.
+ *
+ * `id: null` mais o nome "Sistema" são a marca inconfundível de um evento
+ * automático: nenhuma pessoa tem id nulo.
+ *
+ * O `papel` existe porque a coluna exige um, e ele registra SOB QUE AUTORIDADE
+ * o passo foi dado — a regra ocupa o lugar de um clique da gestão. Ele não diz
+ * quem agiu; isso está no nome, e o nome é o que a trilha mostra.
+ */
+const ATOR_SISTEMA: Ator = { id: null, nome: 'Sistema', papel: Papel.GESTOR }
+
+/** A transição em si — tudo numa transação só. */
+async function executarTransicao(
+  ctx: ContextoAcesso,
+  ator: Ator,
+  pedido: PedidoTransicao,
+): Promise<ResultadoTransicao> {
   return comEscopo(ctx, async (tx) => {
     // O RLS já garante que uma ordem de outra empresa não aparece aqui.
     const ordem = await tx.ordem.findUnique({
@@ -75,6 +176,7 @@ export async function avancarOrdem(
       para: pedido.para,
       papel: ator.papel,
       viaPortalCliente: pedido.viaPortalCliente,
+      viaSistema: pedido.viaSistema,
     })
     if (!val.ok) return { ok: false, motivo: val.motivo }
 

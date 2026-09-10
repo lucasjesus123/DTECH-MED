@@ -32,15 +32,20 @@ import { validarTransicao } from '@/server/ordem/maquina-estados'
  * A FUSÃO ANDA ATÉ ONDE O PAPEL ALCANÇA
  * =============================================================================
  * Nem toda fusão é legal para todo mundo, e a diferença é regra de negócio, não
- * de tela. "Emitir laudo + orçamento" é um botão só para a gestão, porque ela
- * pode dar os dois passos. Para o TÉCNICO, o segundo salto — enviar o orçamento
- * ao cliente — é da gestão, e sempre foi: o motor recusa.
+ * de tela. "Aprovar conferência" é um botão só para a gestão, porque ela pode
+ * dar os dois passos. Para o TÉCNICO, o segundo salto — liberar o faturamento —
+ * é da gestão: o motor recusa.
  *
  * Então a fusão é ELÁSTICA. Ela caminha enquanto o motor deixa e para no
  * primeiro "não", com o rótulo do que realmente vai acontecer. O técnico vê
- * "Emitir laudo"; a gestora vê "Emitir laudo + orçamento". Ninguém vê um botão
- * que promete o que não vai entregar, e nenhuma regra foi afrouxada para caber
- * no desenho.
+ * "Enviar para conferência"; a gestora vê "Aprovar conferência". Ninguém vê um
+ * botão que promete o que não vai entregar, e nenhuma regra foi afrouxada para
+ * caber no desenho.
+ *
+ * Quem decide quanto a fusão anda é sempre o motor, nunca esta lista — por isso
+ * a mudança que deu ao técnico o envio do orçamento não custou uma linha aqui:
+ * o botão dele passou de um salto para dois sozinho, no dia em que a transição
+ * mudou.
  *
  * =============================================================================
  * OS DESVIOS NÃO SUMIRAM
@@ -156,7 +161,10 @@ export const ESTEIRA: readonly EstadoEsteira[] = [
   },
   {
     chave: 'ENTREGUE', passo: 13, rotulo: 'Entregue',
-    resumo: 'Assinado na porta do cliente. Falta só a baixa final.',
+    // Quando já estava paga, a ordem chega aqui e é encerrada no mesmo
+    // instante, pelo motor. O que fica esperando baixa é a entrega que ainda
+    // deve — e a devolução sem reparo, que não tem o que cobrar.
+    resumo: 'Assinado na porta do cliente. Se já estava paga, encerra sozinha.',
     etapas: [E.ENTREGUE, E.FINALIZADO],
     tom: 'ok', quemAge: 'Gestão',
   },
@@ -316,9 +324,15 @@ const RECEITAS: Partial<Record<EtapaOrdem, Receita>> = {
     tom: 'info', fluxo: 'direto',
   },
   [E.EM_ANALISE]: {
-    // FUSÃO 2, e a mais elástica: para a gestão é laudo + envio num clique;
-    // para o técnico para no laudo, porque enviar orçamento ao cliente é da
-    // gestão e sempre foi.
+    // FUSÃO 2: laudo e envio num clique, para o técnico e para a gestão.
+    //
+    // O técnico passou a enviar por decisão do dono — o segundo par de olhos
+    // antes do envio deixou de existir, e o motivo inteiro está escrito na
+    // própria transição, em `maquina-estados.ts`.
+    //
+    // `rotuloParcial` continua aqui: se um dia a permissão voltar a ser só da
+    // gestão, o botão do técnico volta a dizer "Emitir laudo" sozinho, sem
+    // ninguém tocar neste arquivo.
     passos: [E.ORCAMENTO_INTERNO, E.ORCAMENTO_ENVIADO],
     rotulo: 'Emitir laudo + orçamento',
     rotuloParcial: 'Emitir laudo',
@@ -371,6 +385,17 @@ const RECEITAS: Partial<Record<EtapaOrdem, Receita>> = {
     tom: 'ok', fluxo: 'captura-entrega',
   },
   [E.ENTREGUE]: {
+    /**
+     * A baixa que SOBROU para a gestão.
+     *
+     * A O.S. entregue com a fatura já quitada é encerrada pelo próprio motor,
+     * na hora — ninguém vê este botão nela, porque ela nem chega a parar aqui.
+     *
+     * O que continua caindo nesta fila é a entrega que ainda tem algo a
+     * decidir: a que não foi paga, e a devolução sem reparo, que chega em
+     * ENTREGUE sem fatura nenhuma. Nas duas sobra uma conferência humana, e é
+     * ela que este botão fecha.
+     */
     passos: [E.FINALIZADO],
     rotulo: 'Dar baixa final',
     tom: 'ok', fluxo: 'direto',

@@ -431,8 +431,18 @@ describe('a jornada completa chega ao fim', () => {
     })
 
     expect((await avancarOrdem(A.ctx, ator(A, 'motorista'), { ordemId: A.ordemId, para: E.ENTREGUE })).ok).toBe(true)
-    expect((await avancarOrdem(A.ctx, ator(A, 'gestor'), { ordemId: A.ordemId, para: E.FINALIZADO })).ok).toBe(true)
 
+    /**
+     * NINGUÉM DÁ A BAIXA AQUI — e é isso que este trecho verifica.
+     *
+     * Esta ordem passou por FATURADO, o que só acontece com a fatura quitada.
+     * Entregue e assinada, ela não tem mais decisão nenhuma pendente: a gestão
+     * clicaria "dar baixa" sem ter o que conferir. O motor encerra sozinho.
+     *
+     * Antes desta regra, a linha seguinte era um `avancarOrdem(gestor,
+     * FINALIZADO)`. Ela sumiu de propósito: se alguém a trouxer de volta, ela
+     * vai falhar — a ordem já estará encerrada, e o motor recusa reencerrar.
+     */
     const fim = await comEscopo(A.ctx, (tx) =>
       tx.ordem.findUnique({
         where: { id: A.ordemId },
@@ -440,6 +450,28 @@ describe('a jornada completa chega ao fim', () => {
       }),
     )
     expect(fim?.etapa).toBe(E.FINALIZADO)
+
+    /**
+     * A BAIXA AUTOMÁTICA FICA CARIMBADA COMO AUTOMÁTICA.
+     *
+     * É a parte que não pode ser perdida. A folha de rastreabilidade existe
+     * para responder "quem fez isso?", e a resposta aqui precisa ser "o
+     * sistema, por esta regra" — nunca o nome de alguém que não clicou em nada.
+     *
+     * `autorId` nulo mais o nome "Sistema" são a marca: nenhuma pessoa do banco
+     * tem id nulo.
+     */
+    const encerramento = await comEscopo(A.ctx, (tx) =>
+      tx.eventoOrdem.findFirst({
+        where: { ordemId: A.ordemId, etapaNova: E.FINALIZADO },
+        orderBy: { sequencia: 'desc' },
+        select: { autorId: true, autorNome: true, descricao: true, payload: true },
+      }),
+    )
+    expect(encerramento?.autorId).toBeNull()
+    expect(encerramento?.autorNome).toBe('Sistema')
+    expect(encerramento?.descricao).toContain('Baixa automática')
+    expect((encerramento?.payload as { automatico?: boolean } | null)?.automatico).toBe(true)
     // Os marcos de tempo foram gravados no caminho, sem ninguém preencher à mão.
     expect(fim?.coletadaEm).toBeTruthy()
     expect(fim?.entregueEm).toBeTruthy()

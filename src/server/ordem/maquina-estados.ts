@@ -172,7 +172,34 @@ export const TRANSICOES: Transicao[] = [
     para: T.ORCAMENTO_ENVIADO,
     tipo: 'orcamento.enviado',
     titulo: 'Orçamento enviado ao cliente',
-    papeis: GESTAO,
+    /**
+     * O TÉCNICO TAMBÉM ENVIA — e esta linha foi uma decisão do dono, tomada com
+     * o custo na mesa.
+     *
+     * =========================================================================
+     * O QUE MUDOU, E O QUE ISSO CUSTA
+     * =========================================================================
+     * Até aqui o passo era só da gestão, e o motivo era bom: o valor que sai
+     * para o cliente passava pela mesa de quem responde pelo negócio. Era a
+     * trava que impedia um serviço de R$ 3.000 virar R$ 300 sem ninguém olhar.
+     *
+     * Ela saiu de propósito. Numa oficina onde o técnico e o dono são a mesma
+     * pessoa, a fila intermediária não protegia nada — só somava uma espera
+     * entre o laudo pronto e o cliente saber o preço. Com esta linha, "emitir
+     * laudo + orçamento" vira um clique só para quem escreveu o laudo.
+     *
+     * =========================================================================
+     * O QUE CONTINUA PROTEGENDO
+     * =========================================================================
+     * `ORCAMENTO_MONTADO`, logo abaixo: ninguém envia orçamento zerado ou
+     * inexistente. E a trilha, que grava quem enviou, com nome e horário — se
+     * um valor sair errado, a pergunta "quem mandou isso?" tem resposta.
+     *
+     * O que NÃO existe mais é o segundo par de olhos antes do envio. Quem
+     * quiser recuperá-lo tira o TECNICO desta lista: é uma palavra, e a fila da
+     * gestão volta no mesmo instante.
+     */
+    papeis: [P.TECNICO, ...GESTAO],
     avisaCliente: true,
     gera: 'ORCAMENTO',
     // Anunciar ao cliente um orçamento que não existe é pior que não anunciar:
@@ -386,6 +413,32 @@ export const CANCELAMENTO = {
   avisaCliente: true,
 } as const
 
+/**
+ * O QUE O SISTEMA PODE FAZER SOZINHO — e é uma linha só.
+ *
+ * =============================================================================
+ * POR QUE ESTA LISTA EXISTE, EM VEZ DE UM "MODO ADMINISTRADOR"
+ * =============================================================================
+ * A baixa automática da entrega paga precisa que o motor execute uma transição
+ * sem ninguém ter clicado. A maneira preguiçosa de conseguir isso seria um
+ * atalho genérico — "quando vier do sistema, pode tudo". Seria a porta lateral
+ * em volta da esteira inteira, aberta para sempre, e a primeira coisa que
+ * alguém usaria no dia em que uma trava incomodasse.
+ *
+ * Aqui a autorização é NOMINAL: uma lista de pares `de → para` que o sistema
+ * pode dar por conta própria. Hoje ela tem um item. Acrescentar outro é uma
+ * decisão visível, num arquivo que é a lei, e não um efeito colateral.
+ *
+ * As PRÉ-CONDIÇÕES continuam valendo para ela. O sistema não atravessa
+ * exigência nenhuma — ele só dispensa o clique.
+ */
+export const AUTOMATICAS: ReadonlyArray<{ de: EtapaOrdem; para: EtapaOrdem }> = [
+  // A entrega assinada de uma O.S. que já está paga. Não sobra decisão nenhuma
+  // para a gestão tomar: o aparelho voltou, o cliente assinou, o dinheiro
+  // entrou. Ver `finalizarSePago`, no motor.
+  { de: T.ENTREGUE, para: T.FINALIZADO },
+]
+
 export type ResultadoValidacao =
   | { ok: true; transicao: Transicao }
   | { ok: false; motivo: string }
@@ -402,8 +455,16 @@ export function validarTransicao(entrada: {
   papel: Papel
   /** Aprovação e recusa do orçamento vêm do portal, sem usuário logado. */
   viaPortalCliente?: boolean
+  /**
+   * O motor agindo por conta própria — e só nos pares de `AUTOMATICAS`.
+   *
+   * Não é um passe livre: uma transição fora daquela lista continua sendo
+   * recusada mesmo com este sinal ligado. As pré-condições também continuam
+   * sendo conferidas depois, no motor.
+   */
+  viaSistema?: boolean
 }): ResultadoValidacao {
-  const { de, para, papel, viaPortalCliente } = entrada
+  const { de, para, papel, viaPortalCliente, viaSistema } = entrada
 
   if (de === para) {
     return { ok: false, motivo: 'A ordem já está nessa etapa.' }
@@ -434,6 +495,18 @@ export function validarTransicao(entrada: {
   }
 
   const t = TRANSICOES.find((x) => x.de === de && x.para === para)
+
+  /**
+   * O passo que o próprio sistema dá.
+   *
+   * Conferido contra `AUTOMATICAS`, e só depois de a transição existir na
+   * tabela: o sinal dispensa o clique de uma pessoa, nunca a lei da esteira.
+   * Quem pedir `viaSistema` para qualquer outro par cai no caminho normal e é
+   * recusado pelo papel, como qualquer um.
+   */
+  if (viaSistema && t && AUTOMATICAS.some((a) => a.de === de && a.para === para)) {
+    return { ok: true, transicao: t }
+  }
   if (!t) {
     const saidas = TRANSICOES.filter((x) => x.de === de).map((x) => x.titulo)
     return {
