@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { EtapaOrdem, Papel, TipoMovimentoEstoque } from '@/generated/prisma/enums'
+import type { StatusAgendamento } from '@/generated/prisma/enums'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { auditar, exigirPapel, ipDaRequisicao } from '@/server/auth/guarda'
@@ -15,6 +16,7 @@ import { ROTULO_ETAPA, TERMINAIS, proximosPassos } from '@/server/ordem/maquina-
 import { montarRoteiro, type Roteiro } from '@/server/ordem/roteiro'
 import {
   agendaDosMotoristas,
+  motoristasDaEmpresa,
   type AgendaDeMotorista,
   type ParadaMarcada,
 } from '@/server/consultas/listas'
@@ -68,6 +70,47 @@ export type ParadaParaMarcar = {
   observacoes: string
 }
 
+/**
+ * UMA PARADA QUE JÁ EXISTE — para ver e para corrigir.
+ *
+ * `ParadaParaMarcar` é o formulário de CRIAR: ele só aparece no passo que exige
+ * a parada, e some no instante em que ela nasce. Esta é a outra metade, que
+ * faltava: a parada marcada, com quem vai, quando e onde, disponível enquanto a
+ * O.S. estiver de pé.
+ *
+ * As duas não podem ser a mesma coisa. Criar é um passo do roteiro, com
+ * consequência — a retirada agendada avança a etapa e dispara o WhatsApp do
+ * cliente. Corrigir não anda com o processo: troca-se o motorista de uma
+ * corrida de amanhã sem que a O.S. mude de etapa.
+ */
+export type ParadaMarcadaNaOrdem = {
+  id: string
+  tipo: 'RETIRADA' | 'ENTREGA'
+  /** O rótulo humano do status — 'Sem motorista definido', 'A caminho'… */
+  situacao: string
+  /** 'PENDENTE' | 'ATRIBUIDO' | … — a tela usa para decidir o que oferecer. */
+  status: string
+  /** '19/09/2026' */
+  data: string
+  /** '09h00' ou '09h00 às 12h00' */
+  horario: string
+  /** O valor para o `<input type="date">`: 'AAAA-MM-DD'. */
+  dataCampo: string
+  /** O valor para o `<input type="time">`: 'HH:MM'. */
+  horaCampo: string
+  janelaFimCampo: string
+  motoristaId: string | null
+  motorista: string | null
+  aceitoEm: string | null
+  endereco: string
+  contatoNome: string
+  contatoTelefone: string
+  pontoReferencia: string
+  observacoes: string
+  /** Concluída ou cancelada: não se remarca o que já aconteceu. */
+  fechada: boolean
+}
+
 export type PainelDaOrdem = {
   dossie: Dossie
   roteiro: Roteiro
@@ -83,6 +126,12 @@ export type PainelDaOrdem = {
   contatoNome: string | null
   passos: PassoOferecido[]
   parada: ParadaParaMarcar | null
+  /** As paradas que ESTA ordem já tem — para ver e corrigir. */
+  paradasMarcadas: ParadaMarcadaNaOrdem[]
+  /** Para trocar o motorista de uma parada já marcada. */
+  motoristasDaCasa: Array<{ id: string; nome: string }>
+  /** Quem pode mexer na rota. Só ela vê os controles da parada. */
+  podeMexerNaRota: boolean
   podeCancelar: boolean
   /** Só quem pode mexer em dinheiro vê e edita o combinado. */
   podeCombinar: boolean
@@ -223,7 +272,40 @@ export async function painelDaOrdem(
             orderBy: { sequencia: 'asc' },
             select: { etapaNova: true, criadoEm: true, autorNome: true },
           },
-          agendamentos: { select: { tipo: true, status: true } },
+          /**
+           * AS PARADAS INTEIRAS, e não só tipo e status.
+           *
+           * A consulta pedia dois campos porque a janela só precisava saber
+           * "já existe parada deste tipo?". Isso bastava para decidir se
+           * OFERECER o calendário, e não bastava para nada depois disso: uma
+           * vez marcada, a parada sumia da janela — dia, hora, endereço e
+           * MOTORISTA ficavam invisíveis para quem estava olhando a O.S.
+           *
+           * O efeito foi relatado do jeito mais direto possível: "preciso
+           * colocar o motorista e não estou conseguindo". A parada existia,
+           * estava sem motorista, e a única tela que a mostrava era a Rota —
+           * que é outra aba, com outra lista, e sem a O.S. na frente.
+           */
+          agendamentos: {
+            orderBy: { previstoPara: 'asc' },
+            select: {
+              id: true,
+              tipo: true,
+              status: true,
+              previstoPara: true,
+              janelaFim: true,
+              aceitoEm: true,
+              iniciadoEm: true,
+              concluidoEm: true,
+              enderecoSnapshot: true,
+              contatoNome: true,
+              contatoTelefone: true,
+              pontoReferencia: true,
+              observacoes: true,
+              motoristaId: true,
+              motorista: { select: { nome: true } },
+            },
+          },
           // Só a SAÍDA: é ela que prova que a peça deixou a prateleira. A
           // reserva é a peça separada, ainda no lugar dela.
           movimentos: {
@@ -328,6 +410,54 @@ export async function painelDaOrdem(
         }))
       : []
 
+  /**
+   * QUEM MEXE NA ROTA — a mesma lista que a ação `agendar` confere.
+   *
+   * A janela desenha os controles a partir daqui, e a ação recusa por conta
+   * própria. As duas listas serem a mesma é o que evita o botão que aparece e
+   * leva "seu perfil não agenda rota" na cara de quem clicou.
+   */
+  const podeMexerNaRota = podeAgendar
+
+  /**
+   * A LISTA DE MOTORISTAS SÓ É BUSCADA SE ELA VAI SER USADA.
+   *
+   * Duas condições, e nenhuma delas é "sempre": tem de haver parada nesta ordem
+   * e a pessoa tem de poder mexer na rota. Um administrador abrindo uma O.S. que
+   * ainda nem foi orçada não gasta consulta com uma lista de motoristas que a
+   * janela não vai desenhar.
+   */
+  const paradasVivas = extra.agendamentos.filter((a) => a.status !== 'CANCELADO')
+  const motoristasDaCasa =
+    podeMexerNaRota && paradasVivas.length > 0
+      ? (await motoristasDaEmpresa(ctx)).map((m) => ({ id: m.id, nome: m.nome }))
+      : []
+
+  const paradasMarcadas: ParadaMarcadaNaOrdem[] = paradasVivas.map((a) => ({
+    id: a.id,
+    tipo: a.tipo,
+    status: a.status,
+    situacao: SITUACAO_DA_PARADA[a.status],
+    data: DATA_BR.format(a.previstoPara),
+    horario: a.janelaFim
+      ? `${HORA_BR.format(a.previstoPara)} às ${HORA_BR.format(a.janelaFim)}`
+      : HORA_BR.format(a.previstoPara),
+    dataCampo: diaLocal(a.previstoPara),
+    horaCampo: HORA_CAMPO.format(a.previstoPara),
+    janelaFimCampo: a.janelaFim ? HORA_CAMPO.format(a.janelaFim) : '',
+    motoristaId: a.motoristaId,
+    motorista: a.motorista?.nome ?? null,
+    aceitoEm: a.aceitoEm ? `${DATA_BR.format(a.aceitoEm)} às ${HORA_BR.format(a.aceitoEm)}` : null,
+    endereco: a.enderecoSnapshot,
+    contatoNome: a.contatoNome ?? '',
+    contatoTelefone: a.contatoTelefone ?? '',
+    pontoReferencia: a.pontoReferencia ?? '',
+    observacoes: a.observacoes ?? '',
+    // Concluída é passado: remarcar o dia de uma coleta que já aconteceu
+    // reescreveria o comprovante que o cliente assinou.
+    fechada: a.status === 'CONCLUIDO' || a.status === 'FALHOU',
+  }))
+
   const parada: ParadaParaMarcar | null =
     agenda && tipoDaParada
       ? {
@@ -367,6 +497,9 @@ export async function painelDaOrdem(
       contatoNome: extra.cliente.contatoNome,
       passos,
       parada,
+      paradasMarcadas,
+      motoristasDaCasa,
+      podeMexerNaRota,
       podeCancelar: GESTAO.includes(sessao.papel) && !TERMINAIS.includes(extra.etapa),
       podeCombinar: CENTRAL.includes(sessao.papel),
       pecasLancadas: extra.movimentos.map((m) => ({
@@ -689,3 +822,50 @@ export async function declararSemPeca(ordemId: string): Promise<Resposta> {
   revalidatePath('/painel/ordens')
   return { ok: true }
 }
+
+/**
+ * Os rótulos do status de uma parada, em palavra de gente.
+ *
+ * 'PENDENTE' no banco quer dizer "ninguém foi designado" — e é a única linha
+ * desta tabela que precisa de tradução de verdade: mostrar "pendente" numa
+ * parada sem motorista faria parecer que ela está esperando o motorista chegar,
+ * quando o que ela espera é alguém escolher quem vai.
+ */
+const SITUACAO_DA_PARADA: Record<StatusAgendamento, string> = {
+  PENDENTE: 'Sem motorista definido',
+  ATRIBUIDO: 'Motorista designado',
+  EM_ROTA: 'A caminho',
+  CONCLUIDO: 'Concluída',
+  FALHOU: 'Não deu certo',
+  CANCELADO: 'Cancelada',
+}
+
+const FUSO_DA_CASA = 'America/Sao_Paulo'
+
+const DATA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: FUSO_DA_CASA,
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+const HORA_BR = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: FUSO_DA_CASA,
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
+/**
+ * A hora no formato que o `<input type="time">` aceita: 'HH:MM' com dois
+ * pontos. O `HORA_BR` do pt-BR devolve 'HH:MM' também, mas depender do formato
+ * de um locale para preencher um campo de formulário é a espécie de detalhe que
+ * quebra sozinho quando o Node troca de base de dados de idioma. `en-GB` é
+ * 24 horas por definição.
+ */
+const HORA_CAMPO = new Intl.DateTimeFormat('en-GB', {
+  timeZone: FUSO_DA_CASA,
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})

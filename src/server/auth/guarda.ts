@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
-import { podeAbrir } from '@/server/auth/telas'
+import { primeiraTela, podeAbrir } from '@/server/auth/telas'
 import { contextoDe, lerSessao, type Sessao } from './sessao'
 
 /**
@@ -89,7 +89,23 @@ export async function exigirSuperAdmin(): Promise<Autenticado> {
  */
 export async function exigirAba(chave: string): Promise<void> {
   const a = await exigirSessao()
-  if (!podeAbrir(a.sessao.papel, a.sessao.telas, chave)) redirect('/painel/sem-permissao')
+  if (podeAbrir(a.sessao.papel, a.sessao.telas, chave)) return
+
+  /**
+   * QUEM TRABALHA NO APLICATIVO VAI PARA O APLICATIVO, e não para um muro.
+   *
+   * "Sem permissão" é a resposta certa para quem está no lugar certo e pediu a
+   * porta errada — o atendente que digitou o endereço do Financeiro. Para o
+   * motorista é a resposta errada: ele não foi barrado por tentar algo que não
+   * é dele, ele simplesmente não trabalha aqui. Um link de painel mandado no
+   * grupo do WhatsApp, um endereço guardado no navegador, e ele cai numa tela
+   * dizendo que não pode — quando o que ele precisa é da rota do dia.
+   *
+   * `casaDoPapel` é a mesma função que a tela de entrar usa para decidir onde
+   * cada pessoa começa. Aqui ela decide para onde volta.
+   */
+  const casa = primeiraTela(a.sessao.papel, a.sessao.telas)
+  redirect(casa === '/painel' ? '/painel/sem-permissao' : casa)
 }
 
 /** Só para a tela decidir o que desenhar. Nunca para autorizar. */

@@ -8017,3 +8017,79 @@ i.riscoBaixo { background: var(--txt-3); }
   background: var(--sup-2);
   font-size: var(--t-sm);
 }
+
+/* ---------------------------------------------------------------------------
+   A PARADA DE ROTA DENTRO DA JANELA DA O.S.
+   ---------------------------------------------------------------------------
+   Cartão por parada, com o cabeçalho em uma linha (tipo · quando · situação) e
+   o controle de quem vai logo abaixo. A borda âmbar do `.osRotaFalta` é o único
+   destaque de cor do bloco, e ela marca exatamente uma coisa: parada marcada
+   sem ninguém designado. É o estado que trava o dia sem dar erro em lugar
+   nenhum — o cliente já tem data, e não há quem vá.
+   --------------------------------------------------------------------------- */
+.osRota {
+  margin-top: var(--s5);
+  display: grid;
+  gap: var(--s3);
+}
+.osRotaTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osRotaCartao {
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-1);
+  padding: var(--s4);
+  display: grid;
+  gap: var(--s2);
+}
+.osRotaFalta {
+  border-color: rgba(251, 191, 36, .38);
+  background: rgba(251, 191, 36, .05);
+}
+.osRotaTopo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s3);
+}
+.osRotaTipo { font-weight: 600; font-size: var(--t-base); }
+.osRotaQuando { font-family: var(--f-mono); font-size: var(--t-sm); color: var(--txt-2); }
+.osRotaSituacao {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osRotaEndereco { font-size: var(--t-sm); color: var(--txt-2); line-height: 1.5; }
+.osRotaRecado {
+  font-size: var(--t-sm);
+  color: var(--txt-1);
+  border-left: 2px solid var(--vio);
+  padding-left: var(--s3);
+}
+.osRotaEscolha {
+  display: grid;
+  gap: 5px;
+  margin-top: var(--s2);
+}
+.osRotaEscolha > span {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osRotaForm {
+  display: grid;
+  gap: var(--s4);
+  margin-top: var(--s3);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--borda);
+}

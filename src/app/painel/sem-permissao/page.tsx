@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { exigirSessao } from '@/server/auth/guarda'
+import { primeiraTela } from '@/server/auth/telas'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Sem permissão', robots: { index: false } }
@@ -16,6 +17,17 @@ export const dynamic = 'force-dynamic'
  */
 export default async function SemPermissao() {
   const { sessao } = await exigirSessao()
+
+  /**
+   * O BOTÃO DE VOLTA APONTA PARA A CASA DE QUEM CHEGOU AQUI.
+   *
+   * Era fixo em `/painel`, "Voltar ao painel do dia". Para um motorista isso é
+   * um segundo beco: ele bate na recusa, clica no único botão da tela, e volta
+   * para uma porta que também não é dele. Para quem tem o acesso apertado em
+   * uma aba só, o mesmo — o painel do dia não é dele tampouco.
+   */
+  const casa = primeiraTela(sessao.papel, sessao.telas)
+  const noApp = casa.startsWith('/app')
 
   return (
     <div style={{ maxWidth: 560 }}>
@@ -37,8 +49,8 @@ export default async function SemPermissao() {
           sua empresa — a mudança leva menos de um minuto.
         </p>
         <div className={estilo.passos}>
-          <Link href="/painel" className={estilo.btn}>
-            Voltar ao painel do dia
+          <Link href={casa} className={estilo.btn}>
+            {noApp ? 'Ir para o meu aplicativo' : 'Voltar para onde eu trabalho'}
           </Link>
         </div>
       </div>

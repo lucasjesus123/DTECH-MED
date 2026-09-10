@@ -145,7 +145,7 @@ export async function atribuirMotorista(agendamentoId: string, motoristaId: stri
   const r = await comEscopo(a.ctx, async (tx) => {
     const ag = await tx.agendamento.findUnique({
       where: { id: agendamentoId },
-      select: { id: true, status: true },
+      select: { id: true, status: true, ordemId: true },
     })
     if (!ag) return { ok: false as const, motivo: 'Agendamento não encontrado.' }
     if (ag.status === 'CONCLUIDO') return { ok: false as const, motivo: 'Esta parada já foi concluída.' }
@@ -167,11 +167,142 @@ export async function atribuirMotorista(agendamentoId: string, motoristaId: stri
         status: motoristaId ? 'ATRIBUIDO' : 'PENDENTE',
       },
     })
-    return { ok: true as const }
+
+    /**
+     * O AVISO NO CELULAR TAMBÉM SAI POR AQUI — e não saía.
+     *
+     * A ação `agendar` enfileira `push.enviar` quando a parada nasce com
+     * motorista. Esta, que é o outro jeito de um motorista receber uma corrida
+     * — a parada que nasceu sem dono, ou a que trocou de dono —, não
+     * enfileirava nada. O resultado: designar pela Rota funcionava no banco e
+     * era silencioso no bolso de quem ia dirigir.
+     *
+     * O `dedupeKey` é o mesmo da criação, `push:parada:<id>`, e é isso que
+     * garante que a parada criada JÁ com motorista não toque duas vezes. Trocar
+     * o motorista depois também não toca de novo — e essa é a escolha certa
+     * entre as duas erradas: o alternativa seria uma chave por troca, e aí
+     * corrigir um nome digitado errado viraria uma sequência de apitos no
+     * celular de quem está dirigindo.
+     */
+    if (motoristaId) {
+      await enfileirar(tx, exigirEmpresa(a.ctx), {
+        tipo: 'push.enviar',
+        prioridade: 1,
+        dedupeKey: `push:parada:${agendamentoId}`,
+        payload: { motivo: 'parada.designada', agendamentoId },
+      })
+    }
+
+    return { ok: true as const, ordemId: ag.ordemId }
   })
   if (!r.ok) return r
 
+  await auditar(a.ctx, a.sessao, {
+    acao: 'agenda.motorista',
+    entidade: 'agendamento',
+    entidadeId: agendamentoId,
+    detalhes: { motoristaId: motoristaId || null },
+  })
   revalidatePath('/painel/rota')
+  // A janela da O.S. mostra a parada e o nome de quem vai. Sem esta linha, o
+  // motorista trocado só aparecia lá depois de a pessoa recarregar a página.
+  revalidatePath(`/painel/ordens/${r.ordemId}`)
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel/calendario')
+  return { ok: true }
+}
+
+/**
+ * REMARCAR UMA PARADA QUE JÁ EXISTE — dia, hora, endereço e recado.
+ *
+ * =============================================================================
+ * POR QUE ISTO NÃO É `agendar` COM UM `id`
+ * =============================================================================
+ * `agendar` é um PASSO DO PROCESSO: criar a retirada avança a ordem de
+ * "O.S. gerada" para "retirada agendada" e dispara o WhatsApp que promete ao
+ * cliente uma data e um nome. Remarcar não é passo nenhum — a ordem já andou, e
+ * fazê-la andar de novo mandaria ao cliente um segundo aviso de agendamento
+ * para uma retirada que ele já sabe que existe.
+ *
+ * Por isso esta ação NÃO chama `avancarOrdem`. Ela corrige um dado da corrida e
+ * para aí.
+ *
+ * =============================================================================
+ * O QUE ELA SE RECUSA A FAZER
+ * =============================================================================
+ * Parada CONCLUÍDA ou que FALHOU não se remarca. O que aconteceu já tem foto,
+ * assinatura e hora gravadas; mudar a data prevista depois disso faria o
+ * comprovante do cliente discordar do sistema — e o comprovante é a prova.
+ * Para essas o caminho é outro: cancelar e marcar uma nova.
+ */
+const schemaRemarcar = z.object({
+  agendamentoId: z.string().min(1),
+  data: z.string().min(10, 'Escolha a data.'),
+  hora: z.string().nullish(),
+  janelaFim: z.string().nullish(),
+  endereco: z.string().trim().min(5, 'Confirme o endereço da parada.'),
+  contatoNome: z.string().trim().nullish(),
+  contatoTelefone: z.string().trim().nullish(),
+  pontoReferencia: z.string().trim().nullish(),
+  observacoes: z.string().trim().nullish(),
+})
+
+export async function remarcarParada(_anterior: Resposta, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_AGENDAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não altera a rota.' }
+  }
+
+  const d = schemaRemarcar.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const previsto = new Date(`${v.data}T${v.hora || '09:00'}:00-03:00`)
+  if (Number.isNaN(previsto.getTime())) return { ok: false, motivo: 'Data ou hora inválida.' }
+  const fim = v.janelaFim ? new Date(`${v.data}T${v.janelaFim}:00-03:00`) : null
+  if (fim && !Number.isNaN(fim.getTime()) && fim <= previsto) {
+    return { ok: false, motivo: 'O fim da janela precisa ser depois do início.' }
+  }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const ag = await tx.agendamento.findUnique({
+      where: { id: v.agendamentoId },
+      select: { id: true, status: true, ordemId: true },
+    })
+    if (!ag) return { ok: false as const, motivo: 'Parada não encontrada.' }
+    if (ag.status === 'CONCLUIDO') {
+      return { ok: false as const, motivo: 'Esta parada já foi concluída — cancele e marque outra.' }
+    }
+    if (ag.status === 'CANCELADO') return { ok: false as const, motivo: 'Esta parada foi cancelada.' }
+
+    await tx.agendamento.update({
+      where: { id: v.agendamentoId },
+      data: {
+        previstoPara: previsto,
+        janelaInicio: previsto,
+        janelaFim: fim && !Number.isNaN(fim.getTime()) ? fim : null,
+        enderecoSnapshot: v.endereco,
+        contatoNome: v.contatoNome || null,
+        contatoTelefone: v.contatoTelefone?.replace(/\D/g, '') || null,
+        pontoReferencia: v.pontoReferencia || null,
+        observacoes: v.observacoes || null,
+      },
+    })
+    return { ok: true as const, ordemId: ag.ordemId }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'agenda.remarcar',
+    entidade: 'agendamento',
+    entidadeId: v.agendamentoId,
+    detalhes: { previstoPara: previsto.toISOString() },
+  })
+  revalidatePath('/painel/rota')
+  revalidatePath(`/painel/ordens/${r.ordemId}`)
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel/calendario')
   return { ok: true }
 }
 

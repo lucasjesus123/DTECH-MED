@@ -222,6 +222,123 @@ export const TELAS: readonly Tela[] = [
   { chave: 'auditoria',    rotulo: 'Quem fez o quê',    grupo: 'Retaguarda', href: '/painel/auditoria',    icone: 'registro',    piso: Papel.ADMIN_EMPRESA },
 ] as const
 
+/**
+ * ONDE CADA PERFIL TRABALHA.
+ *
+ * =============================================================================
+ * ISTO JÁ EXISTIA, ESCONDIDO NUMA FUNÇÃO DA TELA DE ENTRAR
+ * =============================================================================
+ * A ação de entrar tinha um `casaDe(papel)` que mandava motorista para
+ * `/app/motorista` e técnico para `/app/tecnico`. Era a única linha do sistema
+ * que sabia que essas duas pessoas não trabalham no painel — e ninguém mais
+ * sabia. O catálogo de abas, que decide o menu inteiro, tratava motorista como
+ * um usuário de painel com poucas permissões.
+ *
+ * O efeito aparecia no cadastro: escolher "Motorista" e ver uma grade de
+ * quatorze abas do painel, sete delas marcáveis. Quem monta o acesso é obrigado
+ * a decidir aba por aba uma coisa que o perfil já respondeu — o motorista
+ * trabalha no aplicativo.
+ *
+ * Com o lugar declarado aqui, a tela de cadastro, o redirecionamento do login e
+ * a guarda de aba passam a ler a MESMA frase.
+ */
+export type Lugar = 'app' | 'painel'
+
+export const LUGAR: Record<Papel, Lugar> = {
+  SUPER_ADMIN: 'painel',
+  ADMIN_EMPRESA: 'painel',
+  GESTOR: 'painel',
+  FINANCEIRO: 'painel',
+  ATENDENTE: 'painel',
+  // A BANCADA É NO APLICATIVO, MAS O TRABALHO DELA NÃO CABE TODO LÁ.
+  //
+  // O `/app/tecnico` cobre a ENTRADA do aparelho: receber, fotografar,
+  // conferir. Laudo, manutenção e lançamento de peça acontecem na janela da
+  // O.S., no painel. Chamar o técnico de "pessoa do aplicativo" e cortar o
+  // painel dele o deixaria sem metade do próprio serviço.
+  //
+  // Ele é do aplicativo para efeito de PARA ONDE VAI ao entrar — é lá que o dia
+  // dele começa — e continua com o alcance de painel que o trabalho exige. As
+  // duas coisas são diferentes, e por isso são dois campos e não um.
+  TECNICO: 'app',
+  MOTORISTA: 'app',
+}
+
+/** A superfície em que este papel trabalha — o aplicativo, ou o painel. */
+export function casaDoPapel(papel: Papel): string {
+  if (papel === Papel.MOTORISTA) return '/app/motorista'
+  if (papel === Papel.TECNICO) return '/app/tecnico'
+  return '/painel'
+}
+
+/**
+ * A PRIMEIRA TELA QUE ESTA PESSOA CONSEGUE ABRIR.
+ *
+ * =============================================================================
+ * POR QUE NÃO BASTA "VAI PARA /painel"
+ * =============================================================================
+ * O modelo de abas permite — e recomenda — apertar um acesso até uma tela só:
+ * *"deixar uma pessoa vendo apenas o Financeiro"*, diz a própria tela de
+ * cadastro. Só que entrar sempre caía em `/painel`, o Dashboard. Essa pessoa
+ * entrava, via um menu com uma linha, e a tela em que ela caiu não era essa
+ * linha.
+ *
+ * Enquanto o Dashboard não conferia a aba, o resultado era só estranho. No
+ * instante em que ele passa a conferir — que é o certo, senão esconder a aba do
+ * menu vira enfeite —, o mesmo caminho vira um beco: a pessoa entra e é
+ * mandada para "sem permissão" pela porta de entrada do sistema.
+ *
+ * Aqui a resposta é montada do que ela TEM: a primeira aba efetiva dela. Como
+ * essa aba sai de `telasEfetivas`, `podeAbrir` é verdadeiro para ela por
+ * construção — não há como esta função devolver um endereço que vai recusar
+ * quem chegar, e portanto não há como criar laço de redirecionamento.
+ */
+export function primeiraTela(papel: Papel, marcadas: string[] | null | undefined): string {
+  const casa = casaDoPapel(papel)
+  if (casa !== '/painel') return casa
+  // O dono da plataforma atravessa tudo: o Dashboard é a casa dele.
+  if (papel === Papel.SUPER_ADMIN) return '/painel'
+  const telas = telasEfetivas(papel, marcadas)
+  return telas.find((t) => t.chave === 'painel')?.href ?? telas[0]?.href ?? '/painel'
+}
+
+/**
+ * O PADRÃO ENXUTO — quem não precisa do painel não nasce com ele.
+ *
+ * =============================================================================
+ * O QUE ESTAVA ERRADO
+ * =============================================================================
+ * "Sem marcação = o padrão do papel" e "o padrão do papel = tudo que o papel
+ * alcança" eram a mesma frase, e é aí que o motorista nascia com sete abas do
+ * painel: Dashboard, Calendário, O.S., Acompanhar, Rota, Aplicativos e
+ * Equipamentos. Nenhuma delas é o trabalho dele — o trabalho dele é a rota, no
+ * aplicativo, com a assinatura do cliente no celular.
+ *
+ * Não era falha de segurança: cada uma dessas telas mostra ao motorista só o
+ * que é dele. Era falha de DESENHO. Uma pessoa que entra num sistema e encontra
+ * sete portas, seis das quais não levam ao serviço dela, gasta o primeiro dia
+ * descobrindo qual é a que interessa — e a central gasta o dia explicando.
+ *
+ * =============================================================================
+ * ALCANÇAR CONTINUA SENDO OUTRA COISA
+ * =============================================================================
+ * Isto muda o PADRÃO, não o TETO. `telasDoPapel` continua devolvendo as sete: o
+ * administrador que tiver um motivo real — um motorista que também confere a
+ * agenda da semana no computador da oficina — marca a aba e ela funciona. O que
+ * deixou de acontecer é isso vir ligado sem ninguém ter pedido.
+ *
+ * O TÉCNICO NÃO ENTRA AQUI, e a ausência é a parte pensada: metade do serviço
+ * dele — laudo, manutenção, peça — mora na janela da O.S., no painel. Enxugar
+ * o padrão dele seria tirar ferramenta de trabalho para arrumar o menu.
+ */
+const PADRAO_ENXUTO: Partial<Record<Papel, readonly string[]>> = {
+  // Uma porta só, e ela leva ao aplicativo dele. `/painel/aplicativos` é a tela
+  // cujo assunto é exatamente esse — abrir o app de campo. Deixar o padrão
+  // vazio seria pior: a pessoa que caísse no painel por um link não teria menu
+  // nenhum, e menu vazio parece defeito.
+  MOTORISTA: ['aplicativos'],
+}
+
 const NIVEL: Record<Papel, number> = {
   SUPER_ADMIN: 100,
   ADMIN_EMPRESA: 80,
@@ -246,7 +363,7 @@ export function telasDoPapel(papel: Papel): Tela[] {
  */
 export function telasEfetivas(papel: Papel, marcadas: string[] | null | undefined): Tela[] {
   const doPapel = telasDoPapel(papel)
-  if (!marcadas || marcadas.length === 0) return doPapel
+  if (!marcadas || marcadas.length === 0) return padraoDoPapel(papel)
   const escolhidas = new Set(marcadas)
   const filtradas = doPapel.filter((t) => escolhidas.has(t.chave))
 
@@ -256,7 +373,25 @@ export function telasEfetivas(papel: Papel, marcadas: string[] | null | undefine
   // a aba 'rota'; quem tinha só elas marcadas cairia num menu vazio, que é uma
   // pessoa abrindo o sistema sem ter para onde ir. Isso parece defeito, não
   // permissão.
-  return filtradas.length > 0 ? filtradas : doPapel
+  return filtradas.length > 0 ? filtradas : padraoDoPapel(papel)
+}
+
+/**
+ * O que este papel vê quando NINGUÉM marcou nada.
+ *
+ * É o teto para quase todo mundo, e o recorte do `PADRAO_ENXUTO` para quem
+ * trabalha noutra superfície. Uma função só, porque os dois lugares que
+ * respondiam "e quando não há marcação?" — o caminho sem marcas e o caminho da
+ * marcação que não sobrou nada — precisam responder igual.
+ */
+export function padraoDoPapel(papel: Papel): Tela[] {
+  const enxuto = PADRAO_ENXUTO[papel]
+  const doPapel = telasDoPapel(papel)
+  if (!enxuto) return doPapel
+  const recorte = doPapel.filter((t) => enxuto.includes(t.chave))
+  // Se um dia a chave do recorte sumir do catálogo, cair no teto é melhor do
+  // que devolver lista vazia: menu vazio é pessoa sem ter para onde ir.
+  return recorte.length > 0 ? recorte : doPapel
 }
 
 /** Esta pessoa alcança esta aba? */

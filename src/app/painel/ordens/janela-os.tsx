@@ -15,6 +15,7 @@ import {
   type PainelDaOrdem,
 } from '@/server/acoes/assistente'
 import { emitir, receber } from '@/server/acoes/financeiro'
+import { atribuirMotorista, remarcarParada } from '@/server/acoes/agenda'
 import { FormularioDaParada } from './[id]/agendar-parada'
 import Cancelar from './[id]/cancelar'
 import estilo from '../painel.module.css'
@@ -269,6 +270,8 @@ export default function JanelaOS({
                   aoCombinar={() => setModo({ tela: 'combinado' })}
                 />
               )}
+
+              <AParadaDaRota painel={p} aoMudar={recarregar} />
 
               <Resumo painel={p} />
 
@@ -1188,4 +1191,292 @@ function quando(iso: string | Date): string {
     dateStyle: 'short',
     timeStyle: 'short',
   })
+}
+
+/**
+ * A PARADA DE ROTA DESTA O.S. — para ver, e para corrigir.
+ *
+ * =============================================================================
+ * O BURACO QUE ELA TAPA
+ * =============================================================================
+ * A janela sabia marcar uma parada e não sabia mostrar a que já existia. Assim
+ * que a retirada era agendada, dia, hora, endereço e MOTORISTA sumiam da tela —
+ * e a única forma de mexer neles era sair da O.S., abrir a Rota e achar a
+ * parada certa numa lista de todas as paradas da empresa.
+ *
+ * O relato foi este, com estas palavras: *"preciso colocar o motorista e não
+ * estou conseguindo"*. A parada estava lá, sem motorista, e a janela dizia
+ * "nada para fazer agora com o seu perfil" para um administrador.
+ *
+ * =============================================================================
+ * POR QUE O MOTORISTA VEM PRIMEIRO, E SOZINHO
+ * =============================================================================
+ * Trocar o motorista é o ajuste que se faz com o telefone no ombro — alguém
+ * ligou avisando que não vai dar. É um `<select>` que salva no `onChange`, sem
+ * botão: um formulário de sete campos para mudar um nome faria a pessoa
+ * preencher endereço e recado de novo só para escolher quem vai.
+ *
+ * O resto — dia, hora, endereço, recado — fica atrás de "Mudar dia e endereço",
+ * fechado. É o ajuste raro, e ele tem consequência maior: mexe no que o cliente
+ * já ouviu.
+ *
+ * =============================================================================
+ * O QUE ELA NÃO OFERECE
+ * =============================================================================
+ * Parada concluída ou que falhou aparece como LEITURA. Já tem foto, assinatura
+ * e hora gravadas; remarcar depois faria o comprovante que o cliente assinou
+ * discordar do sistema. A ação recusa também — aqui a tela só não oferece o que
+ * ia falhar.
+ */
+function AParadaDaRota({
+  painel,
+  aoMudar,
+}: {
+  painel: PainelDaOrdem
+  aoMudar: () => Promise<void>
+}) {
+  if (painel.paradasMarcadas.length === 0) return null
+
+  return (
+    <div className={estilo.osRota}>
+      <p className={estilo.osRotaTitulo}>
+        {painel.paradasMarcadas.length === 1 ? 'A parada de rota' : 'As paradas de rota'}
+      </p>
+      {painel.paradasMarcadas.map((pa) => (
+        <CartaoDaParada
+          key={pa.id}
+          parada={pa}
+          motoristas={painel.motoristasDaCasa}
+          podeMexer={painel.podeMexerNaRota}
+          aoMudar={aoMudar}
+        />
+      ))}
+    </div>
+  )
+}
+
+function CartaoDaParada({
+  parada,
+  motoristas,
+  podeMexer,
+  aoMudar,
+}: {
+  parada: PainelDaOrdem['paradasMarcadas'][number]
+  motoristas: PainelDaOrdem['motoristasDaCasa']
+  podeMexer: boolean
+  aoMudar: () => Promise<void>
+}) {
+  const [salvando, iniciar] = useTransition()
+  const [erro, setErro] = useState<string | null>(null)
+  const [abrirRemarcar, setAbrirRemarcar] = useState(false)
+
+  function trocarMotorista(id: string) {
+    setErro(null)
+    iniciar(async () => {
+      const r = await atribuirMotorista(parada.id, id)
+      if (!r.ok) setErro(r.motivo)
+      else await aoMudar()
+    })
+  }
+
+  const semMotorista = !parada.motoristaId
+
+  return (
+    <div className={semMotorista && !parada.fechada ? `${estilo.osRotaCartao} ${estilo.osRotaFalta}` : estilo.osRotaCartao}>
+      <div className={estilo.osRotaTopo}>
+        <span className={estilo.osRotaTipo}>
+          {parada.tipo === 'RETIRADA' ? 'Buscar' : 'Entregar'}
+        </span>
+        <span className={estilo.osRotaQuando}>
+          {parada.data} · {parada.horario}
+        </span>
+        <span className={estilo.osRotaSituacao}>{parada.situacao}</span>
+      </div>
+
+      <p className={estilo.osRotaEndereco}>
+        {parada.endereco}
+        {parada.pontoReferencia ? ` · ${parada.pontoReferencia}` : ''}
+      </p>
+      {parada.observacoes ? (
+        <p className={estilo.osRotaRecado}>Recado ao motorista: {parada.observacoes}</p>
+      ) : null}
+
+      {parada.fechada ? (
+        <p className={estilo.dica}>
+          {parada.motorista ? `Foi com ${parada.motorista}. ` : ''}
+          Parada encerrada — para mexer na data, cancele e marque outra.
+        </p>
+      ) : podeMexer ? (
+        <>
+          <label className={estilo.osRotaEscolha}>
+            <span>Quem vai</span>
+            <select
+              className={estilo.selecao}
+              value={parada.motoristaId ?? ''}
+              disabled={salvando}
+              onChange={(e) => trocarMotorista(e.target.value)}
+            >
+              {/* A opção vazia existe porque tirar o motorista é uma decisão
+                  legítima: a parada sem dono volta para a lista de quem pegar,
+                  em vez de ficar no nome de alguém que não vai. */}
+              <option value="">— sem motorista definido —</option>
+              {motoristas.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nome}
+                </option>
+              ))}
+            </select>
+          </label>
+          {motoristas.length === 0 ? (
+            <p className={estilo.dica}>
+              Nenhum motorista cadastrado ainda. Crie o acesso dele em{' '}
+              <Link href="/painel/usuarios">Pessoas e acessos</Link>.
+            </p>
+          ) : null}
+          {parada.aceitoEm ? (
+            <p className={estilo.dica}>Aceitou a corrida em {parada.aceitoEm}.</p>
+          ) : parada.motoristaId ? (
+            <p className={estilo.dica}>
+              Designado, ainda não aceitou. O celular dele recebe o aviso da parada.
+            </p>
+          ) : null}
+          {erro ? (
+            <p className={estilo.erro} role="alert">
+              {erro}
+            </p>
+          ) : null}
+
+          {abrirRemarcar ? (
+            <FormularioRemarcar
+              parada={parada}
+              aoFechar={() => setAbrirRemarcar(false)}
+              aoSalvar={async () => {
+                setAbrirRemarcar(false)
+                await aoMudar()
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              className={estilo.btnLinha}
+              onClick={() => setAbrirRemarcar(true)}
+            >
+              Mudar dia e endereço
+            </button>
+          )}
+        </>
+      ) : (
+        <p className={estilo.dica}>
+          {parada.motorista ? `Vai com ${parada.motorista}.` : 'Ainda sem motorista.'} Seu perfil não
+          altera a rota.
+        </p>
+      )}
+    </div>
+  )
+}
+
+/** Dia, hora, janela, endereço e recado de uma parada que já existe. */
+function FormularioRemarcar({
+  parada,
+  aoFechar,
+  aoSalvar,
+}: {
+  parada: PainelDaOrdem['paradasMarcadas'][number]
+  aoFechar: () => void
+  aoSalvar: () => Promise<void>
+}) {
+  const [pendente, iniciar] = useTransition()
+  const [erro, setErro] = useState<string | null>(null)
+
+  /**
+   * O ENVIO É À MÃO, e não por `useActionState`.
+   *
+   * O `useActionState` devolve `{ok:true}` tanto ANTES do primeiro envio quanto
+   * DEPOIS de um salvamento bem-sucedido — os dois estados são o mesmo objeto, e
+   * não há como distinguir "ainda não enviei" de "acabei de salvar" sem guardar
+   * um sinal por fora. A versão com `useRef` funcionava e era um enigma para
+   * quem lesse depois.
+   *
+   * Chamando a ação direto, o sucesso é uma linha: fechou o formulário e
+   * recarregou o painel.
+   */
+  function enviar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const dados = new FormData(e.currentTarget)
+    setErro(null)
+    iniciar(async () => {
+      const r = await remarcarParada({ ok: true }, dados)
+      if (!r.ok) setErro(r.motivo)
+      else await aoSalvar()
+    })
+  }
+
+  return (
+    <form className={estilo.osRotaForm} onSubmit={enviar}>
+      <input type="hidden" name="agendamentoId" value={parada.id} />
+      {erro ? (
+        <p className={estilo.erro} role="alert">
+          {erro}
+        </p>
+      ) : null}
+
+      <div className={estilo.formLinha}>
+        <label className={estilo.rotulo}>
+          Dia *
+          <input className={estilo.campo} type="date" name="data" defaultValue={parada.dataCampo} required />
+        </label>
+        <label className={estilo.rotulo}>
+          Hora
+          <input className={estilo.campo} type="time" name="hora" defaultValue={parada.horaCampo} />
+        </label>
+        <label className={estilo.rotulo}>
+          Até (opcional)
+          <input
+            className={estilo.campo}
+            type="time"
+            name="janelaFim"
+            defaultValue={parada.janelaFimCampo}
+          />
+          <span className={estilo.dica}>A janela combinada com o cliente.</span>
+        </label>
+      </div>
+
+      <label className={estilo.rotulo}>
+        Endereço da parada *
+        <input className={estilo.campo} name="endereco" defaultValue={parada.endereco} required minLength={5} />
+      </label>
+
+      <div className={estilo.formLinha}>
+        <label className={estilo.rotulo}>
+          Procurar por
+          <input className={estilo.campo} name="contatoNome" defaultValue={parada.contatoNome} />
+        </label>
+        <label className={estilo.rotulo}>
+          Telefone no local
+          <input className={estilo.campo} name="contatoTelefone" defaultValue={parada.contatoTelefone} inputMode="tel" />
+        </label>
+        <label className={estilo.rotulo}>
+          Ponto de referência
+          <input className={estilo.campo} name="pontoReferencia" defaultValue={parada.pontoReferencia} />
+        </label>
+      </div>
+
+      <label className={estilo.rotulo}>
+        Recado ao motorista
+        <input className={estilo.campo} name="observacoes" defaultValue={parada.observacoes} maxLength={500} />
+        <span className={estilo.dica}>
+          Aparece em destaque no aplicativo dele — &ldquo;levar carrinho&rdquo;, &ldquo;estacionar nos fundos&rdquo;.
+        </span>
+      </label>
+
+      <div className={estilo.acoesForm}>
+        <button type="submit" className={estilo.btn} disabled={pendente}>
+          {pendente ? 'Salvando…' : 'Salvar a parada'}
+        </button>
+        <button type="button" className={estilo.linkAcao} onClick={aoFechar}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  )
 }

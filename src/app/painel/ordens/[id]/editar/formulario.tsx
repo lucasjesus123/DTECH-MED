@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { editarOrdem } from '@/server/acoes/ordem'
 import estilo from '../../../painel.module.css'
@@ -28,21 +28,64 @@ export default function FormEditar({
   codigoRastreio: string
 }) {
   const router = useRouter()
-  const [estado, acao, pendente] = useActionState(editarOrdem, {
-    ok: true as const,
-  })
+  const [pendente, iniciar] = useTransition()
+  const [resposta, setResposta] = useState<
+    { estado: 'parado' } | { estado: 'salvo' } | { estado: 'erro'; motivo: string }
+  >({ estado: 'parado' })
+
+  /**
+   * ISTO SALVAVA E NÃO DIZIA QUE SALVOU — e por isso parecia não salvar.
+   *
+   * =============================================================================
+   * O DEFEITO, MEDIDO
+   * =============================================================================
+   * A ação `editarOrdem` gravava certo: conferido no banco, o defeito, a
+   * prioridade e o rastreio mudavam. A tela é que ficava idêntica. O
+   * `useActionState` devolve `{ok:true}` tanto no estado inicial quanto depois
+   * de um salvamento bem-sucedido, e o formulário só desenhava alguma coisa no
+   * caminho do ERRO. Salvar com sucesso não mudava um pixel.
+   *
+   * O `setTimeout(refresh, 900)` piorava: ele recarregava a página no escuro,
+   * 900ms depois do clique, sem saber se a ação já tinha terminado. Quando ela
+   * demorava mais que isso, o recarregamento trazia os valores VELHOS do
+   * servidor e os plantava de volta nos campos — a correção sumia da tela
+   * depois de gravada, que é a pior das duas aparências possíveis.
+   *
+   * O relato do dono do sistema foi exatamente este: "quando edito e tento
+   * salvar não está salvando".
+   *
+   * =============================================================================
+   * O QUE FAZ AGORA
+   * =============================================================================
+   * Espera a ação terminar, diz o que aconteceu, e só então recarrega — nesta
+   * ordem, que é a única em que a pessoa vê a confirmação antes de a tela mexer.
+   */
+  function enviar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const dados = new FormData(e.currentTarget)
+    setResposta({ estado: 'parado' })
+    iniciar(async () => {
+      const r = await editarOrdem({ ok: true }, dados)
+      if (!r.ok) {
+        setResposta({ estado: 'erro', motivo: r.motivo })
+        return
+      }
+      setResposta({ estado: 'salvo' })
+      router.refresh()
+    })
+  }
 
   return (
-    <form
-      action={acao}
-      className={estilo.form}
-      onSubmit={() => setTimeout(() => router.refresh(), 900)}
-    >
+    <form className={estilo.form} onSubmit={enviar}>
       <input type="hidden" name="ordemId" value={ordemId} />
 
-      {!estado.ok ? (
+      {resposta.estado === 'erro' ? (
         <p className={estilo.erro} role="alert">
-          {estado.motivo}
+          {resposta.motivo}
+        </p>
+      ) : resposta.estado === 'salvo' ? (
+        <p className={estilo.sucesso} role="status">
+          Correção salva. Ela ficou registrada na trilha, com o que estava antes.
         </p>
       ) : null}
 

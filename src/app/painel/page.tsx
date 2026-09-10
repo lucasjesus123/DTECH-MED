@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
-import { exigirSessao, podeVer } from '@/server/auth/guarda'
+import { exigirAba, exigirSessao, podeVer } from '@/server/auth/guarda'
 import { tudoDoDia, type AlertaDoDia, type Degrau } from '@/server/consultas/painel'
 import { riscoDePrazo, type LinhaDeRisco } from '@/server/ia/prazo'
 import type { Saida } from '@/server/ia/contrato'
@@ -35,6 +35,20 @@ export default async function PainelDoDia({
   searchParams: Promise<{ degrau?: string; ver?: string }>
 }) {
   const { ctx, sessao } = await exigirSessao()
+  /**
+   * O DASHBOARD TAMBÉM É UMA ABA — e era a única que não se conferia.
+   *
+   * A chave `painel` existe no catálogo desde que o modelo de abas nasceu, com
+   * piso e marcação próprios, e esta página nunca a checou. O efeito: um acesso
+   * apertado em "só o Financeiro" escondia o Dashboard do menu e continuava
+   * servindo o Dashboard para quem digitasse `/painel` — que é exatamente o
+   * "esconder a aba vira enfeite" que o comentário do `exigirAba` alerta.
+   *
+   * Quem não tem esta aba é levado para a primeira que tem, e não para um muro:
+   * `/painel` é a porta de entrada do sistema, e mandar alguém de "sem
+   * permissão" logo depois do login seria trancar a pessoa do lado de fora.
+   */
+  await exigirAba('painel')
 
   // O super admin cai aqui ao entrar, mas "onde a esteira está agora" é a
   // pergunta de quem opera uma franquia — e fora de uma empresa ele não tem

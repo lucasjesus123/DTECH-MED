@@ -3,10 +3,10 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import type { Papel } from '@/generated/prisma/enums'
 import { env } from '@/lib/env'
 import { autenticar, criarSessao } from '@/server/auth/sessao'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
+import { primeiraTela } from '@/server/auth/telas'
 
 /**
  * Ação de login.
@@ -99,24 +99,7 @@ export async function entrar(_anterior: Estado, form: FormData): Promise<Estado>
   // login legítimo terminar numa página controlada por outra pessoa.
   const destino = dados.data.destino
   const pedido = destino && destino.startsWith('/') && !destino.startsWith('//') ? destino : null
-  redirect(r.trocarSenha ? '/painel/trocar-senha' : (pedido ?? casaDe(r.papel)))
-}
-
-/**
- * Para onde cada perfil vai depois de entrar.
- *
- * Motorista e técnico trabalham no celular, na rua e na bancada. Jogá-los no
- * painel de gestão obrigaria os dois a encontrar sozinhos o caminho do próprio
- * app — numa tela pequena, no meio de menus que não são deles. Quem tem um
- * lugar de trabalho definido vai direto para lá.
- *
- * Isto é conveniência, não autorização: cada página continua conferindo o papel
- * por conta própria. Ninguém ganha acesso por causa do destino do redirect.
- */
-function casaDe(papel: Papel): string {
-  if (papel === 'MOTORISTA') return '/app/motorista'
-  if (papel === 'TECNICO') return '/app/tecnico'
-  return '/painel'
+  redirect(r.trocarSenha ? '/painel/trocar-senha' : (pedido ?? primeiraTela(r.papel, r.telas)))
 }
 
 /** Guarda o e-mail na auditoria sem escrever o endereço inteiro. */
