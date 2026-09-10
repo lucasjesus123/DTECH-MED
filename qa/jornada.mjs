@@ -135,13 +135,27 @@ const ana = await como('ana', 'ana@dtechmed.com.br', SENHA)
 await ana.goto(`${QA_BASE}/painel/ordens/nova`, { waitUntil: 'domcontentloaded' })
 await ana.waitForTimeout(1000)
 const nova = ana.locator('form').filter({ has: ana.locator('textarea[name=defeito]') }).first()
+// ---------------------------------------------------------------------------
+// O PASSO 1 É "O COMBINADO", E ELE VEM ANTES DO CLIENTE.
+// ---------------------------------------------------------------------------
+// O assistente ganhou um passo na frente — o valor acertado na ligação — e este
+// roteiro continuou abrindo direto no cliente. O campo `clienteNome` existe no
+// HTML desde sempre, então o roteiro não dizia "não achei": ele ficava trinta
+// segundos tentando escrever num campo escondido e morria por tempo esgotado.
+//
+// Os dois campos do passo 1 são opcionais, e o botão diz isso na cara: "Não
+// combinei nada ainda — seguir". A jornada não tem valor combinado para
+// registrar, então ela segue.
+await nova.getByRole('button', { name: /seguir$/i }).click()
+await ana.waitForTimeout(500)
+
 await nova.locator('input[name=clienteNome]').fill('Clínica Bella Pelle')
 await nova.locator('input[name=clienteDocumento]').fill('11444777000161')
 await nova.locator('input[name=clienteWhatsapp]').fill('51980449274')
 await nova.locator('input[name=contatoNome]').fill('Mariana Farias')
 await nova.locator('input[name=endereco]').fill('R. Sabiá, 702, Sala 03, Universitário')
 await nova.locator('input[name=cidade]').fill('Lajeado')
-// O ASSISTENTE DE TRÊS PASSOS: cliente → aparelho → ordem.
+// O ASSISTENTE DE QUATRO PASSOS: o combinado → cliente → aparelho → ordem.
 // Os campos do passo seguinte existem no formulário mas ficam escondidos, então
 // preenchê-los exige avançar. O roteiro reprovou quando a tela virou assistente,
 // e reprovou com razão: ele descrevia a tela de antes.

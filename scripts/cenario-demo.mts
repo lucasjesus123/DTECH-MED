@@ -418,7 +418,20 @@ async function main() {
       })
     })
     await passo(E.ENTREGUE, de(P.MOTORISTA))
-    await passo(E.FINALIZADO, de(P.GESTOR))
+
+    // A ENTREGA JÁ FECHA A ORDEM QUANDO A FATURA ESTÁ QUITADA.
+    //
+    // Estas 13 ordens são pagas antes de sair para a entrega, então assinar o
+    // recebimento dá a baixa sozinho — a regra está em `motor.ts`, e o evento
+    // sai com autor "Sistema". Pedir FINALIZADO depois disso seria pedir a
+    // etapa em que a ordem já está, e o motor recusa (com razão).
+    //
+    // O cenário confere que a baixa aconteceu em vez de repeti-la: se um dia
+    // a automação sair, esta linha reprova aqui e não três telas adiante.
+    const fechou = await comEscopo(ctx, (tx) =>
+      tx.ordem.findUniqueOrThrow({ where: { id: ordemId }, select: { etapa: true } }),
+    )
+    if (fechou.etapa !== E.FINALIZADO) await passo(E.FINALIZADO, de(P.GESTOR))
   }
 
   const resumo = await comEscopo(ctx, (tx) =>
