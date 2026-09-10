@@ -24,7 +24,19 @@ import { NextResponse, type NextRequest } from 'next/server'
  * fazer nada. Quem autoriza é `exigirSessao()` em cada página e cada ação.
  */
 
-const PRIVADAS = ['/painel', '/app']
+/**
+ * As áreas que exigem cookie de sessão.
+ *
+ * `/sistema` e `/campo` são o redesenho — o painel e o aplicativo de campo da
+ * `uiV2`. Elas entram aqui pelo mesmo motivo das duas primeiras, e não porque a
+ * guarda de cada página seja insuficiente: as páginas já recusam por conta
+ * própria, e continuam sendo elas as que autorizam de verdade.
+ *
+ * O que esta lista acrescenta é o `?destino=`. Sem ela, quem abrisse um link de
+ * O.S. mandado no WhatsApp com a sessão expirada seria mandado ao login e, ao
+ * entrar, largado na home — perdendo justamente a ordem que ele foi ver.
+ */
+const PRIVADAS = ['/painel', '/app', '/sistema', '/campo']
 const METODOS_ACEITOS = new Set(['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'])
 
 /**

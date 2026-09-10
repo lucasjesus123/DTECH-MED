@@ -68,5 +68,12 @@ export async function definirTema(tema: Tema): Promise<void> {
 
   // O tema é um atributo do HTML do painel inteiro, então a página precisa ser
   // remontada — não é uma classe que o navegador troca sozinho.
+  //
+  // As TRÊS superfícies são revalidadas, e não só a que está aberta. A escolha
+  // é uma só, gravada num cookie só: quem troca para escuro no sistema e depois
+  // abre o app de campo espera encontrar escuro lá também. Revalidar só a atual
+  // deixaria a outra servindo uma página montada com o tema antigo.
   revalidatePath('/painel', 'layout')
+  revalidatePath('/sistema', 'layout')
+  revalidatePath('/campo', 'layout')
 }

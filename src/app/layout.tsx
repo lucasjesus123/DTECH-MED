@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { EMPRESA, enderecoEmUmaLinha } from '@/lib/empresa'
 import { env } from '@/lib/env'
-import { jakarta, jetbrains, manrope, sora } from '@/lib/fontes'
+import { jakarta, jetbrains, manrope, plex, plexMono, sora } from '@/lib/fontes'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -141,6 +141,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // `--f-display` e `--f-texto` para ela dentro de `.app`. O site não
           // referencia esta variável em lugar nenhum.
           '--fonte-console': jakarta.style.fontFamily,
+          // Pelo mesmo motivo da linha acima: declaradas na raiz porque é ali
+          // que o `next/font` gera o `@font-face`, e apontadas só dentro de
+          // `/sistema`. O site e o painel antigo não as referenciam.
+          '--fonte-plex': plex.style.fontFamily,
+          '--fonte-plex-mono': plexMono.style.fontFamily,
         } as React.CSSProperties
       }
     >

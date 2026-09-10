@@ -65,6 +65,18 @@ export type Sessao = {
    * passa a ser feito pelo Postgres e não pela boa vontade do código.
    */
   visitando: boolean
+  /**
+   * Esta empresa está no SISTEMA NOVO (`/sistema`), e não no painel antigo.
+   *
+   * Viaja na sessão porque a leitura da sessão já traz a empresa junto — somar
+   * uma coluna a um `select` que já existe custa nada, e a alternativa seria
+   * uma consulta a mais em toda navegação para responder algo que não muda no
+   * meio do expediente.
+   *
+   * O dono da plataforma, fora de uma visita, não tem empresa: para ele isto é
+   * falso, e a casa dele continua sendo o painel da rede.
+   */
+  uiV2: boolean
 }
 
 const TTL_MS = () => env.SESSION_TTL_HOURS * 60 * 60 * 1000
@@ -118,7 +130,7 @@ export async function lerSessao(): Promise<Sessao | null> {
       include: {
         user: {
           include: {
-            tenant: { select: { nome: true, ativo: true, bloqueado: true } },
+            tenant: { select: { nome: true, ativo: true, bloqueado: true, uiV2: true } },
           },
         },
       },
@@ -158,6 +170,7 @@ export async function lerSessao(): Promise<Sessao | null> {
     trocarSenha: u.trocarSenha,
     telas: u.telas,
     visitando: false,
+    uiV2: u.tenant?.uiV2 ?? false,
   }
 
   // O dono da plataforma pode estar DENTRO de uma empresa. A escolha vem do
@@ -169,14 +182,22 @@ export async function lerSessao(): Promise<Sessao | null> {
       const empresa = await comContextoAuth(async (tx) =>
         tx.tenant.findFirst({
           where: { id: alvo, ativo: true, bloqueado: false },
-          select: { id: true, nome: true },
+          select: { id: true, nome: true, uiV2: true },
         }),
       )
       // Empresa apagada, desativada ou suspensa no meio da visita: a sessão
       // volta sozinha para a visão da rede, em vez de servir uma tela vazia
       // que parece defeito.
       if (empresa) {
-        return { ...base, tenantId: empresa.id, tenantNome: empresa.nome, visitando: true }
+        // A flag da empresa VISITADA, e não a do visitante: quem entra numa
+        // franquia vê o que aquela franquia vê, e isso vale para a tela também.
+        return {
+          ...base,
+          tenantId: empresa.id,
+          tenantNome: empresa.nome,
+          visitando: true,
+          uiV2: empresa.uiV2,
+        }
       }
     }
   }

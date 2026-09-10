@@ -103,3 +103,27 @@ export function janelaDoDia(dia: string = hoje()): { inicio: Date; fim: Date } {
   const fim = new Date(inicio.getTime() + 86_400_000)
   return { inicio, fim }
 }
+
+/**
+ * O INSTANTE EM QUE ESTA REQUISIÇÃO ESTÁ SENDO SERVIDA.
+ *
+ * =============================================================================
+ * POR QUE UMA FUNÇÃO PARA `Date.now()`
+ * =============================================================================
+ * Um componente de servidor é renderizado UMA VEZ por requisição: perguntar as
+ * horas ali dentro é tão legítimo quanto perguntá-las numa consulta ao banco.
+ * Num componente de cliente é outra história — ele renderiza muitas vezes, e um
+ * `Date.now()` no meio do desenho faz a mesma tela mostrar números diferentes a
+ * cada tecla digitada, além de divergir entre o HTML do servidor e o do
+ * navegador na hidratação.
+ *
+ * O nome existe para tornar essa fronteira visível. Quando uma tela precisa do
+ * "agora", ela o pede AQUI, no servidor, uma vez, e passa o valor adiante como
+ * qualquer outro dado. Nenhum componente de cliente chama esta função.
+ *
+ * É também o único ponto que precisaria mudar para congelar o relógio num
+ * teste de ponta a ponta.
+ */
+export function agoraNoServidor(): Date {
+  return new Date()
+}

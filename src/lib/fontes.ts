@@ -88,3 +88,56 @@ export const jetbrains = localFont({
 })
 
 export const classesDeFonte = `${sora.variable} ${manrope.variable} ${jetbrains.variable} ${jakarta.variable}`
+
+/**
+ * IBM PLEX SANS E IBM PLEX MONO — a tipografia do SISTEMA NOVO (ui_v2).
+ *
+ * =============================================================================
+ * POR QUE MAIS DUAS, SE JÁ HAVIA QUATRO
+ * =============================================================================
+ * O redesenho "Azul Máquina" pede três vozes com papéis separados: Sora nos
+ * títulos (ela já está aqui, e é a que ecoa o logotipo), Plex Sans no texto de
+ * interface e Plex Mono nos rótulos técnicos — `ESTEIRA // BANCADA`, número de
+ * O.S., id, valor em coluna.
+ *
+ * A Plex Sans não é a Jakarta com outro nome. A Jakarta foi escolhida para o
+ * painel antigo por causa do NÚMERO GRANDE: contraforma fechado que aguenta
+ * 60px sem virar mancha. O sistema novo não tem número de 60px — ele tem
+ * dezenas de linhas de lista com rótulo, chip de estado e botão, e é aí que a
+ * Plex ganha: altura-x alta, terminais retos, e uma mono da MESMA FAMÍLIA, com
+ * as mesmas proporções. Rótulo em mono ao lado de texto em sans, quando as
+ * duas são desenhadas juntas, param de parecer dois sistemas colados.
+ *
+ * =============================================================================
+ * AUTO-HOSPEDADAS, COMO TODAS AS OUTRAS
+ * =============================================================================
+ * O documento de direção pedia as fontes do Google. A regra desta casa é mais
+ * antiga e vale mais: host externo é ponto de falha, vazamento de referrer e
+ * uma exceção que a CSP teria de abrir. Os arquivos vieram do pacote do
+ * Fontsource e moram em `public/fonts`, como as outras quatro.
+ *
+ * ELAS SÃO CARREGADAS AQUI E SÓ APONTADAS DENTRO DO SISTEMA NOVO. O
+ * `next/font` precisa da declaração no módulo para gerar o `@font-face`; quem
+ * decide ONDE elas valem é o CSS de `/sistema`. O site e o painel antigo não
+ * referenciam estas variáveis em lugar nenhum.
+ */
+export const plex = localFont({
+  src: [
+    { path: '../../public/fonts/ibm-plex-sans-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/ibm-plex-sans-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/ibm-plex-sans-latin-600-normal.woff2', weight: '600', style: 'normal' },
+  ],
+  variable: '--f-plex',
+  display: 'swap',
+  adjustFontFallback: 'Arial',
+})
+
+export const plexMono = localFont({
+  src: [
+    { path: '../../public/fonts/ibm-plex-mono-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/ibm-plex-mono-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/ibm-plex-mono-latin-600-normal.woff2', weight: '600', style: 'normal' },
+  ],
+  variable: '--f-plex-mono',
+  display: 'swap',
+})

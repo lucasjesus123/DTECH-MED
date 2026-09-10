@@ -4,9 +4,10 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { env } from '@/lib/env'
-import { autenticar, criarSessao } from '@/server/auth/sessao'
+import { autenticar, criarSessao, lerSessao } from '@/server/auth/sessao'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { primeiraTela } from '@/server/auth/telas'
+import { casaDoPapelV2, primeiraTelaV2 } from '@/server/sistema/navegacao'
 
 /**
  * Ação de login.
@@ -99,7 +100,29 @@ export async function entrar(_anterior: Estado, form: FormData): Promise<Estado>
   // login legítimo terminar numa página controlada por outra pessoa.
   const destino = dados.data.destino
   const pedido = destino && destino.startsWith('/') && !destino.startsWith('//') ? destino : null
-  redirect(r.trocarSenha ? '/painel/trocar-senha' : (pedido ?? primeiraTela(r.papel, r.telas)))
+  if (r.trocarSenha) redirect('/painel/trocar-senha')
+  if (pedido) redirect(pedido)
+
+  /**
+   * PARA ONDE ESTA PESSOA VAI, agora que existem duas versões do sistema.
+   *
+   * A sessão acabou de ser criada, e é ela que sabe se a EMPRESA desta pessoa
+   * está no sistema novo — a flag é do tenant, e `autenticar` responde sobre o
+   * usuário. Uma leitura a mais no login (e só no login) é barata perto da
+   * alternativa: repetir aqui a regra de qual empresa está migrada, que é a
+   * segunda cópia de uma verdade que só pode ter uma.
+   *
+   * Sem sessão legível — o que não deveria acontecer logo depois de criá-la —
+   * cai no caminho antigo, que funciona para todo mundo.
+   */
+  const sessao = await lerSessao()
+  if (!sessao?.uiV2) redirect(primeiraTela(r.papel, r.telas))
+
+  // No sistema novo, a casa do papel manda: o motorista vai para o app de
+  // campo, o técnico para a bancada, e quem tem o acesso apertado até uma tela
+  // só vai para essa tela — nunca para uma home que vai recusá-lo.
+  const casa = casaDoPapelV2(sessao.papel)
+  redirect(casa === '/sistema' ? primeiraTelaV2(sessao) : casa)
 }
 
 /** Guarda o e-mail na auditoria sem escrever o endereço inteiro. */

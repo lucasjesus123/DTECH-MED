@@ -302,6 +302,18 @@ model Tenant {
 
   ativo          Boolean @default(true)
   plano          String  @default("padrao")
+
+  /// O SISTEMA NOVO ("Azul Máquina") ligado para esta empresa.
+  ///
+  /// Com `true`, quem entra nesta empresa cai em `/sistema` — o redesenho, com
+  /// menu por intenção, radar de ações pendentes e botão-da-vez. Com `false`,
+  /// continua no `/painel` de sempre.
+  ///
+  /// É POR EMPRESA de propósito: a rede pode ter a DTECH no sistema novo
+  /// enquanto as outras franquias seguem no antigo, e voltar atrás é um UPDATE
+  /// em vez de uma implantação. O padrão falso garante que ligar o recurso não
+  /// muda a tela de ninguém sem alguém pedir.
+  uiV2           Boolean @default(false)
   /// Bloqueio administrativo pelo Super Admin (inadimplência, suspensão).
   bloqueado      Boolean @default(false)
   motivoBloqueio String?

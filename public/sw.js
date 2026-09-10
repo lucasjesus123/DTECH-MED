@@ -35,7 +35,15 @@ const CASCA = `${VERSAO}-casca`
 const PAGINAS = `${VERSAO}-paginas`
 
 /** O mínimo para a tela abrir e se explicar. */
-const ESSENCIAL = ['/sem-conexao', '/icone-192.png', '/icone-512.png', '/manifest.webmanifest']
+const ESSENCIAL = [
+  '/sem-conexao',
+  '/icone-192.png',
+  '/icone-512.png',
+  // Os DOIS manifestos: o aplicativo antigo (`/app`) e o do redesenho
+  // (`/campo`) convivem enquanto as empresas migram, e cada um abre pelo seu.
+  '/manifest.webmanifest',
+  '/manifest-campo.webmanifest',
+]
 
 self.addEventListener('install', (evento) => {
   evento.waitUntil(

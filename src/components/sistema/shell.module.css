@@ -1,0 +1,527 @@
+/* ==========================================================================
+   O APPSHELL — a moldura de toda tela do sistema novo
+   --------------------------------------------------------------------------
+   Duas peças fixas e uma que troca: a lateral agrupada, a barra do topo, e a
+   área de trabalho no meio. Toda tela do sistema é composição dentro dela.
+
+   Nenhuma cor aqui é literal. Tudo vem de `tokens.css` — este arquivo desenha
+   forma, ritmo e posição.
+   ========================================================================== */
+
+.shell {
+  display: grid;
+  grid-template-columns: 262px 1fr;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ==========================================================================
+   A LATERAL
+   --------------------------------------------------------------------------
+   Escura sempre — o motivo está escrito por extenso em tokens.css, na seção da
+   casca. Aqui só a forma.
+   ========================================================================== */
+.lateral {
+  display: flex;
+  flex-direction: column;
+  background: var(--casca);
+  border-right: 1px solid var(--casca-linha);
+  color: var(--casca-txt);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.latMarca {
+  padding: var(--e5) var(--e5) var(--e4);
+  display: flex;
+  align-items: center;
+}
+
+/* O crachá: com que poder, em que empresa. Numa plataforma multiempresa, saber
+   isso é tão importante quanto saber onde se está — as mesmas telas mostram
+   coisas diferentes para papéis diferentes. */
+.cracha {
+  margin: 0 var(--e4) var(--e5);
+  padding: var(--e3) var(--e4);
+  border: 1px solid var(--casca-linha);
+  border-radius: var(--radius-sm);
+  background: var(--casca-2);
+  display: grid;
+  gap: 2px;
+}
+.crachaPapel {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+.crachaEmpresa {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--casca-txt);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav {
+  flex: 1;
+  padding: 0 var(--e3) var(--e5);
+  display: grid;
+  gap: var(--e5);
+  align-content: start;
+}
+
+.grupo {
+  display: grid;
+  gap: 2px;
+}
+
+/* O título do bloco. Mono, caixa-alta, tracking largo: ele não é um item, é
+   uma placa. A diferença tipográfica é o que impede a pessoa de tentar clicar
+   nele. */
+.grupoTitulo {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--casca-txt-2);
+  padding: 0 var(--e3) var(--e2);
+  margin: 0;
+}
+
+.item,
+.itemAtivo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  /* Altura de alvo confortável: 44px de área clicável, que é o piso das
+     diretrizes de toque e também o tamanho em que uma lista de catorze itens
+     não vira um pente. */
+  padding: 10px var(--e3);
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  color: var(--casca-txt-2);
+  text-decoration: none;
+  font-size: var(--t-sm);
+  font-weight: 500;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.item:hover { background: var(--casca-2); color: var(--casca-txt); }
+
+/* O "você está aqui" tem DUAS marcas: o fundo e o trilho na borda esquerda.
+   O trilho existe porque é a borda esquerda onde o olho encosta ao varrer uma
+   lista vertical — ele responde antes do fundo. */
+.itemAtivo {
+  background: var(--casca-2);
+  color: var(--casca-txt);
+  font-weight: 600;
+}
+.itemAtivo::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--brand);
+}
+.itemAtivo .icone { color: var(--brand); }
+
+.icone {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+}
+.icone svg { width: 20px; height: 20px; }
+
+/* O selo de quantos itens esperam nesta tela. Ele é o RADAR chegando ao menu:
+   a pessoa vê que tem coisa na Conferência sem precisar abrir a Conferência. */
+.contador {
+  margin-left: auto;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-solida);
+  color: var(--sobre-brand);
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
+.latPe {
+  border-top: 1px solid var(--casca-linha);
+  padding: var(--e4);
+  display: grid;
+  gap: var(--e3);
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+}
+.avatar {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-solida);
+  color: var(--sobre-brand);
+  display: grid;
+  place-items: center;
+  font-size: var(--t-xs);
+  font-weight: 600;
+}
+.usuarioTxt {
+  min-width: 0;
+  display: grid;
+}
+.usuarioTxt strong {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--casca-txt);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.usuarioTxt span {
+  font-size: 0.6875rem;
+  color: var(--casca-txt-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sair {
+  margin-left: auto;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--casca-linha);
+  border-radius: var(--radius-pill);
+  color: var(--casca-txt-2);
+  font-size: var(--t-xs);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.sair:hover { color: var(--casca-txt); border-color: var(--brand); }
+
+/* ==========================================================================
+   A COLUNA DE TRABALHO
+   ========================================================================== */
+.principal {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e3) var(--e5);
+  background: var(--casca);
+  border-bottom: 1px solid var(--casca-linha);
+  color: var(--casca-txt);
+}
+
+/* A BUSCA VEM PRIMEIRO e é o elemento mais largo da barra. O telefone toca e
+   quem atende digita aqui antes de olhar qualquer outra coisa. */
+.buscaVaga { flex: 1; min-width: 0; max-width: 520px; }
+
+.pilhaDireita {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+}
+
+.data {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .1em;
+  color: var(--casca-txt-2);
+  white-space: nowrap;
+}
+
+.conteudo {
+  flex: 1;
+  min-width: 0;
+  padding: var(--e5);
+  display: grid;
+  align-content: start;
+  gap: var(--e5);
+}
+
+/* ==========================================================================
+   A MIGALHA — `● SYS // ONLINE`
+   --------------------------------------------------------------------------
+   Ela dá "cara de sistema de verdade" e faz um trabalho real: diz onde a pessoa
+   está e se a máquina está de pé. O ponto pulsa só quando tudo está no ar; num
+   estado ruim ele para e muda de cor, porque um indicador que se mexe sempre
+   deixa de ser indicador.
+   ========================================================================== */
+.migalha {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.pulso {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--ok);
+  flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pulso { animation: respira 2.6s var(--ease) infinite; }
+}
+@keyframes respira {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+.pulsoRuim { background: var(--danger); animation: none; }
+
+.migalhaSep { color: var(--pending); }
+.migalhaAqui { color: var(--text); }
+
+/* ==========================================================================
+   O CABEÇALHO DE TELA
+   --------------------------------------------------------------------------
+   Título, uma linha de explicação, e — quando existe — A ação da tela. Uma só,
+   grande, com verbo no imperativo. Se uma tela precisa de duas ações
+   principais, ela é duas telas.
+   ========================================================================== */
+.cabecalho {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+.cabecalhoTxt { display: grid; gap: 6px; min-width: 0; }
+.cabecalhoTxt h1 { font-size: var(--t-2xl); }
+.cabecalhoTxt p { color: var(--text-muted); font-size: var(--t-sm); }
+.cabecalhoAcao { margin-left: auto; }
+
+/* ==========================================================================
+   O TEMA — dois rótulos escritos, não um interruptor
+   --------------------------------------------------------------------------
+   Interruptor obriga a decorar qual lado é qual. Dois rótulos mostram as duas
+   verdades ao mesmo tempo, com a escolhida marcada.
+   ========================================================================== */
+.tema {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--casca-linha);
+  border-radius: var(--radius-pill);
+  background: var(--casca-2);
+}
+.temaOpcao,
+.temaOpcaoAtiva {
+  border: 0;
+  background: transparent;
+  color: var(--casca-txt-2);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.temaOpcaoAtiva {
+  background: var(--brand-solida);
+  color: var(--sobre-brand);
+  font-weight: 600;
+}
+.temaOpcao:disabled, .temaOpcaoAtiva:disabled { cursor: progress; }
+
+/* ==========================================================================
+   O SELO DO WHATSAPP
+   --------------------------------------------------------------------------
+   Conectado: discreto, um ponto e o número. É a situação de 99% dos dias, e um
+   selo verde gritando o dia inteiro vira papel de parede.
+   Caído: moldura, cor de alerta, texto por extenso, e é um LINK para a tela que
+   resolve — aviso que não leva à solução faz a pessoa deixar para depois.
+   ========================================================================== */
+.whats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e2);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .06em;
+  color: var(--casca-txt-2);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.whatsRuim {
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-weight: 600;
+}
+.whatsPonto {
+  width: 7px; height: 7px; border-radius: var(--radius-pill);
+  background: var(--ok); flex: none;
+}
+
+/* ==========================================================================
+   A BUSCA (⌘K)
+   ========================================================================== */
+.busca { position: relative; }
+.buscaCampo {
+  width: 100%;
+  height: 38px;
+  padding: 0 var(--e4) 0 38px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--casca-linha);
+  background: var(--casca-2);
+  color: var(--casca-txt);
+  font-size: var(--t-sm);
+  font-family: var(--f-texto);
+}
+.buscaCampo::placeholder { color: var(--casca-txt-2); }
+.buscaCampo:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 2px var(--brand); }
+.buscaLupa {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--casca-txt-2);
+  pointer-events: none;
+}
+.buscaTecla {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  color: var(--casca-txt-2);
+  border: 1px solid var(--casca-linha);
+  border-radius: 6px;
+  padding: 2px 6px;
+  pointer-events: none;
+}
+.buscaPainel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-alto);
+  padding: var(--e2);
+  z-index: 30;
+  color: var(--text);
+}
+.buscaGrupo {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: var(--e2) var(--e3) var(--e1);
+}
+.buscaItem,
+.buscaItemMarcado {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: var(--e2) var(--e3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.buscaItemMarcado { background: var(--info-veu); }
+.buscaItem strong, .buscaItemMarcado strong { font-size: var(--t-sm); font-weight: 600; }
+.buscaItem span, .buscaItemMarcado span { font-size: var(--t-xs); color: var(--text-muted); }
+.buscaVazio { padding: var(--e4); font-size: var(--t-sm); color: var(--text-muted); text-align: center; }
+
+/* ==========================================================================
+   A FAIXA DA VISITA
+   --------------------------------------------------------------------------
+   Fica acima do conteúdo, em toda tela: esquecer em que empresa se está é o
+   erro que faz alguém abrir uma ordem na franquia errada.
+   ========================================================================== */
+.visita {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) var(--e5);
+  background: var(--warn-veu);
+  border-bottom: 1px solid var(--warn-borda);
+  color: var(--warn);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   CELULAR
+   --------------------------------------------------------------------------
+   A lateral vira uma barra de rolagem horizontal no topo. Não é o app de campo
+   — quem trabalha na rua tem o `/campo`, com bottom-nav — é o gestor abrindo o
+   sistema no celular para conferir uma coisa.
+   ========================================================================== */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .lateral {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--casca-linha);
+  }
+  .latMarca { padding: var(--e4) var(--e4) var(--e2); }
+  .cracha { margin: 0 var(--e4) var(--e3); }
+  .nav {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    align-content: initial;
+    gap: var(--e4);
+    overflow-x: auto;
+    padding: 0 var(--e4) var(--e3);
+  }
+  .grupo { grid-auto-flow: column; grid-auto-columns: max-content; gap: var(--e1); }
+  .grupoTitulo { display: none; }
+  .item, .itemAtivo { white-space: nowrap; }
+  .itemAtivo::before { left: 0; right: 0; top: auto; bottom: -3px; width: auto; height: 3px; }
+  .latPe { padding: var(--e3) var(--e4); }
+  .barra { padding: var(--e3) var(--e4); flex-wrap: wrap; }
+  .buscaVaga { max-width: none; order: 3; flex-basis: 100%; }
+  .conteudo { padding: var(--e4); }
+  .data { display: none; }
+}

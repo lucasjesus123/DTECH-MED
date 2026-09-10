@@ -1,0 +1,386 @@
+/* ==========================================================================
+   AZUL MÁQUINA — os design tokens do sistema novo (ui_v2)
+   --------------------------------------------------------------------------
+   ESTE É O ÚNICO LUGAR COM COR NO SISTEMA NOVO. Nenhum componente escreve
+   `#4C7DFF` nem `rgba(...)` na mão: todos leem daqui. Quando a marca mudar,
+   muda uma vez.
+
+   ==========================================================================
+   POR QUE UM ARQUIVO NOVO, E NÃO UMA EDIÇÃO NO globals.css
+   ==========================================================================
+   O `globals.css` é a paleta VIOLETA da DTECH e serve três faces ao mesmo
+   tempo: o site institucional (dtechmed.com.br), o painel antigo e os apps de
+   campo. Trocar o violeta por cobalto lá dentro repintaria o site inteiro — e
+   a regra da casa, escrita no CLAUDE.md, é *"não mexa em nada no site, somente
+   no sistema"*.
+
+   Então o Azul Máquina entra aqui, inteiro, escopado em `[data-ui='v2']`. O
+   site continua violeta, o painel antigo continua como está, e as duas coisas
+   convivem enquanto a flag `uiV2` de cada empresa decidir qual delas a pessoa
+   vê. Isto não é gambiarra: é o mesmo movimento que o painel antigo já fazia
+   ao reapontar `--f-display` dentro de `.app`.
+
+   ==========================================================================
+   A LISTA DE SELETORES, E POR QUE ELA NÃO É SÓ UMA
+   ==========================================================================
+   Propriedade personalizada é resolvida NO ELEMENTO ONDE É DECLARADA, e daí em
+   diante desce herdada, já pronta. Um token escrito com `light-dark()` só no
+   invólucro é calculado com o `color-scheme` DELE — trocar o esquema mais
+   abaixo não faz o token recalcular, porque ele já virou um valor.
+
+   Por isso a mesma lista aparece nos três seletores abaixo: o invólucro e as
+   duas travas de tema. Continua sendo UMA lista de cores; o que muda é onde
+   ela é recalculada. (O painel antigo aprendeu isso do jeito caro; o comentário
+   está no globals.css.)
+   ========================================================================== */
+
+[data-ui='v2'],
+[data-ui='v2'][data-tema='claro'],
+[data-ui='v2'][data-tema='escuro'],
+[data-ui='v2'] [data-obra='sim'] {
+  /* Dark-first: o escuro é a base do desenho, o claro é a alternativa. */
+  color-scheme: dark;
+
+  /* =======================================================================
+     MARCA
+     -----------------------------------------------------------------------
+     `--brand` é a IDENTIDADE: cobalto, a cor com que o sistema se apresenta.
+     Ela pinta trilho de item ativo, anel de foco, ícone aceso, borda de card
+     em destaque.
+
+     `--brand-txt` é a mesma marca quando ela precisa ser LIDA. No escuro é o
+     próprio cobalto; no claro ele escurece, porque #4C7DFF sobre branco dá
+     3,45:1 — abaixo do piso de 4,5:1 para texto. É a mesma lógica que o
+     globals.css escreve em uma frase: *no claro é tinta, não luz*.
+
+     No ESCURO, `--brand-txt` clareia: #4C7DFF sobre a superfície elevada
+     (#1B2547) dá 4,05:1, abaixo do piso. O cobalto continua sendo a marca —
+     ele pinta trilho, anel e ícone, onde o piso é 3:1 —, mas quando vira LETRA
+     sobre card escuro ele precisa de mais luz. É a mesma frase do tema claro,
+     de cabeça para baixo.
+
+     `--brand-solida` é o preenchimento do botão primário, e ela é a versão
+     FORTE de propósito. O documento de direção pede pílula sólida `--brand`
+     com texto branco — e essa combinação dá 3,70:1, que reprova em AA para
+     texto normal. Trocando o preenchimento pelo tom forte (#2E5BE6) sobe para
+     5,59:1 e a pílula continua sendo, para o olho, o mesmo azul da marca. O
+     desenho é obedecido; o contraste, também.
+     ======================================================================= */
+  --brand:        light-dark(#4C7DFF, #4C7DFF);
+  --brand-txt:    light-dark(#2E5BE6, #7DA0FF);
+  --brand-solida: light-dark(#2E5BE6, #2E5BE6);
+  --brand-press:  light-dark(#1E47C7, #1E47C7);
+  --sobre-brand:  #FFFFFF;
+
+  /* =======================================================================
+     TEAL — reservado
+     -----------------------------------------------------------------------
+     `--ai` aparece em TRÊS lugares e em nenhum outro: score de saúde do
+     cliente, insight/sugestão automática e selo de automação. Nunca em botão
+     comum, nunca em chip de estado.
+
+     A reserva é o que dá sentido a ela: uma cor que aparece em tudo não
+     significa nada. Quando o teal acende, a pessoa aprende que ali quem falou
+     foi o sistema, não um colega.
+     ======================================================================= */
+  --ai:      light-dark(#0F766E, #00E0C6);
+  --ai-veu:  light-dark(rgba(15, 118, 110, .09), rgba(0, 224, 198, .12));
+  --ai-borda: light-dark(rgba(15, 118, 110, .28), rgba(0, 224, 198, .32));
+
+  /* =======================================================================
+     ESTADOS
+     -----------------------------------------------------------------------
+     Os valores do escuro são os do documento de direção. Os do claro são os
+     mesmos matizes ESCURECIDOS, porque o documento pede "ajustando luminância"
+     e a conta é implacável: #22C55E sobre branco dá 2,28:1, #F59E0B dá 2,2:1,
+     #EF4444 dá 3,76:1. Cor de instrumento luminoso não sobrevive em papel.
+
+     Cada estado vem em três peças — a tinta, o véu e a borda — porque é disso
+     que um chip é feito. Sem os três, cada tela inventa a sua própria diluição
+     e o sistema fica com sete verdes diferentes.
+     ======================================================================= */
+  --ok:          light-dark(#166534, #22C55E);
+  --ok-veu:      light-dark(rgba(22, 101, 52, .09), rgba(34, 197, 94, .13));
+  --ok-borda:    light-dark(rgba(22, 101, 52, .26), rgba(34, 197, 94, .30));
+
+  --warn:        light-dark(#92400E, #F59E0B);
+  --warn-veu:    light-dark(rgba(146, 64, 14, .09), rgba(245, 158, 11, .13));
+  --warn-borda:  light-dark(rgba(146, 64, 14, .26), rgba(245, 158, 11, .30));
+
+  --danger:      light-dark(#B91C1C, #F87171);
+  --danger-veu:  light-dark(rgba(185, 28, 28, .08), rgba(248, 113, 113, .13));
+  --danger-borda: light-dark(rgba(185, 28, 28, .26), rgba(248, 113, 113, .32));
+
+  --info:        light-dark(#2E5BE6, #4C7DFF);
+  --info-veu:    light-dark(rgba(46, 91, 230, .08), rgba(76, 125, 255, .14));
+  --info-borda:  light-dark(rgba(46, 91, 230, .26), rgba(76, 125, 255, .34));
+
+  /* =======================================================================
+     OS BOTÕES SÓLIDOS — e por que eles NÃO mudam com o tema
+     -----------------------------------------------------------------------
+     Um chip é medido contra o FUNDO DA TELA; um botão sólido é medido contra o
+     PRÓPRIO RÓTULO, que é branco. São perguntas diferentes, e a mesma cor não
+     responde às duas.
+
+     O verde que brilha sobre o painel escuro (#22C55E) dá 2,28:1 com texto
+     branco em cima. O âmbar dá 2,15:1. O vermelho, 3,76:1. Os três reprovam —
+     e reprovam justamente nos botões que fecham dinheiro e dão baixa.
+
+     Estas três cores são a TINTA de cada estado: escuras o bastante para
+     carregar branco por cima, com folga. Elas são fixas nos dois temas porque
+     o par que importa — botão e rótulo — é o mesmo nos dois.
+     ======================================================================= */
+  --ok-solida:     #166534;
+  --warn-solida:   #92400E;
+  --danger-solida: #B91C1C;
+
+  /* Etapa que a O.S. ainda não alcançou na linha do tempo. Cinza de propósito:
+     o que não aconteceu não pode competir com o que aconteceu. */
+  --pending:     light-dark(#475569, #94A3B8);
+  --pending-veu: light-dark(rgba(71, 85, 105, .09), rgba(148, 163, 184, .12));
+  --pending-borda: light-dark(rgba(71, 85, 105, .24), rgba(148, 163, 184, .26));
+
+  /* =======================================================================
+     SUPERFÍCIES
+     ======================================================================= */
+  --bg:        light-dark(#F5F7FE, #0B1020);
+  --surface:   light-dark(#FFFFFF, #121933);
+  --surface-2: light-dark(#EEF2FF, #1B2547);
+  --border:    light-dark(#E2E8F5, #263258);
+  /* A borda que precisa SER VISTA — contorno de campo, divisor que separa de
+     verdade. A `--border` comum tem contraste baixo contra a superfície por
+     desenho (ela organiza sem gritar); um campo de formulário com ela vira um
+     retângulo invisível, que é o defeito que faz um sistema parecer apagado.
+
+     O piso dela é 3:1 contra a superfície, e não 4,5 — é a régua de COMPONENTE
+     de interface, não de texto. A primeira tentativa (#C3CDE4 no claro) dava
+     1,59:1: existia no código e não existia no olho, exatamente o defeito que
+     o painel antigo já tinha registrado ter. */
+  --border-viva: light-dark(#8492AD, #56679B);
+  --text:      light-dark(#0B1020, #E8EDFF);
+  --text-muted: light-dark(#5A6B95, #93A0C8);
+
+  /* =======================================================================
+     A CASCA — a lateral e a barra do topo
+     -----------------------------------------------------------------------
+     ESCURA SEMPRE, inclusive no tema claro, e isso não é gosto.
+
+     A lateral é navegação: ela precisa recuar e ficar onde está, estável,
+     enquanto a área ao lado troca de conteúdo o dia inteiro. Fazer as duas
+     clarearem juntas apaga a hierarquia — vira uma folha branca só, e o olho
+     perde a âncora de onde a moldura termina.
+
+     É também o que resolve a queixa de "escuro demais" pelo lado certo: o
+     problema nunca foi a lateral, era a área de trabalho ser escura junto com
+     ela. Aqui o tema decide a MESA; a moldura fica.
+     ======================================================================= */
+  --casca:       #080D1B;
+  --casca-2:     #131C36;
+  --casca-linha: #1E2947;
+  --casca-txt:   #E8EDFF;
+  --casca-txt-2: #8B99C4;
+
+  /* =======================================================================
+     FORMA E RITMO
+     ----------------------------------------------------------------------- */
+  --radius:      14px;
+  --radius-sm:   10px;
+  --radius-pill: 999px;
+  --shadow:      light-dark(0 8px 30px rgba(4, 10, 30, .10), 0 8px 30px rgba(4, 10, 30, .35));
+  --shadow-sm:   light-dark(0 1px 2px rgba(4, 10, 30, .07), 0 2px 8px rgba(4, 10, 30, .30));
+  --shadow-alto: light-dark(0 18px 46px -18px rgba(4, 10, 30, .28), 0 18px 46px -14px rgba(0, 0, 0, .70));
+
+  /* =======================================================================
+     O VÉU — o escurecido que fica ATRÁS de uma folha aberta
+     -----------------------------------------------------------------------
+     Ele não muda com o tema, e por um motivo: o véu existe para apagar o que
+     está atrás, e "apagar" é escurecer nos dois temas. Um véu claro sobre um
+     painel claro não apaga nada — só deixa a tela lavada e o foco perdido.
+
+     `--sobre-veu` é a tinta que sobrevive por cima dele (o "×" que tira uma
+     foto, por exemplo): branca sempre, porque o véu é sempre escuro.
+     ======================================================================= */
+  --veu:       rgba(4, 10, 30, .55);
+  --veu-forte: rgba(4, 10, 30, .72);
+  --sobre-veu: #FFFFFF;
+
+  /* =======================================================================
+     O PAPEL — a pré-visualização de um documento
+     -----------------------------------------------------------------------
+     Branco com tinta preta, nos dois temas e inclusive nas telas de obra, que
+     são travadas no escuro. Não é descuido: o que se lê ali é o CONTRATO que
+     vai virar PDF, e o PDF é branco no mundo real. Pré-visualizar um documento
+     em tema escuro mostraria uma coisa e imprimiria outra — e quem aprova o
+     texto precisa aprovar o que o cliente vai receber.
+     ======================================================================= */
+  --papel-fundo: #FFFFFF;
+  --papel-tinta: #101828;
+  /* Realce de marcador sem valor / inexistente na pré-visualização. Fixos pela
+     mesma razão: eles vivem sobre o papel branco, não sobre a tela. */
+  --papel-vazio:        rgba(146, 64, 14, .22);
+  --papel-desconhecido: rgba(185, 28, 28, .22);
+
+  /* Base 8px, densidade confortável. O documento pede para NÃO apertar: num
+     sistema em que a pessoa clica um botão grande por tela, o respiro é o que
+     faz esse botão ser óbvio. */
+  --e1: 4px;  --e2: 8px;  --e3: 12px; --e4: 16px;
+  --e5: 24px; --e6: 32px; --e7: 48px; --e8: 64px;
+
+  /* =======================================================================
+     TIPOGRAFIA
+     -----------------------------------------------------------------------
+     Sora nos títulos, IBM Plex Sans no texto, IBM Plex Mono no registro
+     técnico. As variáveis `--fonte-*` são injetadas pelo `next/font` no
+     elemento raiz; aqui só apontamos quais valem dentro do sistema novo, com
+     o fallback para o instante entre a primeira pintura e a fonte chegar.
+     ======================================================================= */
+  --f-titulo: var(--fonte-display, system-ui), system-ui, sans-serif;
+  --f-texto:  var(--fonte-plex, system-ui), system-ui, -apple-system, sans-serif;
+  --f-mono:   var(--fonte-plex-mono, ui-monospace), ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* 13px é o piso. Doze é o degrau em que o rótulo começa a ser adivinhado em
+     vez de lido, e este sistema vive de rótulo curto ao lado de número. */
+  --t-xs:   0.8125rem;
+  --t-sm:   0.875rem;
+  --t-base: 1rem;
+  --t-lg:   1.25rem;
+  --t-xl:   1.5rem;
+  --t-2xl:  1.875rem;
+  --t-3xl:  2.5rem;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 220ms;
+
+  /* O halo da marca: o que acende no que responde ao toque. Três degraus —
+     repouso, dedo em cima, teclado chegou. O de foco é o mais forte porque
+     quem navega por teclado precisa achar onde está de relance. */
+  --luz-fraca: 0 0 0 1px var(--info-borda);
+  --luz:       0 0 0 1px var(--info-borda), 0 8px 24px -12px rgba(76, 125, 255, .55);
+  --luz-forte: 0 0 0 2px var(--brand), 0 10px 30px -10px rgba(76, 125, 255, .55);
+}
+
+/* ==========================================================================
+   AS DUAS TRAVAS DE TEMA
+   --------------------------------------------------------------------------
+   `color-scheme` é o interruptor: ele decide qual metade de cada `light-dark()`
+   vale dali para baixo. Não há paleta repetida — só a escolha.
+   ========================================================================== */
+[data-ui='v2'][data-tema='claro']  { color-scheme: light; }
+[data-ui='v2'][data-tema='escuro'] { color-scheme: dark; }
+
+/* ==========================================================================
+   A TRAVA DAS TELAS DE CONSTRUÇÃO
+   --------------------------------------------------------------------------
+   Padrão 8 da direção: hierarquia por luminosidade. Telas de OPERAÇÃO seguem o
+   tema que a pessoa escolheu; telas de CONSTRUÇÃO — os geradores de modelo, a
+   administração do tenant — são SEMPRE escuras, mesmo para quem escolheu claro.
+
+   O olho aprende em dois dias: claro é onde eu opero, escuro é onde eu
+   configuro. Vale mais que qualquer rótulo, porque funciona antes da leitura.
+
+   Note que isto é o MESMO conjunto de tokens — só o esquema muda. Não existe
+   uma "paleta de admin" para divergir da outra.
+
+   E repare que `[data-ui='v2'] [data-obra='sim']` está na LISTA DE SELETORES
+   lá em cima, junto com as travas de tema. Isso não é redundância: propriedade
+   personalizada é resolvida no elemento onde é declarada e desce herdada, já
+   pronta. Sem redeclarar os tokens aqui, trocar o `color-scheme` neste ramo não
+   faria `--bg` recalcular — ele já seria um valor, não mais uma fórmula, e a
+   tela de administração sairia clara com a trava ligada.
+
+   É o mesmo aprendizado que custou uma tarde no `globals.css`, e o comentário
+   de lá conta a história inteira.
+   ========================================================================== */
+[data-ui='v2'] [data-obra='sim'] { color-scheme: dark; }
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+[data-ui='v2'] {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-texto);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-ui='v2'] *,
+[data-ui='v2'] *::before,
+[data-ui='v2'] *::after { box-sizing: border-box; }
+
+[data-ui='v2'] h1,
+[data-ui='v2'] h2,
+[data-ui='v2'] h3 {
+  font-family: var(--f-titulo);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0;
+  /* PROIBIDO GRADIENTE EM TEXTO — regra explícita da direção. Número grande é
+     cor sólida. Um gradiente num número não comunica estado nenhum: ele só
+     custa contraste na metade mais clara. */
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+[data-ui='v2'] p { margin: 0; }
+[data-ui='v2'] a { color: inherit; }
+[data-ui='v2'] img { max-width: 100%; display: block; }
+[data-ui='v2'] button { font: inherit; color: inherit; }
+
+/* O anel de foco. Sempre visível, sempre o mesmo, nos dois temas. */
+[data-ui='v2'] a:focus-visible,
+[data-ui='v2'] button:focus-visible,
+[data-ui='v2'] input:focus-visible,
+[data-ui='v2'] select:focus-visible,
+[data-ui='v2'] textarea:focus-visible,
+[data-ui='v2'] summary:focus-visible,
+[data-ui='v2'] [tabindex]:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+[data-ui='v2'] ::selection { background: var(--brand-solida); color: var(--sobre-brand); }
+
+/* ==========================================================================
+   O RÓTULO MONO — a assinatura visual do sistema
+   --------------------------------------------------------------------------
+   `ESTEIRA // BANCADA`, `● SYS // ONLINE`, `O.S. #00412`. Caixa-alta, tracking
+   largo, monoespaçada. É o que dá "cara de sistema de verdade" sem custar
+   nenhum enfeite: a mono aqui é FUNÇÃO — ela marca o que é registro técnico e
+   se distingue do texto que se lê.
+   ========================================================================== */
+[data-ui='v2'] .mono {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Números que alinham em coluna: valor, quantidade, id. Largura fixa é o que
+   deixa o olho descer a coluna sem reancorar. */
+[data-ui='v2'] .num {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+
+/* ==========================================================================
+   MOVIMENTO
+   --------------------------------------------------------------------------
+   Quem pediu menos movimento no sistema recebe a tela parada. Não é
+   degradação: o desenho continua o mesmo, sem o que se move.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  [data-ui='v2'] *,
+  [data-ui='v2'] *::before,
+  [data-ui='v2'] *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

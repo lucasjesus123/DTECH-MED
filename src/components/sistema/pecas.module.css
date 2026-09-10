@@ -1,0 +1,1152 @@
+/* ==========================================================================
+   AS PEÇAS — os componentes que toda tela do sistema reusa
+   --------------------------------------------------------------------------
+   "Aprendeu uma tela → aprendeu todas" só é verdade se as telas forem feitas
+   das mesmas peças. Este arquivo é o estojo: cartão de número, linha de radar,
+   botão-da-vez, chip de estado, painel da entidade, linha do tempo, estado
+   vazio, quadro, formulário partido, captura.
+
+   Zero cor literal. Tudo vem de tokens.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   CARTÃO — a superfície de base de tudo
+   ========================================================================== */
+.cartao {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   <StatCardRow> — a fileira de números do topo
+   --------------------------------------------------------------------------
+   QUATRO, e não seis nem oito. Quatro cabe numa olhada; a partir do quinto a
+   pessoa passa a ler em vez de ver, e o painel deixa de responder à pergunta
+   "está tudo bem?" em um segundo.
+
+   Cada cartão é CLICÁVEL quando leva a algum lugar. Um número que informa e
+   não leva a lugar nenhum obriga a pessoa a procurar onde ele mora.
+   ========================================================================== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--e4);
+}
+@media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .stats { grid-template-columns: 1fr; } }
+
+.stat {
+  composes: cartao;
+  padding: var(--e4);
+  display: grid;
+  gap: var(--e2);
+  align-content: start;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+a.stat:hover { border-color: var(--brand); box-shadow: var(--luz); }
+
+.statTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+}
+.statRotulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+/* O selo de ícone: um quadrado de cor lavada atrás do ícone, para dar ao número
+   um companheiro visual sem competir com ele. */
+.statSelo {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: var(--pending-veu);
+  color: var(--text-muted);
+}
+.statSelo svg { width: 17px; height: 17px; }
+
+/* NÚMERO GRANDE = COR SÓLIDA. Sem gradiente, sem sombra. Regra da direção, e
+   ela tem razão prática: gradiente em número custa contraste na metade clara e
+   não comunica estado nenhum. */
+.statNumero {
+  font-family: var(--f-titulo);
+  font-size: var(--t-3xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.statApoio { font-size: var(--t-xs); color: var(--text-muted); }
+
+.statOk     .statNumero { color: var(--ok); }
+.statOk     .statSelo   { background: var(--ok-veu);     color: var(--ok); }
+.statWarn   .statNumero { color: var(--warn); }
+.statWarn   .statSelo   { background: var(--warn-veu);   color: var(--warn); }
+.statDanger .statNumero { color: var(--danger); }
+.statDanger .statSelo   { background: var(--danger-veu); color: var(--danger); }
+.statInfo   .statNumero { color: var(--brand-txt); }
+.statInfo   .statSelo   { background: var(--info-veu);   color: var(--brand-txt); }
+
+/* ==========================================================================
+   CHIP DE ESTADO
+   --------------------------------------------------------------------------
+   Véu + tinta + borda da MESMA cor. É o que faz um chip ler como etiqueta e
+   não como botão — botão é chapado, etiqueta é lavada.
+   ========================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+.chipOk      { background: var(--ok-veu);      color: var(--ok);       border-color: var(--ok-borda); }
+.chipWarn    { background: var(--warn-veu);    color: var(--warn);     border-color: var(--warn-borda); }
+.chipDanger  { background: var(--danger-veu);  color: var(--danger);   border-color: var(--danger-borda); }
+.chipInfo    { background: var(--info-veu);    color: var(--brand-txt); border-color: var(--info-borda); }
+.chipPending { background: var(--pending-veu); color: var(--pending);  border-color: var(--pending-borda); }
+/* Teal: RESERVADO. Só score de saúde, insight e automação. */
+.chipAi      { background: var(--ai-veu);      color: var(--ai);       border-color: var(--ai-borda); }
+
+/* ==========================================================================
+   <StageButton> / <PrimaryAction> — o botão-da-vez
+   --------------------------------------------------------------------------
+   Pílula sólida, ícone à esquerda, verbo no imperativo, alvo de 44px. É A ação
+   da linha: nunca há dois deles lado a lado.
+   ========================================================================== */
+.acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e2);
+  min-height: 44px;
+  padding: 0 var(--e5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--brand-solida);
+  color: var(--sobre-brand);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform 120ms var(--ease);
+}
+.acao:hover { background: var(--brand-press); box-shadow: var(--luz); }
+.acao:active { transform: translateY(1px); }
+.acao:disabled { opacity: .55; cursor: progress; }
+.acao svg { width: 17px; height: 17px; flex: none; }
+
+/* O tom do botão segue o SIGNIFICADO do passo, não o gosto: confirmar
+   pagamento e dar baixa são desfechos e ficam verdes; devolver é recuo e fica
+   âmbar. A cor é informação, e por isso ela nunca é a única — o rótulo diz a
+   mesma coisa em palavras.
+
+   O preenchimento vem das cores `-solida`, e não das cores de chip. O motivo
+   está escrito em tokens.css: chip é medido contra o fundo da tela, botão é
+   medido contra o próprio rótulo branco — e o verde de chip com texto branco
+   em cima dá 2,28:1. O `brightness` do hover CLAREIA em vez de escurecer,
+   porque estas já são as versões escuras. */
+.acaoOk     { background: var(--ok-solida); }
+.acaoOk:hover { background: var(--ok-solida); filter: brightness(1.12); }
+.acaoWarn   { background: var(--warn-solida); }
+.acaoWarn:hover { background: var(--warn-solida); filter: brightness(1.12); }
+.acaoDanger { background: var(--danger-solida); }
+.acaoDanger:hover { background: var(--danger-solida); filter: brightness(1.12); }
+
+/* A versão discreta: ação secundária, nunca a da vez. */
+.acaoLinha {
+  composes: acao;
+  background: transparent;
+  border-color: var(--border-viva);
+  color: var(--text);
+  font-weight: 500;
+  min-height: 38px;
+  padding: 0 var(--e4);
+}
+.acaoLinha:hover { background: var(--surface-2); border-color: var(--brand); box-shadow: none; }
+
+/* No app de campo o botão ocupa a largura toda e cresce: quem está na rua clica
+   com o polegar, de pé, às vezes com luva. */
+.acaoLarga {
+  composes: acao;
+  width: 100%;
+  min-height: 56px;
+  font-size: var(--t-base);
+}
+
+.acaoErro {
+  margin-top: var(--e2);
+  font-size: var(--t-xs);
+  color: var(--danger);
+  line-height: 1.4;
+}
+
+/* Fusão: o selo que diz que este clique vale por dois passos. Discreto de
+   propósito — é informação para quem quer conferir, não propaganda. */
+.fundida {
+  font-family: var(--f-mono);
+  font-size: 0.625rem;
+  letter-spacing: .1em;
+  color: var(--text-muted);
+  margin-top: var(--e1);
+}
+
+/* ==========================================================================
+   <RadarList> / <RadarRow>
+   --------------------------------------------------------------------------
+   A lista de "o que fazer agora". Cada linha: chip de estado + resumo + O
+   botão. Navegar é exceção; agir é a regra — por isso o botão fica NA LINHA, e
+   não atrás de um clique que abre a ficha.
+   ========================================================================== */
+.radar {
+  composes: cartao;
+  overflow: hidden;
+}
+.radarTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding: var(--e4) var(--e5);
+  border-bottom: 1px solid var(--border);
+}
+.radarTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.radarQuantos {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--e4);
+  align-items: center;
+  padding: var(--e4) var(--e5);
+  border-bottom: 1px solid var(--border);
+}
+.linha:last-child { border-bottom: 0; }
+.linha:hover { background: var(--surface-2); }
+
+.linhaTxt { min-width: 0; display: grid; gap: 6px; }
+.linhaTopo { display: flex; align-items: center; gap: var(--e2); flex-wrap: wrap; }
+.linhaNumero {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.linhaNumero:hover { color: var(--brand-txt); }
+.linhaTitulo {
+  font-size: var(--t-base);
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.linhaTitulo:hover { color: var(--brand-txt); }
+.linhaApoio {
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+  display: flex;
+  gap: var(--e2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.linhaAcao { justify-self: end; display: grid; justify-items: end; }
+
+/* O aviso de parado. Ele só aparece quando dói — e o degrau é escolhido: três
+   dias parados numa oficina é normal, dez não é. */
+.parado { color: var(--warn); font-weight: 600; }
+.paradoMuito { color: var(--danger); font-weight: 600; }
+
+@media (max-width: 700px) {
+  .linha { grid-template-columns: 1fr; }
+  .linhaAcao { justify-self: stretch; }
+  .linhaAcao > * { width: 100%; }
+}
+
+/* ==========================================================================
+   <EmptyState> — "Tudo em dia ✓"
+   --------------------------------------------------------------------------
+   Nunca uma tela crua. O vazio aqui é BOA notícia na maioria das vezes: quer
+   dizer que a fila desta pessoa acabou. Uma tela em branco faz parecer defeito.
+   ========================================================================== */
+.vazio {
+  composes: cartao;
+  padding: var(--e8) var(--e5);
+  display: grid;
+  justify-items: center;
+  gap: var(--e3);
+  text-align: center;
+}
+.vazioIcone {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  background: var(--ok-veu);
+  color: var(--ok);
+}
+.vazioIcone svg { width: 26px; height: 26px; }
+.vazioIconeNeutro { background: var(--pending-veu); color: var(--text-muted); }
+.vazioTitulo { font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 600; }
+.vazioApoio { font-size: var(--t-sm); color: var(--text-muted); max-width: 46ch; }
+
+/* ==========================================================================
+   <ViewToggle> + <ListView> / <KanbanBoard>
+   ========================================================================== */
+.barraLista {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  flex-wrap: wrap;
+}
+.filtro {
+  height: 38px;
+  padding: 0 var(--e3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-viva);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+}
+.campoBusca { composes: filtro; min-width: 240px; flex: 1; max-width: 380px; }
+
+.toggle {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+}
+.toggleOpcao, .toggleOpcaoAtiva {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.toggleOpcaoAtiva { background: var(--brand-solida); color: var(--sobre-brand); font-weight: 600; }
+
+.quadro {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 290px;
+  gap: var(--e4);
+  overflow-x: auto;
+  padding-bottom: var(--e3);
+}
+.coluna {
+  composes: cartao;
+  display: grid;
+  align-content: start;
+  gap: var(--e3);
+  padding: var(--e3);
+  background: var(--surface-2);
+  max-height: 72vh;
+  overflow-y: auto;
+}
+.colunaTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) var(--e2) 0;
+  position: sticky;
+  top: 0;
+}
+.colunaPasso {
+  font-family: var(--f-mono);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+}
+.colunaTitulo { font-size: var(--t-sm); font-weight: 600; }
+.colunaQuantos {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+}
+.ficha {
+  composes: cartao;
+  padding: var(--e3);
+  display: grid;
+  gap: var(--e2);
+  text-decoration: none;
+  color: inherit;
+}
+.ficha:hover { border-color: var(--brand); }
+.fichaTitulo { font-size: var(--t-sm); font-weight: 600; }
+.fichaApoio { font-size: var(--t-xs); color: var(--text-muted); }
+
+/* ==========================================================================
+   <EntityDrawer> — a O.S. num painel só, SEM ABAS
+   --------------------------------------------------------------------------
+   A regra é literal: zero abas internas. Tudo à vista, numa coluna que rola —
+   linha do tempo, dinheiro, provas, contatos, saúde do cliente.
+
+   Aba dentro de ficha é onde a informação vai se esconder: quem abre uma O.S.
+   quer saber "em que pé está", e a resposta estava repartida em cinco abas que
+   ninguém abria todas.
+   ========================================================================== */
+.gaveta {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 620px);
+}
+.gavetaVeu {
+  background: var(--veu);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.gavetaFolha {
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-alto);
+  overflow-y: auto;
+  display: grid;
+  align-content: start;
+  gap: var(--e4);
+  padding: var(--e5);
+}
+@media (max-width: 700px) {
+  .gaveta { grid-template-columns: 1fr; }
+  .gavetaVeu { display: none; }
+  .gavetaFolha { border-left: 0; }
+}
+
+.bloco {
+  composes: cartao;
+  padding: var(--e4);
+  display: grid;
+  gap: var(--e3);
+}
+.blocoTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* --- <Timeline>: as bolinhas de status ------------------------------------ */
+.trilha { display: grid; gap: 0; }
+.marco {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: var(--e3);
+  position: relative;
+  padding-bottom: var(--e4);
+}
+.marco:last-child { padding-bottom: 0; }
+/* O fio que liga uma bolinha à seguinte. Ele não desce da última — um fio que
+   termina no nada sugere um passo que não existe. */
+.marco:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 20px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--border);
+}
+.bolinha {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+.bolinhaFeita { border-color: var(--ok); background: var(--ok); }
+.bolinhaFeita svg { width: 11px; height: 11px; color: var(--surface); }
+.bolinhaAgora { border-color: var(--brand); background: var(--surface); box-shadow: 0 0 0 4px var(--info-veu); }
+.bolinhaAgora i { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--brand); display: block; }
+.marcoTxt { display: grid; gap: 2px; min-width: 0; }
+.marcoTitulo { font-size: var(--t-sm); font-weight: 600; }
+.marcoFuturo .marcoTitulo { color: var(--text-muted); font-weight: 500; }
+.marcoQuando {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+}
+
+/* --- <FinanceBlock> ------------------------------------------------------- */
+.dinheiro { display: grid; gap: var(--e2); }
+.dinheiroLinha {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e3);
+  font-size: var(--t-sm);
+}
+.dinheiroLinha span { color: var(--text-muted); }
+.dinheiroLinha strong {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.dinheiroTotal { border-top: 1px solid var(--border); padding-top: var(--e2); font-size: var(--t-base); }
+.dinheiroTotal strong { font-size: var(--t-lg); }
+
+/* --- <PhotosSignatures> --------------------------------------------------- */
+.provas { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: var(--e2); }
+.prova {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface-2);
+  display: block;
+}
+.prova img { width: 100%; height: 100%; object-fit: cover; }
+.provaVazia {
+  display: grid;
+  place-items: center;
+  font-family: var(--f-mono);
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--e2);
+}
+
+/* --- <ContactActions> ----------------------------------------------------- */
+.contatos { display: flex; gap: var(--e2); flex-wrap: wrap; }
+
+/* --- <HealthScore>: o único lugar do teal, junto com os insights ---------- */
+.saude {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+}
+.saudeAro {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--ai-borda);
+  background: var(--ai-veu);
+  color: var(--ai);
+  font-family: var(--f-mono);
+  font-size: var(--t-base);
+  font-weight: 600;
+}
+.saudeTxt { display: grid; gap: 2px; }
+.saudeTxt strong { font-size: var(--t-sm); font-weight: 600; }
+.saudeTxt span { font-size: var(--t-xs); color: var(--text-muted); }
+
+/* ==========================================================================
+   <SplitForm> — blocos à esquerda, painel-vivo à direita
+   --------------------------------------------------------------------------
+   O painel da direita atualiza enquanto se digita: total, validade, resumo,
+   envio. É o que faz o formulário se explicar sozinho — a pessoa vê o
+   RESULTADO se formando, em vez de preencher no escuro e descobrir no fim.
+   ========================================================================== */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--e5);
+  align-items: start;
+}
+@media (max-width: 1000px) { .split { grid-template-columns: 1fr; } }
+
+.blocos { display: grid; gap: var(--e4); }
+.blocoForm {
+  composes: cartao;
+  padding: var(--e5);
+  display: grid;
+  gap: var(--e4);
+}
+.blocoNum {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+}
+.blocoNumSelo {
+  width: 26px; height: 26px;
+  border-radius: var(--radius-pill);
+  background: var(--info-veu);
+  color: var(--brand-txt);
+  display: grid; place-items: center;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  flex: none;
+}
+.blocoNomeForm { font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 600; }
+
+.campos { display: grid; gap: var(--e4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.campos > .largo { grid-column: 1 / -1; }
+@media (max-width: 620px) { .campos { grid-template-columns: 1fr; } }
+
+.campo { display: grid; gap: 6px; }
+.campo > span {
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px var(--e3);
+  border-radius: var(--radius-sm);
+  /* Borda VIVA, e não a comum: um campo sem aresta não é um campo, é um
+     retângulo invisível. O painel antigo aprendeu isso — a borda tinha 1,07:1
+     contra o próprio campo, ou seja, existia no código e não no olho. */
+  border: 1px solid var(--border-viva);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+}
+.campo textarea { min-height: 96px; resize: vertical; line-height: 1.55; }
+.campo input:focus, .campo select:focus, .campo textarea:focus {
+  border-color: var(--brand);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--info-veu);
+}
+.campoDica { font-size: var(--t-xs); color: var(--text-muted); }
+.campoErro { font-size: var(--t-xs); color: var(--danger); }
+
+.vivo {
+  composes: cartao;
+  position: sticky;
+  top: calc(var(--e8) + var(--e2));
+  padding: var(--e4);
+  display: grid;
+  gap: var(--e4);
+}
+.vivoTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.vivoLinha { display: flex; gap: var(--e3); font-size: var(--t-sm); align-items: baseline; }
+.vivoLinha span { color: var(--text-muted); }
+.vivoLinha strong { margin-left: auto; font-weight: 600; text-align: right; }
+.vivoVago { color: var(--text-muted); font-style: italic; }
+.vivoTotal {
+  border-top: 1px solid var(--border);
+  padding-top: var(--e3);
+}
+.vivoTotal strong {
+  font-family: var(--f-titulo);
+  font-size: var(--t-xl);
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-txt);
+}
+
+/* ==========================================================================
+   <CaptureFlow> — foto + assinatura + termo, numa folha só
+   --------------------------------------------------------------------------
+   Sem pular etapa. O botão de finalizar só liga quando as provas obrigatórias
+   existem — e ele DIZ o que falta, em vez de ficar apagado sem explicação.
+   ========================================================================== */
+.captura { display: grid; gap: var(--e4); }
+.capturaFotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--e2);
+}
+.capturaVaga {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border-viva);
+  background: var(--surface-2);
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--t-xs);
+  text-align: center;
+  padding: var(--e2);
+}
+.capturaVaga:hover { border-color: var(--brand); color: var(--brand-txt); }
+.capturaCheia {
+  composes: capturaVaga;
+  border-style: solid;
+  border-color: var(--ok-borda);
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+.capturaCheia img { width: 100%; height: 100%; object-fit: cover; }
+.capturaTirar {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 24px; height: 24px;
+  border-radius: var(--radius-pill);
+  border: 0;
+  background: var(--veu-forte);
+  color: var(--sobre-veu);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: var(--t-xs);
+}
+
+.assinatura {
+  border: 1px solid var(--border-viva);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  touch-action: none;
+  width: 100%;
+  /* Altura confortável para assinar com o dedo num celular. Menos que isso e a
+     assinatura sai apertada, que é como ela vira ilegível na prova. */
+  height: 180px;
+  display: block;
+}
+.assinaturaPe {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+}
+
+.faltando {
+  display: grid;
+  gap: 4px;
+  padding: var(--e3);
+  border-radius: var(--radius-sm);
+  background: var(--warn-veu);
+  border: 1px solid var(--warn-borda);
+  color: var(--warn);
+  font-size: var(--t-xs);
+}
+
+/* ==========================================================================
+   <MobileTabBar> — os 5 ícones do app de campo
+   --------------------------------------------------------------------------
+   Fixa embaixo, cinco no máximo, alvo de 56px. Nada de menu lateral no celular:
+   quem está de pé na porta de uma clínica não abre gaveta.
+   ========================================================================== */
+.tabbar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: var(--casca);
+  border-top: 1px solid var(--casca-linha);
+  /* A faixa do notch. Sem isto o último ícone fica embaixo da barra do iPhone. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.aba, .abaAtiva {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 56px;
+  padding: var(--e2) 0;
+  color: var(--casca-txt-2);
+  text-decoration: none;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+.abaAtiva { color: var(--brand); }
+.aba svg, .abaAtiva svg { width: 22px; height: 22px; }
+
+/* ==========================================================================
+   ALERTA — o aviso que a gestão precisa ver
+   ========================================================================== */
+.alerta {
+  composes: cartao;
+  padding: var(--e4);
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  border-color: var(--warn-borda);
+  background: var(--warn-veu);
+}
+.alertaTxt { display: grid; gap: 2px; min-width: 0; }
+.alertaTxt strong { font-size: var(--t-sm); font-weight: 600; color: var(--warn); }
+.alertaTxt span { font-size: var(--t-xs); color: var(--text-muted); }
+.alertaAcao { margin-left: auto; }
+
+/* ==========================================================================
+   SEÇÃO — o agrupador de conteúdo de tela
+   ========================================================================== */
+.secao { display: grid; gap: var(--e4); }
+.secaoTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   O CABEÇALHO DE TELA
+   --------------------------------------------------------------------------
+   Título, uma linha de explicação, e — quando existe — A ação da tela. Uma só.
+   Se uma tela precisa de duas ações principais, ela é duas telas.
+   ========================================================================== */
+.cabecalho {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--e4);
+  flex-wrap: wrap;
+}
+.cabecalhoTxt { display: grid; gap: 6px; min-width: 0; }
+.cabecalhoTxt h1 { font-size: var(--t-2xl); }
+.cabecalhoTxt p { color: var(--text-muted); font-size: var(--t-sm); }
+.cabecalhoAcao { margin-left: auto; }
+
+/* Coluna sem nada dentro. Ela continua aparecendo: a ausência é informação, e
+   um quadro que esconde a coluna vazia não conta que ela está vazia — só não
+   conta nada. */
+.colunaVazia {
+  padding: var(--e2) var(--e3);
+  font-size: var(--t-xs);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Item de uma lista de sugestão dentro de um formulário (cliente já
+   cadastrado, aparelho já conhecido). Ele é um BOTÃO e precisa parecer
+   clicável de perto — mas não pode competir com o botão principal da tela, que
+   é o único que faz a coisa acontecer. */
+.buscaItemLista {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: var(--e3) var(--e4);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+.buscaItemLista:last-child { border-bottom: 0; }
+.buscaItemLista:hover { background: var(--info-veu); }
+.buscaItemLista strong { font-size: var(--t-sm); font-weight: 600; }
+.buscaItemLista span { font-size: var(--t-xs); color: var(--text-muted); }
+
+/* ==========================================================================
+   O APP DE CAMPO — a moldura
+   --------------------------------------------------------------------------
+   Uma coluna só, respiro folgado e um vão embaixo do tamanho da bottom-nav.
+   Sem o vão, o último item da lista fica eternamente atrás da barra — e é
+   sempre o último que a pessoa precisa alcançar no fim do dia.
+   ========================================================================== */
+.campo {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  display: grid;
+  align-content: start;
+  gap: var(--e4);
+  padding: var(--e4) var(--e4) calc(56px + env(safe-area-inset-bottom, 0px) + var(--e5));
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.campoTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  padding-bottom: var(--e2);
+  border-bottom: 1px solid var(--border);
+}
+.campoTopoTxt { display: grid; gap: 2px; min-width: 0; }
+.campoTopoTxt strong { font-family: var(--f-titulo); font-size: var(--t-lg); font-weight: 700; }
+.campoTopoTxt span { font-size: var(--t-xs); color: var(--text-muted); }
+
+/* ==========================================================================
+   MODO FOCO — o job da vez, e só ele
+   --------------------------------------------------------------------------
+   Uma tarefa por tela. O resto do dia fica embaixo, numa lista curta e
+   discreta, porque saber quantas faltam é útil e escolher qual fazer não é: a
+   rota já foi ordenada por quem despachou.
+   ========================================================================== */
+.foco {
+  composes: cartao;
+  padding: var(--e5);
+  display: grid;
+  gap: var(--e4);
+  border-color: var(--info-borda);
+  box-shadow: var(--luz);
+}
+.focoTopo { display: flex; align-items: center; gap: var(--e2); flex-wrap: wrap; }
+.focoCliente { font-family: var(--f-titulo); font-size: var(--t-xl); font-weight: 700; line-height: 1.15; }
+.focoEndereco { font-size: var(--t-base); color: var(--text-muted); line-height: 1.5; }
+.focoDado { display: grid; gap: 2px; }
+.focoDado dt {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.focoDado dd { margin: 0; font-size: var(--t-sm); }
+
+/* O recado da central. Ele existia no banco e nenhuma tela do aplicativo lia —
+   quem escrevia achava que estava avisando, e quem precisava do aviso chegava
+   sem ele. Aqui ele é impossível de não ver. */
+.recado {
+  padding: var(--e3);
+  border-radius: var(--radius-sm);
+  background: var(--warn-veu);
+  border: 1px solid var(--warn-borda);
+  color: var(--warn);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+}
+
+/* O stepper do job: Aceitar → A caminho → Cheguei. Ele mostra ONDE a viagem
+   está, e é a única coisa da tela que a pessoa lê antes do botão. */
+.passos {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--e1);
+}
+.passo, .passoFeito, .passoAgora {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  font-family: var(--f-mono);
+  font-size: 0.625rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+}
+.passoFeito { color: var(--ok); }
+.passoAgora { color: var(--brand-txt); font-weight: 600; }
+.passoBarra {
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+}
+.passoFeito .passoBarra { background: var(--ok); }
+.passoAgora .passoBarra { background: var(--brand); }
+
+.atalhos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--e2); }
+
+/* O aviso de geofencing. Ele não impede nada — GPS falha em subsolo, em prédio
+   e em celular velho, e travar a captura por isso deixaria o motorista preso na
+   porta do cliente. Ele INFORMA, e a ausência de coordenada fica registrada. */
+.semGps {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+  padding: var(--e2) var(--e3);
+  border-radius: var(--radius-sm);
+  background: var(--pending-veu);
+  border: 1px solid var(--pending-borda);
+  color: var(--text-muted);
+  font-size: var(--t-xs);
+}
+
+/* A lista do resto do dia. Discreta de propósito. */
+.resto { display: grid; gap: var(--e2); }
+.restoItem {
+  composes: cartao;
+  padding: var(--e3) var(--e4);
+  display: flex;
+  align-items: center;
+  gap: var(--e3);
+  text-decoration: none;
+  color: inherit;
+}
+.restoHora {
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  flex: none;
+}
+.restoTxt { display: grid; gap: 2px; min-width: 0; }
+.restoTxt strong { font-size: var(--t-sm); font-weight: 600; }
+.restoTxt span { font-size: var(--t-xs); color: var(--text-muted); }
+
+/* Empurra o que vem depois para a direita da linha. Existe para não haver
+   `style={{marginLeft:'auto'}}` espalhado: estilo inline foge do sistema de
+   tokens, e é assim que uma exceção vira dez. */
+.aDireita { margin-left: auto; }
+
+/* ==========================================================================
+   BARRAS — o gráfico mais simples que ainda informa
+   --------------------------------------------------------------------------
+   Divs com largura proporcional. Seis barras não valem um pacote de gráfico no
+   navegador de quem abre a tela uma vez por mês, e estas leem nos dois temas,
+   imprimem, e aparecem sem JavaScript.
+   ========================================================================== */
+.barras { display: grid; gap: var(--e3); }
+.barraLinha {
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  align-items: center;
+  gap: var(--e3);
+}
+.barraRotulo {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  letter-spacing: .1em;
+  color: var(--text-muted);
+}
+.barraTrilho { display: grid; gap: 3px; }
+.barraEntrou, .barraSaiu {
+  height: 9px;
+  border-radius: var(--radius-pill);
+  min-width: 3px;
+  display: block;
+}
+.barraEntrou { background: var(--ok); }
+.barraSaiu   { background: var(--pending); }
+.barraValor {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-xs);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   A ÁREA DE OBRA — as telas de administração
+   --------------------------------------------------------------------------
+   Ela é escura sempre, e precisa PARECER outro lugar. Um retângulo escuro
+   flutuando no meio de uma área de trabalho clara leria como um card com
+   defeito; sangrando até as bordas, lê como troca de modo — que é o que é.
+
+   As margens negativas nas laterais e embaixo cancelam o respiro da área de
+   trabalho. Em cima não: ali fica a migalha, e puxá-la para dentro do escuro
+   apagaria a única linha que diz onde a pessoa está.
+   ========================================================================== */
+.obra {
+  background: var(--bg);
+  color: var(--text);
+  margin: 0 calc(var(--e5) * -1) calc(var(--e5) * -1);
+  padding: var(--e5);
+  min-height: 60dvh;
+  display: grid;
+  align-content: start;
+  gap: var(--e5);
+}
+@media (max-width: 900px) {
+  .obra { margin: 0 calc(var(--e4) * -1) calc(var(--e4) * -1); padding: var(--e4); }
+}
+
+/* ==========================================================================
+   <TemplateBuilder> — o gerador de documentos
+   ========================================================================== */
+.editor {
+  width: 100%;
+  min-height: 420px;
+  padding: var(--e4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-viva);
+  background: var(--surface);
+  color: var(--text);
+  /* MONOESPAÇADA aqui é função, não estética: o modelo é texto com marcadores
+     que precisam ser conferidos caractere a caractere. `{{cliente_nome}}` e
+     `{{ciiente_nome}}` são indistinguíveis numa fonte proporcional. */
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.chips { display: grid; gap: var(--e3); max-height: 420px; overflow-y: auto; }
+.chipsGrupo { display: grid; gap: var(--e2); }
+.chipsTitulo {
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.chipsLinha { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipVar {
+  border: 1px solid var(--info-borda);
+  background: var(--info-veu);
+  color: var(--brand-txt);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-family: var(--f-mono);
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+.chipVar:hover { background: var(--brand-solida); color: var(--sobre-brand); border-color: transparent; }
+
+/* A pré-visualização. Fundo de PAPEL, e não de card: o que se lê aqui é o
+   documento que vai virar PDF, e ele é branco no mundo real. */
+.papel {
+  background: var(--papel-fundo);
+  color: var(--papel-tinta);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: var(--e5);
+  min-height: 420px;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  line-height: 1.7;
+}
+
+/* Marcador que ficou sem valor nesta O.S. Ele aparece MARCADO, e não some: um
+   buraco invisível no contrato é pior que um buraco visível. */
+.vazio2 {
+  background: var(--papel-vazio);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.desconhecido {
+  background: var(--papel-desconhecido);
+  border-radius: 3px;
+  padding: 0 2px;
+}

@@ -45,6 +45,7 @@ export type TenantMinAggregateOutputType = {
   corSecundaria: string | null
   ativo: boolean | null
   plano: string | null
+  uiV2: boolean | null
   bloqueado: boolean | null
   motivoBloqueio: string | null
   criadoEm: Date | null
@@ -72,6 +73,7 @@ export type TenantMaxAggregateOutputType = {
   corSecundaria: string | null
   ativo: boolean | null
   plano: string | null
+  uiV2: boolean | null
   bloqueado: boolean | null
   motivoBloqueio: string | null
   criadoEm: Date | null
@@ -99,6 +101,7 @@ export type TenantCountAggregateOutputType = {
   corSecundaria: number
   ativo: number
   plano: number
+  uiV2: number
   bloqueado: number
   motivoBloqueio: number
   criadoEm: number
@@ -128,6 +131,7 @@ export type TenantMinAggregateInputType = {
   corSecundaria?: true
   ativo?: true
   plano?: true
+  uiV2?: true
   bloqueado?: true
   motivoBloqueio?: true
   criadoEm?: true
@@ -155,6 +159,7 @@ export type TenantMaxAggregateInputType = {
   corSecundaria?: true
   ativo?: true
   plano?: true
+  uiV2?: true
   bloqueado?: true
   motivoBloqueio?: true
   criadoEm?: true
@@ -182,6 +187,7 @@ export type TenantCountAggregateInputType = {
   corSecundaria?: true
   ativo?: true
   plano?: true
+  uiV2?: true
   bloqueado?: true
   motivoBloqueio?: true
   criadoEm?: true
@@ -282,6 +288,7 @@ export type TenantGroupByOutputType = {
   corSecundaria: string
   ativo: boolean
   plano: string
+  uiV2: boolean
   bloqueado: boolean
   motivoBloqueio: string | null
   criadoEm: Date
@@ -330,6 +337,7 @@ export type TenantWhereInput = {
   corSecundaria?: Prisma.StringFilter<"Tenant"> | string
   ativo?: Prisma.BoolFilter<"Tenant"> | boolean
   plano?: Prisma.StringFilter<"Tenant"> | string
+  uiV2?: Prisma.BoolFilter<"Tenant"> | boolean
   bloqueado?: Prisma.BoolFilter<"Tenant"> | boolean
   motivoBloqueio?: Prisma.StringNullableFilter<"Tenant"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Tenant"> | Date | string
@@ -393,6 +401,7 @@ export type TenantOrderByWithRelationInput = {
   corSecundaria?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   plano?: Prisma.SortOrder
+  uiV2?: Prisma.SortOrder
   bloqueado?: Prisma.SortOrder
   motivoBloqueio?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -459,6 +468,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   corSecundaria?: Prisma.StringFilter<"Tenant"> | string
   ativo?: Prisma.BoolFilter<"Tenant"> | boolean
   plano?: Prisma.StringFilter<"Tenant"> | string
+  uiV2?: Prisma.BoolFilter<"Tenant"> | boolean
   bloqueado?: Prisma.BoolFilter<"Tenant"> | boolean
   motivoBloqueio?: Prisma.StringNullableFilter<"Tenant"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"Tenant"> | Date | string
@@ -522,6 +532,7 @@ export type TenantOrderByWithAggregationInput = {
   corSecundaria?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   plano?: Prisma.SortOrder
+  uiV2?: Prisma.SortOrder
   bloqueado?: Prisma.SortOrder
   motivoBloqueio?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -555,6 +566,7 @@ export type TenantScalarWhereWithAggregatesInput = {
   corSecundaria?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   ativo?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   plano?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  uiV2?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   bloqueado?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   motivoBloqueio?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -582,6 +594,7 @@ export type TenantCreateInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -645,6 +658,7 @@ export type TenantUncheckedCreateInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -708,6 +722,7 @@ export type TenantUpdateInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -771,6 +786,7 @@ export type TenantUncheckedUpdateInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -834,6 +850,7 @@ export type TenantCreateManyInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -861,6 +878,7 @@ export type TenantUpdateManyMutationInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -888,6 +906,7 @@ export type TenantUncheckedUpdateManyInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -915,6 +934,7 @@ export type TenantCountOrderByAggregateInput = {
   corSecundaria?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   plano?: Prisma.SortOrder
+  uiV2?: Prisma.SortOrder
   bloqueado?: Prisma.SortOrder
   motivoBloqueio?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -942,6 +962,7 @@ export type TenantMaxOrderByAggregateInput = {
   corSecundaria?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   plano?: Prisma.SortOrder
+  uiV2?: Prisma.SortOrder
   bloqueado?: Prisma.SortOrder
   motivoBloqueio?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -969,6 +990,7 @@ export type TenantMinOrderByAggregateInput = {
   corSecundaria?: Prisma.SortOrder
   ativo?: Prisma.SortOrder
   plano?: Prisma.SortOrder
+  uiV2?: Prisma.SortOrder
   bloqueado?: Prisma.SortOrder
   motivoBloqueio?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -1534,6 +1556,7 @@ export type TenantCreateWithoutUsuariosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -1596,6 +1619,7 @@ export type TenantUncheckedCreateWithoutUsuariosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -1674,6 +1698,7 @@ export type TenantUpdateWithoutUsuariosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1736,6 +1761,7 @@ export type TenantUncheckedUpdateWithoutUsuariosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1798,6 +1824,7 @@ export type TenantCreateWithoutClientesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -1860,6 +1887,7 @@ export type TenantUncheckedCreateWithoutClientesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -1938,6 +1966,7 @@ export type TenantUpdateWithoutClientesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2000,6 +2029,7 @@ export type TenantUncheckedUpdateWithoutClientesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2062,6 +2092,7 @@ export type TenantCreateWithoutEquipamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2124,6 +2155,7 @@ export type TenantUncheckedCreateWithoutEquipamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2202,6 +2234,7 @@ export type TenantUpdateWithoutEquipamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2264,6 +2297,7 @@ export type TenantUncheckedUpdateWithoutEquipamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2326,6 +2360,7 @@ export type TenantCreateWithoutOrdensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2388,6 +2423,7 @@ export type TenantUncheckedCreateWithoutOrdensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2466,6 +2502,7 @@ export type TenantUpdateWithoutOrdensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2528,6 +2565,7 @@ export type TenantUncheckedUpdateWithoutOrdensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2590,6 +2628,7 @@ export type TenantCreateWithoutEventosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2652,6 +2691,7 @@ export type TenantUncheckedCreateWithoutEventosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2730,6 +2770,7 @@ export type TenantUpdateWithoutEventosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2792,6 +2833,7 @@ export type TenantUncheckedUpdateWithoutEventosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2854,6 +2896,7 @@ export type TenantCreateWithoutFotosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2916,6 +2959,7 @@ export type TenantUncheckedCreateWithoutFotosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -2994,6 +3038,7 @@ export type TenantUpdateWithoutFotosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3056,6 +3101,7 @@ export type TenantUncheckedUpdateWithoutFotosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3118,6 +3164,7 @@ export type TenantCreateWithoutAssinaturasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3180,6 +3227,7 @@ export type TenantUncheckedCreateWithoutAssinaturasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3258,6 +3306,7 @@ export type TenantUpdateWithoutAssinaturasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3320,6 +3369,7 @@ export type TenantUncheckedUpdateWithoutAssinaturasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3382,6 +3432,7 @@ export type TenantCreateWithoutPropostasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3444,6 +3495,7 @@ export type TenantUncheckedCreateWithoutPropostasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3522,6 +3574,7 @@ export type TenantUpdateWithoutPropostasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3584,6 +3637,7 @@ export type TenantUncheckedUpdateWithoutPropostasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3646,6 +3700,7 @@ export type TenantCreateWithoutPropostaItensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3708,6 +3763,7 @@ export type TenantUncheckedCreateWithoutPropostaItensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3786,6 +3842,7 @@ export type TenantUpdateWithoutPropostaItensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3848,6 +3905,7 @@ export type TenantUncheckedUpdateWithoutPropostaItensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3910,6 +3968,7 @@ export type TenantCreateWithoutOrcamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -3972,6 +4031,7 @@ export type TenantUncheckedCreateWithoutOrcamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4050,6 +4110,7 @@ export type TenantUpdateWithoutOrcamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4112,6 +4173,7 @@ export type TenantUncheckedUpdateWithoutOrcamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4174,6 +4236,7 @@ export type TenantCreateWithoutItensOrcamentoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4236,6 +4299,7 @@ export type TenantUncheckedCreateWithoutItensOrcamentoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4314,6 +4378,7 @@ export type TenantUpdateWithoutItensOrcamentoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4376,6 +4441,7 @@ export type TenantUncheckedUpdateWithoutItensOrcamentoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4438,6 +4504,7 @@ export type TenantCreateWithoutPecasRetiradasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4500,6 +4567,7 @@ export type TenantUncheckedCreateWithoutPecasRetiradasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4578,6 +4646,7 @@ export type TenantUpdateWithoutPecasRetiradasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4640,6 +4709,7 @@ export type TenantUncheckedUpdateWithoutPecasRetiradasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4702,6 +4772,7 @@ export type TenantCreateWithoutContratosManutencaoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4764,6 +4835,7 @@ export type TenantUncheckedCreateWithoutContratosManutencaoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -4842,6 +4914,7 @@ export type TenantUpdateWithoutContratosManutencaoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4904,6 +4977,7 @@ export type TenantUncheckedUpdateWithoutContratosManutencaoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -4966,6 +5040,7 @@ export type TenantCreateWithoutVisitasPreventivasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5028,6 +5103,7 @@ export type TenantUncheckedCreateWithoutVisitasPreventivasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5106,6 +5182,7 @@ export type TenantUpdateWithoutVisitasPreventivasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5168,6 +5245,7 @@ export type TenantUncheckedUpdateWithoutVisitasPreventivasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5230,6 +5308,7 @@ export type TenantCreateWithoutPecasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5292,6 +5371,7 @@ export type TenantUncheckedCreateWithoutPecasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5370,6 +5450,7 @@ export type TenantUpdateWithoutPecasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5432,6 +5513,7 @@ export type TenantUncheckedUpdateWithoutPecasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5494,6 +5576,7 @@ export type TenantCreateWithoutEmprestimosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5556,6 +5639,7 @@ export type TenantUncheckedCreateWithoutEmprestimosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5634,6 +5718,7 @@ export type TenantUpdateWithoutEmprestimosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5696,6 +5781,7 @@ export type TenantUncheckedUpdateWithoutEmprestimosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5758,6 +5844,7 @@ export type TenantCreateWithoutMovimentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5820,6 +5907,7 @@ export type TenantUncheckedCreateWithoutMovimentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -5898,6 +5986,7 @@ export type TenantUpdateWithoutMovimentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -5960,6 +6049,7 @@ export type TenantUncheckedUpdateWithoutMovimentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6022,6 +6112,7 @@ export type TenantCreateWithoutFaturasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6084,6 +6175,7 @@ export type TenantUncheckedCreateWithoutFaturasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6162,6 +6254,7 @@ export type TenantUpdateWithoutFaturasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6224,6 +6317,7 @@ export type TenantUncheckedUpdateWithoutFaturasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6286,6 +6380,7 @@ export type TenantCreateWithoutPagamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6348,6 +6443,7 @@ export type TenantUncheckedCreateWithoutPagamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6426,6 +6522,7 @@ export type TenantUpdateWithoutPagamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6488,6 +6585,7 @@ export type TenantUncheckedUpdateWithoutPagamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6550,6 +6648,7 @@ export type TenantCreateWithoutAgendamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6612,6 +6711,7 @@ export type TenantUncheckedCreateWithoutAgendamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6690,6 +6790,7 @@ export type TenantUpdateWithoutAgendamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6752,6 +6853,7 @@ export type TenantUncheckedUpdateWithoutAgendamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -6814,6 +6916,7 @@ export type TenantCreateWithoutDocumentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6876,6 +6979,7 @@ export type TenantUncheckedCreateWithoutDocumentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -6954,6 +7058,7 @@ export type TenantUpdateWithoutDocumentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7016,6 +7121,7 @@ export type TenantUncheckedUpdateWithoutDocumentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7078,6 +7184,7 @@ export type TenantCreateWithoutJobsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7140,6 +7247,7 @@ export type TenantUncheckedCreateWithoutJobsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7218,6 +7326,7 @@ export type TenantUpdateWithoutJobsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7280,6 +7389,7 @@ export type TenantUncheckedUpdateWithoutJobsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7342,6 +7452,7 @@ export type TenantCreateWithoutMensagensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7404,6 +7515,7 @@ export type TenantUncheckedCreateWithoutMensagensInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7482,6 +7594,7 @@ export type TenantUpdateWithoutMensagensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7544,6 +7657,7 @@ export type TenantUncheckedUpdateWithoutMensagensInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7606,6 +7720,7 @@ export type TenantCreateWithoutTemplatesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7668,6 +7783,7 @@ export type TenantUncheckedCreateWithoutTemplatesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7746,6 +7862,7 @@ export type TenantUpdateWithoutTemplatesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7808,6 +7925,7 @@ export type TenantUncheckedUpdateWithoutTemplatesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -7870,6 +7988,7 @@ export type TenantCreateWithoutInstanciaWhatsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -7932,6 +8051,7 @@ export type TenantUncheckedCreateWithoutInstanciaWhatsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8010,6 +8130,7 @@ export type TenantUpdateWithoutInstanciaWhatsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8072,6 +8193,7 @@ export type TenantUncheckedUpdateWithoutInstanciaWhatsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8134,6 +8256,7 @@ export type TenantCreateWithoutPushInscricoesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8196,6 +8319,7 @@ export type TenantUncheckedCreateWithoutPushInscricoesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8274,6 +8398,7 @@ export type TenantUpdateWithoutPushInscricoesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8336,6 +8461,7 @@ export type TenantUncheckedUpdateWithoutPushInscricoesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8398,6 +8524,7 @@ export type TenantCreateWithoutLeadsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8460,6 +8587,7 @@ export type TenantUncheckedCreateWithoutLeadsInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8538,6 +8666,7 @@ export type TenantUpdateWithoutLeadsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8600,6 +8729,7 @@ export type TenantUncheckedUpdateWithoutLeadsInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8662,6 +8792,7 @@ export type TenantCreateWithoutAuditoriaInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8724,6 +8855,7 @@ export type TenantUncheckedCreateWithoutAuditoriaInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8802,6 +8934,7 @@ export type TenantUpdateWithoutAuditoriaInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8864,6 +8997,7 @@ export type TenantUncheckedUpdateWithoutAuditoriaInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -8926,6 +9060,7 @@ export type TenantCreateWithoutLancamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -8988,6 +9123,7 @@ export type TenantUncheckedCreateWithoutLancamentosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9066,6 +9202,7 @@ export type TenantUpdateWithoutLancamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9128,6 +9265,7 @@ export type TenantUncheckedUpdateWithoutLancamentosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9190,6 +9328,7 @@ export type TenantCreateWithoutCompromissosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9252,6 +9391,7 @@ export type TenantUncheckedCreateWithoutCompromissosInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9330,6 +9470,7 @@ export type TenantUpdateWithoutCompromissosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9392,6 +9533,7 @@ export type TenantUncheckedUpdateWithoutCompromissosInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9454,6 +9596,7 @@ export type TenantCreateWithoutModelosDocumentoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9516,6 +9659,7 @@ export type TenantUncheckedCreateWithoutModelosDocumentoInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9594,6 +9738,7 @@ export type TenantUpdateWithoutModelosDocumentoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9656,6 +9801,7 @@ export type TenantUncheckedUpdateWithoutModelosDocumentoInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9718,6 +9864,7 @@ export type TenantCreateWithoutRecorrenciasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9780,6 +9927,7 @@ export type TenantUncheckedCreateWithoutRecorrenciasInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -9858,6 +10006,7 @@ export type TenantUpdateWithoutRecorrenciasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9920,6 +10069,7 @@ export type TenantUncheckedUpdateWithoutRecorrenciasInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -9982,6 +10132,7 @@ export type TenantCreateWithoutRecuperacoesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10044,6 +10195,7 @@ export type TenantUncheckedCreateWithoutRecuperacoesInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10122,6 +10274,7 @@ export type TenantUpdateWithoutRecuperacoesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10184,6 +10337,7 @@ export type TenantUncheckedUpdateWithoutRecuperacoesInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10246,6 +10400,7 @@ export type TenantCreateWithoutContadoresInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10308,6 +10463,7 @@ export type TenantUncheckedCreateWithoutContadoresInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10386,6 +10542,7 @@ export type TenantUpdateWithoutContadoresInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10448,6 +10605,7 @@ export type TenantUncheckedUpdateWithoutContadoresInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10510,6 +10668,7 @@ export type TenantCreateWithoutPosicoesRotaInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10572,6 +10731,7 @@ export type TenantUncheckedCreateWithoutPosicoesRotaInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10650,6 +10810,7 @@ export type TenantUpdateWithoutPosicoesRotaInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10712,6 +10873,7 @@ export type TenantUncheckedUpdateWithoutPosicoesRotaInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10774,6 +10936,7 @@ export type TenantCreateWithoutColunasQuadroInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10836,6 +10999,7 @@ export type TenantUncheckedCreateWithoutColunasQuadroInput = {
   corSecundaria?: string
   ativo?: boolean
   plano?: string
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: string | null
   criadoEm?: Date | string
@@ -10914,6 +11078,7 @@ export type TenantUpdateWithoutColunasQuadroInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -10976,6 +11141,7 @@ export type TenantUncheckedUpdateWithoutColunasQuadroInput = {
   corSecundaria?: Prisma.StringFieldUpdateOperationsInput | string
   ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   plano?: Prisma.StringFieldUpdateOperationsInput | string
+  uiV2?: Prisma.BoolFieldUpdateOperationsInput | boolean
   bloqueado?: Prisma.BoolFieldUpdateOperationsInput | boolean
   motivoBloqueio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -11375,6 +11541,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   corSecundaria?: boolean
   ativo?: boolean
   plano?: boolean
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: boolean
   criadoEm?: boolean
@@ -11439,6 +11606,7 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   corSecundaria?: boolean
   ativo?: boolean
   plano?: boolean
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: boolean
   criadoEm?: boolean
@@ -11466,6 +11634,7 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   corSecundaria?: boolean
   ativo?: boolean
   plano?: boolean
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: boolean
   criadoEm?: boolean
@@ -11493,13 +11662,14 @@ export type TenantSelectScalar = {
   corSecundaria?: boolean
   ativo?: boolean
   plano?: boolean
+  uiV2?: boolean
   bloqueado?: boolean
   motivoBloqueio?: boolean
   criadoEm?: boolean
   atualizadoEm?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "nome" | "razaoSocial" | "cnpj" | "email" | "telefone" | "whatsapp" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "logoUrl" | "corPrimaria" | "corSecundaria" | "ativo" | "plano" | "bloqueado" | "motivoBloqueio" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "nome" | "razaoSocial" | "cnpj" | "email" | "telefone" | "whatsapp" | "cep" | "logradouro" | "numero" | "complemento" | "bairro" | "cidade" | "uf" | "logoUrl" | "corPrimaria" | "corSecundaria" | "ativo" | "plano" | "uiV2" | "bloqueado" | "motivoBloqueio" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usuarios?: boolean | Prisma.Tenant$usuariosArgs<ExtArgs>
   clientes?: boolean | Prisma.Tenant$clientesArgs<ExtArgs>
@@ -11612,6 +11782,19 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     corSecundaria: string
     ativo: boolean
     plano: string
+    /**
+     * O SISTEMA NOVO ("Azul Máquina") ligado para esta empresa.
+     * 
+     * Com `true`, quem entra nesta empresa cai em `/sistema` — o redesenho, com
+     * menu por intenção, radar de ações pendentes e botão-da-vez. Com `false`,
+     * continua no `/painel` de sempre.
+     * 
+     * É POR EMPRESA de propósito: a rede pode ter a DTECH no sistema novo
+     * enquanto as outras franquias seguem no antigo, e voltar atrás é um UPDATE
+     * em vez de uma implantação. O padrão falso garante que ligar o recurso não
+     * muda a tela de ninguém sem alguém pedir.
+     */
+    uiV2: boolean
     /**
      * Bloqueio administrativo pelo Super Admin (inadimplência, suspensão).
      */
@@ -12098,6 +12281,7 @@ export interface TenantFieldRefs {
   readonly corSecundaria: Prisma.FieldRef<"Tenant", 'String'>
   readonly ativo: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly plano: Prisma.FieldRef<"Tenant", 'String'>
+  readonly uiV2: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly bloqueado: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly motivoBloqueio: Prisma.FieldRef<"Tenant", 'String'>
   readonly criadoEm: Prisma.FieldRef<"Tenant", 'DateTime'>
