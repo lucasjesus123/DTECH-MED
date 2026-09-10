@@ -68,6 +68,33 @@ export type Foto = Prisma.FotoModel
  */
 export type Assinatura = Prisma.AssinaturaModel
 /**
+ * Model Proposta
+ * O ORÇAMENTO DO PASSO 1 — o que se manda ANTES de existir ordem.
+ * 
+ * =============================================================================
+ * POR QUE NÃO É O `Orcamento`
+ * =============================================================================
+ * O `Orcamento` é o preço de um aparelho DIAGNOSTICADO que já está na oficina:
+ * ele nasce do laudo, exige `ordemId`, e a máquina de estados o usa como
+ * pré-condição do passo 7. Esta é outra coisa — o preço oferecido antes de
+ * qualquer aparelho chegar, às vezes antes de o cliente existir no cadastro.
+ * 
+ * Fundir as duas exigiria tornar `ordemId` opcional, e aí toda consulta que
+ * hoje faz `orcamento.ordem.cliente` passaria a precisar de uma checagem de
+ * nulo — inclusive o portal do cliente, o PDF, o funil do Comercial e a
+ * validação da própria máquina. Uma delas esqueceria, e o erro apareceria na
+ * tela de alguém em vez de no compilador.
+ * 
+ * A numeração também é própria: a série do orçamento pós-laudo não pode pular
+ * porque o comercial mandou três propostas no meio.
+ */
+export type Proposta = Prisma.PropostaModel
+/**
+ * Model PropostaItem
+ * 
+ */
+export type PropostaItem = Prisma.PropostaItemModel
+/**
  * Model Orcamento
  * 
  */

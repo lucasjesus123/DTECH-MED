@@ -118,6 +118,7 @@ async function falhar(job: Job, erro: unknown) {
 
 const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
   'whatsapp.enviar': enviarAvisoDaEtapa,
+  'proposta.whatsapp': enviarPropostaAoCliente,
   'push.enviar': enviarAvisoNoCelular,
   'pdf.gerar': gerarDocumento,
 }
@@ -470,7 +471,8 @@ async function enviarAvisoDaEtapa(job: Job) {
 
 async function registrarMensagem(
   tenantId: string,
-  ordemId: string,
+  /** `null` quando a mensagem não é de uma ordem — a proposta do passo 1. */
+  ordemId: string | null,
   dados: {
     numero: string
     corpo: string
@@ -592,3 +594,99 @@ export async function iniciarWorker(): Promise<void> {
 const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export { ROTULO_ETAPA }
+
+
+/**
+ * O ORÇAMENTO DO PASSO 1 INDO PARA O CLIENTE.
+ *
+ * =============================================================================
+ * POR QUE ELE NÃO USA O `enviarAvisoDaEtapa`
+ * =============================================================================
+ * Aquele começa por `tx.ordem.findUnique(ordemId)` e monta a mensagem a partir
+ * do aparelho, do técnico e da etapa. A proposta não tem nada disso: não tem
+ * ordem, o aparelho é uma frase, e não há etapa nenhuma. Passar por lá exigiria
+ * um caminho de exceção dentro de uma função que hoje tem uma responsabilidade
+ * só — e caminho de exceção é onde o próximo aviso quebra.
+ *
+ * O que os dois COMPARTILHAM é o que importa: a função pura que monta o texto,
+ * o normalizador de número e o registro em `mensagens_whatsapp` (cujo `ordemId`
+ * já era opcional). Nada de segunda implementação de envio.
+ */
+async function enviarPropostaAoCliente(job: Job) {
+  const { propostaId, template } = job.payload as { propostaId: string; template: string }
+  // Guardado num `const`: a narrowing de `job.tenantId` se perde no primeiro
+  // `await`, e o resto da função precisa dele como string.
+  const tenantId = job.tenantId
+  if (!tenantId) throw new Error('Job de proposta sem empresa definida.')
+
+  const ctx = { tenantId, userId: null, ehSuperAdmin: false }
+
+  const dados = await comEscopo(ctx, async (tx) => {
+    const p = await tx.proposta.findUnique({
+      where: { id: propostaId },
+      select: {
+        numero: true,
+        equipamentoDescricao: true,
+        totalCentavos: true,
+        garantiaDias: true,
+        validoAte: true,
+        tokenPublico: true,
+        cliente: { select: { nome: true, contatoNome: true, whatsapp: true, telefone: true } },
+        tenant: { select: { nome: true } },
+      },
+    })
+    if (!p) return null
+    return {
+      numeroBruto: p.cliente.whatsapp ?? p.cliente.telefone,
+      d: {
+        contato: p.cliente.contatoNome,
+        cliente: p.cliente.nome,
+        equipamento: p.equipamentoDescricao,
+        numeroOrdem: p.numero,
+        valor: formatarBRL(p.totalCentavos),
+        garantiaDias: p.garantiaDias,
+        // Aqui `prazo` é a VALIDADE da proposta, e não o prazo de execução: é o
+        // que muda a decisão de quem está lendo. O prazo de execução está no
+        // link, item a item, para quem for aprovar.
+        prazo: p.validoAte
+          ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' }).format(p.validoAte)
+          : null,
+        linkPortal: `${env.APP_URL}/orcamento/${p.tokenPublico}`,
+        empresa: p.tenant.nome,
+      },
+    }
+  })
+  if (!dados) throw new Error('Orçamento não encontrado ao montar o aviso.')
+
+  const numero = normalizarNumero(dados.numeroBruto)
+  if (!numero) {
+    // Cadastro incompleto, não falha de sistema: repetir seis vezes não vai
+    // fazer aparecer um telefone que não existe.
+    await registrarMensagem(tenantId, null, {
+      numero: dados.numeroBruto ?? '',
+      corpo: '',
+      status: 'FALHOU',
+      erro: 'Cliente sem WhatsApp válido no cadastro.',
+      template,
+    })
+    return
+  }
+
+  // `montarMensagem` devolve nulo para modelo que não existe. Aqui isso seria
+  // erro de programação — o template é escrito por nós ao enfileirar —, e
+  // mandar mensagem vazia seria pior que falhar alto.
+  const corpo = montarMensagem(template, dados.d)
+  if (!corpo) throw new Error(`Modelo de mensagem desconhecido: ${template}`)
+
+  const token = await comEscopo(ctx, (tx) => tokenDaEmpresaNaTx(tx, tenantId))
+  if (!token) throw new Error('WhatsApp da empresa não está conectado.')
+
+  const r = await enviarTexto({ token, numero, texto: corpo })
+  await registrarMensagem(tenantId, null, {
+    numero,
+    corpo,
+    status: 'ENVIADA',
+    providerId: r.providerId,
+    template,
+  })
+}

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { abrirOrdem } from '@/server/acoes/ordem'
+import { ligarPropostaNaOrdem } from '@/server/acoes/proposta'
 import QuemEOCliente from './quem-e-o-cliente'
 import QualEOAparelho from './qual-e-o-aparelho'
 import estilo from '../../painel.module.css'
@@ -78,9 +79,25 @@ const ULTIMO = PASSOS.length
  */
 export default function Formulario({
   lead,
+  proposta,
   aoAbrir,
 }: {
   lead: Lead | null
+  /**
+   * O ORÇAMENTO DO PASSO 1 QUE ESTÁ VIRANDO ESTA ORDEM.
+   *
+   * Quando ele existe, o passo "o combinado" chega preenchido com o que o
+   * cliente ACABOU DE APROVAR — valor, condição e o relato que ele contou.
+   * Redigitar isso seria pedir de novo o que ele já assinou, e é exatamente
+   * onde nasce a divergência entre o que foi orçado e o que foi aberto.
+   */
+  proposta: {
+    id: string
+    valor: string
+    condicao: string
+    equipamento: string
+    necessidade: string
+  } | null
   /**
    * Chamado com o id da ordem recém-aberta, quando o assistente está DENTRO de
    * uma janela. Sem ele, a página troca para a ficha — que é o certo quando o
@@ -120,9 +137,21 @@ export default function Formulario({
     // Dentro da janela, quem assume é ela: a O.S. recém-aberta vira a janela do
     // passo a passo, já no passo 3, que é o "quem vai buscar". Trocar de página
     // aqui jogaria fora a lista e o filtro que a pessoa tinha atrás.
+    /**
+     * A PONTE FECHA AQUI: a ordem existe, então a proposta passa a apontar
+     * para ela.
+     *
+     * Depois de criar, e não antes: ligar uma proposta a uma ordem que a
+     * validação ainda pode recusar deixaria a proposta marcada como "virou
+     * O.S." sem O.S. nenhuma. O `void` é deliberado — se a ligação falhar, a
+     * ordem já está criada e certa, e o vínculo é dado de relatório, não de
+     * operação. A tela não pode travar por causa dele.
+     */
+    if (proposta) void ligarPropostaNaOrdem(proposta.id, estado.dados.id)
+
     if (aoAbrir) aoAbrir(estado.dados.id)
     else router.push(`/painel/ordens/${estado.dados.id}?despachar=1`)
-  }, [estado, router, aoAbrir])
+  }, [estado, router, aoAbrir, proposta])
 
   function irPara(n: number) {
     setPasso(n)
@@ -203,10 +232,17 @@ export default function Formulario({
         <div className={estilo.form}>
           <p className={estilo.blocoTitulo}>O que já foi combinado</p>
 
-          <p className={estilo.dica} style={{ marginTop: 0 }}>
-            O valor acertado nesta ligação — retirada, avaliação, deslocamento. Não é o orçamento
-            do conserto: esse nasce depois do laudo, com o aparelho na bancada.
-          </p>
+          {proposta ? (
+            <p className={estilo.sucesso} role="status" style={{ marginTop: 0 }}>
+              Vindo do orçamento que o cliente aprovou. O valor já está preenchido — confira e
+              siga.
+            </p>
+          ) : (
+            <p className={estilo.dica} style={{ marginTop: 0 }}>
+              O valor acertado nesta ligação — retirada, avaliação, deslocamento. Não é o
+              orçamento do conserto: esse nasce depois do laudo, com o aparelho na bancada.
+            </p>
+          )}
 
           <div className={estilo.janelaGrade}>
             <label className={estilo.rotulo}>
@@ -217,6 +253,7 @@ export default function Formulario({
                 inputMode="decimal"
                 autoComplete="off"
                 placeholder="250,00"
+                defaultValue={proposta?.valor ?? ''}
               />
             </label>
             <label className={estilo.rotulo}>
@@ -226,13 +263,14 @@ export default function Formulario({
                 name="condicaoCombinada"
                 maxLength={200}
                 placeholder="Retirada e avaliação, abatidos no conserto"
+                defaultValue={proposta?.condicao ?? ''}
               />
             </label>
           </div>
 
           <div className={estilo.acoesForm}>
             <button type="button" className={estilo.btnSec} onClick={() => irPara(2)}>
-              Não combinei nada ainda — seguir
+              {proposta ? 'Seguir' : 'Não combinei nada ainda — seguir'}
             </button>
           </div>
         </div>

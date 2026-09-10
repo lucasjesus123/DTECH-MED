@@ -198,6 +198,44 @@ export const TEMPLATES: Record<string, Construtor> = {
       `— ${d.empresa}`,
     ]),
 
+  /**
+   * A PROPOSTA DO PASSO 1 — antes de existir ordem.
+   *
+   * Texto próprio, e não o `orcamento.enviado`: aquele fala de um aparelho que
+   * já está com a gente ("ficou pronto o orçamento"), com prazo de execução e
+   * PDF em anexo. Este fala com quem ainda está DECIDINDO se traz o aparelho.
+   * A diferença muda cada frase — inclusive a última, que ali é "qualquer
+   * dúvida" e aqui é "se aprovar, a gente combina a retirada".
+   */
+  'proposta.enviada': (d) =>
+    montar([
+      saudacao(d),
+      '',
+      `Preparamos o orçamento${d.equipamento ? ` de ${d.equipamento}` : ''} 📋`,
+      '',
+      d.valor && `Total: *${d.valor}*`,
+      d.prazo && `Validade da proposta: ${d.prazo}`,
+      d.garantiaDias ? `Garantia do serviço: ${d.garantiaDias} dias` : null,
+      '',
+      d.linkPortal && `Item a item, e para aprovar:\n${d.linkPortal}`,
+      '',
+      `Se aprovar, a gente já combina a retirada do aparelho.`,
+      `— ${d.empresa}`,
+    ]),
+
+  'proposta.aprovada': (d) =>
+    montar([
+      saudacao(d),
+      '',
+      `Recebemos sua aprovação ✅`,
+      `Já vamos abrir a ordem de serviço e combinar a retirada${d.equipamento ? ` de ${d.equipamento}` : ''}.`,
+      '',
+      d.valor && `Valor aprovado: *${d.valor}*`,
+      '',
+      `Em seguida você recebe aqui a data e o nome de quem vai buscar.`,
+      `— ${d.empresa}`,
+    ]),
+
   'orcamento.enviado': (d) =>
     montar([
       saudacao(d),

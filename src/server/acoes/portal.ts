@@ -8,7 +8,7 @@ import { comparaSegura, hashDocumento } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
 import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
-import { avancarOrdem } from '@/server/ordem/motor'
+import { avancarOrdem, enfileirar } from '@/server/ordem/motor'
 import { guardarAssinatura } from '@/server/arquivos/storage'
 import { reservarDoOrcamento } from '@/server/estoque/servico'
 
@@ -299,5 +299,198 @@ export async function responderOrcamento(_anterior: Resposta, form: FormData): P
   }
 
   revalidatePath(`/os/${v.token}`)
+  return { ok: true }
+}
+
+
+// ===========================================================================
+// O ORÇAMENTO DO PASSO 1 — o link que o cliente recebe antes de existir ordem
+// ===========================================================================
+
+/**
+ * A proposta pelo token, com o mesmo cuidado da ordem.
+ *
+ * A saída ERRADA seria uma policy pública em `propostas`: qualquer consulta sem
+ * contexto passaria a enxergar a carteira comercial inteira de todas as
+ * franquias — quem pediu preço de quê, e por quanto. `app.empresa_da_proposta`
+ * devolve APENAS o id da empresa; com ele o escopo normal abre e todas as
+ * policies voltam a valer. O token prova o direito àquela proposta; não vira
+ * passe livre.
+ */
+async function propostaDoToken(token: string) {
+  if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null
+
+  const linhas = await prisma.$queryRaw<Array<{ tenant: string | null }>>`
+    SELECT app.empresa_da_proposta(${token}) AS tenant
+  `
+  const tenantId = linhas[0]?.tenant
+  if (!tenantId) return null
+
+  return comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+    tx.proposta.findUnique({
+      where: { tokenPublico: token },
+      include: {
+        tenant: { select: { id: true, nome: true, telefone: true } },
+        cliente: { select: { nome: true, documentoHash: true, contatoNome: true } },
+        itens: { orderBy: { ordem: 'asc' } },
+      },
+    }),
+  )
+}
+
+export async function carregarPropostaPublica(token: string) {
+  return propostaDoToken(token)
+}
+
+const schemaProposta = z.object({
+  token: z.string().min(20),
+  decisao: z.enum(['aprovar', 'recusar']),
+  documento: z.string().trim().min(11, 'Digite o CPF ou CNPJ do cadastro.'),
+  assinanteNome: z.string().trim().nullish(),
+  motivo: z.string().trim().nullish(),
+})
+
+/**
+ * O CLIENTE RESPONDE A PROPOSTA.
+ *
+ * =============================================================================
+ * POR QUE AQUI NÃO SE PEDE ASSINATURA DESENHADA
+ * =============================================================================
+ * A aprovação do orçamento PÓS-LAUDO pede o rabisco no quadro: ali o aparelho
+ * já está com a gente, o valor vira contrato de execução e a assinatura é a
+ * prova que sustenta a cobrança de um serviço já feito.
+ *
+ * Aqui é uma proposta comercial: ninguém pegou o aparelho ainda, e o próximo
+ * passo é justamente a assinatura da retirada, com o motorista na porta. Pedir
+ * rabisco de dedo no celular para dizer "pode fazer" acrescenta atrito no ponto
+ * exato em que a pessoa está decidindo se contrata — e não prova nada que o
+ * documento conferido e o carimbo de tempo já não provem.
+ *
+ * O documento continua sendo pedido, com o mesmo freio de chutes: é ele que
+ * separa LER de DECIDIR.
+ */
+export async function responderProposta(
+  _anterior: Resposta,
+  form: FormData,
+): Promise<Resposta> {
+  const d = schemaProposta.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+
+  const p = await propostaDoToken(v.token)
+  if (!p) return { ok: false, motivo: 'Link inválido ou expirado.' }
+
+  const cabecalhos = await headers()
+  const ip = ipDaRequisicao(cabecalhos, env.TRUST_PROXY)
+  const chave = `${ip ?? 'sem-ip'}:${v.token}`
+  const ctx: ContextoAcesso = { tenantId: p.tenant.id, userId: null, ehSuperAdmin: false }
+
+  if (excedeuChutes(chave)) {
+    await auditar(ctx, null, {
+      acao: 'portal.proposta.bloqueada',
+      entidade: 'proposta',
+      entidadeId: p.id,
+      ip,
+      negado: true,
+    })
+    return {
+      ok: false,
+      motivo:
+        'Muitas tentativas seguidas. Espere alguns minutos e tente de novo — ' +
+        'ou fale com a assistência pelo telefone que está nesta página.',
+    }
+  }
+
+  if (!comparaSegura(hashDocumento(v.documento), p.cliente.documentoHash)) {
+    contarChute(chave)
+    await auditar(ctx, null, {
+      acao: 'portal.proposta.documento_errado',
+      entidade: 'proposta',
+      entidadeId: p.id,
+      ip,
+      negado: true,
+    })
+    return {
+      ok: false,
+      motivo: 'O CPF ou CNPJ não confere com o cadastro. Confira e tente de novo.',
+    }
+  }
+
+  if (p.status !== 'ENVIADA') {
+    return {
+      ok: false,
+      motivo:
+        p.status === 'APROVADA'
+          ? 'Este orçamento já foi aprovado. Não precisa fazer nada — a gente entra em contato para combinar a retirada.'
+          : 'Este orçamento não está aguardando resposta no momento.',
+    }
+  }
+
+  // A validade é conferida no SERVIDOR, e não só desenhada na tela. Um link
+  // aberto ontem e enviado hoje continuaria com o botão ativo.
+  if (p.validoAte && p.validoAte.getTime() < Date.now()) {
+    await comEscopo(ctx, (tx) =>
+      tx.proposta.update({ where: { id: p.id }, data: { status: 'EXPIRADA' } }),
+    )
+    return {
+      ok: false,
+      motivo:
+        'Este orçamento passou da validade. Fale com a assistência pelo telefone desta página que a gente refaz o preço.',
+    }
+  }
+
+  if (v.decisao === 'recusar') {
+    await comEscopo(ctx, (tx) =>
+      tx.proposta.update({
+        where: { id: p.id },
+        data: { status: 'RECUSADA', respondidaEm: new Date(), motivoRecusa: v.motivo || null },
+      }),
+    )
+    await auditar(ctx, null, {
+      acao: 'proposta.recusada',
+      entidade: 'proposta',
+      entidadeId: p.id,
+      ip,
+      detalhes: { motivo: v.motivo ?? null },
+      autorNome: p.cliente.contatoNome ?? p.cliente.nome,
+    })
+    revalidatePath(`/orcamento/${v.token}`)
+    return { ok: true }
+  }
+
+  if (!v.assinanteNome) return { ok: false, motivo: 'Escreva seu nome completo para aprovar.' }
+
+  await comEscopo(ctx, async (tx) => {
+    await tx.proposta.update({
+      where: { id: p.id },
+      data: {
+        status: 'APROVADA',
+        respondidaEm: new Date(),
+        aprovadaPorNome: v.assinanteNome,
+        // Guardamos o documento MASCARADO. O cadastro já tem o número inteiro,
+        // e repeti-lo aqui só aumentaria o estrago de um vazamento.
+        aprovadaPorDocumento: v.documento.replace(/\D/g, '').slice(-4),
+      },
+    })
+
+    // O aviso de "recebemos sua aprovação" sai pela fila, na mesma transação:
+    // ou a aprovação está gravada e o aviso enfileirado, ou nenhum dos dois.
+    await enfileirar(tx, p.tenant.id, {
+      tipo: 'proposta.whatsapp',
+      prioridade: 1,
+      dedupeKey: `proposta:aprovada:${p.id}`,
+      payload: { propostaId: p.id, template: 'proposta.aprovada' },
+    })
+  })
+
+  await auditar(ctx, null, {
+    acao: 'proposta.aprovada',
+    entidade: 'proposta',
+    entidadeId: p.id,
+    ip,
+    detalhes: { por: v.assinanteNome, total: p.totalCentavos },
+    autorNome: v.assinanteNome,
+  })
+  revalidatePath(`/orcamento/${v.token}`)
   return { ok: true }
 }

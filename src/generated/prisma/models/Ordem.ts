@@ -495,6 +495,7 @@ export type OrdemWhereInput = {
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
   fatura?: Prisma.XOR<Prisma.FaturaNullableScalarRelationFilter, Prisma.FaturaWhereInput> | null
   mensagens?: Prisma.MensagemWhatsappListRelationFilter
+  propostaOrigem?: Prisma.XOR<Prisma.PropostaNullableScalarRelationFilter, Prisma.PropostaWhereInput> | null
 }
 
 export type OrdemOrderByWithRelationInput = {
@@ -554,6 +555,7 @@ export type OrdemOrderByWithRelationInput = {
   movimentos?: Prisma.MovimentoEstoqueOrderByRelationAggregateInput
   fatura?: Prisma.FaturaOrderByWithRelationInput
   mensagens?: Prisma.MensagemWhatsappOrderByRelationAggregateInput
+  propostaOrigem?: Prisma.PropostaOrderByWithRelationInput
 }
 
 export type OrdemWhereUniqueInput = Prisma.AtLeast<{
@@ -617,6 +619,7 @@ export type OrdemWhereUniqueInput = Prisma.AtLeast<{
   movimentos?: Prisma.MovimentoEstoqueListRelationFilter
   fatura?: Prisma.XOR<Prisma.FaturaNullableScalarRelationFilter, Prisma.FaturaWhereInput> | null
   mensagens?: Prisma.MensagemWhatsappListRelationFilter
+  propostaOrigem?: Prisma.XOR<Prisma.PropostaNullableScalarRelationFilter, Prisma.PropostaWhereInput> | null
 }, "id" | "tokenPublico" | "tenantId_numero">
 
 export type OrdemOrderByWithAggregationInput = {
@@ -758,6 +761,7 @@ export type OrdemCreateInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateInput = {
@@ -811,6 +815,7 @@ export type OrdemUncheckedCreateInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUpdateInput = {
@@ -864,6 +869,7 @@ export type OrdemUpdateInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateInput = {
@@ -917,6 +923,7 @@ export type OrdemUncheckedUpdateInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateManyInput = {
@@ -1506,6 +1513,22 @@ export type OrdemUpdateOneRequiredWithoutAssinaturasNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrdemUpdateToOneWithWhereWithoutAssinaturasInput, Prisma.OrdemUpdateWithoutAssinaturasInput>, Prisma.OrdemUncheckedUpdateWithoutAssinaturasInput>
 }
 
+export type OrdemCreateNestedOneWithoutPropostaOrigemInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedCreateWithoutPropostaOrigemInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutPropostaOrigemInput
+  connect?: Prisma.OrdemWhereUniqueInput
+}
+
+export type OrdemUpdateOneWithoutPropostaOrigemNestedInput = {
+  create?: Prisma.XOR<Prisma.OrdemCreateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedCreateWithoutPropostaOrigemInput>
+  connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutPropostaOrigemInput
+  upsert?: Prisma.OrdemUpsertWithoutPropostaOrigemInput
+  disconnect?: Prisma.OrdemWhereInput | boolean
+  delete?: Prisma.OrdemWhereInput | boolean
+  connect?: Prisma.OrdemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrdemUpdateToOneWithWhereWithoutPropostaOrigemInput, Prisma.OrdemUpdateWithoutPropostaOrigemInput>, Prisma.OrdemUncheckedUpdateWithoutPropostaOrigemInput>
+}
+
 export type OrdemCreateNestedOneWithoutOrcamentosInput = {
   create?: Prisma.XOR<Prisma.OrdemCreateWithoutOrcamentosInput, Prisma.OrdemUncheckedCreateWithoutOrcamentosInput>
   connectOrCreate?: Prisma.OrdemCreateOrConnectWithoutOrcamentosInput
@@ -1690,6 +1713,7 @@ export type OrdemCreateWithoutTenantInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutTenantInput = {
@@ -1742,6 +1766,7 @@ export type OrdemUncheckedCreateWithoutTenantInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutTenantInput = {
@@ -1863,6 +1888,7 @@ export type OrdemCreateWithoutTecnicoInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutTecnicoInput = {
@@ -1915,6 +1941,7 @@ export type OrdemUncheckedCreateWithoutTecnicoInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutTecnicoInput = {
@@ -1977,6 +2004,7 @@ export type OrdemCreateWithoutAtendenteInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutAtendenteInput = {
@@ -2029,6 +2057,7 @@ export type OrdemUncheckedCreateWithoutAtendenteInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutAtendenteInput = {
@@ -2123,6 +2152,7 @@ export type OrdemCreateWithoutClienteInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutClienteInput = {
@@ -2175,6 +2205,7 @@ export type OrdemUncheckedCreateWithoutClienteInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutClienteInput = {
@@ -2253,6 +2284,7 @@ export type OrdemCreateWithoutEquipamentoInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutEquipamentoInput = {
@@ -2305,6 +2337,7 @@ export type OrdemUncheckedCreateWithoutEquipamentoInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutEquipamentoInput = {
@@ -2383,6 +2416,7 @@ export type OrdemCreateWithoutRetornosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutRetornosInput = {
@@ -2435,6 +2469,7 @@ export type OrdemUncheckedCreateWithoutRetornosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutRetornosInput = {
@@ -2492,6 +2527,7 @@ export type OrdemCreateWithoutOrdemOrigemInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
@@ -2544,6 +2580,7 @@ export type OrdemUncheckedCreateWithoutOrdemOrigemInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutOrdemOrigemInput = {
@@ -2617,6 +2654,7 @@ export type OrdemUpdateWithoutRetornosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutRetornosInput = {
@@ -2669,6 +2707,7 @@ export type OrdemUncheckedUpdateWithoutRetornosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUpsertWithWhereUniqueWithoutOrdemOrigemInput = {
@@ -2737,6 +2776,7 @@ export type OrdemCreateWithoutEventosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutEventosInput = {
@@ -2789,6 +2829,7 @@ export type OrdemUncheckedCreateWithoutEventosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutEventosInput = {
@@ -2857,6 +2898,7 @@ export type OrdemUpdateWithoutEventosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutEventosInput = {
@@ -2909,6 +2951,7 @@ export type OrdemUncheckedUpdateWithoutEventosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutFotosInput = {
@@ -2961,6 +3004,7 @@ export type OrdemCreateWithoutFotosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutFotosInput = {
@@ -3013,6 +3057,7 @@ export type OrdemUncheckedCreateWithoutFotosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutFotosInput = {
@@ -3081,6 +3126,7 @@ export type OrdemUpdateWithoutFotosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutFotosInput = {
@@ -3133,6 +3179,7 @@ export type OrdemUncheckedUpdateWithoutFotosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutAssinaturasInput = {
@@ -3185,6 +3232,7 @@ export type OrdemCreateWithoutAssinaturasInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutAssinaturasInput = {
@@ -3237,6 +3285,7 @@ export type OrdemUncheckedCreateWithoutAssinaturasInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutAssinaturasInput = {
@@ -3305,6 +3354,7 @@ export type OrdemUpdateWithoutAssinaturasInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
@@ -3351,6 +3401,235 @@ export type OrdemUncheckedUpdateWithoutAssinaturasInput = {
   visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
   fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
+}
+
+export type OrdemCreateWithoutPropostaOrigemInput = {
+  id?: string
+  numero: number
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  tecnicoAceitouEm?: Date | string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutOrdensInput
+  cliente: Prisma.ClienteCreateNestedOneWithoutOrdensInput
+  equipamento: Prisma.EquipamentoCreateNestedOneWithoutOrdensInput
+  atendente?: Prisma.UserCreateNestedOneWithoutOrdensAtendenteInput
+  tecnico?: Prisma.UserCreateNestedOneWithoutOrdensTecnicoInput
+  ordemOrigem?: Prisma.OrdemCreateNestedOneWithoutRetornosInput
+  retornos?: Prisma.OrdemCreateNestedManyWithoutOrdemOrigemInput
+  pecasRetiradas?: Prisma.PecaRetiradaCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaCreateNestedManyWithoutOrdemInput
+  visitaPreventiva?: Prisma.VisitaPreventivaCreateNestedOneWithoutOrdemInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemUncheckedCreateWithoutPropostaOrigemInput = {
+  id?: string
+  tenantId: string
+  numero: number
+  clienteId: string
+  equipamentoId: string
+  etapa?: $Enums.EtapaOrdem
+  tokenPublico: string
+  defeitoRelatado: string
+  diagnostico?: string | null
+  parecerTecnico?: string | null
+  servicoExecutado?: string | null
+  testesFinais?: string | null
+  valorPrevioCentavos?: number | null
+  condicaoCombinada?: string | null
+  prioridade?: string
+  origem?: $Enums.OrigemLead
+  viaCorreio?: boolean
+  codigoRastreio?: string | null
+  atendenteId?: string | null
+  tecnicoId?: string | null
+  tecnicoAceitouEm?: Date | string | null
+  garantiaAte?: Date | string | null
+  emGarantia?: boolean
+  ordemOrigemId?: string | null
+  abertaEm?: Date | string
+  coletadaEm?: Date | string | null
+  recebidaEm?: Date | string | null
+  orcadaEm?: Date | string | null
+  aprovadaEm?: Date | string | null
+  concluidaEm?: Date | string | null
+  faturadaEm?: Date | string | null
+  entregueEm?: Date | string | null
+  finalizadaEm?: Date | string | null
+  prazoPrometido?: Date | string | null
+  semPecaDeclaradoEm?: Date | string | null
+  semPecaDeclaradoPorNome?: string | null
+  atualizadoEm?: Date | string
+  retornos?: Prisma.OrdemUncheckedCreateNestedManyWithoutOrdemOrigemInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedCreateNestedManyWithoutOrdemInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedCreateNestedManyWithoutOrdemInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUncheckedCreateNestedOneWithoutOrdemInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutOrdemInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutOrdemInput
+  assinaturas?: Prisma.AssinaturaUncheckedCreateNestedManyWithoutOrdemInput
+  orcamentos?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutOrdemInput
+  agendamentos?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutOrdemInput
+  documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
+  fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
+  mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+}
+
+export type OrdemCreateOrConnectWithoutPropostaOrigemInput = {
+  where: Prisma.OrdemWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedCreateWithoutPropostaOrigemInput>
+}
+
+export type OrdemUpsertWithoutPropostaOrigemInput = {
+  update: Prisma.XOR<Prisma.OrdemUpdateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedUpdateWithoutPropostaOrigemInput>
+  create: Prisma.XOR<Prisma.OrdemCreateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedCreateWithoutPropostaOrigemInput>
+  where?: Prisma.OrdemWhereInput
+}
+
+export type OrdemUpdateToOneWithWhereWithoutPropostaOrigemInput = {
+  where?: Prisma.OrdemWhereInput
+  data: Prisma.XOR<Prisma.OrdemUpdateWithoutPropostaOrigemInput, Prisma.OrdemUncheckedUpdateWithoutPropostaOrigemInput>
+}
+
+export type OrdemUpdateWithoutPropostaOrigemInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutOrdensNestedInput
+  cliente?: Prisma.ClienteUpdateOneRequiredWithoutOrdensNestedInput
+  equipamento?: Prisma.EquipamentoUpdateOneRequiredWithoutOrdensNestedInput
+  atendente?: Prisma.UserUpdateOneWithoutOrdensAtendenteNestedInput
+  tecnico?: Prisma.UserUpdateOneWithoutOrdensTecnicoNestedInput
+  ordemOrigem?: Prisma.OrdemUpdateOneWithoutRetornosNestedInput
+  retornos?: Prisma.OrdemUpdateManyWithoutOrdemOrigemNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUpdateManyWithoutOrdemNestedInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUpdateOneWithoutOrdemNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUpdateManyWithoutOrdemNestedInput
+  orcamentos?: Prisma.OrcamentoUpdateManyWithoutOrdemNestedInput
+  agendamentos?: Prisma.AgendamentoUpdateManyWithoutOrdemNestedInput
+  documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
+  fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
+  mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+}
+
+export type OrdemUncheckedUpdateWithoutPropostaOrigemInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  clienteId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentoId?: Prisma.StringFieldUpdateOperationsInput | string
+  etapa?: Prisma.EnumEtapaOrdemFieldUpdateOperationsInput | $Enums.EtapaOrdem
+  tokenPublico?: Prisma.StringFieldUpdateOperationsInput | string
+  defeitoRelatado?: Prisma.StringFieldUpdateOperationsInput | string
+  diagnostico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parecerTecnico?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  servicoExecutado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testesFinais?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  valorPrevioCentavos?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  condicaoCombinada?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  prioridade?: Prisma.StringFieldUpdateOperationsInput | string
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  viaCorreio?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  codigoRastreio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atendenteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tecnicoAceitouEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  garantiaAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emGarantia?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ordemOrigemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  abertaEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  coletadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recebidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  orcadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aprovadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  concluidaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  faturadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entregueEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  finalizadaEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  prazoPrometido?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  semPecaDeclaradoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  retornos?: Prisma.OrdemUncheckedUpdateManyWithoutOrdemOrigemNestedInput
+  pecasRetiradas?: Prisma.PecaRetiradaUncheckedUpdateManyWithoutOrdemNestedInput
+  emprestimos?: Prisma.EmprestimoFerramentaUncheckedUpdateManyWithoutOrdemNestedInput
+  visitaPreventiva?: Prisma.VisitaPreventivaUncheckedUpdateOneWithoutOrdemNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutOrdemNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutOrdemNestedInput
+  assinaturas?: Prisma.AssinaturaUncheckedUpdateManyWithoutOrdemNestedInput
   orcamentos?: Prisma.OrcamentoUncheckedUpdateManyWithoutOrdemNestedInput
   agendamentos?: Prisma.AgendamentoUncheckedUpdateManyWithoutOrdemNestedInput
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
@@ -3409,6 +3688,7 @@ export type OrdemCreateWithoutOrcamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutOrcamentosInput = {
@@ -3461,6 +3741,7 @@ export type OrdemUncheckedCreateWithoutOrcamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutOrcamentosInput = {
@@ -3529,6 +3810,7 @@ export type OrdemUpdateWithoutOrcamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
@@ -3581,6 +3863,7 @@ export type OrdemUncheckedUpdateWithoutOrcamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutPecasRetiradasInput = {
@@ -3633,6 +3916,7 @@ export type OrdemCreateWithoutPecasRetiradasInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
@@ -3685,6 +3969,7 @@ export type OrdemUncheckedCreateWithoutPecasRetiradasInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutPecasRetiradasInput = {
@@ -3753,6 +4038,7 @@ export type OrdemUpdateWithoutPecasRetiradasInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
@@ -3805,6 +4091,7 @@ export type OrdemUncheckedUpdateWithoutPecasRetiradasInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutVisitaPreventivaInput = {
@@ -3857,6 +4144,7 @@ export type OrdemCreateWithoutVisitaPreventivaInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
@@ -3909,6 +4197,7 @@ export type OrdemUncheckedCreateWithoutVisitaPreventivaInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutVisitaPreventivaInput = {
@@ -3977,6 +4266,7 @@ export type OrdemUpdateWithoutVisitaPreventivaInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
@@ -4029,6 +4319,7 @@ export type OrdemUncheckedUpdateWithoutVisitaPreventivaInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutEmprestimosInput = {
@@ -4081,6 +4372,7 @@ export type OrdemCreateWithoutEmprestimosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutEmprestimosInput = {
@@ -4133,6 +4425,7 @@ export type OrdemUncheckedCreateWithoutEmprestimosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutEmprestimosInput = {
@@ -4201,6 +4494,7 @@ export type OrdemUpdateWithoutEmprestimosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
@@ -4253,6 +4547,7 @@ export type OrdemUncheckedUpdateWithoutEmprestimosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutMovimentosInput = {
@@ -4305,6 +4600,7 @@ export type OrdemCreateWithoutMovimentosInput = {
   documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutMovimentosInput = {
@@ -4357,6 +4653,7 @@ export type OrdemUncheckedCreateWithoutMovimentosInput = {
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutMovimentosInput = {
@@ -4425,6 +4722,7 @@ export type OrdemUpdateWithoutMovimentosInput = {
   documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutMovimentosInput = {
@@ -4477,6 +4775,7 @@ export type OrdemUncheckedUpdateWithoutMovimentosInput = {
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutFaturaInput = {
@@ -4529,6 +4828,7 @@ export type OrdemCreateWithoutFaturaInput = {
   documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutFaturaInput = {
@@ -4581,6 +4881,7 @@ export type OrdemUncheckedCreateWithoutFaturaInput = {
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutFaturaInput = {
@@ -4649,6 +4950,7 @@ export type OrdemUpdateWithoutFaturaInput = {
   documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutFaturaInput = {
@@ -4701,6 +5003,7 @@ export type OrdemUncheckedUpdateWithoutFaturaInput = {
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutAgendamentosInput = {
@@ -4753,6 +5056,7 @@ export type OrdemCreateWithoutAgendamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutAgendamentosInput = {
@@ -4805,6 +5109,7 @@ export type OrdemUncheckedCreateWithoutAgendamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutAgendamentosInput = {
@@ -4873,6 +5178,7 @@ export type OrdemUpdateWithoutAgendamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
@@ -4925,6 +5231,7 @@ export type OrdemUncheckedUpdateWithoutAgendamentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutDocumentosInput = {
@@ -4977,6 +5284,7 @@ export type OrdemCreateWithoutDocumentosInput = {
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutDocumentosInput = {
@@ -5029,6 +5337,7 @@ export type OrdemUncheckedCreateWithoutDocumentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutDocumentosInput = {
@@ -5097,6 +5406,7 @@ export type OrdemUpdateWithoutDocumentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutDocumentosInput = {
@@ -5149,6 +5459,7 @@ export type OrdemUncheckedUpdateWithoutDocumentosInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateWithoutMensagensInput = {
@@ -5201,6 +5512,7 @@ export type OrdemCreateWithoutMensagensInput = {
   documentos?: Prisma.DocumentoCreateNestedManyWithoutOrdemInput
   movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaCreateNestedOneWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemUncheckedCreateWithoutMensagensInput = {
@@ -5253,6 +5565,7 @@ export type OrdemUncheckedCreateWithoutMensagensInput = {
   documentos?: Prisma.DocumentoUncheckedCreateNestedManyWithoutOrdemInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutOrdemInput
   fatura?: Prisma.FaturaUncheckedCreateNestedOneWithoutOrdemInput
+  propostaOrigem?: Prisma.PropostaUncheckedCreateNestedOneWithoutOrdemGeradaInput
 }
 
 export type OrdemCreateOrConnectWithoutMensagensInput = {
@@ -5321,6 +5634,7 @@ export type OrdemUpdateWithoutMensagensInput = {
   documentos?: Prisma.DocumentoUpdateManyWithoutOrdemNestedInput
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutMensagensInput = {
@@ -5373,6 +5687,7 @@ export type OrdemUncheckedUpdateWithoutMensagensInput = {
   documentos?: Prisma.DocumentoUncheckedUpdateManyWithoutOrdemNestedInput
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemCreateManyTenantInput = {
@@ -5464,6 +5779,7 @@ export type OrdemUpdateWithoutTenantInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutTenantInput = {
@@ -5516,6 +5832,7 @@ export type OrdemUncheckedUpdateWithoutTenantInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutTenantInput = {
@@ -5685,6 +6002,7 @@ export type OrdemUpdateWithoutTecnicoInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutTecnicoInput = {
@@ -5737,6 +6055,7 @@ export type OrdemUncheckedUpdateWithoutTecnicoInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutTecnicoInput = {
@@ -5828,6 +6147,7 @@ export type OrdemUpdateWithoutAtendenteInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutAtendenteInput = {
@@ -5880,6 +6200,7 @@ export type OrdemUncheckedUpdateWithoutAtendenteInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutAtendenteInput = {
@@ -6010,6 +6331,7 @@ export type OrdemUpdateWithoutClienteInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutClienteInput = {
@@ -6062,6 +6384,7 @@ export type OrdemUncheckedUpdateWithoutClienteInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutClienteInput = {
@@ -6192,6 +6515,7 @@ export type OrdemUpdateWithoutEquipamentoInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
@@ -6244,6 +6568,7 @@ export type OrdemUncheckedUpdateWithoutEquipamentoInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutEquipamentoInput = {
@@ -6374,6 +6699,7 @@ export type OrdemUpdateWithoutOrdemOrigemInput = {
   movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
@@ -6426,6 +6752,7 @@ export type OrdemUncheckedUpdateWithoutOrdemOrigemInput = {
   movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutOrdemNestedInput
   fatura?: Prisma.FaturaUncheckedUpdateOneWithoutOrdemNestedInput
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutOrdemNestedInput
+  propostaOrigem?: Prisma.PropostaUncheckedUpdateOneWithoutOrdemGeradaNestedInput
 }
 
 export type OrdemUncheckedUpdateManyWithoutOrdemOrigemInput = {
@@ -6645,6 +6972,7 @@ export type OrdemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   movimentos?: boolean | Prisma.Ordem$movimentosArgs<ExtArgs>
   fatura?: boolean | Prisma.Ordem$faturaArgs<ExtArgs>
   mensagens?: boolean | Prisma.Ordem$mensagensArgs<ExtArgs>
+  propostaOrigem?: boolean | Prisma.Ordem$propostaOrigemArgs<ExtArgs>
   _count?: boolean | Prisma.OrdemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ordem"]>
 
@@ -6801,6 +7129,7 @@ export type OrdemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   movimentos?: boolean | Prisma.Ordem$movimentosArgs<ExtArgs>
   fatura?: boolean | Prisma.Ordem$faturaArgs<ExtArgs>
   mensagens?: boolean | Prisma.Ordem$mensagensArgs<ExtArgs>
+  propostaOrigem?: boolean | Prisma.Ordem$propostaOrigemArgs<ExtArgs>
   _count?: boolean | Prisma.OrdemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrdemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6848,6 +7177,10 @@ export type $OrdemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     movimentos: Prisma.$MovimentoEstoquePayload<ExtArgs>[]
     fatura: Prisma.$FaturaPayload<ExtArgs> | null
     mensagens: Prisma.$MensagemWhatsappPayload<ExtArgs>[]
+    /**
+     * A proposta comercial que deu origem a esta ordem, quando veio de uma.
+     */
+    propostaOrigem: Prisma.$PropostaPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -7385,6 +7718,7 @@ export interface Prisma__OrdemClient<T, Null = never, ExtArgs extends runtime.Ty
   movimentos<T extends Prisma.Ordem$movimentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$movimentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MovimentoEstoquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   fatura<T extends Prisma.Ordem$faturaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$faturaArgs<ExtArgs>>): Prisma.Prisma__FaturaClient<runtime.Types.Result.GetResult<Prisma.$FaturaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   mensagens<T extends Prisma.Ordem$mensagensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$mensagensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MensagemWhatsappPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  propostaOrigem<T extends Prisma.Ordem$propostaOrigemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ordem$propostaOrigemArgs<ExtArgs>>): Prisma.Prisma__PropostaClient<runtime.Types.Result.GetResult<Prisma.$PropostaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8208,6 +8542,25 @@ export type Ordem$mensagensArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.MensagemWhatsappScalarFieldEnum | Prisma.MensagemWhatsappScalarFieldEnum[]
+}
+
+/**
+ * Ordem.propostaOrigem
+ */
+export type Ordem$propostaOrigemArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Proposta
+   */
+  select?: Prisma.PropostaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Proposta
+   */
+  omit?: Prisma.PropostaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PropostaInclude<ExtArgs> | null
+  where?: Prisma.PropostaWhereInput
 }
 
 /**

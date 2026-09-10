@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import estilo from '../painel.module.css'
 
-export type AbaComercial = 'contatos' | 'orcamentos'
+export type AbaComercial = 'contatos' | 'orcamentos' | 'laudo'
 
 /**
  * AS DUAS ABAS DO COMERCIAL.
@@ -22,9 +22,25 @@ export type AbaComercial = 'contatos' | 'orcamentos'
  * acrescentar linha nenhuma à lista lateral.
  */
 export default function AbasComercial({ atual }: { atual: AbaComercial }) {
+  /**
+   * TRÊS ABAS, E O NOME DE CADA UMA É O MOMENTO DO PROCESSO.
+   *
+   * Existem DOIS orçamentos no sistema, e eles se chamam a mesma coisa na boca
+   * de quem trabalha:
+   *
+   *   ORÇAMENTO (passo 1)   o preço que se manda para alguém que ainda está
+   *                         decidindo se traz o aparelho
+   *   DEPOIS DO LAUDO (7)   o preço de um aparelho que já está na oficina, com
+   *                         defeito diagnosticado
+   *
+   * Chamar os dois de "Orçamentos" faria a pessoa acertar a aba por sorte.
+   * Nomear pelo MOMENTO — "Orçamentos" para o que vem antes, "Depois do laudo"
+   * para o que vem depois — é o que faz acertar de primeira.
+   */
   const abas: Array<[AbaComercial, string, string]> = [
     ['contatos', 'Contatos do site', '/painel/contatos'],
     ['orcamentos', 'Orçamentos', '/painel/contatos?aba=orcamentos'],
+    ['laudo', 'Depois do laudo', '/painel/contatos?aba=laudo'],
   ]
 
   return (

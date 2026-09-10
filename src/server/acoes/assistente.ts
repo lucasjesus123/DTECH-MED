@@ -232,6 +232,21 @@ export type PainelDaOrdem = {
     versoes: OrcamentoNaJanela[]
     pecas: Array<{ id: string; sku: string; nome: string; precoVendaCentavos: number; livre: number }>
   } | null
+  /**
+   * O ORÇAMENTO DO PASSO 1 QUE ORIGINOU ESTA ORDEM, quando ela veio de um.
+   *
+   * É o elo que fecha o passo a passo: o passo 1 deixou de ser uma anotação de
+   * valor dentro da ordem e virou uma peça própria, aprovada pelo cliente. A
+   * janela precisa mostrar de onde a ordem veio — senão o passo 1 continua
+   * invisível de dentro do lugar onde a O.S. é trabalhada.
+   */
+  propostaOrigem: {
+    id: string
+    numero: number
+    totalCentavos: number
+    aprovadaPorNome: string | null
+    aprovadaEm: string | null
+  } | null
   /** O papel de quem abriu — o editor de orçamento decide o que oferecer. */
   meuPapel: Papel
   /** Quem emite fatura e registra recebimento. */
@@ -354,6 +369,15 @@ export async function painelDaOrdem(
           orcamentos: {
             orderBy: { versao: 'desc' },
             include: { itens: { orderBy: { ordem: 'asc' } } },
+          },
+          propostaOrigem: {
+            select: {
+              id: true,
+              numero: true,
+              totalCentavos: true,
+              aprovadaPorNome: true,
+              respondidaEm: true,
+            },
           },
           semPecaDeclaradoEm: true,
           semPecaDeclaradoPorNome: true,
@@ -699,6 +723,17 @@ export async function painelDaOrdem(
       podeLancarPeca,
       catalogoDePecas,
       cliente,
+      propostaOrigem: extra.propostaOrigem
+        ? {
+            id: extra.propostaOrigem.id,
+            numero: extra.propostaOrigem.numero,
+            totalCentavos: extra.propostaOrigem.totalCentavos,
+            aprovadaPorNome: extra.propostaOrigem.aprovadaPorNome,
+            aprovadaEm: extra.propostaOrigem.respondidaEm
+              ? DATA_BR.format(extra.propostaOrigem.respondidaEm)
+              : null,
+          }
+        : null,
       laudo,
       responsavel,
       orcamento,

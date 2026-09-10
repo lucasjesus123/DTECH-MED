@@ -60,6 +60,8 @@ export const ModelName = {
   EventoOrdem: 'EventoOrdem',
   Foto: 'Foto',
   Assinatura: 'Assinatura',
+  Proposta: 'Proposta',
+  PropostaItem: 'PropostaItem',
   Orcamento: 'Orcamento',
   OrcamentoItem: 'OrcamentoItem',
   PecaRetirada: 'PecaRetirada',
@@ -360,6 +362,58 @@ export const AssinaturaScalarFieldEnum = {
 } as const
 
 export type AssinaturaScalarFieldEnum = (typeof AssinaturaScalarFieldEnum)[keyof typeof AssinaturaScalarFieldEnum]
+
+
+export const PropostaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  numero: 'numero',
+  status: 'status',
+  clienteId: 'clienteId',
+  leadId: 'leadId',
+  equipamentoDescricao: 'equipamentoDescricao',
+  necessidade: 'necessidade',
+  observacoes: 'observacoes',
+  condicoesPagamento: 'condicoesPagamento',
+  garantiaDias: 'garantiaDias',
+  prazoExecucaoDias: 'prazoExecucaoDias',
+  subtotalPecas: 'subtotalPecas',
+  subtotalServicos: 'subtotalServicos',
+  descontoCentavos: 'descontoCentavos',
+  acrescimoCentavos: 'acrescimoCentavos',
+  totalCentavos: 'totalCentavos',
+  validoAte: 'validoAte',
+  tokenPublico: 'tokenPublico',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  enviadaEm: 'enviadaEm',
+  respondidaEm: 'respondidaEm',
+  aprovadaPorNome: 'aprovadaPorNome',
+  aprovadaPorDocumento: 'aprovadaPorDocumento',
+  motivoRecusa: 'motivoRecusa',
+  ordemGeradaId: 'ordemGeradaId',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type PropostaScalarFieldEnum = (typeof PropostaScalarFieldEnum)[keyof typeof PropostaScalarFieldEnum]
+
+
+export const PropostaItemScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  propostaId: 'propostaId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  pecaId: 'pecaId',
+  quantidade: 'quantidade',
+  valorUnitCentavos: 'valorUnitCentavos',
+  valorTotalCentavos: 'valorTotalCentavos',
+  ordem: 'ordem',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PropostaItemScalarFieldEnum = (typeof PropostaItemScalarFieldEnum)[keyof typeof PropostaItemScalarFieldEnum]
 
 
 export const OrcamentoScalarFieldEnum = {

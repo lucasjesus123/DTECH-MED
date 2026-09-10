@@ -74,6 +74,21 @@ enum TipoPessoa {
   PJ
 }
 
+/// A situação de uma PROPOSTA comercial — o orçamento do passo 1, que existe
+/// antes da ordem. Parecida com a do orçamento pós-laudo e SEPARADA de
+/// propósito: a proposta não tem RASCUNHO/EM_REVISAO (não passa pela mesa de
+/// ninguém antes de sair) e tem APROVADA/RECUSADA no feminino porque é assim
+/// que a tela fala. Compartilhar o enum economizaria uma declaração e obrigaria
+/// as duas a andarem juntas para sempre.
+enum StatusProposta {
+  RASCUNHO /// Sendo montada. O cliente não vê.
+  ENVIADA /// No WhatsApp do cliente, com link, aguardando decisão
+  APROVADA /// O cliente assinou. Pronta para virar O.S.
+  RECUSADA
+  EXPIRADA /// Passou da validade sem resposta
+  CANCELADA
+}
+
 enum StatusOrcamento {
   RASCUNHO // Técnico ainda montando
   EM_REVISAO // Na mesa da gestora
@@ -332,6 +347,8 @@ model Tenant {
   colunasQuadro ColunaQuadro[]
   pushInscricoes  PushInscricao[]
 
+  propostas        Proposta[]
+  propostaItens    PropostaItem[]
 }
 
 /// Usuário do sistema. `tenantId` nulo apenas para SUPER_ADMIN.
@@ -418,6 +435,7 @@ model User {
   @@map("usuarios")
   pushInscricoes  PushInscricao[]
 
+  propostas Proposta[] @relation("AutorProposta")
 }
 
 /// Sessão ativa. Guardamos só o hash do token — vazamento do banco não
@@ -538,6 +556,7 @@ model Cliente {
   @@index([tenantId, documentoHash])
   @@index([tenantId, ativo, criadoEm])
   @@map("clientes")
+  propostas Proposta[]
 }
 
 /// Multimarcas: `marca` é texto livre com catálogo de sugestão, nunca uma
@@ -740,6 +759,8 @@ model Ordem {
   @@index([ordemOrigemId])
   @@index([tenantId, prazoPrometido])
   @@map("ordens")
+  /// A proposta comercial que deu origem a esta ordem, quando veio de uma.
+  propostaOrigem Proposta? @relation("PropostaDaOrdem")
 }
 
 /// Linha do tempo imutável. Cada registro é encadeado por hash ao anterior:
@@ -867,6 +888,126 @@ model Assinatura {
 // =============================================================================
 // ORÇAMENTO E CONTRATO
 // =============================================================================
+
+/// O ORÇAMENTO DO PASSO 1 — o que se manda ANTES de existir ordem.
+///
+/// =============================================================================
+/// POR QUE NÃO É O `Orcamento`
+/// =============================================================================
+/// O `Orcamento` é o preço de um aparelho DIAGNOSTICADO que já está na oficina:
+/// ele nasce do laudo, exige `ordemId`, e a máquina de estados o usa como
+/// pré-condição do passo 7. Esta é outra coisa — o preço oferecido antes de
+/// qualquer aparelho chegar, às vezes antes de o cliente existir no cadastro.
+///
+/// Fundir as duas exigiria tornar `ordemId` opcional, e aí toda consulta que
+/// hoje faz `orcamento.ordem.cliente` passaria a precisar de uma checagem de
+/// nulo — inclusive o portal do cliente, o PDF, o funil do Comercial e a
+/// validação da própria máquina. Uma delas esqueceria, e o erro apareceria na
+/// tela de alguém em vez de no compilador.
+///
+/// A numeração também é própria: a série do orçamento pós-laudo não pode pular
+/// porque o comercial mandou três propostas no meio.
+model Proposta {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  numero Int
+  status StatusProposta @default(RASCUNHO)
+
+  clienteId String
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Restrict)
+
+  /// O contato do site que virou esta proposta, quando veio de lá. Fecha o
+  /// ciclo site → comercial do mesmo jeito que a ordem fecha site → sistema.
+  leadId String?
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  /// O QUE SE ESTÁ ORÇANDO, EM TEXTO LIVRE — e não uma referência a
+  /// `Equipamento`.
+  ///
+  /// No passo 1 o aparelho quase nunca está cadastrado: o cliente ligou
+  /// perguntando quanto custa arrumar a autoclave dele, e cadastrar equipamento
+  /// para responder um preço é obrigar a fazer o passo 2 antes do 1. Quando a
+  /// proposta virar ordem, aí sim o aparelho entra no cadastro com série,
+  /// acessórios e foto.
+  equipamentoDescricao String
+  /// O que o cliente relatou, na abertura da conversa.
+  necessidade String?
+
+  observacoes        String?
+  condicoesPagamento String?
+  garantiaDias       Int     @default(90)
+  prazoExecucaoDias  Int     @default(7)
+
+  subtotalPecas     Int @default(0)
+  subtotalServicos  Int @default(0)
+  descontoCentavos  Int @default(0)
+  acrescimoCentavos Int @default(0)
+  totalCentavos     Int @default(0)
+
+  /// Depois desta data o link diz que a proposta venceu, e o preço deixa de
+  /// valer. Sem isso, um orçamento de março é aprovado em setembro pelo valor
+  /// de março.
+  validoAte DateTime?
+
+  /// O endereço público, igual ao da ordem: aleatório, longo, e o único jeito
+  /// de chegar na proposta sem estar logado.
+  tokenPublico String @unique
+
+  autorId   String?
+  autor     User?   @relation("AutorProposta", fields: [autorId], references: [id], onDelete: SetNull)
+  /// O nome fica mesmo quando a pessoa sai da empresa. O id some.
+  autorNome String?
+
+  enviadaEm    DateTime?
+  respondidaEm DateTime?
+  /// Quem assinou, do lado do cliente. Mesma prova da aprovação da ordem.
+  aprovadaPorNome      String?
+  aprovadaPorDocumento String?
+  motivoRecusa         String?
+
+  /// A ordem que esta proposta virou. `@unique`: uma proposta vira UMA ordem —
+  /// aprovar duas vezes não pode abrir duas O.S. para o mesmo serviço.
+  ordemGeradaId String? @unique
+  ordemGerada   Ordem?  @relation("PropostaDaOrdem", fields: [ordemGeradaId], references: [id], onDelete: SetNull)
+
+  itens PropostaItem[]
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@unique([tenantId, numero])
+  @@index([tenantId, status, criadoEm])
+  @@index([tenantId, clienteId])
+  @@map("propostas")
+}
+
+model PropostaItem {
+  id         String   @id @default(cuid())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  propostaId String
+  proposta   Proposta @relation(fields: [propostaId], references: [id], onDelete: Cascade)
+
+  tipo      TipoItemOrcamento @default(SERVICO)
+  descricao String
+  /// A peça do catálogo, quando o item veio de lá. Opcional: metade do que se
+  /// orça no passo 1 é serviço e deslocamento, que não têm SKU.
+  pecaId String?
+  peca   Peca?   @relation(fields: [pecaId], references: [id], onDelete: SetNull)
+
+  quantidade        Decimal @default(1) @db.Decimal(12, 3)
+  valorUnitCentavos Int     @default(0)
+  valorTotalCentavos Int    @default(0)
+  /// A posição na lista, para o cliente ler na ordem em que foi montada.
+  ordem Int @default(0)
+
+  criadoEm DateTime @default(now())
+
+  @@index([propostaId, ordem])
+  @@map("proposta_itens")
+}
 
 model Orcamento {
   id       String @id @default(cuid())
@@ -1128,6 +1269,7 @@ model Peca {
   @@index([tenantId, categoria])
   @@index([tenantId, tipo, ativo])
   @@map("pecas")
+  propostaItens PropostaItem[]
 }
 
 /// ONDE ESTÁ CADA FERRAMENTA, AGORA.
@@ -1591,6 +1733,7 @@ model Lead {
 
   @@index([tenantId, status, criadoEm])
   @@map("leads")
+  propostas Proposta[]
 }
 
 // =============================================================================

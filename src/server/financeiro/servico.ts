@@ -293,7 +293,13 @@ export async function emitirFatura(
 export async function proximoNumero(
   tx: Parameters<Parameters<typeof comEscopo>[1]>[0],
   tenantId: string,
-  chave: 'ordem' | 'orcamento' | 'fatura',
+  /**
+   * 'proposta' é a série do orçamento do passo 1, e ela é SEPARADA de
+   * 'orcamento' de propósito: a numeração do orçamento pós-laudo não pode pular
+   * de 12 para 19 porque o comercial mandou seis propostas no meio — é o tipo
+   * de salto que levanta pergunta do contador.
+   */
+  chave: 'ordem' | 'orcamento' | 'proposta' | 'fatura',
 ): Promise<number> {
   const r = await tx.$queryRaw<Array<{ valor: number }>>`
     INSERT INTO contadores ("tenantId", chave, valor)

@@ -8,7 +8,10 @@ import {
   ordensEsperandoOrcamento,
   resumoDoFunil,
 } from '@/server/consultas/comercial'
-import { listarContatos } from '@/server/consultas/listas'
+import { listarClientes, listarContatos, listarPecas } from '@/server/consultas/listas'
+import { listarPropostas } from '@/server/consultas/propostas'
+import { env } from '@/lib/env'
+import Propostas from './propostas'
 import AbasComercial, { type AbaComercial } from './abas'
 import RegistrarContato from './registrar'
 import MontarOrcamento from './montar'
@@ -69,7 +72,8 @@ export default async function Comercial({
   const { ctx, sessao } = await exigirNivel(Papel.ATENDENTE)
   await exigirAba('contatos')
   const q = await searchParams
-  const aba: AbaComercial = q.aba === 'orcamentos' ? 'orcamentos' : 'contatos'
+  const aba: AbaComercial =
+    q.aba === 'orcamentos' ? 'orcamentos' : q.aba === 'laudo' ? 'laudo' : 'contatos'
 
   return (
     <>
@@ -94,9 +98,11 @@ export default async function Comercial({
           contrário também: "montar orçamento" na aba de contatos pediria uma
           O.S. que ainda não existe — o contato do site é anterior a ela. */}
       {aba === 'contatos' ? <RegistrarContato /> : null}
-      {aba === 'orcamentos' ? <AbrirOrcamento ctx={ctx} /> : null}
+      {aba === 'laudo' ? <AbrirOrcamento ctx={ctx} /> : null}
 
       {aba === 'orcamentos' ? (
+        <PainelPropostas ctx={ctx} status={q.situacao} busca={q.busca} />
+      ) : aba === 'laudo' ? (
         <PainelOrcamentos ctx={ctx} fase={q.fase ?? ''} busca={q.busca ?? ''} dias={q.dias} />
       ) : (
         <PainelContatos ctx={ctx} situacao={q.situacao} busca={q.busca} />
@@ -116,6 +122,43 @@ type Ctx = Awaited<ReturnType<typeof exigirNivel>>['ctx']
 async function AbrirOrcamento({ ctx }: { ctx: Ctx }) {
   const ordens = await ordensEsperandoOrcamento(ctx)
   return <MontarOrcamento ordens={ordens} />
+}
+
+/**
+ * O ORÇAMENTO DO PASSO 1 — a lista, o resumo e o editor.
+ *
+ * As três consultas rodam AQUI, no servidor, e não dentro do componente de
+ * cliente: `comEscopo` é de servidor, e é ele que garante que a lista de
+ * clientes e a de peças trazem só o que é DESTA empresa.
+ */
+async function PainelPropostas({
+  ctx,
+  status,
+  busca,
+}: {
+  ctx: Ctx
+  status?: string
+  busca?: string
+}) {
+  const [r, clientes, pecas] = await Promise.all([
+    listarPropostas(ctx, { status, busca }, env.APP_URL),
+    listarClientes(ctx),
+    listarPecas(ctx),
+  ])
+
+  return (
+    <Propostas
+      propostas={r.itens}
+      resumo={r.resumo}
+      clientes={clientes.map((c) => ({ id: c.id, nome: c.nome, cidade: c.cidade, uf: c.uf }))}
+      pecas={pecas.map((p) => ({
+        id: p.id,
+        sku: p.sku,
+        nome: p.nome,
+        precoVendaCentavos: p.precoVendaCentavos,
+      }))}
+    />
+  )
 }
 
 async function PainelContatos({

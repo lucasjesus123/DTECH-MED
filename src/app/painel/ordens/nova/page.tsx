@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel } from '@/server/auth/guarda'
+import { propostaParaAbrirOS } from '@/server/acoes/proposta'
 import { leadPorId } from '@/server/consultas/listas'
 import Formulario from './formulario'
 import estilo from '../../painel.module.css'
@@ -24,14 +25,25 @@ export const dynamic = 'force-dynamic'
 export default async function NovaOrdem({
   searchParams,
 }: {
-  searchParams: Promise<{ lead?: string }>
+  searchParams: Promise<{ lead?: string; proposta?: string }>
 }) {
   const { ctx } = await exigirPapel(Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE)
-  const { lead: leadId } = await searchParams
+  const { lead: leadId, proposta: propostaId } = await searchParams
 
   // O lead é buscado pelo escopo da empresa: id de outra franquia devolve nulo,
   // e a tela simplesmente abre em branco.
   const lead = leadId ? await leadPorId(ctx, leadId) : null
+
+  /**
+   * O ORÇAMENTO APROVADO QUE ESTÁ VIRANDO ESTA ORDEM — o elo entre o passo 1 e
+   * o passo 2.
+   *
+   * `propostaParaAbrirOS` recusa o que não está aprovado e o que já virou
+   * ordem. Recusado, a tela simplesmente abre em branco: um endereço velho não
+   * pode derrubar a página de abrir O.S.
+   */
+  const r = propostaId ? await propostaParaAbrirOS(propostaId) : null
+  const proposta = r?.ok && r.dados ? { id: propostaId!, ...r.dados } : null
 
   return (
     <>
@@ -49,7 +61,26 @@ export default async function NovaOrdem({
         </p>
       ) : null}
 
+      {proposta ? (
+        <p className={estilo.sucesso} role="status" style={{ marginBottom: 'var(--s4)' }}>
+          Abrindo a partir do orçamento aprovado — {proposta.equipamentoDescricao}. O valor
+          combinado já vem preenchido.
+        </p>
+      ) : null}
+
       <Formulario
+        proposta={
+          proposta
+            ? {
+                id: proposta.id,
+                // O valor vai como texto no formato que o campo espera.
+                valor: (proposta.totalCentavos / 100).toFixed(2).replace('.', ','),
+                condicao: proposta.condicao,
+                equipamento: proposta.equipamentoDescricao,
+                necessidade: proposta.necessidade,
+              }
+            : null
+        }
         lead={
           lead
             ? {

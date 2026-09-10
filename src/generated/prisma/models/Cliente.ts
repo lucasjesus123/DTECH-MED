@@ -453,6 +453,7 @@ export type ClienteWhereInput = {
   contratos?: Prisma.ContratoManutencaoListRelationFilter
   lancamentos?: Prisma.LancamentoListRelationFilter
   recorrencias?: Prisma.RecorrenciaListRelationFilter
+  propostas?: Prisma.PropostaListRelationFilter
 }
 
 export type ClienteOrderByWithRelationInput = {
@@ -501,6 +502,7 @@ export type ClienteOrderByWithRelationInput = {
   contratos?: Prisma.ContratoManutencaoOrderByRelationAggregateInput
   lancamentos?: Prisma.LancamentoOrderByRelationAggregateInput
   recorrencias?: Prisma.RecorrenciaOrderByRelationAggregateInput
+  propostas?: Prisma.PropostaOrderByRelationAggregateInput
 }
 
 export type ClienteWhereUniqueInput = Prisma.AtLeast<{
@@ -553,6 +555,7 @@ export type ClienteWhereUniqueInput = Prisma.AtLeast<{
   contratos?: Prisma.ContratoManutencaoListRelationFilter
   lancamentos?: Prisma.LancamentoListRelationFilter
   recorrencias?: Prisma.RecorrenciaListRelationFilter
+  propostas?: Prisma.PropostaListRelationFilter
 }, "id" | "tenantId_documento">
 
 export type ClienteOrderByWithAggregationInput = {
@@ -688,6 +691,7 @@ export type ClienteCreateInput = {
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateInput = {
@@ -735,6 +739,7 @@ export type ClienteUncheckedCreateInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUpdateInput = {
@@ -782,6 +787,7 @@ export type ClienteUpdateInput = {
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateInput = {
@@ -829,6 +835,7 @@ export type ClienteUncheckedUpdateInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateManyInput = {
@@ -1177,6 +1184,20 @@ export type ClienteUpdateOneRequiredWithoutOrdensNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClienteUpdateToOneWithWhereWithoutOrdensInput, Prisma.ClienteUpdateWithoutOrdensInput>, Prisma.ClienteUncheckedUpdateWithoutOrdensInput>
 }
 
+export type ClienteCreateNestedOneWithoutPropostasInput = {
+  create?: Prisma.XOR<Prisma.ClienteCreateWithoutPropostasInput, Prisma.ClienteUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutPropostasInput
+  connect?: Prisma.ClienteWhereUniqueInput
+}
+
+export type ClienteUpdateOneRequiredWithoutPropostasNestedInput = {
+  create?: Prisma.XOR<Prisma.ClienteCreateWithoutPropostasInput, Prisma.ClienteUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutPropostasInput
+  upsert?: Prisma.ClienteUpsertWithoutPropostasInput
+  connect?: Prisma.ClienteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ClienteUpdateToOneWithWhereWithoutPropostasInput, Prisma.ClienteUpdateWithoutPropostasInput>, Prisma.ClienteUncheckedUpdateWithoutPropostasInput>
+}
+
 export type ClienteCreateNestedOneWithoutContratosInput = {
   create?: Prisma.XOR<Prisma.ClienteCreateWithoutContratosInput, Prisma.ClienteUncheckedCreateWithoutContratosInput>
   connectOrCreate?: Prisma.ClienteCreateOrConnectWithoutContratosInput
@@ -1281,6 +1302,7 @@ export type ClienteCreateWithoutTenantInput = {
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutTenantInput = {
@@ -1327,6 +1349,7 @@ export type ClienteUncheckedCreateWithoutTenantInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutTenantInput = {
@@ -1443,6 +1466,7 @@ export type ClienteCreateWithoutEquipamentosInput = {
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutEquipamentosInput = {
@@ -1489,6 +1513,7 @@ export type ClienteUncheckedCreateWithoutEquipamentosInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutEquipamentosInput = {
@@ -1551,6 +1576,7 @@ export type ClienteUpdateWithoutEquipamentosInput = {
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutEquipamentosInput = {
@@ -1597,6 +1623,7 @@ export type ClienteUncheckedUpdateWithoutEquipamentosInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateWithoutOrdensInput = {
@@ -1643,6 +1670,7 @@ export type ClienteCreateWithoutOrdensInput = {
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutOrdensInput = {
@@ -1689,6 +1717,7 @@ export type ClienteUncheckedCreateWithoutOrdensInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutOrdensInput = {
@@ -1751,6 +1780,7 @@ export type ClienteUpdateWithoutOrdensInput = {
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutOrdensInput = {
@@ -1793,6 +1823,211 @@ export type ClienteUncheckedUpdateWithoutOrdensInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   equipamentos?: Prisma.EquipamentoUncheckedUpdateManyWithoutClienteNestedInput
+  faturas?: Prisma.FaturaUncheckedUpdateManyWithoutClienteNestedInput
+  contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
+  lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
+  recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
+}
+
+export type ClienteCreateWithoutPropostasInput = {
+  id?: string
+  tipo?: $Enums.TipoPessoa
+  nome: string
+  razaoSocial?: string | null
+  documento: string
+  documentoHash: string
+  inscricaoEstadual?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  pontoReferencia?: string | null
+  contatoNome?: string | null
+  contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
+  observacoes?: string | null
+  ativo?: boolean
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutClientesInput
+  equipamentos?: Prisma.EquipamentoCreateNestedManyWithoutClienteInput
+  ordens?: Prisma.OrdemCreateNestedManyWithoutClienteInput
+  faturas?: Prisma.FaturaCreateNestedManyWithoutClienteInput
+  contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
+  lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
+  recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+}
+
+export type ClienteUncheckedCreateWithoutPropostasInput = {
+  id?: string
+  tenantId: string
+  tipo?: $Enums.TipoPessoa
+  nome: string
+  razaoSocial?: string | null
+  documento: string
+  documentoHash: string
+  inscricaoEstadual?: string | null
+  email?: string | null
+  telefone?: string | null
+  whatsapp?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  pontoReferencia?: string | null
+  contatoNome?: string | null
+  contatoTelefone?: string | null
+  coletaMesmoEndereco?: boolean
+  coletaCep?: string | null
+  coletaLogradouro?: string | null
+  coletaNumero?: string | null
+  coletaComplemento?: string | null
+  coletaBairro?: string | null
+  coletaCidade?: string | null
+  coletaUf?: string | null
+  coletaObservacao?: string | null
+  representanteNome?: string | null
+  representanteTelefone?: string | null
+  representanteEmail?: string | null
+  representanteVinculo?: string | null
+  observacoes?: string | null
+  ativo?: boolean
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  equipamentos?: Prisma.EquipamentoUncheckedCreateNestedManyWithoutClienteInput
+  ordens?: Prisma.OrdemUncheckedCreateNestedManyWithoutClienteInput
+  faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutClienteInput
+  contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
+  lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
+  recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+}
+
+export type ClienteCreateOrConnectWithoutPropostasInput = {
+  where: Prisma.ClienteWhereUniqueInput
+  create: Prisma.XOR<Prisma.ClienteCreateWithoutPropostasInput, Prisma.ClienteUncheckedCreateWithoutPropostasInput>
+}
+
+export type ClienteUpsertWithoutPropostasInput = {
+  update: Prisma.XOR<Prisma.ClienteUpdateWithoutPropostasInput, Prisma.ClienteUncheckedUpdateWithoutPropostasInput>
+  create: Prisma.XOR<Prisma.ClienteCreateWithoutPropostasInput, Prisma.ClienteUncheckedCreateWithoutPropostasInput>
+  where?: Prisma.ClienteWhereInput
+}
+
+export type ClienteUpdateToOneWithWhereWithoutPropostasInput = {
+  where?: Prisma.ClienteWhereInput
+  data: Prisma.XOR<Prisma.ClienteUpdateWithoutPropostasInput, Prisma.ClienteUncheckedUpdateWithoutPropostasInput>
+}
+
+export type ClienteUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoPessoaFieldUpdateOperationsInput | $Enums.TipoPessoa
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documento?: Prisma.StringFieldUpdateOperationsInput | string
+  documentoHash?: Prisma.StringFieldUpdateOperationsInput | string
+  inscricaoEstadual?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutClientesNestedInput
+  equipamentos?: Prisma.EquipamentoUpdateManyWithoutClienteNestedInput
+  ordens?: Prisma.OrdemUpdateManyWithoutClienteNestedInput
+  faturas?: Prisma.FaturaUpdateManyWithoutClienteNestedInput
+  contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
+  lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
+  recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+}
+
+export type ClienteUncheckedUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  tipo?: Prisma.EnumTipoPessoaFieldUpdateOperationsInput | $Enums.TipoPessoa
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documento?: Prisma.StringFieldUpdateOperationsInput | string
+  documentoHash?: Prisma.StringFieldUpdateOperationsInput | string
+  inscricaoEstadual?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pontoReferencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contatoTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaMesmoEndereco?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  coletaCep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaLogradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaNumero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaComplemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaBairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaCidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaUf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coletaObservacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteTelefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  representanteVinculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacoes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  equipamentos?: Prisma.EquipamentoUncheckedUpdateManyWithoutClienteNestedInput
+  ordens?: Prisma.OrdemUncheckedUpdateManyWithoutClienteNestedInput
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutClienteNestedInput
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
@@ -1843,6 +2078,7 @@ export type ClienteCreateWithoutContratosInput = {
   faturas?: Prisma.FaturaCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutContratosInput = {
@@ -1889,6 +2125,7 @@ export type ClienteUncheckedCreateWithoutContratosInput = {
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutContratosInput = {
@@ -1951,6 +2188,7 @@ export type ClienteUpdateWithoutContratosInput = {
   faturas?: Prisma.FaturaUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutContratosInput = {
@@ -1997,6 +2235,7 @@ export type ClienteUncheckedUpdateWithoutContratosInput = {
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateWithoutFaturasInput = {
@@ -2043,6 +2282,7 @@ export type ClienteCreateWithoutFaturasInput = {
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutFaturasInput = {
@@ -2089,6 +2329,7 @@ export type ClienteUncheckedCreateWithoutFaturasInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutFaturasInput = {
@@ -2151,6 +2392,7 @@ export type ClienteUpdateWithoutFaturasInput = {
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutFaturasInput = {
@@ -2197,6 +2439,7 @@ export type ClienteUncheckedUpdateWithoutFaturasInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateWithoutLancamentosInput = {
@@ -2243,6 +2486,7 @@ export type ClienteCreateWithoutLancamentosInput = {
   faturas?: Prisma.FaturaCreateNestedManyWithoutClienteInput
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutLancamentosInput = {
@@ -2289,6 +2533,7 @@ export type ClienteUncheckedCreateWithoutLancamentosInput = {
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutClienteInput
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   recorrencias?: Prisma.RecorrenciaUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutLancamentosInput = {
@@ -2351,6 +2596,7 @@ export type ClienteUpdateWithoutLancamentosInput = {
   faturas?: Prisma.FaturaUpdateManyWithoutClienteNestedInput
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutLancamentosInput = {
@@ -2397,6 +2643,7 @@ export type ClienteUncheckedUpdateWithoutLancamentosInput = {
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutClienteNestedInput
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateWithoutRecorrenciasInput = {
@@ -2443,6 +2690,7 @@ export type ClienteCreateWithoutRecorrenciasInput = {
   faturas?: Prisma.FaturaCreateNestedManyWithoutClienteInput
   contratos?: Prisma.ContratoManutencaoCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteUncheckedCreateWithoutRecorrenciasInput = {
@@ -2489,6 +2737,7 @@ export type ClienteUncheckedCreateWithoutRecorrenciasInput = {
   faturas?: Prisma.FaturaUncheckedCreateNestedManyWithoutClienteInput
   contratos?: Prisma.ContratoManutencaoUncheckedCreateNestedManyWithoutClienteInput
   lancamentos?: Prisma.LancamentoUncheckedCreateNestedManyWithoutClienteInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutClienteInput
 }
 
 export type ClienteCreateOrConnectWithoutRecorrenciasInput = {
@@ -2551,6 +2800,7 @@ export type ClienteUpdateWithoutRecorrenciasInput = {
   faturas?: Prisma.FaturaUpdateManyWithoutClienteNestedInput
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutRecorrenciasInput = {
@@ -2597,6 +2847,7 @@ export type ClienteUncheckedUpdateWithoutRecorrenciasInput = {
   faturas?: Prisma.FaturaUncheckedUpdateManyWithoutClienteNestedInput
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteCreateManyTenantInput = {
@@ -2683,6 +2934,7 @@ export type ClienteUpdateWithoutTenantInput = {
   contratos?: Prisma.ContratoManutencaoUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateWithoutTenantInput = {
@@ -2729,6 +2981,7 @@ export type ClienteUncheckedUpdateWithoutTenantInput = {
   contratos?: Prisma.ContratoManutencaoUncheckedUpdateManyWithoutClienteNestedInput
   lancamentos?: Prisma.LancamentoUncheckedUpdateManyWithoutClienteNestedInput
   recorrencias?: Prisma.RecorrenciaUncheckedUpdateManyWithoutClienteNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutClienteNestedInput
 }
 
 export type ClienteUncheckedUpdateManyWithoutTenantInput = {
@@ -2783,6 +3036,7 @@ export type ClienteCountOutputType = {
   contratos: number
   lancamentos: number
   recorrencias: number
+  propostas: number
 }
 
 export type ClienteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2792,6 +3046,7 @@ export type ClienteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   contratos?: boolean | ClienteCountOutputTypeCountContratosArgs
   lancamentos?: boolean | ClienteCountOutputTypeCountLancamentosArgs
   recorrencias?: boolean | ClienteCountOutputTypeCountRecorrenciasArgs
+  propostas?: boolean | ClienteCountOutputTypeCountPropostasArgs
 }
 
 /**
@@ -2846,6 +3101,13 @@ export type ClienteCountOutputTypeCountRecorrenciasArgs<ExtArgs extends runtime.
   where?: Prisma.RecorrenciaWhereInput
 }
 
+/**
+ * ClienteCountOutputType without action
+ */
+export type ClienteCountOutputTypeCountPropostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PropostaWhereInput
+}
+
 
 export type ClienteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2893,6 +3155,7 @@ export type ClienteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   contratos?: boolean | Prisma.Cliente$contratosArgs<ExtArgs>
   lancamentos?: boolean | Prisma.Cliente$lancamentosArgs<ExtArgs>
   recorrencias?: boolean | Prisma.Cliente$recorrenciasArgs<ExtArgs>
+  propostas?: boolean | Prisma.Cliente$propostasArgs<ExtArgs>
   _count?: boolean | Prisma.ClienteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["cliente"]>
 
@@ -3030,6 +3293,7 @@ export type ClienteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   contratos?: boolean | Prisma.Cliente$contratosArgs<ExtArgs>
   lancamentos?: boolean | Prisma.Cliente$lancamentosArgs<ExtArgs>
   recorrencias?: boolean | Prisma.Cliente$recorrenciasArgs<ExtArgs>
+  propostas?: boolean | Prisma.Cliente$propostasArgs<ExtArgs>
   _count?: boolean | Prisma.ClienteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ClienteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3055,6 +3319,7 @@ export type $ClientePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
      */
     lancamentos: Prisma.$LancamentoPayload<ExtArgs>[]
     recorrencias: Prisma.$RecorrenciaPayload<ExtArgs>[]
+    propostas: Prisma.$PropostaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3543,6 +3808,7 @@ export interface Prisma__ClienteClient<T, Null = never, ExtArgs extends runtime.
   contratos<T extends Prisma.Cliente$contratosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cliente$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContratoManutencaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   lancamentos<T extends Prisma.Cliente$lancamentosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cliente$lancamentosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LancamentoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   recorrencias<T extends Prisma.Cliente$recorrenciasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cliente$recorrenciasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecorrenciaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  propostas<T extends Prisma.Cliente$propostasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Cliente$propostasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropostaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4152,6 +4418,30 @@ export type Cliente$recorrenciasArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.RecorrenciaScalarFieldEnum | Prisma.RecorrenciaScalarFieldEnum[]
+}
+
+/**
+ * Cliente.propostas
+ */
+export type Cliente$propostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Proposta
+   */
+  select?: Prisma.PropostaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Proposta
+   */
+  omit?: Prisma.PropostaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PropostaInclude<ExtArgs> | null
+  where?: Prisma.PropostaWhereInput
+  orderBy?: Prisma.PropostaOrderByWithRelationInput | Prisma.PropostaOrderByWithRelationInput[]
+  cursor?: Prisma.PropostaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PropostaScalarFieldEnum | Prisma.PropostaScalarFieldEnum[]
 }
 
 /**

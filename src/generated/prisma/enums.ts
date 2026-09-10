@@ -57,6 +57,18 @@ export const TipoPessoa = {
 export type TipoPessoa = (typeof TipoPessoa)[keyof typeof TipoPessoa]
 
 
+export const StatusProposta = {
+  RASCUNHO: 'RASCUNHO',
+  ENVIADA: 'ENVIADA',
+  APROVADA: 'APROVADA',
+  RECUSADA: 'RECUSADA',
+  EXPIRADA: 'EXPIRADA',
+  CANCELADA: 'CANCELADA'
+} as const
+
+export type StatusProposta = (typeof StatusProposta)[keyof typeof StatusProposta]
+
+
 export const StatusOrcamento = {
   RASCUNHO: 'RASCUNHO',
   EM_REVISAO: 'EM_REVISAO',

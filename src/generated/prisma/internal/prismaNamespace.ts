@@ -406,6 +406,8 @@ export const ModelName = {
   EventoOrdem: 'EventoOrdem',
   Foto: 'Foto',
   Assinatura: 'Assinatura',
+  Proposta: 'Proposta',
+  PropostaItem: 'PropostaItem',
   Orcamento: 'Orcamento',
   OrcamentoItem: 'OrcamentoItem',
   PecaRetirada: 'PecaRetirada',
@@ -451,7 +453,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "pushInscricao" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "proposta" | "propostaItem" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "pushInscricao" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1118,6 +1120,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AssinaturaCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AssinaturaCountAggregateOutputType> | number
+        }
+      }
+    }
+    Proposta: {
+      payload: Prisma.$PropostaPayload<ExtArgs>
+      fields: Prisma.PropostaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PropostaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PropostaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        findFirst: {
+          args: Prisma.PropostaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PropostaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        findMany: {
+          args: Prisma.PropostaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>[]
+        }
+        create: {
+          args: Prisma.PropostaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        createMany: {
+          args: Prisma.PropostaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PropostaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>[]
+        }
+        delete: {
+          args: Prisma.PropostaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        update: {
+          args: Prisma.PropostaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        deleteMany: {
+          args: Prisma.PropostaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PropostaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PropostaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>[]
+        }
+        upsert: {
+          args: Prisma.PropostaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaPayload>
+        }
+        aggregate: {
+          args: Prisma.PropostaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProposta>
+        }
+        groupBy: {
+          args: Prisma.PropostaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PropostaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PropostaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PropostaCountAggregateOutputType> | number
+        }
+      }
+    }
+    PropostaItem: {
+      payload: Prisma.$PropostaItemPayload<ExtArgs>
+      fields: Prisma.PropostaItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PropostaItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PropostaItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        findFirst: {
+          args: Prisma.PropostaItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PropostaItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        findMany: {
+          args: Prisma.PropostaItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>[]
+        }
+        create: {
+          args: Prisma.PropostaItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        createMany: {
+          args: Prisma.PropostaItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PropostaItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>[]
+        }
+        delete: {
+          args: Prisma.PropostaItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        update: {
+          args: Prisma.PropostaItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.PropostaItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PropostaItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PropostaItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.PropostaItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PropostaItemPayload>
+        }
+        aggregate: {
+          args: Prisma.PropostaItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePropostaItem>
+        }
+        groupBy: {
+          args: Prisma.PropostaItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PropostaItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PropostaItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PropostaItemCountAggregateOutputType> | number
         }
       }
     }
@@ -3634,6 +3784,58 @@ export const AssinaturaScalarFieldEnum = {
 export type AssinaturaScalarFieldEnum = (typeof AssinaturaScalarFieldEnum)[keyof typeof AssinaturaScalarFieldEnum]
 
 
+export const PropostaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  numero: 'numero',
+  status: 'status',
+  clienteId: 'clienteId',
+  leadId: 'leadId',
+  equipamentoDescricao: 'equipamentoDescricao',
+  necessidade: 'necessidade',
+  observacoes: 'observacoes',
+  condicoesPagamento: 'condicoesPagamento',
+  garantiaDias: 'garantiaDias',
+  prazoExecucaoDias: 'prazoExecucaoDias',
+  subtotalPecas: 'subtotalPecas',
+  subtotalServicos: 'subtotalServicos',
+  descontoCentavos: 'descontoCentavos',
+  acrescimoCentavos: 'acrescimoCentavos',
+  totalCentavos: 'totalCentavos',
+  validoAte: 'validoAte',
+  tokenPublico: 'tokenPublico',
+  autorId: 'autorId',
+  autorNome: 'autorNome',
+  enviadaEm: 'enviadaEm',
+  respondidaEm: 'respondidaEm',
+  aprovadaPorNome: 'aprovadaPorNome',
+  aprovadaPorDocumento: 'aprovadaPorDocumento',
+  motivoRecusa: 'motivoRecusa',
+  ordemGeradaId: 'ordemGeradaId',
+  criadoEm: 'criadoEm',
+  atualizadoEm: 'atualizadoEm'
+} as const
+
+export type PropostaScalarFieldEnum = (typeof PropostaScalarFieldEnum)[keyof typeof PropostaScalarFieldEnum]
+
+
+export const PropostaItemScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  propostaId: 'propostaId',
+  tipo: 'tipo',
+  descricao: 'descricao',
+  pecaId: 'pecaId',
+  quantidade: 'quantidade',
+  valorUnitCentavos: 'valorUnitCentavos',
+  valorTotalCentavos: 'valorTotalCentavos',
+  ordem: 'ordem',
+  criadoEm: 'criadoEm'
+} as const
+
+export type PropostaItemScalarFieldEnum = (typeof PropostaItemScalarFieldEnum)[keyof typeof PropostaItemScalarFieldEnum]
+
+
 export const OrcamentoScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -4416,16 +4618,16 @@ export type ListEnumTipoAssinaturaFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'StatusOrcamento'
+ * Reference to a field of type 'StatusProposta'
  */
-export type EnumStatusOrcamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrcamento'>
+export type EnumStatusPropostaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProposta'>
     
 
 
 /**
- * Reference to a field of type 'StatusOrcamento[]'
+ * Reference to a field of type 'StatusProposta[]'
  */
-export type ListEnumStatusOrcamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrcamento[]'>
+export type ListEnumStatusPropostaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProposta[]'>
     
 
 
@@ -4454,6 +4656,20 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusOrcamento'
+ */
+export type EnumStatusOrcamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrcamento'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusOrcamento[]'
+ */
+export type ListEnumStatusOrcamentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrcamento[]'>
     
 
 
@@ -4812,6 +5028,8 @@ export type GlobalOmitConfig = {
   eventoOrdem?: Prisma.EventoOrdemOmit
   foto?: Prisma.FotoOmit
   assinatura?: Prisma.AssinaturaOmit
+  proposta?: Prisma.PropostaOmit
+  propostaItem?: Prisma.PropostaItemOmit
   orcamento?: Prisma.OrcamentoOmit
   orcamentoItem?: Prisma.OrcamentoItemOmit
   pecaRetirada?: Prisma.PecaRetiradaOmit

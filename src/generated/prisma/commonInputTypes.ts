@@ -399,21 +399,21 @@ export type EnumTipoAssinaturaWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumTipoAssinaturaFilter<$PrismaModel>
 }
 
-export type EnumStatusOrcamentoFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel> | $Enums.StatusOrcamento
+export type EnumStatusPropostaFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusProposta | Prisma.EnumStatusPropostaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel> | $Enums.StatusProposta
 }
 
-export type EnumStatusOrcamentoWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrcamento
+export type EnumStatusPropostaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusProposta | Prisma.EnumStatusPropostaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPropostaWithAggregatesFilter<$PrismaModel> | $Enums.StatusProposta
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel>
 }
 
 export type EnumTipoItemOrcamentoFilter<$PrismaModel = never> = {
@@ -458,6 +458,23 @@ export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
+}
+
+export type EnumStatusOrcamentoFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel> | $Enums.StatusOrcamento
+}
+
+export type EnumStatusOrcamentoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrcamento
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
 }
 
 export type EnumDestinoPecaFilter<$PrismaModel = never> = {
@@ -1170,21 +1187,21 @@ export type NestedEnumTipoAssinaturaWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumTipoAssinaturaFilter<$PrismaModel>
 }
 
-export type NestedEnumStatusOrcamentoFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel> | $Enums.StatusOrcamento
+export type NestedEnumStatusPropostaFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusProposta | Prisma.EnumStatusPropostaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel> | $Enums.StatusProposta
 }
 
-export type NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrcamento
+export type NestedEnumStatusPropostaWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusProposta | Prisma.EnumStatusPropostaFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusProposta[] | Prisma.ListEnumStatusPropostaFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPropostaWithAggregatesFilter<$PrismaModel> | $Enums.StatusProposta
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPropostaFilter<$PrismaModel>
 }
 
 export type NestedEnumTipoItemOrcamentoFilter<$PrismaModel = never> = {
@@ -1229,6 +1246,23 @@ export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusOrcamentoFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel> | $Enums.StatusOrcamento
+}
+
+export type NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusOrcamento | Prisma.EnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusOrcamento[] | Prisma.ListEnumStatusOrcamentoFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusOrcamentoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrcamento
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusOrcamentoFilter<$PrismaModel>
 }
 
 export type NestedEnumDestinoPecaFilter<$PrismaModel = never> = {

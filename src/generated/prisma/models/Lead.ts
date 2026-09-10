@@ -271,6 +271,7 @@ export type LeadWhereInput = {
   criadoEm?: Prisma.DateTimeFilter<"Lead"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Lead"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
+  propostas?: Prisma.PropostaListRelationFilter
 }
 
 export type LeadOrderByWithRelationInput = {
@@ -291,6 +292,7 @@ export type LeadOrderByWithRelationInput = {
   criadoEm?: Prisma.SortOrder
   atualizadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
+  propostas?: Prisma.PropostaOrderByRelationAggregateInput
 }
 
 export type LeadWhereUniqueInput = Prisma.AtLeast<{
@@ -314,6 +316,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   criadoEm?: Prisma.DateTimeFilter<"Lead"> | Date | string
   atualizadoEm?: Prisma.DateTimeFilter<"Lead"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
+  propostas?: Prisma.PropostaListRelationFilter
 }, "id">
 
 export type LeadOrderByWithAggregationInput = {
@@ -377,6 +380,7 @@ export type LeadCreateInput = {
   criadoEm?: Date | string
   atualizadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutLeadsInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateInput = {
@@ -396,6 +400,7 @@ export type LeadUncheckedCreateInput = {
   userAgent?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUpdateInput = {
@@ -415,6 +420,7 @@ export type LeadUpdateInput = {
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutLeadsNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateInput = {
@@ -434,6 +440,7 @@ export type LeadUncheckedUpdateInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyInput = {
@@ -500,6 +507,11 @@ export type LeadListRelationFilter = {
 
 export type LeadOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type LeadNullableScalarRelationFilter = {
+  is?: Prisma.LeadWhereInput | null
+  isNot?: Prisma.LeadWhereInput | null
 }
 
 export type LeadCountOrderByAggregateInput = {
@@ -601,6 +613,22 @@ export type LeadUncheckedUpdateManyWithoutTenantNestedInput = {
   deleteMany?: Prisma.LeadScalarWhereInput | Prisma.LeadScalarWhereInput[]
 }
 
+export type LeadCreateNestedOneWithoutPropostasInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutPropostasInput, Prisma.LeadUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutPropostasInput
+  connect?: Prisma.LeadWhereUniqueInput
+}
+
+export type LeadUpdateOneWithoutPropostasNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutPropostasInput, Prisma.LeadUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutPropostasInput
+  upsert?: Prisma.LeadUpsertWithoutPropostasInput
+  disconnect?: Prisma.LeadWhereInput | boolean
+  delete?: Prisma.LeadWhereInput | boolean
+  connect?: Prisma.LeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutPropostasInput, Prisma.LeadUpdateWithoutPropostasInput>, Prisma.LeadUncheckedUpdateWithoutPropostasInput>
+}
+
 export type LeadCreateWithoutTenantInput = {
   id?: string
   nome: string
@@ -617,6 +645,7 @@ export type LeadCreateWithoutTenantInput = {
   userAgent?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  propostas?: Prisma.PropostaCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutTenantInput = {
@@ -635,6 +664,7 @@ export type LeadUncheckedCreateWithoutTenantInput = {
   userAgent?: string | null
   criadoEm?: Date | string
   atualizadoEm?: Date | string
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutTenantInput = {
@@ -685,6 +715,98 @@ export type LeadScalarWhereInput = {
   atualizadoEm?: Prisma.DateTimeFilter<"Lead"> | Date | string
 }
 
+export type LeadCreateWithoutPropostasInput = {
+  id?: string
+  nome: string
+  telefone: string
+  email?: string | null
+  empresa?: string | null
+  cidade?: string | null
+  equipamento?: string | null
+  mensagem?: string | null
+  origem?: $Enums.OrigemLead
+  status?: string
+  ordemGeradaId?: string | null
+  ip?: string | null
+  userAgent?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutLeadsInput
+}
+
+export type LeadUncheckedCreateWithoutPropostasInput = {
+  id?: string
+  tenantId: string
+  nome: string
+  telefone: string
+  email?: string | null
+  empresa?: string | null
+  cidade?: string | null
+  equipamento?: string | null
+  mensagem?: string | null
+  origem?: $Enums.OrigemLead
+  status?: string
+  ordemGeradaId?: string | null
+  ip?: string | null
+  userAgent?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+}
+
+export type LeadCreateOrConnectWithoutPropostasInput = {
+  where: Prisma.LeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadCreateWithoutPropostasInput, Prisma.LeadUncheckedCreateWithoutPropostasInput>
+}
+
+export type LeadUpsertWithoutPropostasInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutPropostasInput, Prisma.LeadUncheckedUpdateWithoutPropostasInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutPropostasInput, Prisma.LeadUncheckedCreateWithoutPropostasInput>
+  where?: Prisma.LeadWhereInput
+}
+
+export type LeadUpdateToOneWithWhereWithoutPropostasInput = {
+  where?: Prisma.LeadWhereInput
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutPropostasInput, Prisma.LeadUncheckedUpdateWithoutPropostasInput>
+}
+
+export type LeadUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  empresa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipamento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mensagem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemGeradaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutLeadsNestedInput
+}
+
+export type LeadUncheckedUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  empresa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  equipamento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mensagem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origem?: Prisma.EnumOrigemLeadFieldUpdateOperationsInput | $Enums.OrigemLead
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  ordemGeradaId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type LeadCreateManyTenantInput = {
   id?: string
   nome: string
@@ -719,6 +841,7 @@ export type LeadUpdateWithoutTenantInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  propostas?: Prisma.PropostaUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutTenantInput = {
@@ -737,6 +860,7 @@ export type LeadUncheckedUpdateWithoutTenantInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutTenantInput = {
@@ -758,6 +882,35 @@ export type LeadUncheckedUpdateManyWithoutTenantInput = {
 }
 
 
+/**
+ * Count Type LeadCountOutputType
+ */
+
+export type LeadCountOutputType = {
+  propostas: number
+}
+
+export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  propostas?: boolean | LeadCountOutputTypeCountPropostasArgs
+}
+
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LeadCountOutputType
+   */
+  select?: Prisma.LeadCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeCountPropostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PropostaWhereInput
+}
+
 
 export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -777,6 +930,8 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   criadoEm?: boolean
   atualizadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
+  propostas?: boolean | Prisma.Lead$propostasArgs<ExtArgs>
+  _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lead"]>
 
 export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -841,6 +996,8 @@ export type LeadSelectScalar = {
 export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "nome" | "telefone" | "email" | "empresa" | "cidade" | "equipamento" | "mensagem" | "origem" | "status" | "ordemGeradaId" | "ip" | "userAgent" | "criadoEm" | "atualizadoEm", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
+  propostas?: boolean | Prisma.Lead$propostasArgs<ExtArgs>
+  _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LeadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -853,6 +1010,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Lead"
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
+    propostas: Prisma.$PropostaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1272,6 +1430,7 @@ readonly fields: LeadFieldRefs;
 export interface Prisma__LeadClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  propostas<T extends Prisma.Lead$propostasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$propostasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropostaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1715,6 +1874,30 @@ export type LeadDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Leads to delete.
    */
   limit?: number
+}
+
+/**
+ * Lead.propostas
+ */
+export type Lead$propostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Proposta
+   */
+  select?: Prisma.PropostaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Proposta
+   */
+  omit?: Prisma.PropostaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PropostaInclude<ExtArgs> | null
+  where?: Prisma.PropostaWhereInput
+  orderBy?: Prisma.PropostaOrderByWithRelationInput | Prisma.PropostaOrderByWithRelationInput[]
+  cursor?: Prisma.PropostaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PropostaScalarFieldEnum | Prisma.PropostaScalarFieldEnum[]
 }
 
 /**

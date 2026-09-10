@@ -95,6 +95,10 @@ export default function AbrirOS() {
             <div className={estilo.janelaCorpo}>
               <Formulario
                 lead={null}
+                /* A janela de abrir O.S. da lista nasce em branco. Quem vem de
+                   um orçamento aprovado entra por `/painel/ordens/nova?proposta=`,
+                   que é a porta com o valor já preenchido. */
+                proposta={null}
                 aoAbrir={(id) => {
                   setAberta(false)
                   setOrdemNova(id)

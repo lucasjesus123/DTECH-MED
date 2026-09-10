@@ -388,6 +388,7 @@ export type UserWhereInput = {
   auditoria?: Prisma.AuditLogListRelationFilter
   recuperacoes?: Prisma.RecuperacaoSenhaListRelationFilter
   pushInscricoes?: Prisma.PushInscricaoListRelationFilter
+  propostas?: Prisma.PropostaListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -432,6 +433,7 @@ export type UserOrderByWithRelationInput = {
   auditoria?: Prisma.AuditLogOrderByRelationAggregateInput
   recuperacoes?: Prisma.RecuperacaoSenhaOrderByRelationAggregateInput
   pushInscricoes?: Prisma.PushInscricaoOrderByRelationAggregateInput
+  propostas?: Prisma.PropostaOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -480,6 +482,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   auditoria?: Prisma.AuditLogListRelationFilter
   recuperacoes?: Prisma.RecuperacaoSenhaListRelationFilter
   pushInscricoes?: Prisma.PushInscricaoListRelationFilter
+  propostas?: Prisma.PropostaListRelationFilter
 }, "id" | "tenantId_email">
 
 export type UserOrderByWithAggregationInput = {
@@ -587,6 +590,7 @@ export type UserCreateInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -630,6 +634,7 @@ export type UserUncheckedCreateInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserUpdateInput = {
@@ -673,6 +678,7 @@ export type UserUpdateInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -716,6 +722,7 @@ export type UserUncheckedUpdateInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1069,6 +1076,22 @@ export type UserUpdateOneWithoutFotosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFotosInput, Prisma.UserUpdateWithoutFotosInput>, Prisma.UserUncheckedUpdateWithoutFotosInput>
 }
 
+export type UserCreateNestedOneWithoutPropostasInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPropostasInput, Prisma.UserUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPropostasInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutPropostasNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPropostasInput, Prisma.UserUncheckedCreateWithoutPropostasInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPropostasInput
+  upsert?: Prisma.UserUpsertWithoutPropostasInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPropostasInput, Prisma.UserUpdateWithoutPropostasInput>, Prisma.UserUncheckedUpdateWithoutPropostasInput>
+}
+
 export type UserCreateNestedOneWithoutOrcamentosTecnicoInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutOrcamentosTecnicoInput, Prisma.UserUncheckedCreateWithoutOrcamentosTecnicoInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrcamentosTecnicoInput
@@ -1265,6 +1288,7 @@ export type UserCreateWithoutTenantInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutTenantInput = {
@@ -1307,6 +1331,7 @@ export type UserUncheckedCreateWithoutTenantInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutTenantInput = {
@@ -1406,6 +1431,7 @@ export type UserCreateWithoutSessoesInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutSessoesInput = {
@@ -1448,6 +1474,7 @@ export type UserUncheckedCreateWithoutSessoesInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutSessoesInput = {
@@ -1506,6 +1533,7 @@ export type UserUpdateWithoutSessoesInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessoesInput = {
@@ -1548,6 +1576,7 @@ export type UserUncheckedUpdateWithoutSessoesInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutOrdensAtendenteInput = {
@@ -1590,6 +1619,7 @@ export type UserCreateWithoutOrdensAtendenteInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutOrdensAtendenteInput = {
@@ -1632,6 +1662,7 @@ export type UserUncheckedCreateWithoutOrdensAtendenteInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutOrdensAtendenteInput = {
@@ -1679,6 +1710,7 @@ export type UserCreateWithoutOrdensTecnicoInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutOrdensTecnicoInput = {
@@ -1721,6 +1753,7 @@ export type UserUncheckedCreateWithoutOrdensTecnicoInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutOrdensTecnicoInput = {
@@ -1779,6 +1812,7 @@ export type UserUpdateWithoutOrdensAtendenteInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdensAtendenteInput = {
@@ -1821,6 +1855,7 @@ export type UserUncheckedUpdateWithoutOrdensAtendenteInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUpsertWithoutOrdensTecnicoInput = {
@@ -1874,6 +1909,7 @@ export type UserUpdateWithoutOrdensTecnicoInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdensTecnicoInput = {
@@ -1916,6 +1952,7 @@ export type UserUncheckedUpdateWithoutOrdensTecnicoInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutEventosInput = {
@@ -1958,6 +1995,7 @@ export type UserCreateWithoutEventosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutEventosInput = {
@@ -2000,6 +2038,7 @@ export type UserUncheckedCreateWithoutEventosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutEventosInput = {
@@ -2058,6 +2097,7 @@ export type UserUpdateWithoutEventosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventosInput = {
@@ -2100,6 +2140,7 @@ export type UserUncheckedUpdateWithoutEventosInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutFotosInput = {
@@ -2142,6 +2183,7 @@ export type UserCreateWithoutFotosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutFotosInput = {
@@ -2184,6 +2226,7 @@ export type UserUncheckedCreateWithoutFotosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutFotosInput = {
@@ -2242,6 +2285,7 @@ export type UserUpdateWithoutFotosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFotosInput = {
@@ -2272,6 +2316,195 @@ export type UserUncheckedUpdateWithoutFotosInput = {
   criadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sessoes?: Prisma.SessaoUncheckedUpdateManyWithoutUserNestedInput
   eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutAutorNestedInput
+  agendamentosMotorista?: Prisma.AgendamentoUncheckedUpdateManyWithoutMotoristaNestedInput
+  ordensTecnico?: Prisma.OrdemUncheckedUpdateManyWithoutTecnicoNestedInput
+  ordensAtendente?: Prisma.OrdemUncheckedUpdateManyWithoutAtendenteNestedInput
+  orcamentosTecnico?: Prisma.OrcamentoUncheckedUpdateManyWithoutTecnicoNestedInput
+  orcamentosRevisor?: Prisma.OrcamentoUncheckedUpdateManyWithoutRevisorNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedUpdateManyWithoutAutorNestedInput
+  pagamentos?: Prisma.PagamentoUncheckedUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUncheckedUpdateManyWithoutResponsavelNestedInput
+  lancamentosAprovados?: Prisma.LancamentoUncheckedUpdateManyWithoutAprovadoPorNestedInput
+  auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
+}
+
+export type UserCreateWithoutPropostasInput = {
+  id?: string
+  nome: string
+  email: string
+  telefone?: string | null
+  senhaHash: string
+  papel: $Enums.Papel
+  ativo?: boolean
+  trocarSenha?: boolean
+  ultimoLogin?: Date | string | null
+  tentativasFalhas?: number
+  bloqueadoAte?: Date | string | null
+  avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
+  documento?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  criadoPorId?: string | null
+  tenant?: Prisma.TenantCreateNestedOneWithoutUsuariosInput
+  sessoes?: Prisma.SessaoCreateNestedManyWithoutUserInput
+  eventos?: Prisma.EventoOrdemCreateNestedManyWithoutAutorInput
+  fotos?: Prisma.FotoCreateNestedManyWithoutAutorInput
+  agendamentosMotorista?: Prisma.AgendamentoCreateNestedManyWithoutMotoristaInput
+  ordensTecnico?: Prisma.OrdemCreateNestedManyWithoutTecnicoInput
+  ordensAtendente?: Prisma.OrdemCreateNestedManyWithoutAtendenteInput
+  orcamentosTecnico?: Prisma.OrcamentoCreateNestedManyWithoutTecnicoInput
+  orcamentosRevisor?: Prisma.OrcamentoCreateNestedManyWithoutRevisorInput
+  movimentos?: Prisma.MovimentoEstoqueCreateNestedManyWithoutAutorInput
+  pagamentos?: Prisma.PagamentoCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoCreateNestedManyWithoutResponsavelInput
+  lancamentosAprovados?: Prisma.LancamentoCreateNestedManyWithoutAprovadoPorInput
+  auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
+  pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+}
+
+export type UserUncheckedCreateWithoutPropostasInput = {
+  id?: string
+  tenantId?: string | null
+  nome: string
+  email: string
+  telefone?: string | null
+  senhaHash: string
+  papel: $Enums.Papel
+  ativo?: boolean
+  trocarSenha?: boolean
+  ultimoLogin?: Date | string | null
+  tentativasFalhas?: number
+  bloqueadoAte?: Date | string | null
+  avatarUrl?: string | null
+  telas?: Prisma.UserCreatetelasInput | string[]
+  documento?: string | null
+  cep?: string | null
+  logradouro?: string | null
+  numero?: string | null
+  complemento?: string | null
+  bairro?: string | null
+  cidade?: string | null
+  uf?: string | null
+  criadoEm?: Date | string
+  atualizadoEm?: Date | string
+  criadoPorId?: string | null
+  sessoes?: Prisma.SessaoUncheckedCreateNestedManyWithoutUserInput
+  eventos?: Prisma.EventoOrdemUncheckedCreateNestedManyWithoutAutorInput
+  fotos?: Prisma.FotoUncheckedCreateNestedManyWithoutAutorInput
+  agendamentosMotorista?: Prisma.AgendamentoUncheckedCreateNestedManyWithoutMotoristaInput
+  ordensTecnico?: Prisma.OrdemUncheckedCreateNestedManyWithoutTecnicoInput
+  ordensAtendente?: Prisma.OrdemUncheckedCreateNestedManyWithoutAtendenteInput
+  orcamentosTecnico?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutTecnicoInput
+  orcamentosRevisor?: Prisma.OrcamentoUncheckedCreateNestedManyWithoutRevisorInput
+  movimentos?: Prisma.MovimentoEstoqueUncheckedCreateNestedManyWithoutAutorInput
+  pagamentos?: Prisma.PagamentoUncheckedCreateNestedManyWithoutAutorInput
+  compromissos?: Prisma.CompromissoUncheckedCreateNestedManyWithoutResponsavelInput
+  lancamentosAprovados?: Prisma.LancamentoUncheckedCreateNestedManyWithoutAprovadoPorInput
+  auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
+  pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+}
+
+export type UserCreateOrConnectWithoutPropostasInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPropostasInput, Prisma.UserUncheckedCreateWithoutPropostasInput>
+}
+
+export type UserUpsertWithoutPropostasInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPropostasInput, Prisma.UserUncheckedUpdateWithoutPropostasInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPropostasInput, Prisma.UserUncheckedCreateWithoutPropostasInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPropostasInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPropostasInput, Prisma.UserUncheckedUpdateWithoutPropostasInput>
+}
+
+export type UserUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.StringFieldUpdateOperationsInput | string
+  papel?: Prisma.EnumPapelFieldUpdateOperationsInput | $Enums.Papel
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trocarSenha?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ultimoLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
+  bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
+  documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenant?: Prisma.TenantUpdateOneWithoutUsuariosNestedInput
+  sessoes?: Prisma.SessaoUpdateManyWithoutUserNestedInput
+  eventos?: Prisma.EventoOrdemUpdateManyWithoutAutorNestedInput
+  fotos?: Prisma.FotoUpdateManyWithoutAutorNestedInput
+  agendamentosMotorista?: Prisma.AgendamentoUpdateManyWithoutMotoristaNestedInput
+  ordensTecnico?: Prisma.OrdemUpdateManyWithoutTecnicoNestedInput
+  ordensAtendente?: Prisma.OrdemUpdateManyWithoutAtendenteNestedInput
+  orcamentosTecnico?: Prisma.OrcamentoUpdateManyWithoutTecnicoNestedInput
+  orcamentosRevisor?: Prisma.OrcamentoUpdateManyWithoutRevisorNestedInput
+  movimentos?: Prisma.MovimentoEstoqueUpdateManyWithoutAutorNestedInput
+  pagamentos?: Prisma.PagamentoUpdateManyWithoutAutorNestedInput
+  compromissos?: Prisma.CompromissoUpdateManyWithoutResponsavelNestedInput
+  lancamentosAprovados?: Prisma.LancamentoUpdateManyWithoutAprovadoPorNestedInput
+  auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
+  pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPropostasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nome?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telefone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  senhaHash?: Prisma.StringFieldUpdateOperationsInput | string
+  papel?: Prisma.EnumPapelFieldUpdateOperationsInput | $Enums.Papel
+  ativo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trocarSenha?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ultimoLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tentativasFalhas?: Prisma.IntFieldUpdateOperationsInput | number
+  bloqueadoAte?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telas?: Prisma.UserUpdatetelasInput | string[]
+  documento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  logradouro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  numero?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complemento?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bairro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cidade?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  uf?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  atualizadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criadoPorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sessoes?: Prisma.SessaoUncheckedUpdateManyWithoutUserNestedInput
+  eventos?: Prisma.EventoOrdemUncheckedUpdateManyWithoutAutorNestedInput
+  fotos?: Prisma.FotoUncheckedUpdateManyWithoutAutorNestedInput
   agendamentosMotorista?: Prisma.AgendamentoUncheckedUpdateManyWithoutMotoristaNestedInput
   ordensTecnico?: Prisma.OrdemUncheckedUpdateManyWithoutTecnicoNestedInput
   ordensAtendente?: Prisma.OrdemUncheckedUpdateManyWithoutAtendenteNestedInput
@@ -2326,6 +2559,7 @@ export type UserCreateWithoutOrcamentosTecnicoInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutOrcamentosTecnicoInput = {
@@ -2368,6 +2602,7 @@ export type UserUncheckedCreateWithoutOrcamentosTecnicoInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutOrcamentosTecnicoInput = {
@@ -2415,6 +2650,7 @@ export type UserCreateWithoutOrcamentosRevisorInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutOrcamentosRevisorInput = {
@@ -2457,6 +2693,7 @@ export type UserUncheckedCreateWithoutOrcamentosRevisorInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutOrcamentosRevisorInput = {
@@ -2515,6 +2752,7 @@ export type UserUpdateWithoutOrcamentosTecnicoInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrcamentosTecnicoInput = {
@@ -2557,6 +2795,7 @@ export type UserUncheckedUpdateWithoutOrcamentosTecnicoInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUpsertWithoutOrcamentosRevisorInput = {
@@ -2610,6 +2849,7 @@ export type UserUpdateWithoutOrcamentosRevisorInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrcamentosRevisorInput = {
@@ -2652,6 +2892,7 @@ export type UserUncheckedUpdateWithoutOrcamentosRevisorInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutMovimentosInput = {
@@ -2694,6 +2935,7 @@ export type UserCreateWithoutMovimentosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutMovimentosInput = {
@@ -2736,6 +2978,7 @@ export type UserUncheckedCreateWithoutMovimentosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutMovimentosInput = {
@@ -2794,6 +3037,7 @@ export type UserUpdateWithoutMovimentosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMovimentosInput = {
@@ -2836,6 +3080,7 @@ export type UserUncheckedUpdateWithoutMovimentosInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutPagamentosInput = {
@@ -2878,6 +3123,7 @@ export type UserCreateWithoutPagamentosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutPagamentosInput = {
@@ -2920,6 +3166,7 @@ export type UserUncheckedCreateWithoutPagamentosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutPagamentosInput = {
@@ -2978,6 +3225,7 @@ export type UserUpdateWithoutPagamentosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPagamentosInput = {
@@ -3020,6 +3268,7 @@ export type UserUncheckedUpdateWithoutPagamentosInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutAgendamentosMotoristaInput = {
@@ -3062,6 +3311,7 @@ export type UserCreateWithoutAgendamentosMotoristaInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutAgendamentosMotoristaInput = {
@@ -3104,6 +3354,7 @@ export type UserUncheckedCreateWithoutAgendamentosMotoristaInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutAgendamentosMotoristaInput = {
@@ -3162,6 +3413,7 @@ export type UserUpdateWithoutAgendamentosMotoristaInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAgendamentosMotoristaInput = {
@@ -3204,6 +3456,7 @@ export type UserUncheckedUpdateWithoutAgendamentosMotoristaInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutPushInscricoesInput = {
@@ -3246,6 +3499,7 @@ export type UserCreateWithoutPushInscricoesInput = {
   lancamentosAprovados?: Prisma.LancamentoCreateNestedManyWithoutAprovadoPorInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutPushInscricoesInput = {
@@ -3288,6 +3542,7 @@ export type UserUncheckedCreateWithoutPushInscricoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedCreateNestedManyWithoutAprovadoPorInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutPushInscricoesInput = {
@@ -3346,6 +3601,7 @@ export type UserUpdateWithoutPushInscricoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUpdateManyWithoutAprovadoPorNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushInscricoesInput = {
@@ -3388,6 +3644,7 @@ export type UserUncheckedUpdateWithoutPushInscricoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedUpdateManyWithoutAprovadoPorNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutAuditoriaInput = {
@@ -3430,6 +3687,7 @@ export type UserCreateWithoutAuditoriaInput = {
   lancamentosAprovados?: Prisma.LancamentoCreateNestedManyWithoutAprovadoPorInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutAuditoriaInput = {
@@ -3472,6 +3730,7 @@ export type UserUncheckedCreateWithoutAuditoriaInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedCreateNestedManyWithoutAprovadoPorInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutAuditoriaInput = {
@@ -3530,6 +3789,7 @@ export type UserUpdateWithoutAuditoriaInput = {
   lancamentosAprovados?: Prisma.LancamentoUpdateManyWithoutAprovadoPorNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditoriaInput = {
@@ -3572,6 +3832,7 @@ export type UserUncheckedUpdateWithoutAuditoriaInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedUpdateManyWithoutAprovadoPorNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutLancamentosAprovadosInput = {
@@ -3614,6 +3875,7 @@ export type UserCreateWithoutLancamentosAprovadosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutLancamentosAprovadosInput = {
@@ -3656,6 +3918,7 @@ export type UserUncheckedCreateWithoutLancamentosAprovadosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutLancamentosAprovadosInput = {
@@ -3714,6 +3977,7 @@ export type UserUpdateWithoutLancamentosAprovadosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLancamentosAprovadosInput = {
@@ -3756,6 +4020,7 @@ export type UserUncheckedUpdateWithoutLancamentosAprovadosInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutCompromissosInput = {
@@ -3798,6 +4063,7 @@ export type UserCreateWithoutCompromissosInput = {
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutCompromissosInput = {
@@ -3840,6 +4106,7 @@ export type UserUncheckedCreateWithoutCompromissosInput = {
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutCompromissosInput = {
@@ -3898,6 +4165,7 @@ export type UserUpdateWithoutCompromissosInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompromissosInput = {
@@ -3940,6 +4208,7 @@ export type UserUncheckedUpdateWithoutCompromissosInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateWithoutRecuperacoesInput = {
@@ -3982,6 +4251,7 @@ export type UserCreateWithoutRecuperacoesInput = {
   lancamentosAprovados?: Prisma.LancamentoCreateNestedManyWithoutAprovadoPorInput
   auditoria?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaCreateNestedManyWithoutAutorInput
 }
 
 export type UserUncheckedCreateWithoutRecuperacoesInput = {
@@ -4024,6 +4294,7 @@ export type UserUncheckedCreateWithoutRecuperacoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedCreateNestedManyWithoutAprovadoPorInput
   auditoria?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedCreateNestedManyWithoutUsuarioInput
+  propostas?: Prisma.PropostaUncheckedCreateNestedManyWithoutAutorInput
 }
 
 export type UserCreateOrConnectWithoutRecuperacoesInput = {
@@ -4082,6 +4353,7 @@ export type UserUpdateWithoutRecuperacoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUpdateManyWithoutAprovadoPorNestedInput
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRecuperacoesInput = {
@@ -4124,6 +4396,7 @@ export type UserUncheckedUpdateWithoutRecuperacoesInput = {
   lancamentosAprovados?: Prisma.LancamentoUncheckedUpdateManyWithoutAprovadoPorNestedInput
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserCreateManyTenantInput = {
@@ -4193,6 +4466,7 @@ export type UserUpdateWithoutTenantInput = {
   auditoria?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTenantInput = {
@@ -4235,6 +4509,7 @@ export type UserUncheckedUpdateWithoutTenantInput = {
   auditoria?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   recuperacoes?: Prisma.RecuperacaoSenhaUncheckedUpdateManyWithoutUserNestedInput
   pushInscricoes?: Prisma.PushInscricaoUncheckedUpdateManyWithoutUsuarioNestedInput
+  propostas?: Prisma.PropostaUncheckedUpdateManyWithoutAutorNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutTenantInput = {
@@ -4285,6 +4560,7 @@ export type UserCountOutputType = {
   auditoria: number
   recuperacoes: number
   pushInscricoes: number
+  propostas: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4303,6 +4579,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   auditoria?: boolean | UserCountOutputTypeCountAuditoriaArgs
   recuperacoes?: boolean | UserCountOutputTypeCountRecuperacoesArgs
   pushInscricoes?: boolean | UserCountOutputTypeCountPushInscricoesArgs
+  propostas?: boolean | UserCountOutputTypeCountPropostasArgs
 }
 
 /**
@@ -4420,6 +4697,13 @@ export type UserCountOutputTypeCountPushInscricoesArgs<ExtArgs extends runtime.T
   where?: Prisma.PushInscricaoWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPropostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PropostaWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4463,6 +4747,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   auditoria?: boolean | Prisma.User$auditoriaArgs<ExtArgs>
   recuperacoes?: boolean | Prisma.User$recuperacoesArgs<ExtArgs>
   pushInscricoes?: boolean | Prisma.User$pushInscricoesArgs<ExtArgs>
+  propostas?: boolean | Prisma.User$propostasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -4570,6 +4855,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   auditoria?: boolean | Prisma.User$auditoriaArgs<ExtArgs>
   recuperacoes?: boolean | Prisma.User$recuperacoesArgs<ExtArgs>
   pushInscricoes?: boolean | Prisma.User$pushInscricoesArgs<ExtArgs>
+  propostas?: boolean | Prisma.User$propostasArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4602,6 +4888,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * franquias diferentes sem colidir.
      */
     pushInscricoes: Prisma.$PushInscricaoPayload<ExtArgs>[]
+    propostas: Prisma.$PropostaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -5078,6 +5365,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   auditoria<T extends Prisma.User$auditoriaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$auditoriaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   recuperacoes<T extends Prisma.User$recuperacoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recuperacoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecuperacaoSenhaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pushInscricoes<T extends Prisma.User$pushInscricoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pushInscricoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushInscricaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  propostas<T extends Prisma.User$propostasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$propostasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropostaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5909,6 +6197,30 @@ export type User$pushInscricoesArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.PushInscricaoScalarFieldEnum | Prisma.PushInscricaoScalarFieldEnum[]
+}
+
+/**
+ * User.propostas
+ */
+export type User$propostasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Proposta
+   */
+  select?: Prisma.PropostaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Proposta
+   */
+  omit?: Prisma.PropostaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PropostaInclude<ExtArgs> | null
+  where?: Prisma.PropostaWhereInput
+  orderBy?: Prisma.PropostaOrderByWithRelationInput | Prisma.PropostaOrderByWithRelationInput[]
+  cursor?: Prisma.PropostaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PropostaScalarFieldEnum | Prisma.PropostaScalarFieldEnum[]
 }
 
 /**

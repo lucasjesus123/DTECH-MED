@@ -668,11 +668,31 @@ function Agora({
         <OPagamento painel={painel} aoMudar={aoAndar} />
       ) : null}
 
+      {/* O PASSO 1, QUANDO ELE FOI UM ORÇAMENTO DE VERDADE.
+          Antes desta peça, o passo 1 era uma anotação de valor dentro da
+          própria ordem, e a esteira parecia começar do nada. Agora, quando a
+          ordem nasceu de um orçamento aprovado, a janela diz de onde ela veio —
+          com o nome de quem aprovou e o dia. É a resposta a "quem autorizou
+          isso?", que aparece três semanas depois, no telefone. */}
+      {painel.propostaOrigem ? (
+        <Link
+          href="/painel/contatos?aba=orcamentos"
+          className={estilo.osLinkBaixo}
+        >
+          Veio do orçamento #{String(painel.propostaOrigem.numero).padStart(4, '0')} ·{' '}
+          {formatarBRL(painel.propostaOrigem.totalCentavos)}
+          {painel.propostaOrigem.aprovadaPorNome
+            ? ` · aprovado por ${painel.propostaOrigem.aprovadaPorNome}`
+            : ''}
+          {painel.propostaOrigem.aprovadaEm ? ` em ${painel.propostaOrigem.aprovadaEm}` : ''}
+        </Link>
+      ) : null}
+
       {/* O passo 1 é o único que não anda a esteira: ele guarda o que foi
           combinado antes de a ordem existir. Fica aqui embaixo, discreto, e
           disponível o tempo todo — a pergunta "quanto ficou combinado?" volta
           semanas depois, no meio de qualquer etapa. */}
-      {painel.podeCombinar ? (
+      {painel.podeCombinar && !painel.propostaOrigem ? (
         <button type="button" className={estilo.osLinkBaixo} onClick={aoCombinar}>
           {painel.valorPrevioCentavos === null
             ? 'Registrar o que foi combinado com o cliente'
