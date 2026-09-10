@@ -105,7 +105,23 @@ export async function rotaDoDia(
         // Sem motorista: a rota da empresa inteira (modo gestão).
         ...(motoristaId ? { motoristaId } : {}),
         previstoPara: { gte: inicio, lt: fim },
-        status: { in: ['ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] },
+        /**
+         * A PARADA SEM DONO APARECE NO MODO GESTÃO — e não aparecia.
+         *
+         * `PENDENTE` é o status de uma parada marcada para a qual ninguém foi
+         * designado. Para o MOTORISTA ela não é dele, e continua fora: seria
+         * trabalho de outra pessoa na tela de quem está dirigindo.
+         *
+         * Para quem GERENCIA é o contrário — a parada sem motorista é
+         * exatamente a que precisa de decisão hoje, e era a única que a tela
+         * escondia. O efeito medido: a empresa com uma retirada marcada e sem
+         * ninguém designado abria o aplicativo em modo gestão e lia "nenhuma
+         * parada agendada para hoje". A parada existia, estava no calendário, e
+         * o aplicativo dizia que o dia estava vazio.
+         */
+        status: motoristaId
+          ? { in: ['ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] }
+          : { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] },
       },
       orderBy: [{ posicaoRota: 'asc' }, { previstoPara: 'asc' }],
       include: {
@@ -403,3 +419,93 @@ export async function agendaDeCampo(
 }
 
 export { Papel }
+
+
+/**
+ * O QUE VEM DEPOIS DE HOJE — a resposta que o dia vazio precisava.
+ *
+ * =============================================================================
+ * POR QUE ISTO EXISTE
+ * =============================================================================
+ * Sem parada hoje, a tela dizia "nenhuma parada agendada para hoje" dentro de
+ * uma caixa tracejada e parava ali. É uma resposta verdadeira e inútil: quem
+ * abre o aplicativo de manhã e vê o dia vazio faz imediatamente a pergunta
+ * seguinte — *"e amanhã?"* — e para respondê-la tinha de trocar de aba.
+ *
+ * Pior no modo gestão, que é como o dono do sistema abriu: uma tela larga, um
+ * aviso azul e uma caixa tracejada dizendo que não há nada. A empresa tinha
+ * retirada marcada para a semana.
+ *
+ * =============================================================================
+ * ELA NÃO É A AGENDA
+ * =============================================================================
+ * A aba Agenda mostra QUATORZE dias agrupados, com atrasado em cima. Isto aqui
+ * são as PRÓXIMAS, poucas, para caber num painel — a pergunta é "o dia está
+ * vazio, e daí?", não "me mostre a quinzena".
+ */
+export type ProximaParada = {
+  id: string
+  ordemId: string
+  /** 'AAAA-MM-DD' em Lajeado. */
+  dia: string
+  hora: string
+  tipo: 'RETIRADA' | 'ENTREGA'
+  numero: number
+  cliente: string
+  endereco: string
+  /** Só o modo gestão desenha — e é o campo que denuncia a parada sem dono. */
+  motorista: string | null
+}
+
+export async function proximasParadas(
+  ctx: ContextoAcesso,
+  motoristaId: string | null,
+  limite = 6,
+): Promise<ProximaParada[]> {
+  // Começa DEPOIS do fim de hoje: o que é de hoje já está na tela, em cima.
+  const { fim } = janelaDoDia()
+
+  const ags = await comEscopo(ctx, (tx) =>
+    tx.agendamento.findMany({
+      where: {
+        ...(motoristaId ? { motoristaId } : {}),
+        previstoPara: { gte: fim },
+        // Concluída no futuro não existe; cancelada não é compromisso. O que
+        // sobra é o que ainda vai acontecer — inclusive a sem motorista, que no
+        // modo gestão é justamente a que precisa de decisão.
+        status: motoristaId
+          ? { in: ['ATRIBUIDO', 'EM_ROTA'] }
+          : { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA'] },
+      },
+      orderBy: [{ previstoPara: 'asc' }],
+      take: limite,
+      select: {
+        id: true,
+        tipo: true,
+        previstoPara: true,
+        janelaInicio: true,
+        enderecoSnapshot: true,
+        motorista: { select: { nome: true } },
+        ordem: {
+          select: {
+            id: true,
+            numero: true,
+            cliente: { select: { nome: true } },
+          },
+        },
+      },
+    }),
+  )
+
+  return ags.map((a) => ({
+    id: a.id,
+    ordemId: a.ordem.id,
+    dia: diaLocal(a.previstoPara),
+    hora: horaLocal(a.janelaInicio ?? a.previstoPara),
+    tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
+    numero: a.ordem.numero,
+    cliente: a.ordem.cliente.nome,
+    endereco: a.enderecoSnapshot,
+    motorista: a.motorista?.nome ?? null,
+  }))
+}

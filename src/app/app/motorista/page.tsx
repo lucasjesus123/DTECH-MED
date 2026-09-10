@@ -2,13 +2,13 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { NIVEL, exigirSessao } from '@/server/auth/guarda'
-import { rotaDoDia } from '@/server/consultas/campo'
+import { proximasParadas, rotaDoDia } from '@/server/consultas/campo'
 import { Saida } from './saida'
 import { Aceite } from './aceite'
 import { Rastro } from './rastro'
 import { AtualizaRota } from './atualiza'
 import { AvisosNoCelular } from '../avisos'
-import type { Parada } from '@/server/consultas/campo'
+import type { Parada, ProximaParada } from '@/server/consultas/campo'
 import estilo from '../app.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -70,10 +70,24 @@ export default async function Motorista() {
   if (sessao.papel !== Papel.MOTORISTA && !gerencia) redirect('/painel')
 
   // Modo gestão vê a rota de TODOS; o motorista vê a dele.
-  const paradas = await rotaDoDia(ctx, gerencia ? null : sessao.userId)
+  const quem = gerencia ? null : sessao.userId
+  const [paradas, proximas] = await Promise.all([
+    rotaDoDia(ctx, quem),
+    /**
+     * O QUE VEM DEPOIS — buscado sempre, desenhado quando serve.
+     *
+     * Numa ida só junto com a rota, porque a alternativa seria buscar depois de
+     * descobrir que o dia está vazio: uma segunda espera exatamente na tela que
+     * já não tinha nada para mostrar.
+     */
+    proximasParadas(ctx, quem, 6),
+  ])
   const pendentes = paradas.filter((p) => !p.concluida)
   const feitas = paradas.filter((p) => p.concluida)
   const atrasadas = pendentes.filter((p) => p.atrasada).length
+  // Designadas e ainda não aceitas: a pergunta que a central faz o dia inteiro.
+  const semAceite = pendentes.filter((p) => p.motoristaId && !p.aceitoEm).length
+  const semDono = pendentes.filter((p) => !p.motoristaId).length
 
   return (
     <>
@@ -85,11 +99,11 @@ export default async function Motorista() {
               "32 paradas · 30 concluídas" fazia o dia parecer enorme quando
               sobravam duas. Quem está na rua conta para trás. */}
           <span>
-            {pendentes.length === 0
-              ? `${feitas.length} ${feitas.length === 1 ? 'parada feita' : 'paradas feitas'}`
-              : `Faltam ${pendentes.length}`}
-            {feitas.length > 0 && pendentes.length > 0 ? ` · ${feitas.length} feitas` : ''}
-            {atrasadas > 0 ? ` · ${atrasadas} atrasada${atrasadas > 1 ? 's' : ''}` : ''}
+            {paradas.length === 0
+              ? 'Nada marcado para hoje'
+              : pendentes.length === 0
+                ? `${feitas.length} ${feitas.length === 1 ? 'parada feita' : 'paradas feitas'}`
+                : `Faltam ${pendentes.length}`}
           </span>
           <span className={estilo.mono}>{hoje()}</span>
         </div>
@@ -105,12 +119,46 @@ export default async function Motorista() {
           </p>
         ) : null}
 
+        {/* -------------------------------------------------------------------
+            O RESUMO DO DIA
+            -------------------------------------------------------------------
+            A tela tinha uma linha de texto no cabeçalho — "Faltam 3 · 2 feitas"
+            — e nada mais. Isso responde "quanto falta" e deixa de fora as três
+            perguntas que decidem o dia: quanto já andou, o que está ATRASADO, e
+            quem foi designado e ainda não disse que vai.
+
+            A barra existe porque progresso é a única coisa desta tela que se lê
+            melhor em desenho que em número: 7 de 9 é conta, a barra quase cheia
+            é um olhar. Ela só aparece quando há o que medir.
+            ------------------------------------------------------------------- */}
+        {paradas.length > 0 ? (
+          <ResumoDoDia
+            feitas={feitas.length}
+            total={paradas.length}
+            atrasadas={atrasadas}
+            semAceite={semAceite}
+            semDono={semDono}
+            gerencia={gerencia}
+            proxima={pendentes[0] ?? null}
+            porMotorista={gerencia ? contarPorMotorista(paradas) : []}
+          />
+        ) : null}
+
+        {/* O DIA VAZIO PASSOU A RESPONDER A PERGUNTA SEGUINTE.
+            Antes: uma caixa tracejada dizendo "nenhuma parada agendada para
+            hoje", e ponto. Quem lê isso pergunta na mesma hora "e amanhã?" — e
+            para responder tinha de trocar de aba. */}
         {paradas.length === 0 ? (
-          <p className={estilo.vazio}>
-            {gerencia
-              ? 'Nenhuma parada agendada para hoje na empresa. O que a central marcar aparece aqui.'
-              : 'Nenhuma parada atribuída a você hoje. Quando a central agendar uma retirada ou entrega, ela aparece aqui.'}
-          </p>
+          <div className={estilo.vazioRico}>
+            <p className={estilo.vazioTitulo}>
+              {gerencia ? 'Nenhuma parada marcada para hoje.' : 'Hoje você não tem parada.'}
+            </p>
+            <p className={estilo.vazioTexto}>
+              {gerencia
+                ? 'O que a central marcar aparece aqui — inclusive a parada que ainda está sem motorista.'
+                : 'Quando a central agendar uma retirada ou entrega para você, ela aparece aqui e o celular avisa.'}
+            </p>
+          </div>
         ) : null}
 
         {/* Dia cumprido: a tela diz isso em vez de mostrar uma lista de coisas
@@ -162,6 +210,15 @@ export default async function Motorista() {
               ))}
             </ul>
           </details>
+        ) : null}
+
+        {/* O QUE VEM DEPOIS DE HOJE.
+            Sempre visível quando existe, e não só no dia vazio: saber que
+            amanhã tem seis paradas muda como se organiza o fim da tarde de
+            hoje. Recolhido quando o dia ainda tem trabalho, aberto quando não
+            tem — a atenção vai para o que dá para fazer agora. */}
+        {proximas.length > 0 ? (
+          <OQueVem itens={proximas} aberto={pendentes.length === 0} gerencia={gerencia} />
         ) : null}
 
         {/* O aviso no celular e o relógio da tela ficam no fim: são ajuste, não
@@ -377,3 +434,197 @@ const hoje = () =>
     .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', timeZone: 'America/Sao_Paulo' })
     .replace('.', '')
     .toUpperCase()
+
+
+/**
+ * O RESUMO DO DIA — quatro perguntas, num painel só.
+ *
+ * =============================================================================
+ * O QUE ELE RESPONDE, E POR QUE CADA UMA MERECE ESTAR AQUI
+ * =============================================================================
+ *   QUANTO JÁ ANDOU   a barra. É a única coisa desta tela que se lê melhor em
+ *                     desenho que em número: "7 de 9" é conta, a barra quase
+ *                     cheia é um olhar.
+ *   O QUE É AGORA     a próxima parada, com hora e cliente. Sem isso a pessoa
+ *                     rola até o primeiro cartão para descobrir o que já
+ *                     poderia estar no alto.
+ *   O QUE ATRASOU     em vermelho, porque uma parada das 9h às 11h da manhã é a
+ *                     informação mais urgente do dia.
+ *   QUEM NÃO ACEITOU  só no modo gestão. Designar não é combinar: entre as duas
+ *                     cabe um motorista de folga e um aparelho que ninguém foi
+ *                     buscar.
+ *
+ * Os selos só aparecem quando contam alguma coisa. Um "0 atrasadas" ocuparia a
+ * mesma linha para dizer que está tudo bem, e o dia normal ficaria com três
+ * selos cinzentos disputando espaço com o que importa.
+ */
+function ResumoDoDia({
+  feitas,
+  total,
+  atrasadas,
+  semAceite,
+  semDono,
+  gerencia,
+  proxima,
+  porMotorista,
+}: {
+  feitas: number
+  total: number
+  atrasadas: number
+  semAceite: number
+  semDono: number
+  gerencia: boolean
+  proxima: Parada | null
+  /** Só no modo gestão, e só quando há mais de um motorista na rua. */
+  porMotorista: Array<{ nome: string; feitas: number; total: number }>
+}) {
+  const porcento = total === 0 ? 0 : Math.round((feitas / total) * 100)
+
+  return (
+    <section className={estilo.resumo}>
+      <div className={estilo.resumoTopo}>
+        <span className={estilo.resumoConta}>
+          <strong>{feitas}</strong> de {total} {total === 1 ? 'parada' : 'paradas'}
+        </span>
+        <span className={estilo.mono}>{porcento}%</span>
+      </div>
+      <div
+        className={estilo.resumoBarra}
+        role="progressbar"
+        aria-valuenow={porcento}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Paradas concluídas hoje"
+      >
+        <span className={estilo.resumoBarraCheia} style={{ width: `${porcento}%` }} />
+      </div>
+
+      {atrasadas > 0 || semAceite > 0 || semDono > 0 ? (
+        <div className={estilo.resumoSelos}>
+          {atrasadas > 0 ? (
+            <span className={`${estilo.selo} ${estilo.seloAtraso}`}>
+              {atrasadas} {atrasadas === 1 ? 'atrasada' : 'atrasadas'}
+            </span>
+          ) : null}
+          {gerencia && semDono > 0 ? (
+            <span className={`${estilo.selo} ${estilo.seloFalta}`}>
+              {semDono} sem motorista
+            </span>
+          ) : null}
+          {gerencia && semAceite > 0 ? (
+            <span className={`${estilo.selo} ${estilo.seloAceite}`}>
+              {semAceite} sem aceite
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* QUEM ESTÁ COM QUANTAS — só quando há mais de um na rua.
+          Com um motorista só, a linha repetiria a barra de cima com um nome na
+          frente. A partir de dois ela responde a pergunta que a central faz de
+          hora em hora: quem está segurando o dia. */}
+      {porMotorista.length > 1 ? (
+        <ul className={estilo.resumoQuem}>
+          {porMotorista.map((m) => (
+            <li key={m.nome}>
+              <span className={estilo.resumoQuemNome}>{m.nome}</span>
+              <span className={estilo.mono}>
+                {m.feitas}/{m.total}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {proxima ? (
+        <p className={estilo.resumoProxima}>
+          <span className={estilo.resumoProximaRot}>
+            {proxima.atrasada ? 'Atrasada' : 'A próxima'}
+          </span>
+          <span className={estilo.mono}>{hora(proxima.previstoPara)}</span>
+          {' · '}
+          {proxima.tipo === 'RETIRADA' ? 'buscar em' : 'entregar em'} {proxima.cliente}
+        </p>
+      ) : null}
+    </section>
+  )
+}
+
+/**
+ * O QUE VEM DEPOIS DE HOJE.
+ *
+ * Uma linha por parada — dia, hora, cliente — e nada mais. Não é a agenda: é a
+ * resposta à pergunta que o dia vazio provoca, e à que o fim de tarde provoca
+ * ("amanhã está cheio?"). Quem quer a quinzena inteira toca em "Minha agenda".
+ */
+function OQueVem({
+  itens,
+  aberto,
+  gerencia,
+}: {
+  itens: ProximaParada[]
+  aberto: boolean
+  gerencia: boolean
+}) {
+  return (
+    <details className={estilo.vemBloco} open={aberto}>
+      <summary className={estilo.vemResumo}>
+        Depois de hoje · {itens.length}
+        {itens.length === 6 ? '+' : ''}
+      </summary>
+      <ul className={estilo.vemLista}>
+        {itens.map((i) => (
+          <li key={i.id}>
+            <Link href={`/app/motorista/${i.ordemId}`} className={estilo.vemItem}>
+              <span className={estilo.mono}>
+                {diaCurto(i.dia)} {i.hora}
+              </span>
+              <span className={estilo.vemCliente}>{i.cliente}</span>
+              <span className={estilo.vemNota}>
+                {i.tipo === 'RETIRADA' ? 'Buscar' : 'Entregar'}
+                {gerencia ? ` · ${i.motorista ?? 'sem motorista'}` : ''}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <Link href="/app/agenda" className={estilo.vemTudo}>
+        Ver a agenda inteira
+      </Link>
+    </details>
+  )
+}
+
+/** 'AAAA-MM-DD' → '12/09'. Sem deixar o navegador escolher o fuso. */
+function diaCurto(dia: string): string {
+  const [, m, d] = dia.split('-')
+  return d && m ? `${d}/${m}` : dia
+}
+
+
+/**
+ * Quantas paradas cada motorista tem hoje, e quantas já fez.
+ *
+ * A parada SEM DONO entra como "Sem motorista" e fica por último: ela não é de
+ * ninguém, e listá-la junto dos nomes com uma linha própria é o que faz a
+ * central perceber que ela existe. Ordenado por quem tem mais pela frente —
+ * quem está segurando o dia aparece em cima.
+ */
+function contarPorMotorista(paradas: Parada[]): Array<{ nome: string; feitas: number; total: number }> {
+  const SEM = 'Sem motorista'
+  const m = new Map<string, { feitas: number; total: number }>()
+  for (const p of paradas) {
+    const nome = p.motorista ?? SEM
+    const atual = m.get(nome) ?? { feitas: 0, total: 0 }
+    atual.total += 1
+    if (p.concluida) atual.feitas += 1
+    m.set(nome, atual)
+  }
+  return [...m.entries()]
+    .map(([nome, c]) => ({ nome, ...c }))
+    .sort((a, b) => {
+      if (a.nome === SEM) return 1
+      if (b.nome === SEM) return -1
+      return b.total - b.feitas - (a.total - a.feitas)
+    })
+}

@@ -675,3 +675,166 @@ details[open] > .feitasResumo::after { transform: rotate(-135deg); }
   border: 1px solid var(--borda-viva); background: var(--sup); color: var(--txt-2);
 }
 .avisosLigar:disabled, .avisosDesligar:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------------------
+   O RESUMO DO DIA
+   ---------------------------------------------------------------------------
+   Ele fica ACIMA dos cartões e abaixo do cabeçalho, e é a única coisa da tela
+   com fundo próprio: quem abre o aplicativo na rua olha uma vez para saber
+   como está o dia, e depois desce para o trabalho. Se ele competisse
+   visualmente com o cartão do "Agora", teria custado o lugar do trabalho.
+   --------------------------------------------------------------------------- */
+.resumo {
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-1);
+  padding: var(--s4);
+  display: grid;
+  gap: var(--s3);
+}
+.resumoTopo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
+.resumoConta { font-size: var(--t-sm); color: var(--txt-2); }
+.resumoConta strong { font-size: var(--t-lg); color: var(--txt-1); font-weight: 600; }
+.resumoBarra {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sup-2);
+  overflow: hidden;
+}
+.resumoBarraCheia {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--vio);
+  /* Sem transição: a barra é servida já no estado certo, e animar de 0% a cada
+     recarregamento automático da rota faria a tela piscar sozinha de 60 em 60
+     segundos na mão de quem está dirigindo. */
+}
+.resumoSelos { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.selo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .04em;
+  border-radius: 999px;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+}
+.seloAtraso { background: rgba(239,68,68,.12); color: var(--perigo); border-color: rgba(239,68,68,.32); }
+.seloFalta  { background: rgba(251,191,36,.12); color: var(--espera); border-color: rgba(251,191,36,.3); }
+/* Nome próprio, e não `.seloEspera` reaproveitado: aquele é o selo quadrado da
+   bancada, com outro raio e outro tamanho de letra. Compor as duas classes
+   dependeria da ordem em que elas caem no arquivo — que é o tipo de acoplamento
+   que quebra no dia em que alguém reordena o CSS. */
+.seloAceite { background: rgba(139,92,246,.14); color: var(--vio-claro); border-color: rgba(139,92,246,.34); }
+.resumoProxima {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  line-height: 1.5;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+}
+.resumoProximaRot {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   O DIA VAZIO, E O QUE VEM DEPOIS DELE
+   ---------------------------------------------------------------------------
+   A caixa tracejada de "nada hoje" dizia uma verdade inútil. Agora ela diz o
+   que é, e logo abaixo vem a lista do que está marcado para os próximos dias —
+   que é a pergunta que a pessoa faz em seguida, sem exceção.
+   --------------------------------------------------------------------------- */
+.vazioRico {
+  border: 1px dashed var(--borda);
+  border-radius: var(--r);
+  padding: var(--s5) var(--s4);
+  text-align: center;
+  display: grid;
+  gap: 6px;
+}
+.vazioTitulo { font-size: var(--t-base); font-weight: 600; }
+.vazioTexto { font-size: var(--t-sm); color: var(--txt-3); line-height: 1.55; }
+
+.vemBloco {
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--bg-1);
+}
+.vemResumo {
+  padding: var(--s3) var(--s4);
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.vemLista { display: grid; padding: 0 var(--s2) var(--s2); }
+.vemItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'quando cliente' 'quando nota';
+  column-gap: var(--s3);
+  align-items: baseline;
+  padding: var(--s3);
+  border-radius: var(--r);
+  color: var(--txt-1);
+}
+.vemItem:active { background: var(--sup-1); }
+.vemItem .mono { grid-area: quando; align-self: center; }
+.vemCliente { grid-area: cliente; font-size: var(--t-sm); font-weight: 500; }
+.vemNota { grid-area: nota; font-size: var(--t-xs); color: var(--txt-3); }
+.vemTudo {
+  display: block;
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--borda);
+  font-size: var(--t-sm);
+  color: var(--vio-claro);
+}
+
+/* ---------------------------------------------------------------------------
+   A TELA LARGA
+   ---------------------------------------------------------------------------
+   O aplicativo é de celular e continua sendo: coluna única, alvo grande, uma
+   decisão por tela. Mas ele TAMBÉM é aberto no computador da oficina, em modo
+   gestão, e ali a coluna de 560px deixava setenta por cento da tela em branco —
+   foi assim que o dono do sistema o viu e disse "está muito simples".
+
+   Acima de 1000px a coluna cresce e as paradas se organizam em duas. Não é
+   "versão desktop": é a MESMA tela usando o espaço que existe. Abaixo disso
+   nada muda, e o celular na rua continua exatamente como estava.
+   --------------------------------------------------------------------------- */
+@media (min-width: 1000px) {
+  .aparelho { max-width: 940px; }
+  .corpo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  /* O que atravessa as duas colunas: o resumo, os avisos e a parada de AGORA,
+     que é a única que abre inteira e precisa da largura para os botões. */
+  .resumo,
+  .modoGestao,
+  .vazioRico,
+  .diaFechado,
+  .paradaAgora,
+  .avisos { grid-column: 1 / -1; }
+}
+.resumoQuem {
+  display: grid;
+  gap: 2px;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+}
+.resumoQuem li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s3);
+  font-size: var(--t-sm);
+}
+.resumoQuemNome { color: var(--txt-2); }
