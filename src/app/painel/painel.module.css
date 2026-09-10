@@ -7711,7 +7711,12 @@ i.riscoBaixo { background: var(--txt-3); }
    cada e o nome do passo sumiria — e o nome é o que faz a régua ser lida em
    vez de contada.
    ========================================================================= */
-.osJan { width: min(860px, 100%); }
+/* A janela cresceu de uma seção para quatro, e a de cartões quer largura: com
+   860px a grade do cliente dava três colunas apertadas e quebrava o endereço em
+   quatro linhas. 1040px é onde os cartões de 230px cabem quatro por fileira num
+   monitor comum e continuam dois no notebook. O `min()` mantém o celular
+   intacto. */
+.osJan { width: min(1040px, 100%); }
 .osJanCab { min-width: 0; display: grid; gap: 4px; }
 .osJanEquip { font-weight: 500; color: var(--txt-2); }
 .osJanSub {
@@ -8093,3 +8098,224 @@ i.riscoBaixo { background: var(--txt-3); }
   padding-top: var(--s4);
   border-top: 1px solid var(--borda);
 }
+
+/* ---------------------------------------------------------------------------
+   A JANELA DE UM EVENTO DO CALENDÁRIO
+   ---------------------------------------------------------------------------
+   Cartões em grade, e não uma lista de "rótulo: valor". As quatro fontes do
+   calendário têm pesos diferentes — o endereço com o mapa, o recado da central
+   e o telefone que se clica para ligar não são o mesmo tipo de coisa, e uma
+   lista desenharia os três iguais.
+
+   `minmax(230px, 1fr)` com `auto-fit`: no computador dá duas ou três colunas,
+   no celular vira uma só, sem media query. A janela é lida das duas telas — a
+   central no desktop e quem está com o celular na mão perguntando "que horas
+   mesmo é a do Bella Pelle".
+   --------------------------------------------------------------------------- */
+.janelaLarga { max-width: 900px; }
+
+.evTipo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--vio-claro);
+}
+.evQuando { font-size: var(--t-sm); color: var(--txt-2); margin-top: 3px; }
+
+.evAtraso {
+  border: 1px solid rgba(239, 68, 68, .34);
+  background: rgba(239, 68, 68, .07);
+  color: var(--perigo);
+  border-radius: var(--r);
+  padding: var(--s3) var(--s4);
+  font-size: var(--t-sm);
+  margin-bottom: var(--s4);
+}
+
+.evGrade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--s3);
+}
+.evCartao {
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  background: var(--sup-1);
+  padding: var(--s4);
+  display: grid;
+  gap: 5px;
+  align-content: start;
+}
+/* O âmbar marca o que espera decisão de alguém — parada sem motorista,
+   contrato vencido, compromisso atrasado. Um só por janela, quase sempre. */
+.evCartaoAlerta {
+  border-color: rgba(251, 191, 36, .38);
+  background: rgba(251, 191, 36, .05);
+}
+.evCartaoTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: 2px;
+}
+.evForte { font-size: var(--t-base); font-weight: 600; line-height: 1.3; }
+.evTexto { font-size: var(--t-sm); color: var(--txt-1); line-height: 1.5; }
+.evNota { font-size: var(--t-xs); color: var(--txt-3); line-height: 1.5; }
+.evCartao .btnSec { margin-top: var(--s2); justify-self: start; }
+
+.evRecado {
+  margin-top: var(--s3);
+  border-left: 2px solid var(--vio);
+  background: var(--sup-1);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: var(--s3) var(--s4);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+}
+.evRecadoRot {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: 3px;
+}
+
+.evAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--borda);
+}
+
+/* ---------------------------------------------------------------------------
+   AS ABAS DA JANELA DA O.S., E O QUE MORA DENTRO DELAS
+   ---------------------------------------------------------------------------
+   A janela cresceu de uma coisa (o passo a passo) para quatro: o agora, a
+   ordem, o cliente e a história. A barra de abas fica logo abaixo do
+   cabeçalho, rola na horizontal no celular, e a aba ativa é marcada por um
+   traço embaixo — e não por uma caixa colorida, que competiria com os botões
+   de ação do passo, que são o que a pessoa veio clicar.
+   --------------------------------------------------------------------------- */
+.osAbas {
+  display: flex;
+  gap: var(--s2);
+  border-bottom: 1px solid var(--borda);
+  margin-bottom: var(--s5);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.osAbas::-webkit-scrollbar { display: none; }
+.osAba {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--txt-3);
+  font: inherit;
+  font-size: var(--t-sm);
+  padding: var(--s3) var(--s3) calc(var(--s3) - 2px);
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.osAba:hover { color: var(--txt-1); }
+.osAbaAtiva { color: var(--txt-1); border-bottom-color: var(--vio); font-weight: 600; }
+.osAbaConta {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  background: var(--sup-2);
+  border-radius: 999px;
+  padding: 1px 7px;
+  color: var(--txt-3);
+}
+
+.osCartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.osCartaoForte { font-size: var(--t-base); font-weight: 600; line-height: 1.3; }
+.osCartaoNota { font-size: var(--t-xs); color: var(--txt-3); line-height: 1.55; }
+
+.osTexto {
+  border-left: 2px solid var(--borda);
+  padding-left: var(--s4);
+  margin-bottom: var(--s4);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+}
+.osTextoRot {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: 3px;
+}
+
+.osLista { margin-bottom: var(--s4); }
+.osListaTitulo {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+  margin-bottom: var(--s2);
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.osListaLista { display: grid; gap: 2px; }
+.osListaItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r);
+  font-size: var(--t-sm);
+  color: var(--txt-1);
+}
+a.osListaItem:hover { background: var(--sup-1); }
+.osListaNome { font-weight: 500; }
+.osListaDet { color: var(--txt-3); font-size: var(--t-xs); }
+/* Ordem encerrada e contrato vencido continuam na lista — a pergunta "ele já
+   teve problema antes?" é sobre o passado — mas em tom mais baixo, para não
+   disputarem com o que ainda está de pé. */
+.osListaFraco { opacity: .55; }
+
+.osHist { display: grid; gap: 2px; }
+.osHistNo {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r);
+}
+.osHistNum {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  border: 1px solid var(--borda);
+  color: var(--txt-3);
+}
+.osHistFeito .osHistNum { background: var(--vio-veu-2); border-color: var(--vio); color: var(--vio-claro); }
+.osHistAgora { background: var(--vio-veu-2); }
+.osHistAgora .osHistNum { background: var(--vio-forte); border-color: var(--vio-forte); color: #fff; }
+.osHistAdiante { opacity: .5; }
+.osHistNome { font-size: var(--t-sm); font-weight: 500; }
+.osHistQuando { font-size: var(--t-xs); color: var(--txt-3); margin-top: 1px; }

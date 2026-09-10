@@ -23,6 +23,7 @@ import {
 import { avancarOrdem } from '@/server/ordem/motor'
 import { movimentar } from '@/server/estoque/servico'
 import { dossieDaOrdem, type Dossie } from './acompanhar'
+import { fichaDoCliente, type FichaDoCliente } from '@/server/consultas/ficha-do-cliente'
 
 /**
  * O QUE A JANELA DA O.S. PRECISA SABER — tudo, numa ida só.
@@ -154,6 +155,16 @@ export type PainelDaOrdem = {
    * ordem é trabalho de banco jogado fora.
    */
   catalogoDePecas: Array<{ id: string; sku: string; nome: string; livre: number }>
+  /**
+   * A ficha do cliente, para a aba "O cliente" da janela.
+   *
+   * Vem junto do resto e não numa segunda ida ao servidor: a janela já faz UMA
+   * viagem que traz roteiro, passos, parada, peças e fatura, e trocar de aba
+   * dentro dela não pode ser uma espera nova. `null` só se o cliente sumiu
+   * entre a leitura da ordem e a dele, que é praticamente impossível e mesmo
+   * assim não pode derrubar a janela.
+   */
+  cliente: FichaDoCliente | null
   /** Quem emite fatura e registra recebimento. */
   podeFaturar: boolean
   /**
@@ -237,6 +248,7 @@ export async function painelDaOrdem(
           tokenPublico: true,
           cliente: {
             select: {
+              id: true,
               contatoNome: true,
               telefone: true,
               logradouro: true,
@@ -433,6 +445,22 @@ export async function painelDaOrdem(
       ? (await motoristasDaEmpresa(ctx)).map((m) => ({ id: m.id, nome: m.nome }))
       : []
 
+  /**
+   * A FICHA DO CLIENTE — buscada aqui, e não numa segunda ida da tela.
+   *
+   * A janela já faz uma viagem só que traz roteiro, passos, parada, peças e
+   * fatura. Trocar de aba dentro dela é gesto de meio segundo; fazer disso uma
+   * ida ao servidor daria à aba do cliente uma espera que nenhuma outra tem.
+   *
+   * O corte de dinheiro é passado explicitamente, com a mesma lista de papéis
+   * que decide `podeFaturar`. A consulta nem lê as faturas quando ele é falso —
+   * dado que não sai do banco não escapa por engano.
+   */
+  const cliente = await fichaDoCliente(ctx, extra.cliente.id, {
+    ordemAtual: ordemId,
+    podeVerDinheiro: FINANCEIRO.includes(sessao.papel),
+  })
+
   const paradasMarcadas: ParadaMarcadaNaOrdem[] = paradasVivas.map((a) => ({
     id: a.id,
     tipo: a.tipo,
@@ -514,6 +542,7 @@ export async function painelDaOrdem(
       semPecaDeclaradoPorNome: extra.semPecaDeclaradoPorNome,
       podeLancarPeca,
       catalogoDePecas,
+      cliente,
       podeFaturar: FINANCEIRO.includes(sessao.papel),
       faturaId: extra.fatura?.id ?? null,
       faturaVence: extra.fatura?.vencimento ? diaLocal(extra.fatura.vencimento) : null,

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
 import { formatarBRL } from '@/lib/dinheiro'
-import { avancar } from '@/server/acoes/ordem'
+import { avancar, editarOrdem } from '@/server/acoes/ordem'
 import {
   declararSemPeca,
   lancarPecaDaOrdem,
@@ -63,6 +63,15 @@ type Modo =
   | { tela: 'envio' }
   | { tela: 'combinado' }
 
+type ChaveDeAba = 'agora' | 'ordem' | 'cliente' | 'historia'
+
+const ABAS: Array<{ chave: ChaveDeAba; rotulo: string }> = [
+  { chave: 'agora', rotulo: 'O passo a passo' },
+  { chave: 'ordem', rotulo: 'A ordem' },
+  { chave: 'cliente', rotulo: 'O cliente' },
+  { chave: 'historia', rotulo: 'O que já aconteceu' },
+]
+
 export default function JanelaOS({
   ordemId,
   aoFechar,
@@ -75,6 +84,16 @@ export default function JanelaOS({
   const [modo, setModo] = useState<Modo>({ tela: 'agora' })
   /** O passo que a pessoa clicou na régua só para ver o que é. */
   const [espiando, setEspiando] = useState<number | null>(null)
+
+  /**
+   * A ABA ABERTA. Começa sempre em 'agora'.
+   *
+   * Não fica na URL de propósito: a janela é estado da lista, não uma rota, e
+   * gravar a aba no endereço faria "voltar" no navegador significar "aba
+   * anterior" em vez de "fechar a janela" — que é o que o botão voltar precisa
+   * fazer aqui.
+   */
+  const [aba, setAba] = useState<ChaveDeAba>('agora')
   const caixa = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -217,68 +236,111 @@ export default function JanelaOS({
             <p className={estilo.texto}>Carregando…</p>
           ) : (
             <>
-              <Regua
-                painel={p}
-                espiando={espiando}
-                aoEspiar={(n) => setEspiando((atual) => (atual === n ? null : n))}
-              />
+              {/* ---------------------------------------------------------------
+                  AS ABAS DA JANELA
+                  ---------------------------------------------------------------
+                  A janela nasceu com uma coisa só: o passo a passo. Isso estava
+                  certo — o pedido era "de forma fácil, tipo um passo a passo" —
+                  e continua sendo o que ela abre. O que faltava era o resto: a
+                  ficha da ordem e a do cliente moravam em telas separadas, e
+                  perguntar "esse cliente já teve problema antes?" no meio de uma
+                  retirada custava sair da janela e perder o lugar.
 
-              {/* O corpo troca conforme o que a pessoa está fazendo. Um passo de
-                  cada vez é a regra desta janela inteira. */}
-              {modo.tela === 'parada' && p.parada ? (
-                <Voltando titulo="Marcar o dia e o motorista" aoVoltar={() => setModo({ tela: 'agora' })}>
-                  <FormularioDaParada
-                    dados={{
-                      ordemId: d!.id,
-                      numero: d!.numero,
-                      tipo: p.parada.tipo,
-                      cliente: d!.cliente.nome,
-                      dias: p.parada.dias,
-                      motoristas: p.parada.motoristas,
-                      semMotorista: p.parada.semMotorista,
-                      endereco: p.parada.endereco,
-                      contatoNome: p.parada.contatoNome,
-                      contatoTelefone: p.parada.contatoTelefone,
-                      observacoes: p.parada.observacoes,
-                    }}
-                    titulo={
-                      p.passos.find((x) => x.pedeParada !== null)?.titulo ?? 'o próximo passo'
-                    }
-                    aoFechar={() => setModo({ tela: 'agora' })}
-                    aoMarcar={andou}
+                  Quatro abas, e a ordem delas é a ordem da conversa: o que fazer
+                  AGORA, a ORDEM inteira, o CLIENTE por trás dela, e o que já
+                  ACONTECEU. A primeira é a que abre — trabalhar continua sendo o
+                  motivo de a janela existir. */}
+              <div className={estilo.osAbas} role="tablist" aria-label="Seções da O.S.">
+                {ABAS.map((a) => (
+                  <button
+                    key={a.chave}
+                    type="button"
+                    role="tab"
+                    aria-selected={aba === a.chave}
+                    className={aba === a.chave ? `${estilo.osAba} ${estilo.osAbaAtiva}` : estilo.osAba}
+                    onClick={() => setAba(a.chave)}
+                  >
+                    {a.rotulo}
+                    {a.chave === 'cliente' && p.cliente && p.cliente.outrasOrdens.length > 0 ? (
+                      <span className={estilo.osAbaConta}>{p.cliente.outrasOrdens.length}</span>
+                    ) : null}
+                    {/* O contador só aparece quando conta alguma coisa. Um "0"
+                        ao lado do nome da aba não informa nada e vira sujeira —
+                        a própria aba já diz que a seção existe. */}
+                    {a.chave === 'historia' && p.roteiro.passos.some((x) => x.quando) ? (
+                      <span className={estilo.osAbaConta}>
+                        {p.roteiro.passos.filter((x) => x.quando).length}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+
+              {aba === 'agora' ? (
+                <>
+                  <Regua
+                    painel={p}
+                    espiando={espiando}
+                    aoEspiar={(n) => setEspiando((atual) => (atual === n ? null : n))}
                   />
-                </Voltando>
-              ) : modo.tela === 'envio' ? (
-                <Voltando titulo="O cliente é que envia" aoVoltar={() => setModo({ tela: 'agora' })}>
-                  <FormularioDeEnvio painel={p} aoEnviar={andou} />
-                </Voltando>
-              ) : modo.tela === 'combinado' ? (
-                <Voltando titulo="O que foi combinado" aoVoltar={() => setModo({ tela: 'agora' })}>
-                  <FormularioDoCombinado painel={p} aoSalvar={() => {
-                      setModo({ tela: 'agora' })
-                      void recarregar()
-                    }} />
-                </Voltando>
-              ) : espiando !== null ? (
-                <PassoEspiado painel={p} n={espiando} aoFechar={() => setEspiando(null)} />
-              ) : (
-                <Agora
-                  painel={p}
-                  aoAndar={andou}
-                  aoMarcarParada={() => setModo({ tela: 'parada' })}
-                  aoEscolherEnvio={() => setModo({ tela: 'envio' })}
-                  aoCombinar={() => setModo({ tela: 'combinado' })}
-                />
-              )}
 
-              <AParadaDaRota painel={p} aoMudar={recarregar} />
+                  {/* O corpo troca conforme o que a pessoa está fazendo. Um passo de
+                      cada vez é a regra desta janela inteira. */}
+                  {modo.tela === 'parada' && p.parada ? (
+                    <Voltando titulo="Marcar o dia e o motorista" aoVoltar={() => setModo({ tela: 'agora' })}>
+                      <FormularioDaParada
+                        dados={{
+                          ordemId: d!.id,
+                          numero: d!.numero,
+                          tipo: p.parada.tipo,
+                          cliente: d!.cliente.nome,
+                          dias: p.parada.dias,
+                          motoristas: p.parada.motoristas,
+                          semMotorista: p.parada.semMotorista,
+                          endereco: p.parada.endereco,
+                          contatoNome: p.parada.contatoNome,
+                          contatoTelefone: p.parada.contatoTelefone,
+                          observacoes: p.parada.observacoes,
+                        }}
+                        titulo={
+                          p.passos.find((x) => x.pedeParada !== null)?.titulo ?? 'o próximo passo'
+                        }
+                        aoFechar={() => setModo({ tela: 'agora' })}
+                        aoMarcar={andou}
+                      />
+                    </Voltando>
+                  ) : modo.tela === 'envio' ? (
+                    <Voltando titulo="O cliente é que envia" aoVoltar={() => setModo({ tela: 'agora' })}>
+                      <FormularioDeEnvio painel={p} aoEnviar={andou} />
+                    </Voltando>
+                  ) : modo.tela === 'combinado' ? (
+                    <Voltando titulo="O que foi combinado" aoVoltar={() => setModo({ tela: 'agora' })}>
+                      <FormularioDoCombinado painel={p} aoSalvar={() => {
+                          setModo({ tela: 'agora' })
+                          void recarregar()
+                        }} />
+                    </Voltando>
+                  ) : espiando !== null ? (
+                    <PassoEspiado painel={p} n={espiando} aoFechar={() => setEspiando(null)} />
+                  ) : (
+                    <Agora
+                      painel={p}
+                      aoAndar={andou}
+                      aoMarcarParada={() => setModo({ tela: 'parada' })}
+                      aoEscolherEnvio={() => setModo({ tela: 'envio' })}
+                      aoCombinar={() => setModo({ tela: 'combinado' })}
+                    />
+                  )}
 
-              <Resumo painel={p} />
+                  <AParadaDaRota painel={p} aoMudar={recarregar} />
+                </>
+              ) : null}
+
+              {aba === 'ordem' ? <AAbaDaOrdem painel={p} aoSalvar={recarregar} /> : null}
+              {aba === 'cliente' ? <AAbaDoCliente painel={p} /> : null}
+              {aba === 'historia' ? <AAbaDaHistoria painel={p} /> : null}
 
               <div className={estilo.osJanRodape}>
-                <Link href={`/painel/ordens/${d!.id}`} className={estilo.btnSec}>
-                  Histórico completo
-                </Link>
                 <a
                   href={p.linkPortal}
                   target="_blank"
@@ -287,12 +349,12 @@ export default function JanelaOS({
                 >
                   O que o cliente vê
                 </a>
-                <Link href={`/painel/ordens/${d!.id}/editar`} className={estilo.btnSec}>
-                  Corrigir a O.S.
+                <Link href={`/painel/ordens/${d!.id}`} className={estilo.btnSec}>
+                  Abrir a ficha completa
                 </Link>
               </div>
 
-              {p.podeCancelar ? <Cancelar ordemId={d!.id} /> : null}
+              {p.podeCancelar && aba === 'ordem' ? <Cancelar ordemId={d!.id} /> : null}
             </>
           )}
         </div>
@@ -1113,71 +1175,6 @@ function FormularioDoCombinado({
   )
 }
 
-/* ==========================================================================
-   O resumo — o que o telefone pergunta, sempre à vista
-   ========================================================================== */
-function Resumo({ painel }: { painel: PainelDaOrdem }) {
-  const d = painel.dossie
-  const fotosDeEntrada = d.fotos.filter((f) => f.categoria === 'RECEBIMENTO').length
-
-  return (
-    <div className={estilo.osResumo}>
-      <Dado rot="Cliente" val={`${d.cliente.nome}${painel.contatoNome ? ` · ${painel.contatoNome}` : ''}`} />
-      <Dado
-        rot="Aparelho"
-        val={`${d.equipamento.marca} ${d.equipamento.modelo}${
-          d.equipamento.numeroSerie ? ` · série ${d.equipamento.numeroSerie}` : ''
-        }`}
-      />
-      <Dado rot="Defeito relatado" val={painel.defeitoRelatado} />
-      {painel.diagnostico ? <Dado rot="Laudo do técnico" val={painel.diagnostico} /> : null}
-      <Dado rot="Técnico" val={d.tecnico ?? 'sem técnico'} />
-      <Dado
-        rot="Combinado na abertura"
-        val={
-          painel.valorPrevioCentavos === null
-            ? 'nada combinado'
-            : `${formatarBRL(painel.valorPrevioCentavos)}${
-                painel.condicaoCombinada ? ` · ${painel.condicaoCombinada}` : ''
-              }`
-        }
-      />
-      {d.orcamento ? (
-        <Dado
-          rot={`Orçamento #${d.orcamento.numero}`}
-          val={`${formatarBRL(d.orcamento.totalCentavos)} · ${d.orcamento.status.toLowerCase()}`}
-        />
-      ) : null}
-      {d.fatura ? (
-        <Dado
-          rot={`Fatura #${d.fatura.numero}`}
-          val={`${formatarBRL(d.fatura.valorTotalCentavos)} · ${
-            d.fatura.emAbertoCentavos > 0
-              ? `${formatarBRL(d.fatura.emAbertoCentavos)} em aberto`
-              : 'quitada'
-          }`}
-        />
-      ) : null}
-      {painel.viaCorreio ? (
-        <Dado rot="Envio do cliente" val={painel.codigoRastreio ?? 'sem código de rastreio'} />
-      ) : null}
-      <Dado
-        rot="Provas"
-        val={`${fotosDeEntrada} foto(s) de entrada · ${d.assinaturas.length} assinatura(s) · ${d.documentos.length} documento(s)`}
-      />
-    </div>
-  )
-}
-
-function Dado({ rot, val }: { rot: string; val: string }) {
-  return (
-    <div className={estilo.osDado}>
-      <span className={estilo.osDadoRot}>{rot}</span>
-      <span className={estilo.osDadoVal}>{val}</span>
-    </div>
-  )
-}
-
 /** 'AAAA-MM-DD' → '14/09/2026', sem deixar o navegador escolher o fuso. */
 function diaBR(dia: string): string {
   const [a, m, d] = dia.split('-')
@@ -1480,3 +1477,579 @@ function FormularioRemarcar({
     </form>
   )
 }
+
+// ===========================================================================
+// ABA "A ORDEM" — a ficha do serviço, e a correção dela sem sair da janela
+// ===========================================================================
+
+/**
+ * TUDO O QUE ESTÁ ESCRITO NESTA ORDEM, E O BOTÃO DE CORRIGIR.
+ *
+ * =============================================================================
+ * POR QUE A CORREÇÃO VEIO PARA CÁ
+ * =============================================================================
+ * "Corrigir a O.S." era um link no rodapé que trocava de página. Quem clicasse
+ * saía da janela, ia para `/painel/ordens/<id>/editar`, salvava, e voltava para
+ * a lista pelo botão do navegador — perdendo a ordem que estava trabalhando.
+ *
+ * A página continua existindo e não muda: é o destino de qualquer link antigo.
+ * O que mudou é que ninguém precisa mais ir até lá para arrumar um defeito
+ * digitado errado.
+ */
+function AAbaDaOrdem({
+  painel,
+  aoSalvar,
+}: {
+  painel: PainelDaOrdem
+  aoSalvar: () => Promise<void>
+}) {
+  const d = painel.dossie
+  const [editando, setEditando] = useState(false)
+  const fotosDeEntrada = d.fotos.filter((f) => f.categoria === 'RECEBIMENTO').length
+
+  if (editando) {
+    return (
+      <Voltando titulo="Corrigir o que foi digitado" aoVoltar={() => setEditando(false)}>
+        <FormularioDaCorrecao
+          painel={painel}
+          aoSalvar={async () => {
+            setEditando(false)
+            await aoSalvar()
+          }}
+        />
+      </Voltando>
+    )
+  }
+
+  return (
+    <>
+      <div className={estilo.osCartoes}>
+        <CartaoOS titulo="O aparelho">
+          <p className={estilo.osCartaoForte}>
+            {d.equipamento.marca} {d.equipamento.modelo}
+          </p>
+          {d.equipamento.numeroSerie ? (
+            <p className={estilo.osCartaoNota}>Série {d.equipamento.numeroSerie}</p>
+          ) : null}
+          <p className={estilo.osCartaoNota}>
+            {d.emGarantia ? 'Está em garantia.' : 'Fora de garantia.'}
+          </p>
+        </CartaoOS>
+
+        <CartaoOS titulo="Prazo e prioridade" alerta={d.atrasada}>
+          <p className={estilo.osCartaoForte}>
+            {d.prazoPrometido ? dataCurta(d.prazoPrometido) : 'Sem prazo prometido'}
+          </p>
+          <p className={estilo.osCartaoNota}>
+            {d.atrasada
+              ? 'Passou do prazo prometido ao cliente.'
+              : d.prazoPrometido
+                ? 'Dentro do prazo.'
+                : 'Sem data prometida, esta ordem não conta como atrasada.'}
+          </p>
+          <p className={estilo.osCartaoNota}>
+            Prioridade {painel.prioridade === 'ALTA' ? 'alta' : 'normal'} · aberta em{' '}
+            {dataCurta(d.abertaEm)}
+          </p>
+        </CartaoOS>
+
+        <CartaoOS titulo="Quem está com ela">
+          <p className={estilo.osCartaoForte}>{d.tecnico ?? 'Nenhum técnico ainda'}</p>
+          <p className={estilo.osCartaoNota}>Etapa: {painel.etapaRotulo}</p>
+          {painel.viaCorreio ? (
+            <p className={estilo.osCartaoNota}>
+              Veio pelo correio{painel.codigoRastreio ? ` · ${painel.codigoRastreio}` : ''}
+            </p>
+          ) : null}
+        </CartaoOS>
+
+        <CartaoOS titulo="O combinado na abertura">
+          <p className={estilo.osCartaoForte}>
+            {painel.valorPrevioCentavos === null
+              ? 'Nada combinado'
+              : formatarBRL(painel.valorPrevioCentavos)}
+          </p>
+          {painel.condicaoCombinada ? (
+            <p className={estilo.osCartaoNota}>{painel.condicaoCombinada}</p>
+          ) : null}
+        </CartaoOS>
+      </div>
+
+      <div className={estilo.osTexto}>
+        <p className={estilo.osTextoRot}>O que o cliente relatou</p>
+        <p>{painel.defeitoRelatado}</p>
+      </div>
+      {painel.diagnostico ? (
+        <div className={estilo.osTexto}>
+          <p className={estilo.osTextoRot}>Laudo do técnico</p>
+          <p>{painel.diagnostico}</p>
+        </div>
+      ) : null}
+
+      <div className={estilo.osCartoes}>
+        {d.orcamento ? (
+          <CartaoOS titulo={`Orçamento #${d.orcamento.numero}`}>
+            <p className={estilo.osCartaoForte}>{formatarBRL(d.orcamento.totalCentavos)}</p>
+            <p className={estilo.osCartaoNota}>
+              {d.orcamento.status.toLowerCase()} · garantia de {d.orcamento.garantiaDias} dias
+            </p>
+            {d.orcamento.aprovadoPorNome ? (
+              <p className={estilo.osCartaoNota}>Aprovado por {d.orcamento.aprovadoPorNome}.</p>
+            ) : null}
+          </CartaoOS>
+        ) : null}
+        {d.fatura ? (
+          <CartaoOS titulo={`Fatura #${d.fatura.numero}`} alerta={d.fatura.emAbertoCentavos > 0}>
+            <p className={estilo.osCartaoForte}>{formatarBRL(d.fatura.valorTotalCentavos)}</p>
+            <p className={estilo.osCartaoNota}>
+              {d.fatura.emAbertoCentavos > 0
+                ? `${formatarBRL(d.fatura.emAbertoCentavos)} em aberto`
+                : 'Quitada.'}
+            </p>
+          </CartaoOS>
+        ) : null}
+        <CartaoOS titulo="As provas desta ordem">
+          <p className={estilo.osCartaoForte}>
+            {fotosDeEntrada} {fotosDeEntrada === 1 ? 'foto' : 'fotos'} de entrada
+          </p>
+          <p className={estilo.osCartaoNota}>
+            {d.assinaturas.length}{' '}
+            {d.assinaturas.length === 1 ? 'assinatura' : 'assinaturas'} · {d.documentos.length}{' '}
+            {d.documentos.length === 1 ? 'documento' : 'documentos'}
+          </p>
+          <Link href={`/painel/equipamentos/${d.equipamento.id}/rastreabilidade`} className={estilo.btnSec}>
+            Folha de rastreabilidade
+          </Link>
+        </CartaoOS>
+        <CartaoOS titulo="Peças lançadas">
+          <p className={estilo.osCartaoForte}>
+            {painel.pecasLancadas.length === 0
+              ? painel.semPecaDeclaradoEm
+                ? 'Nenhuma — declarado'
+                : 'Nada lançado ainda'
+              : `${painel.pecasLancadas.length} ${painel.pecasLancadas.length === 1 ? 'peça' : 'peças'}`}
+          </p>
+          {painel.pecasLancadas.map((x) => (
+            <p key={x.id} className={estilo.osCartaoNota}>
+              {x.quantidade}× {x.nome} ({x.sku})
+            </p>
+          ))}
+          {painel.semPecaDeclaradoPorNome ? (
+            <p className={estilo.osCartaoNota}>
+              Declarado por {painel.semPecaDeclaradoPorNome}.
+            </p>
+          ) : null}
+        </CartaoOS>
+      </div>
+
+      <div className={estilo.evAcoes}>
+        <button type="button" className={estilo.btn} onClick={() => setEditando(true)}>
+          Editar a O.S.
+        </button>
+        <Link href={`/painel/ordens/${d.id}?ver=documentos`} className={estilo.btnSec}>
+          Contrato e documentos
+        </Link>
+      </div>
+    </>
+  )
+}
+
+/**
+ * O formulário de correção, dentro da janela.
+ *
+ * O mesmo `editarOrdem` da página, com o mesmo cuidado que ela ganhou: espera a
+ * ação terminar, diz o que aconteceu, e só então recarrega. A ordem importa —
+ * recarregar antes de confirmar é o que fazia a correção sumir da tela depois
+ * de gravada.
+ */
+function FormularioDaCorrecao({
+  painel,
+  aoSalvar,
+}: {
+  painel: PainelDaOrdem
+  aoSalvar: () => Promise<void>
+}) {
+  const [pendente, iniciar] = useTransition()
+  const [erro, setErro] = useState<string | null>(null)
+
+  function enviar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const dados = new FormData(e.currentTarget)
+    setErro(null)
+    iniciar(async () => {
+      const r = await editarOrdem({ ok: true }, dados)
+      if (!r.ok) setErro(r.motivo)
+      else await aoSalvar()
+    })
+  }
+
+  return (
+    <form className={estilo.form} onSubmit={enviar}>
+      <input type="hidden" name="ordemId" value={painel.dossie.id} />
+      {erro ? (
+        <p className={estilo.erro} role="alert">
+          {erro}
+        </p>
+      ) : null}
+
+      <label className={estilo.rotulo}>
+        O que o cliente relatou *
+        <textarea
+          className={estilo.area}
+          name="defeito"
+          required
+          minLength={10}
+          maxLength={2000}
+          defaultValue={painel.defeitoRelatado}
+        />
+        <span className={estilo.dica}>
+          É o relato em português do cliente. O laudo do técnico tem lugar próprio.
+        </span>
+      </label>
+
+      <div className={estilo.formLinha}>
+        <label className={estilo.rotulo}>
+          Prioridade
+          <select className={estilo.campo} name="prioridade" defaultValue={painel.prioridade}>
+            <option value="NORMAL">Normal</option>
+            <option value="ALTA">Alta — aparelho parado em clínica faturando</option>
+          </select>
+        </label>
+        <label className={estilo.rotulo}>
+          Prazo prometido
+          <input
+            className={estilo.campo}
+            name="prazo"
+            type="date"
+            defaultValue={painel.dossie.prazoPrometido?.slice(0, 10) ?? ''}
+          />
+          <span className={estilo.dica}>Em branco, a ordem não conta como atrasada.</span>
+        </label>
+      </div>
+
+      <div className={estilo.formLinha}>
+        <label className={estilo.rotulo}>
+          Veio pelo correio?
+          <select
+            className={estilo.campo}
+            name="viaCorreio"
+            defaultValue={painel.viaCorreio ? '1' : '0'}
+          >
+            <option value="0">Não — retirada nossa</option>
+            <option value="1">Sim, o cliente despachou</option>
+          </select>
+        </label>
+        <label className={estilo.rotulo}>
+          Código de rastreio
+          <input
+            className={estilo.campo}
+            name="codigoRastreio"
+            maxLength={60}
+            defaultValue={painel.codigoRastreio ?? ''}
+          />
+        </label>
+      </div>
+
+      <div className={estilo.acoesForm}>
+        <button type="submit" className={estilo.btn} disabled={pendente}>
+          {pendente ? 'Salvando…' : 'Salvar correção'}
+        </button>
+      </div>
+      <p className={estilo.dica}>
+        A correção fica registrada na trilha, com o que estava antes e o que ficou. Uma mudança
+        silenciosa num campo que o cliente já leu no orçamento não se distingue de alguém
+        reescrevendo a história do serviço.
+      </p>
+    </form>
+  )
+}
+
+// ===========================================================================
+// ABA "O CLIENTE"
+// ===========================================================================
+
+function AAbaDoCliente({ painel }: { painel: PainelDaOrdem }) {
+  const c = painel.cliente
+  if (!c) return <p className={estilo.texto}>Não foi possível carregar a ficha do cliente.</p>
+
+  return (
+    <>
+      <div className={estilo.osCartoes}>
+        <CartaoOS titulo="Quem é">
+          <p className={estilo.osCartaoForte}>{c.nome}</p>
+          {c.razaoSocial && c.razaoSocial !== c.nome ? (
+            <p className={estilo.osCartaoNota}>{c.razaoSocial}</p>
+          ) : null}
+          <p className={estilo.osCartaoNota}>
+            {c.tipo === 'PJ' ? 'Empresa' : 'Pessoa física'} · {c.documento}
+          </p>
+          <p className={estilo.osCartaoNota}>Cliente desde {c.clienteDesde}.</p>
+        </CartaoOS>
+
+        <CartaoOS titulo="Como falar">
+          {c.contatoNome ? <p className={estilo.osCartaoForte}>{c.contatoNome}</p> : null}
+          {c.whatsapp ? (
+            <a
+              className={estilo.btnSec}
+              href={`https://wa.me/${c.whatsapp.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp
+            </a>
+          ) : null}
+          {c.telefone ? (
+            <a className={estilo.btnSec} href={`tel:${c.telefone}`}>
+              Ligar
+            </a>
+          ) : null}
+          {c.contatoTelefone && c.contatoTelefone !== c.telefone ? (
+            <a className={estilo.btnSec} href={`tel:${c.contatoTelefone}`}>
+              Ligar para o contato
+            </a>
+          ) : null}
+          {c.email ? <p className={estilo.osCartaoNota}>{c.email}</p> : null}
+          {c.representante ? (
+            <p className={estilo.osCartaoNota}>Representante: {c.representante}</p>
+          ) : null}
+        </CartaoOS>
+
+        <CartaoOS titulo="Onde fica">
+          <p className={estilo.osCartaoNota}>{c.endereco ?? 'Endereço não cadastrado.'}</p>
+          {c.enderecoDeColeta ? (
+            <p className={estilo.osCartaoNota}>
+              <strong>Coleta em outro lugar:</strong> {c.enderecoDeColeta}
+            </p>
+          ) : null}
+          {c.pontoReferencia ? (
+            <p className={estilo.osCartaoNota}>Referência: {c.pontoReferencia}</p>
+          ) : null}
+          {c.endereco ? (
+            <a
+              className={estilo.btnSec}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                c.enderecoDeColeta ?? c.endereco,
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Ver no mapa
+            </a>
+          ) : null}
+        </CartaoOS>
+
+        {/* O CARTÃO DE DINHEIRO SÓ EXISTE PARA QUEM PODE VER DINHEIRO — e a
+            consulta nem lê as faturas quando não pode. Um cartão zerado seria
+            pior que a ausência: pareceria "não deve nada". */}
+        {c.financeiro ? (
+          <CartaoOS
+            titulo="Situação financeira"
+            alerta={c.financeiro.diasDeAtrasoMaior > 0}
+          >
+            <p className={estilo.osCartaoForte}>
+              {c.financeiro.emAbertoCentavos > 0
+                ? formatarBRL(c.financeiro.emAbertoCentavos)
+                : 'Nada em aberto'}
+            </p>
+            <p className={estilo.osCartaoNota}>
+              {c.financeiro.faturasEmAberto === 0
+                ? 'Nenhuma fatura em aberto.'
+                : `${c.financeiro.faturasEmAberto} ${
+                    c.financeiro.faturasEmAberto === 1 ? 'fatura' : 'faturas'
+                  } em aberto.`}
+            </p>
+            {c.financeiro.diasDeAtrasoMaior > 0 ? (
+              <p className={estilo.osCartaoNota}>
+                A mais antiga venceu há {c.financeiro.diasDeAtrasoMaior}{' '}
+                {c.financeiro.diasDeAtrasoMaior === 1 ? 'dia' : 'dias'}.
+              </p>
+            ) : null}
+          </CartaoOS>
+        ) : null}
+      </div>
+
+      {c.observacoes ? (
+        <div className={estilo.osTexto}>
+          <p className={estilo.osTextoRot}>Observações do cadastro</p>
+          <p>{c.observacoes}</p>
+        </div>
+      ) : null}
+
+      <ListaDoCliente
+        titulo="Aparelhos deste cliente"
+        vazio="Nenhum outro aparelho cadastrado."
+        itens={c.aparelhos.map((a) => ({
+          chave: a.id,
+          principal: `${a.marca} ${a.modelo}`,
+          detalhe: [
+            a.numeroSerie ? `série ${a.numeroSerie}` : null,
+            `${a.ordens} ${a.ordens === 1 ? 'ordem' : 'ordens'}`,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          href: `/painel/equipamentos/${a.id}`,
+        }))}
+      />
+
+      <ListaDoCliente
+        titulo="Outras ordens dele"
+        vazio="Esta é a primeira ordem deste cliente."
+        itens={c.outrasOrdens.map((o) => ({
+          chave: o.id,
+          principal: `#${String(o.numero).padStart(4, '0')} · ${o.equipamento}`,
+          detalhe: `${ROTULO_CURTO[o.etapa] ?? o.etapa.toLowerCase().replace(/_/g, ' ')} · aberta em ${o.abertaEm}`,
+          href: `/painel/ordens?abrir=${o.id}`,
+          fraco: o.encerrada,
+        }))}
+      />
+
+      <ListaDoCliente
+        titulo="Contratos de manutenção"
+        vazio="Nenhum contrato de manutenção."
+        itens={c.contratos.map((k) => ({
+          chave: String(k.numero),
+          principal: `#${String(k.numero).padStart(4, '0')} · ${k.equipamento}`,
+          detalhe: `${k.periodicidade.toLowerCase()}${k.fim ? ` · até ${k.fim}` : ''}${
+            k.ativo ? '' : ' · encerrado'
+          }`,
+          fraco: !k.ativo,
+        }))}
+      />
+
+      <div className={estilo.evAcoes}>
+        <Link href={`/painel/clientes/${c.id}`} className={estilo.btn}>
+          Abrir o cadastro completo
+        </Link>
+      </div>
+    </>
+  )
+}
+
+/** Uma lista curta dentro da aba do cliente. Some quando não tem nada útil. */
+function ListaDoCliente({
+  titulo,
+  vazio,
+  itens,
+}: {
+  titulo: string
+  vazio: string
+  itens: Array<{
+    chave: string
+    principal: string
+    detalhe: string
+    href?: string
+    fraco?: boolean
+  }>
+}) {
+  return (
+    <div className={estilo.osLista}>
+      <p className={estilo.osListaTitulo}>
+        {titulo}
+        {itens.length > 0 ? <span className={estilo.osAbaConta}>{itens.length}</span> : null}
+      </p>
+      {itens.length === 0 ? (
+        <p className={estilo.dica}>{vazio}</p>
+      ) : (
+        <ul className={estilo.osListaLista}>
+          {itens.map((i) => (
+            <li key={i.chave} className={i.fraco ? estilo.osListaFraco : undefined}>
+              {i.href ? (
+                <Link href={i.href} className={estilo.osListaItem}>
+                  <span className={estilo.osListaNome}>{i.principal}</span>
+                  <span className={estilo.osListaDet}>{i.detalhe}</span>
+                </Link>
+              ) : (
+                <span className={estilo.osListaItem}>
+                  <span className={estilo.osListaNome}>{i.principal}</span>
+                  <span className={estilo.osListaDet}>{i.detalhe}</span>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+// ===========================================================================
+// ABA "O QUE JÁ ACONTECEU"
+// ===========================================================================
+
+/**
+ * A HISTÓRIA DA ORDEM, nos onze passos que o dono conta em voz alta.
+ *
+ * Não são as dezoito etapas da máquina: essas ficam na ficha completa, para
+ * quem está investigando. Aqui é a linha do tempo que a pessoa reconhece — o
+ * que aconteceu, quando, e por quem.
+ */
+function AAbaDaHistoria({ painel }: { painel: PainelDaOrdem }) {
+  const passos = painel.roteiro.passos
+  return (
+    <>
+      {painel.roteiro.desvio ? (
+        <p className={estilo.evAtraso}>
+          Esta ordem saiu do caminho normal: {painel.roteiro.desvio.rotulo}.
+        </p>
+      ) : null}
+      <ol className={estilo.osHist}>
+        {passos.map((x) => (
+          <li
+            key={x.n}
+            className={
+              x.estado === 'agora'
+                ? `${estilo.osHistNo} ${estilo.osHistAgora}`
+                : x.estado === 'cumprido'
+                  ? `${estilo.osHistNo} ${estilo.osHistFeito}`
+                  : `${estilo.osHistNo} ${estilo.osHistAdiante}`
+            }
+          >
+            <span className={estilo.osHistNum}>{x.n}</span>
+            <div>
+              <p className={estilo.osHistNome}>{x.nome}</p>
+              <p className={estilo.osHistQuando}>
+                {x.quando
+                  ? `${quando(x.quando)}${x.autor ? ` · ${x.autor}` : ''}`
+                  : x.estado === 'agora'
+                    ? 'é o que está acontecendo agora'
+                    : 'ainda não aconteceu'}
+                {x.detalhe ? ` · ${x.detalhe}` : ''}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div className={estilo.evAcoes}>
+        <Link href={`/painel/ordens/${painel.dossie.id}`} className={estilo.btnSec}>
+          Ver as 18 etapas da máquina
+        </Link>
+      </div>
+    </>
+  )
+}
+
+/** Um cartão da aba. `alerta` acende o que precisa de olho. */
+function CartaoOS({
+  titulo,
+  alerta = false,
+  children,
+}: {
+  titulo: string
+  alerta?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className={alerta ? `${estilo.evCartao} ${estilo.evCartaoAlerta}` : estilo.evCartao}>
+      <p className={estilo.evCartaoTitulo}>{titulo}</p>
+      {children}
+    </div>
+  )
+}
+
+const ROTULO_CURTO: Record<string, string> = {
+  FINALIZADO: 'finalizada',
+  CANCELADO: 'cancelada',
+}
+
+const dataCurta = (iso: string) =>
+  new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })

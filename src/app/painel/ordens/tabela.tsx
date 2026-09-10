@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { formatarBRL } from '@/lib/dinheiro'
 import JanelaOS from './janela-os'
 import estilo from '../painel.module.css'
@@ -48,7 +49,33 @@ export type LinhaDeOrdem = {
  * responde de relance a pergunta que faz alguém abrir a lista.
  */
 export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
-  const [aberta, setAberta] = useState<string | null>(null)
+  const router = useRouter()
+  const parametros = useSearchParams()
+
+  /**
+   * `?abrir=<id>` ABRE A JANELA DE FORA DA LISTA.
+   *
+   * A janela nascia só do clique numa linha, e por isso era inalcançável de
+   * qualquer outro lugar do sistema: o calendário, o Dashboard e a busca só
+   * sabiam mandar para a ficha `/painel/ordens/<id>`, que é a tela longa. Agora
+   * qualquer um deles manda para a lista com a janela já aberta na ordem certa.
+   *
+   * O endereço é a fonte quando ele existe, e o estado local assume depois —
+   * assim fechar a janela não recarrega a página inteira só para tirar um
+   * parâmetro, e o botão "voltar" do navegador continua fazendo o esperado.
+   */
+  const pedida = parametros.get('abrir')
+  const [aberta, setAberta] = useState<string | null>(pedida)
+
+  function fechar() {
+    setAberta(null)
+    if (!pedida) return
+    // Tira o `abrir` da barra sem perder o filtro que a pessoa digitou.
+    const outros = new URLSearchParams(parametros.toString())
+    outros.delete('abrir')
+    const q = outros.toString()
+    router.replace(q ? `/painel/ordens?${q}` : '/painel/ordens', { scroll: false })
+  }
 
   return (
     <>
@@ -136,7 +163,7 @@ export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
         </table>
       </div>
 
-      {aberta ? <JanelaOS ordemId={aberta} aoFechar={() => setAberta(null)} /> : null}
+      {aberta ? <JanelaOS ordemId={aberta} aoFechar={fechar} /> : null}
     </>
   )
 }

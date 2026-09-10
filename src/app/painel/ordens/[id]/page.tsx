@@ -1,3 +1,4 @@
+import { mascararDocumento } from '@/lib/documentos'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -596,7 +597,7 @@ export default async function Prontuario({
             <p className={estilo.blocoTitulo}>Cliente</p>
             <div className={estilo.pares}>
               <Par rot="Nome" val={o.cliente.nome} />
-              <Par rot="Documento" val={mascarar(o.cliente.documento)} />
+              <Par rot="Documento" val={mascararDocumento(o.cliente.documento)} />
               <Par rot="Contato" val={o.cliente.contatoNome ?? '—'} />
               <Par rot="WhatsApp" val={o.cliente.whatsapp ? telefone(o.cliente.whatsapp) : '—'} />
               <Par
@@ -806,12 +807,6 @@ const dataHora = (d: Date) => fmtDataHora.format(d)
 const primeiroNome = (n: string) => n.split(' ')[0] ?? n
 
 /** Mostra só os últimos dígitos: a tela não precisa exibir o documento inteiro. */
-function mascarar(d: string): string {
-  if (d.length === 11) return `•••.•••.${d.slice(6, 9)}-${d.slice(9)}`
-  if (d.length === 14) return `••.•••.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
-  return d
-}
-
 function telefone(t: string): string {
   const d = t.replace(/\D/g, '').replace(/^55/, '')
   if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`

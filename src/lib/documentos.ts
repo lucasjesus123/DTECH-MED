@@ -49,3 +49,22 @@ export function formatarTelefone(bruto: string): string {
   if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
   return bruto
 }
+
+/**
+ * O DOCUMENTO PARA MOSTRAR NA TELA — com o meio escondido.
+ *
+ * A ficha responde *"é ele mesmo?"*, e para isso os quatro últimos dígitos
+ * bastam: quem tem o papel na mão confere, quem está olhando a tela por cima do
+ * ombro não leva o CPF. O documento inteiro existe no cadastro, que é onde ele
+ * é editado por quem tem motivo.
+ *
+ * Vivia copiado dentro da tela do prontuário. Uma segunda tela precisando dele
+ * significava uma segunda cópia — e é assim que a máscara acaba diferente em
+ * dois lugares, com um deles mostrando um dígito a mais.
+ */
+export function mascararDocumento(bruto: string): string {
+  const d = bruto.replace(/\D/g, '')
+  if (d.length === 11) return `•••.•••.${d.slice(6, 9)}-${d.slice(9)}`
+  if (d.length === 14) return `••.•••.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`
+  return bruto
+}

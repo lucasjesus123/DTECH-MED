@@ -20,7 +20,9 @@ import {
   type Visao,
 } from '@/server/consultas/periodo'
 import { pessoasDaEmpresa } from '@/server/consultas/listas'
+import { detalheDoEvento } from '@/server/consultas/evento-do-calendario'
 import LancarNoDia from './lancar'
+import JanelaDoEvento from './janela-evento'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Calendário', robots: { index: false } }
@@ -80,6 +82,7 @@ export default async function Calendario({
     dia?: string
     ver?: string
     marcar?: string
+    evento?: string
   }>
 }) {
   const { ctx, sessao } = await exigirNivel(Papel.MOTORISTA)
@@ -139,6 +142,19 @@ export default async function Calendario({
     q.marcar === '1' && visao !== 'ano' ? (diaUrl ?? periodo.dia) : null
 
   /**
+   * O EVENTO QUE A PESSOA CLICOU PARA LER.
+   *
+   * O id vem composto da grade — `ag-<id>`, `pv-<id>`, `cp-<id>`, `ct-<id>` — e
+   * é validado pelo formato antes de virar consulta. Endereço velho colado no
+   * navegador devolve `null` da consulta e a janela simplesmente não abre: o
+   * calendário continua na tela, que é a resposta certa para "esse evento não
+   * existe mais".
+   */
+  const eventoAberto = /^(ag|pv|cp|ct)-[A-Za-z0-9_-]{1,64}$/.test(q.evento ?? '')
+    ? q.evento!
+    : null
+
+  /**
    * A visão de ANO pede CONTAGEM, não eventos.
    *
    * Ela desenha 365 quadradinhos e não usa título, detalhe nem valor de nada.
@@ -146,7 +162,7 @@ export default async function Calendario({
    * seis junções cada para pintar pontos — e bateria nos tetos por fonte, que
    * existem para a grade do mês: o ano apareceria truncado sem nada avisar.
    */
-  const [eventos, contagem, pessoas] = await Promise.all([
+  const [eventos, contagem, pessoas, detalhe] = await Promise.all([
     visao === 'ano'
       ? Promise.resolve([] as Evento[])
       : eventosNoPeriodo(ctx, periodo.inicio, periodo.fim),
@@ -158,6 +174,9 @@ export default async function Calendario({
     // consulta por tela para nada — e agora "tem dia escolhido" deixou de
     // significar "vai ter formulário".
     diaDaJanela ? pessoasDaEmpresa(ctx) : Promise.resolve([]),
+    // Só quando alguém clicou num evento. Sem isso seriam mais quatro junções
+    // por carregamento de calendário, para desenhar uma janela que não abre.
+    eventoAberto ? detalheDoEvento(ctx, eventoAberto) : Promise.resolve(null),
   ])
 
   const filtrados = so ? eventos.filter((e) => e.tipo === so) : eventos
@@ -192,13 +211,22 @@ export default async function Calendario({
      * ligado, e o dia continua marcado na grade.
      */
     marcar?: boolean
+    /**
+     * O EVENTO ABERTO NA JANELA — separado de `dia` e de `marcar` pela mesma
+     * razão que separou aqueles dois: cada um guarda uma coisa. `dia` guarda o
+     * LUGAR, `marcar` guarda a janela de criar, `evento` guarda a janela de
+     * ler. Fechar qualquer uma delas devolve exatamente a tela de antes — a
+     * mesma visão, o mesmo filtro, o mesmo dia marcado na grade.
+     */
+    evento?: string | null
   }) => {
     const v = troca.ver ?? visao
     const d = troca.dia ?? periodo.dia
     const s = troca.so === undefined ? so : troca.so
+    const e = troca.evento === undefined ? eventoAberto : troca.evento
     return `/painel/calendario?ver=${v}&dia=${d}${s ? `&so=${s}` : ''}${
       troca.marcar ? '&marcar=1' : ''
-    }`
+    }${e ? `&evento=${encodeURIComponent(e)}` : ''}`
   }
 
   /**
@@ -351,13 +379,22 @@ export default async function Calendario({
         />
       ) : null}
 
-      {visao === 'dia' ? <VisaoDia eventos={filtrados} titulo={periodo.titulo} /> : null}
+      {visao === 'dia' ? <VisaoDia url={url} eventos={filtrados} titulo={periodo.titulo} /> : null}
 
       {visao === 'lista' ? <VisaoLista porDia={porDia} hoje={hoje} url={url} /> : null}
 
       {visao === 'ano' ? <VisaoAno ano={periodo.dia.slice(0, 4)} contagem={contagem} hoje={hoje} /> : null}
 
-      {diaDaJanela ? (
+      {/* A JANELA DE LER VEM ANTES DA DE MARCAR na ordem do arquivo, e as duas
+          nunca aparecem juntas: clicar num evento não passa `marcar=1`, e o
+          botão de marcar não passa `evento=`. Se um endereço trouxer os dois —
+          alguém editando a barra —, esta é a que ganha: quem pediu para LER um
+          evento específico não quer um formulário de criar por cima dele. */}
+      {detalhe ? (
+        <JanelaDoEvento detalhe={detalhe} fechar={url({ evento: null, marcar: false })} />
+      ) : null}
+
+      {diaDaJanela && !detalhe ? (
         <LancarNoDia
           dia={diaDaJanela}
           pessoas={pessoas}
@@ -413,6 +450,7 @@ type Url = (troca: {
   dia?: string
   so?: TipoEvento | null
   marcar?: boolean
+  evento?: string | null
 }) => string
 
 /**
@@ -545,7 +583,7 @@ function Grade({
                         Caixa que rola tem de ser um bloco de verdade. */}
                     <div className={estilo.calDiaCorpo}>
                     {doDia.slice(0, teto).map((e) => (
-                      <Compromisso key={e.id} e={e} />
+                      <Compromisso key={e.id} e={e} url={url} />
                     ))}
                     {/* O DIA CHEIO NÃO PODE ESTICAR A GRADE.
                         Um dia com trinta e duas paradas empurrava a linha
@@ -558,7 +596,7 @@ function Grade({
                       <details className={estilo.calMais}>
                         <summary>+{doDia.length - teto} mais</summary>
                         {doDia.slice(teto).map((e) => (
-                          <Compromisso key={e.id} e={e} />
+                          <Compromisso key={e.id} e={e} url={url} />
                         ))}
                       </details>
                     ) : null}
@@ -586,7 +624,7 @@ function Grade({
  * seria dar à tela a forma de uma agenda médica que este trabalho não tem — a
  * visita e o fim de contrato são do dia, e não da hora.
  */
-function VisaoDia({ eventos, titulo }: { eventos: Evento[]; titulo: string }) {
+function VisaoDia({ eventos, titulo, url }: { eventos: Evento[]; titulo: string; url: Url }) {
   if (eventos.length === 0) {
     return (
       <p className={estilo.vazio}>
@@ -599,7 +637,7 @@ function VisaoDia({ eventos, titulo }: { eventos: Evento[]; titulo: string }) {
       {eventos.map((e) => (
         <li key={e.id}>
           <Link
-            href={e.href}
+            href={url({ evento: e.id })}
             className={`${estilo.calDiaItem} ${COR[e.tipo]} ${e.atrasado ? estilo.calAtrasado : ''}`}
           >
             <span className={estilo.calDiaTipo}>{ROTULO_TIPO[e.tipo]}</span>
@@ -655,7 +693,7 @@ function VisaoLista({
             {porDia.get(d)!.map((e) => (
               <li key={e.id}>
                 <Link
-                  href={e.href}
+                  href={url({ evento: e.id })}
                   className={`${estilo.calDiaItem} ${COR[e.tipo]} ${e.atrasado ? estilo.calAtrasado : ''}`}
                 >
                   <span className={estilo.calDiaTipo}>{ROTULO_TIPO[e.tipo]}</span>
@@ -792,10 +830,10 @@ function porExtenso(dia: string): string {
  */
 const NO_DIA = 4
 
-function Compromisso({ e }: { e: Evento }) {
+function Compromisso({ e, url }: { e: Evento; url: Url }) {
   return (
     <Link
-      href={e.href}
+      href={url({ evento: e.id })}
       className={`${estilo.calEvento} ${COR[e.tipo]} ${e.atrasado ? estilo.calAtrasado : ''}`}
       title={[e.titulo, e.detalhe].filter(Boolean).join(' — ')}
     >
