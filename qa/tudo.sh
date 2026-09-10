@@ -136,6 +136,21 @@ echo "═══ FASE 2 · SISTEMA EM USO ═══"
 semear
 cd "$AQUI"
 node jornada.mjs        >"$LOGS/j.log" 2>&1; marcar $? "as 18 etapas · $(grep -o '[0-9]*/[0-9]* conferências' "$LOGS/j.log" | head -1)"
+# =============================================================================
+# A ESTEIRA NOVA, LOGO DEPOIS DA VELHA — e por que ela vem AQUI.
+# =============================================================================
+# Este roteiro percorre `/sistema` e `/campo` de ponta a ponta e CONSOME
+# recursos do cenário: ele abre uma O.S. própria e usa uma das coletas
+# semeadas para conferir a captura sem GPS. Duas execuções no mesmo banco não
+# são comparáveis, e é por isso que ele mora logo depois da semeadura, e não no
+# fim da fase.
+#
+# Ele precisa da flag `ui_v2` ligada — sem ela `/sistema` devolve o painel
+# antigo, e o roteiro reprovaria dizendo que a tela nova não existe. Ligar aqui
+# é honesto: a flag é por empresa, e o banco de ensaio tem uma só.
+psqlq -q -c 'UPDATE tenants SET "uiV2"=true' >/dev/null 2>&1
+node sistema-jornada.mjs >"$LOGS/sj.log" 2>&1
+marcar $? "a esteira NOVA em tempo real · $(grep -o '[0-9]*/[0-9]* conferências' "$LOGS/sj.log" | head -1)"
 node carteira.mjs       >"$LOGS/c.log" 2>&1; marcar $? "a carteira de clientes tem dono · 16 conferências"
 node isolamento.mjs     >"$LOGS/i.log" 2>&1; marcar $? "isolamento entre franquias · 12 conferências"
 node portal-chutes.mjs  >"$LOGS/p.log" 2>&1; marcar $? "o portal freia chute de CPF · 4 conferências"

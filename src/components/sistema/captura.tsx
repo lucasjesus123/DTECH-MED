@@ -405,19 +405,55 @@ function categoriaDo(modo: ModoCaptura): string {
  * Cinco segundos de paciência e nenhuma insistência: se o GPS não responder, a
  * captura segue sem ele. Uma tela que espera coordenada é uma tela que trava na
  * porta do cliente.
+ *
+ * =============================================================================
+ * POR QUE O `timeout` DA PRÓPRIA API NÃO BASTAVA
+ * =============================================================================
+ * `getCurrentPosition` aceita `{ timeout: 5000 }`, e essa opção parece cumprir
+ * a promessa do parágrafo acima. Ela não cumpre: o relógio dela só começa a
+ * correr DEPOIS que a permissão está resolvida. Enquanto o aviso do navegador
+ * está na tela — ou enquanto o sistema operacional decide — nenhum dos dois
+ * retornos acontece, e a promessa fica aberta para sempre.
+ *
+ * O efeito medido numa jornada de ponta a ponta: o motorista tocou em
+ * "Finalizar e enviar", as fotos subiram, e o botão ficou "Enviando…" sem fim.
+ * As fotos no servidor, a assinatura no visor, a O.S. parada em EM_ROTA e o
+ * aparelho já dentro da van. Exatamente a tela travada na porta do cliente que
+ * este comentário dizia estar evitando.
+ *
+ * A correção é um relógio NOSSO correndo em paralelo. Quem chegar primeiro
+ * ganha; se for o relógio, a captura segue sem coordenada — que é o
+ * comportamento que já estava escrito aqui e que agora acontece de verdade.
  */
 async function pegarLocal(): Promise<{ lat: number; lng: number; precisao: number } | null> {
   if (typeof navigator === 'undefined' || !navigator.geolocation) return null
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (p) =>
-        resolve({
-          lat: p.coords.latitude,
-          lng: p.coords.longitude,
-          precisao: p.coords.accuracy,
-        }),
-      () => resolve(null),
-      { timeout: 5000, enableHighAccuracy: true },
-    )
-  })
+
+  const doAparelho = new Promise<{ lat: number; lng: number; precisao: number } | null>(
+    (resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (p) =>
+          resolve({
+            lat: p.coords.latitude,
+            lng: p.coords.longitude,
+            precisao: p.coords.accuracy,
+          }),
+        () => resolve(null),
+        { timeout: SEGUNDOS_DE_GPS * 1000, enableHighAccuracy: true },
+      )
+    },
+  )
+
+  const oRelogio = new Promise<null>((resolve) =>
+    setTimeout(() => resolve(null), SEGUNDOS_DE_GPS * 1000),
+  )
+
+  return Promise.race([doAparelho, oRelogio])
 }
+
+/**
+ * Quanto se espera pelo GPS antes de seguir sem ele.
+ *
+ * Cinco segundos é o tempo em que uma pessoa parada na calçada ainda acha que a
+ * tela está trabalhando. Acima disso ela toca no botão de novo.
+ */
+const SEGUNDOS_DE_GPS = 5

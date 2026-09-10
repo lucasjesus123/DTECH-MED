@@ -120,7 +120,32 @@ export const TELAS_V2: readonly TelaV2[] = [
   {
     chave: 'ordens', rotulo: 'Ordens de Serviço', grupo: 'OPERAÇÃO DIÁRIA',
     href: '/sistema/ordens', icone: 'ordens', espelha: 'ordens',
-    papeis: [...CENTRAL, TEC],
+    /**
+     * O FINANCEIRO ENTRA AQUI, E A OMISSÃO DELE ERA UM BECO SEM SAÍDA.
+     *
+     * =========================================================================
+     * O QUE ACONTECIA SEM ESTA LINHA
+     * =========================================================================
+     * A ficha da O.S. é onde mora a folha de pagamento — `?fluxo=pagamento`. É
+     * dali que o financeiro dá a baixa, e `acaoDaVez(FATURAMENTO, FINANCEIRO)`
+     * devolve "Confirmar pagamento" justamente para ele.
+     *
+     * Só que esta lista não o incluía. O efeito, medido numa jornada de ponta a
+     * ponta: o Fábio abria a tela dele, via a O.S. liberada na fila, clicava em
+     * "Emitir cobrança" — e caía em "sem permissão". TODOS os caminhos da tela
+     * do financeiro levavam ao mesmo lugar. O papel inteiro não conseguia
+     * trabalhar, e nada acusava: nem erro, nem log, nem teste.
+     *
+     * O painel antigo nunca teve esse problema — lá a tela de O.S. tem
+     * `piso: MOTORISTA`, e todo mundo alcança. A regressão nasceu ao traduzir
+     * "piso" para uma lista explícita, e a lista esqueceu um nome.
+     *
+     * O MOTORISTA continua fora de propósito: ele trabalha pela fila do app de
+     * campo, e a ficha o manda para lá. "Fora da lista" só é aceitável quando
+     * existe outro lugar para fazer o trabalho — e para o financeiro não
+     * existia. A trava contra o esquecimento está em `navegacao.test.ts`.
+     */
+    papeis: [...CENTRAL, TEC, FIN],
   },
   {
     // A GESTÃO ENTRA NA BANCADA, e a inclusão é deliberada.

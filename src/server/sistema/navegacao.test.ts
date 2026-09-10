@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
+import { acaoDaVez } from '@/lib/esteira'
 import type { Sessao } from '@/server/auth/sessao'
 import {
   TELAS_V2,
@@ -150,5 +151,63 @@ describe('para onde cada um vai', () => {
     expect(destino).toBe('/sistema/financeiro')
     const tela = TELAS_V2.find((t) => t.href === destino)!
     expect(podeVer(s, tela)).toBe(true)
+  })
+})
+
+describe('quem tem trabalho na esteira tem ONDE fazê-lo', () => {
+  /**
+   * A TRAVA CONTRA O BECO SEM SAÍDA.
+   *
+   * ===========================================================================
+   * O DEFEITO QUE ESTE TESTE EXISTE PARA IMPEDIR
+   * ===========================================================================
+   * `acaoDaVez` diz que o FINANCEIRO confirma o pagamento. A folha que colhe
+   * esse pagamento mora na ficha da O.S. E a lista de telas não dava a ficha da
+   * O.S. ao financeiro.
+   *
+   * Nada acusava. Os testes de unidade da esteira passavam — a ação existia. Os
+   * testes do menu passavam — a lista estava coerente consigo mesma. O papel
+   * simplesmente não conseguia trabalhar, e só uma jornada de navegador, com o
+   * Fábio clicando em "Emitir cobrança" e caindo em "sem permissão", mostrou.
+   *
+   * Duas listas que se contradizem em silêncio pedem um teste que fale as duas
+   * línguas. É este.
+   *
+   * ===========================================================================
+   * A EXCEÇÃO, E POR QUE ELA É UMA SÓ
+   * ===========================================================================
+   * O MOTORISTA também tem ações na esteira e também não tem a tela de O.S. —
+   * de propósito: ele trabalha pela fila do app de campo, e a ficha o manda
+   * para lá. "Fora da lista" só é aceitável quando existe outro lugar para
+   * fazer o mesmo trabalho. Por isso a exceção é nominal e está escrita aqui:
+   * acrescentar um nome a ela é uma decisão visível, não um esquecimento.
+   */
+  const TRABALHA_NO_APP_DE_CAMPO: Papel[] = [Papel.MOTORISTA]
+
+  it('todo papel com botão-da-vez alcança a ficha da O.S. — ou o app de campo', () => {
+    const semCasa: string[] = []
+
+    for (const papel of Object.values(Papel)) {
+      if (papel === Papel.SUPER_ADMIN) continue
+      if (TRABALHA_NO_APP_DE_CAMPO.includes(papel)) continue
+
+      const temAcao = Object.values(EtapaOrdem).some((e) => acaoDaVez(e, papel) !== null)
+      if (!temAcao) continue
+
+      const ficha = telaPorChave('ordens')!
+      const alcanca = ficha.papeis.includes(papel)
+      if (!alcanca) semCasa.push(papel)
+    }
+
+    // Se este teste quebrar, existe um papel a quem o sistema dá trabalho e
+    // nega a tela onde o trabalho acontece. Não é uma tela a menos no menu: é
+    // uma pessoa que abre o sistema, vê a própria fila, clica, e lê "sem
+    // permissão" — todo dia, em todos os caminhos.
+    expect(semCasa).toEqual([])
+  })
+
+  it('o motorista continua FORA da ficha, e isso é desenho', () => {
+    expect(telaPorChave('ordens')!.papeis).not.toContain(Papel.MOTORISTA)
+    expect(casaDoPapelV2(Papel.MOTORISTA)).toBe('/campo')
   })
 })
