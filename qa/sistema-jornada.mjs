@@ -104,17 +104,28 @@ async function abrir(p, url, rotulo) {
   return ms
 }
 
-// Uma foto JPEG real, 8x8. Precisa ser imagem de verdade: o servidor abre com o
-// sharp e recusa o que só tem nome de imagem.
+/**
+ * UMA FOTO JPEG DE VERDADE, 48x36, FEITA PELO PRÓPRIO `sharp`.
+ *
+ * A anterior era um blob de 8x8 copiado de algum lugar e levemente malformado —
+ * "3 extraneous bytes before marker 0xc0". O libvips antigo engolia; o de hoje
+ * (0.35.4 / libvips 8.18.6) recusa na hora de redimensionar, e o roteiro
+ * passava a acusar "0 fotos" numa tela que estava certa.
+ *
+ * O produto trata esse caso bem — devolve "A imagem chegou incompleta ou
+ * corrompida. Tire a foto de novo." em vez de quebrar. Quem estava errado era a
+ * massa de teste: uma foto falsa que não é uma foto válida não prova nada sobre
+ * subir foto.
+ *
+ * Esta passa pelo mesmo caminho do `storage.ts` — `rotate`, `resize`, `jpeg` —
+ * antes de ser escrita aqui.
+ */
 const JPEG = Buffer.from(
-  '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a' +
-    'HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy' +
-    'MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAgDASIA' +
-    'AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA' +
-    'AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3' +
-    'ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm' +
-    'p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/9oADAMB' +
-    'AAIRAxEAPwD3+iiigD//2Q==',
+  '/9j/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7' +
+  'Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7' +
+  'Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAAkADADASIAAhEBAxEB/8QAFQABAQAAAAAA' +
+  'AAAAAAAAAAAAAAX/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAUG' +
+  '/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AhgN8iAAAAAAAAAAAAAAAAP/Z',
   'base64',
 )
 const foto = (n) => ({ name: `foto-${n}.jpg`, mimeType: 'image/jpeg', buffer: JPEG })
