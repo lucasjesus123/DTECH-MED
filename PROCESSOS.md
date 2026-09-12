@@ -6,43 +6,53 @@ Tirado da máquina de estados do código, não de memória. Se um dia divergir, 
 
 ---
 
-## 1. A esteira: as 18 etapas de um equipamento
+## 1. A esteira: 18 etapas, 11 passos, 3 fases
 
 É o órgão vital. Todo equipamento que entra percorre esta linha, e cada passagem de etapa fica registrada com **quem fez**, **quando** e **de onde** — é isso que vira o prontuário que o cliente lê.
 
+O mesmo caminho é contado em três alturas, e cada uma serve a uma pergunta:
+
+| Contagem | Onde mora | Para que serve |
+| --- | --- | --- |
+| **18 etapas** | `maquina-estados.ts` | São as **travas**. Cada uma confere assinatura, foto, orçamento ou pagamento antes de deixar a ordem andar. É o que valida. |
+| **11 passos** | `roteiro.ts` | É o **dia**. É como o dono conta o trabalho em voz alta ao telefone. |
+| **3 fases** | `fases.ts` | É a **tela**. É o que a pessoa vê antes de ler qualquer coisa. |
+
+Agrupar é desenho, nunca permissão: ninguém pula uma trava porque seis quadradinhos viraram um botão.
+
 ```mermaid
 flowchart TB
-    subgraph R["RETIRADA · central e motorista"]
+    subgraph F1["FASE 1 · BUSCAR O APARELHO — central e motorista"]
         direction LR
         A1["1<br/>Solicitação<br/>recebida"] --> A2["2<br/>Ordem<br/>gerada"] --> A3["3<br/>Retirada<br/>agendada"] --> A4["4<br/>Em rota<br/>de retirada"] --> A5["5<br/>Coletado<br/><i>assinado</i>"]
     end
 
-    subgraph D["DIAGNÓSTICO · técnico e gestão"]
+    subgraph F2["FASE 2 · CONSERTAR — técnico e gestão"]
         direction LR
-        B1["6<br/>Recebido<br/><i>com fotos</i>"] --> B2["7<br/>Em<br/>análise"] --> B3["8<br/>Orçamento<br/>interno"] --> B4["9<br/>Orçamento<br/>enviado"]
+        B1["6<br/>Recebido<br/><i>com fotos</i>"] --> B2["7<br/>Em<br/>análise"] --> B3["8<br/>Orçamento<br/>interno"] --> B4["9<br/>Orçamento<br/>enviado"] --> B5["10<br/>Aprovado<br/><i>virou contrato</i>"] --> B6["11<br/>Em<br/>manutenção"] --> B7["12<br/>Manutenção<br/>concluída"] --> B8["13<br/>Aprovação<br/>da gestão"]
     end
 
-    subgraph E["EXECUÇÃO · técnico e gestão"]
-        direction LR
-        C1["10<br/>Aprovado<br/><i>virou contrato</i>"] --> C2["11<br/>Em<br/>manutenção"] --> C3["12<br/>Manutenção<br/>concluída"] --> C4["13<br/>Aprovação<br/>da gestão"]
-    end
-
-    subgraph F["FECHAMENTO · financeiro e motorista"]
+    subgraph F3["FASE 3 · DEVOLVER E RECEBER — financeiro e motorista"]
         direction LR
         D1["14<br/>Faturamento"] --> D2["15<br/>Faturado<br/><i>pago</i>"] --> D3["16<br/>Em rota<br/>de entrega"] --> D4["17<br/>Entregue<br/><i>assinado</i>"] --> D5["18<br/>Finalizado"]
     end
 
     A5 --> B1
-    B4 --> C1
     B4 -.->|"recusou"| X["Devolvido<br/>sem reparo"]
-    C4 --> D1
+    B8 --> D1
     X -.-> D3
 
     style A1 fill:#6D28D9,color:#fff,stroke:#4A0D8F
-    style C1 fill:#0F6B4F,color:#fff,stroke:#0A4A37
+    style B5 fill:#0F6B4F,color:#fff,stroke:#0A4A37
     style D5 fill:#0F6B4F,color:#fff,stroke:#0A4A37
     style X fill:#8A5300,color:#fff,stroke:#5C3800
 ```
+
+**A fase é o lugar do aparelho no mundo**, e é por isso que o corte é aí: na fase 1 ele está com o cliente ou na rua; na 2 está na bancada; na 3 já está consertado e o que falta é dinheiro e estrada. Trocar de fase é o equipamento mudar de lugar — dá para dizer em que fase uma ordem está sem abrir nada.
+
+**Uma cor nunca conta a história sozinha.** Verde (pronta), laranja (acontecendo agora) e vermelho (ainda não começou) são a leitura de longe; ao lado de cada uma vai um selo desenhado (✓ ● ○ !) e a situação escrita. Cerca de um homem em cada doze não separa verde de vermelho, e um sistema que só diz "está verde" está mandando essa pessoa adivinhar.
+
+**A trava da fase é de olho, não de mão.** Uma fase adiante pode ser aberta e lida — conferir o que vem depois não faz mal a ninguém. O que ela não tem é botão que ande a esteira, porque quem impede a fase 2 de começar antes da 1 é a máquina de estados, e não a tela.
 
 **Ramos alternativos**, que existem porque a vida real tem: `Orçamento reprovado` → o aparelho volta sem conserto. `Cancelado` → a ordem é encerrada antes do fim. Nenhum dos dois apaga o histórico; eles são mais uma etapa registrada.
 

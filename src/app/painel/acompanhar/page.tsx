@@ -4,7 +4,7 @@ import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { motoristasDaEmpresa, ordensNaCasa } from '@/server/consultas/listas'
 import { ondeEsta } from '@/server/ordem/onde-esta'
 import { montarTrilha } from '@/server/ordem/trilha'
-import { TOTAL_DE_PASSOS, passoDaEtapa } from '@/server/ordem/roteiro'
+import { TOTAL_DE_PASSOS, faseDaEtapa, passoDaEtapa } from '@/server/ordem/roteiro'
 import { Cartoes, type CartaoOrdem } from './cartoes'
 import AbasOS from '../os-abas'
 import estilo from '../painel.module.css'
@@ -168,6 +168,10 @@ export default async function Acompanhar({
       desvio: !!trilha.desvio,
       cumpridos: passoDaEtapa(o.etapa),
       total: TOTAL_DE_PASSOS,
+      fase: (() => {
+        const f = faseDaEtapa(o.etapa)
+        return f ? { n: f.n, nome: f.nome } : null
+      })(),
       valorCentavos: o.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? null,
       emAbertoCentavos: o.fatura ? o.fatura.valorTotalCentavos - o.fatura.valorPagoCentavos : null,
       fotos: o._count.fotos,

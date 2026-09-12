@@ -7841,7 +7841,228 @@ i.riscoBaixo { background: var(--txt-3); }
   color: var(--vio-claro);
 }
 
-/* ----- A régua dos onze passos ------------------------------------------ */
+/* ----- Os três botões das fases ------------------------------------------
+   Verde, laranja e vermelho são o atalho de longe. Quem não separa as três
+   lê o selo (✓ ● ○ !) e a palavra da situação, que estão sempre na tela — a
+   cor aqui é reforço, nunca o único portador da informação.
+
+   O brilho existe (o dono pediu "botões emissivos") mas ele é uma AURA fraca
+   atrás da borda, não uma cor saturada no fundo: texto branco sobre verde-neon
+   chapado cansa a vista de quem olha essa tela oito horas por dia.
+   ------------------------------------------------------------------------ */
+.osFases {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+@media (max-width: 640px) {
+  /* Três colunas num celular dariam ~100px cada, e o nome da fase quebraria
+     em quatro linhas. Empilhado, cada fase vira uma faixa larga — que é
+     inclusive a leitura mais natural: uma depois da outra. */
+  .osFases { grid-template-columns: 1fr; }
+}
+.osFase {
+  display: grid;
+  gap: 4px;
+  padding: var(--s3);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease), background 160ms var(--ease);
+}
+.osFase:hover { border-color: var(--txt-3); }
+.osFase:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+
+.osFaseTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.osFaseSelo {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.osFaseOrdem {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osFaseAqui {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--espera-veu);
+  border: 1px solid var(--espera-borda);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--espera);
+  white-space: nowrap;
+}
+.osFaseNome {
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--txt);
+}
+.osFaseFormal {
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: var(--txt-3);
+}
+.osFaseSituacao {
+  margin-top: 2px;
+  font-size: var(--t-sm);
+  font-weight: 700;
+}
+.osFaseBarra {
+  display: block;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--borda);
+  overflow: hidden;
+}
+.osFaseFio {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 240ms var(--ease);
+}
+.osFaseConta {
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txt-3);
+}
+
+/* ----- concluída: verde ----- */
+.osFaseFeita { border-color: var(--sinal-borda); background: var(--sinal-veu); }
+.osFaseFeita .osFaseSelo { background: var(--sinal); color: var(--sup); }
+.osFaseFeita .osFaseSituacao { color: var(--sinal); }
+.osFaseFeita .osFaseFio { background: var(--sinal); }
+
+/* ----- em execução: laranja, e é a única que brilha -----
+   O brilho é caro de propósito: se três coisas brilham na mesma tela, nenhuma
+   chama. Só a fase que está acontecendo tem aura. */
+.osFaseAgora {
+  border-color: var(--espera);
+  background: var(--espera-veu);
+  box-shadow: 0 0 0 1px var(--espera-borda), 0 0 22px -8px var(--espera);
+}
+.osFaseAgora .osFaseSelo { background: var(--espera); color: var(--sup); }
+.osFaseAgora .osFaseSituacao { color: var(--espera); }
+.osFaseAgora .osFaseFio { background: var(--espera); }
+.osFaseAgora .osFaseNome { color: var(--txt); }
+
+/* ----- ainda não começou: vermelho, e de boca fechada -----
+   Vermelho aqui não quer dizer erro — quer dizer "não é a sua vez". Por isso
+   ele é só a borda e o selo vazado: um cartão inteiro pintado de vermelho na
+   janela de toda O.S. nova faria a tela gritar sem ter o que dizer. */
+.osFaseAdiante { border-color: var(--alerta-borda); background: var(--sup); }
+.osFaseAdiante .osFaseSelo {
+  background: transparent;
+  border: 2px solid var(--alerta);
+  color: var(--alerta);
+}
+.osFaseAdiante .osFaseSituacao { color: var(--alerta); }
+.osFaseAdiante .osFaseNome { color: var(--txt-2); }
+.osFaseAdiante .osFaseFio { background: var(--alerta); }
+
+/* ----- parou aqui: a ordem saiu do caminho dentro desta fase ----- */
+.osFaseParada { border-color: var(--alerta); background: var(--alerta-veu); }
+.osFaseParada .osFaseSelo { background: var(--alerta); color: var(--sup); }
+.osFaseParada .osFaseSituacao { color: var(--alerta); }
+.osFaseParada .osFaseFio { background: var(--alerta); }
+
+/* A fase que está ABERTA na tela ganha um traço embaixo — quem clicou precisa
+   ver o que clicou, e a cor da fase já está ocupada dizendo outra coisa. */
+.osFaseAberta { box-shadow: inset 0 -3px 0 0 var(--vio); }
+.osFaseAgora.osFaseAberta {
+  box-shadow: inset 0 -3px 0 0 var(--vio), 0 0 22px -8px var(--espera);
+}
+
+/* ----- A etiqueta da fase na lista --------------------------------------- */
+.osFaseChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.osFaseChipAgora {
+  background: var(--espera-veu);
+  border-color: var(--espera-borda);
+  color: var(--espera);
+}
+.osFaseChipFeita {
+  background: var(--sinal-veu);
+  border-color: var(--sinal-borda);
+  color: var(--sinal);
+}
+
+/* ----- A leitura de uma fase visitada ----------------------------------- */
+.osPainelLido {
+  padding: var(--s4);
+  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+}
+.osFaseLista {
+  list-style: none;
+  margin: var(--s3) 0 var(--s4);
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}
+.osFaseItem {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--s2);
+  align-items: start;
+}
+.osFaseItem strong {
+  display: block;
+  font-size: var(--t-sm);
+  color: var(--txt);
+}
+.osFaseItemQuando {
+  display: block;
+  font-size: 10.5px;
+  color: var(--txt-3);
+}
+.osFaseItemOque {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--txt-2);
+}
+.osFaseItemFeito { color: var(--sinal); font-weight: 700; }
+.osFaseItemAgora { color: var(--espera); font-weight: 700; }
+.osFaseItemAdiante { color: var(--txt-3); }
+
+/* ----- A régua dos passos DA FASE ABERTA --------------------------------- */
 .osReguaCaixa {
   margin-bottom: var(--s5);
   padding: var(--s4);
@@ -7888,13 +8109,11 @@ i.riscoBaixo { background: var(--txt-3); }
   margin: var(--s3) 0 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(11, minmax(0, 1fr));
+  /* O número de colunas vem do componente: é a quantidade de passos da fase
+     aberta, que varia de dois a seis. Fixar onze aqui era o que espremia a
+     régua a 28px por passo no celular. */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
-}
-@media (max-width: 720px) {
-  /* No celular onze colunas dariam 28px cada. Seis por linha continua legível
-     e mantém a leitura da esquerda para a direita. */
-  .osReguaNos { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 .osNo {
   width: 100%;

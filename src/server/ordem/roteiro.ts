@@ -1,5 +1,6 @@
 import { EtapaOrdem as E } from '@/generated/prisma/enums'
 import { ROTULO_ETAPA } from './maquina-estados'
+import { FASES, faseViva, montarFases, type DefinicaoDeFase, type FaseMontada } from './fases'
 
 /**
  * O ROTEIRO — as 18 etapas contadas em 11 passos.
@@ -195,6 +196,22 @@ export type NoDoRoteiro = {
 
 export type Roteiro = {
   passos: NoDoRoteiro[]
+  /**
+   * OS ONZE PASSOS AGRUPADOS EM TRÊS FASES — o andar de cima, para a tela.
+   *
+   * Vem junto e não numa segunda conta do lado do cliente: quem sabe dizer se
+   * um passo foi cumprido é esta função, que tem a linha do tempo na mão.
+   * Calcular a fase noutro lugar seria abrir espaço para a régua e o botão da
+   * fase discordarem na mesma tela. Ver `fases.ts`.
+   */
+  fases: FaseMontada[]
+  /**
+   * A FASE EM QUE A ORDEM ESTÁ — a que a janela abre sozinha.
+   *
+   * Vem calculada daqui e não do lado do cliente para que a janela não precise
+   * carregar o módulo das fases só para responder "qual abro primeiro".
+   */
+  faseAtual: number
   /** O passo em que a ordem está agora. Zero quando ela saiu do caminho. */
   atual: number
   total: number
@@ -265,8 +282,16 @@ export function montarRoteiro(
     }
   })
 
+  const fases = montarFases(passos, {
+    desvio: saiuDoCaminho,
+    terminou: etapaAtual === E.FINALIZADO,
+    viaCorreio,
+  })
+
   return {
     passos,
+    fases,
+    faseAtual: faseViva(fases),
     atual: saiuDoCaminho ? 0 : atual,
     total: TOTAL_DE_PASSOS,
     // A régua enche até o CENTRO do passo atual, não até o fim dele: o passo em
@@ -277,4 +302,35 @@ export function montarRoteiro(
       ? { rotulo: ROTULO_ETAPA[etapaAtual], quando: marcos.get(etapaAtual)?.quando ?? null }
       : null,
   }
+}
+
+/**
+ * A FASE DE UMA ETAPA, sem precisar da linha do tempo.
+ *
+ * A janela monta as fases inteiras porque tem os eventos na mão. A LISTA não
+ * tem: ela lê sessenta ordens e só sabe a etapa de cada uma. Para ela basta
+ * esta pergunta — em que fase esta ordem está agora — e responder isso não
+ * exige saber quando cada passo aconteceu.
+ *
+ * Devolve `null` nos desvios (cancelada, recusada, devolvida sem reparo): elas
+ * não estão em fase nenhuma, estão fora da linha.
+ */
+export function faseDaEtapa(etapa: E): DefinicaoDeFase | null {
+  const passo = passoDaEtapa(etapa)
+  if (passo === 0) return null
+  return FASES.find((f) => f.passos.includes(passo)) ?? null
+}
+
+/**
+ * As etapas do banco que moram numa fase, na ordem da esteira.
+ *
+ * É o que permite a trilha do portal do cliente ser desenhada a partir das
+ * MESMAS três fases do painel, em vez de ter um agrupamento próprio. Duas
+ * divisões do mesmo processo é como o cliente acabava lendo "Diagnóstico" numa
+ * ordem que a central chamava de outra coisa.
+ */
+export function etapasDaFase(n: number): E[] {
+  const f = FASES.find((x) => x.n === n)
+  if (!f) return []
+  return f.passos.flatMap((p) => ROTEIRO.find((r) => r.n === p)?.etapas ?? [])
 }

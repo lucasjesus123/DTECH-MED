@@ -91,10 +91,23 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
               )
             })}
           </div>
+          {/* O CLIENTE CONTA EM FASES, NÃO EM ETAPAS.
+              Esta linha dizia "etapa 9 de 18" enquanto a central, na mesma
+              ordem, dizia "passo 7 de 11" — dois números para a mesma coisa, e
+              nenhum deles significando nada para quem está do lado de fora
+              esperando o aparelho. A pergunta dele é "falta muito?", e a
+              resposta honesta é em qual dos três pedaços a ordem está. */}
           <p className={estilo.trilhaConta}>
             {trilha.desvio
               ? 'esta ordem saiu do caminho normal'
-              : `etapa ${trilha.cumpridos} de ${trilha.total}`}
+              : (() => {
+                  const i = trilha.fases.findIndex((f) =>
+                    f.nos.some((n) => n.estado === 'agora'),
+                  )
+                  return i < 0
+                    ? `etapa ${trilha.cumpridos} de ${trilha.total}`
+                    : `fase ${i + 1} de ${trilha.fases.length} · ${trilha.fases[i]!.nome.toLowerCase()}`
+                })()}
           </p>
         </div>
 

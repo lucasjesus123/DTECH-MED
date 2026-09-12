@@ -1,5 +1,7 @@
 import { EtapaOrdem as E } from '@/generated/prisma/enums'
 import { ROTULO_ETAPA } from './maquina-estados'
+import { FASES } from './fases'
+import { etapasDaFase } from './roteiro'
 
 /**
  * A TRILHA: onde o equipamento está, numa linha.
@@ -64,45 +66,49 @@ export type Trilha = {
 }
 
 /**
- * As 18 etapas do caminho normal, agrupadas nas quatro fases do processo.
+ * As 18 etapas do caminho normal, agrupadas NAS MESMAS TRÊS FASES do painel.
+ *
+ * =============================================================================
+ * POR QUE ESTA LISTA DEIXOU DE SER ESCRITA À MÃO AQUI
+ * =============================================================================
+ * Ela era uma quarta divisão do mesmo processo — "Retirada, Diagnóstico,
+ * Execução, Fechamento" — e vivia ao lado dos 11 passos do roteiro e das 18
+ * etapas da máquina. Quatro nomes de um lado, onze de outro, e ninguém
+ * respondendo a mesma coisa: o cliente abria o link e lia que o aparelho dele
+ * estava em "Diagnóstico" enquanto a central, na mesma hora, dizia ao telefone
+ * que estava na fase de conserto.
+ *
+ * O comentário no topo deste arquivo já avisava do risco — *"se cada tela
+ * decidisse por conta própria, um dia elas discordariam, e a que estaria
+ * errada seria justamente a do cliente"*. Discordavam. Agora não há mais duas
+ * listas para discordar: as fases vêm de `fases.ts`, as etapas de cada uma vêm
+ * do roteiro, e o cliente lê exatamente a fase que a central vê.
+ *
+ * A trilha continua sendo de 18 nós — ela é o prontuário detalhado, e o
+ * cliente tem direito ao detalhe. O que mudou é só o título em cima de cada
+ * grupo.
  *
  * Os ramos alternativos (recusado, devolvido, cancelado) NÃO entram na régua:
  * eles não são posições no caminho, são saídas dele. Aparecem como desvio.
  */
-const CAMINHO: ReadonlyArray<{ nome: string; quem: string; etapas: E[] }> = [
-  {
-    nome: 'Retirada',
-    quem: 'central e motorista',
-    etapas: [
-      E.SOLICITACAO_RECEBIDA,
-      E.ORDEM_RETIRADA_GERADA,
-      E.RETIRADA_AGENDADA,
-      E.EM_ROTA_RETIRADA,
-      E.COLETADO,
-    ],
-  },
-  {
-    nome: 'Diagnóstico',
-    quem: 'técnico e gestão',
-    etapas: [E.RECEBIDO_NA_EMPRESA, E.EM_ANALISE, E.ORCAMENTO_INTERNO, E.ORCAMENTO_ENVIADO],
-  },
-  {
-    nome: 'Execução',
-    quem: 'cliente e técnico',
-    etapas: [E.ORCAMENTO_APROVADO, E.EM_MANUTENCAO, E.MANUTENCAO_CONCLUIDA, E.APROVACAO_GESTAO],
-  },
-  {
-    nome: 'Fechamento',
-    quem: 'financeiro e motorista',
-    etapas: [E.FATURAMENTO, E.FATURADO, E.EM_ROTA_ENTREGA, E.ENTREGUE, E.FINALIZADO],
-  },
-]
+const CAMINHO: ReadonlyArray<{ nome: string; quem: string; etapas: E[] }> = FASES.map((f) => ({
+  nome: f.nome,
+  quem: f.quem,
+  etapas: etapasDaFase(f.n),
+}))
 
 /** As saídas do caminho. Não são posição na régua. */
 const DESVIOS: readonly E[] = [E.CANCELADO, E.DEVOLVIDO_SEM_REPARO, E.ORCAMENTO_REPROVADO]
 
-/** A sequência achatada, na ordem — a fonte da numeração de 1 a 18. */
-const SEQUENCIA: readonly E[] = CAMINHO.flatMap((f) => f.etapas)
+/**
+ * A sequência achatada, na ordem — a fonte da numeração de 1 a 18.
+ *
+ * Exportada para o teste: o que ele guarda é que esta ordem continua sendo
+ * exatamente a da esteira do painel. É a única coisa que pode quebrar em
+ * silêncio ao agrupar de outro jeito.
+ */
+export const SEQUENCIA_DA_TRILHA: readonly E[] = CAMINHO.flatMap((f) => f.etapas)
+const SEQUENCIA = SEQUENCIA_DA_TRILHA
 
 export const TOTAL_DE_PASSOS = SEQUENCIA.length
 

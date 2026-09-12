@@ -16,6 +16,8 @@ export type CartaoOrdem = {
   desvio: boolean
   cumpridos: number
   total: number
+  /** Em qual das três fases ela está. `null` quando saiu do caminho. */
+  fase: { n: number; nome: string } | null
   valorCentavos: number | null
   emAbertoCentavos: number | null
   fotos: number
@@ -128,8 +130,11 @@ export function Cartoes({
               </div>
               <div className={estilo.trilhaMiniTxt}>
                 <span>{o.agora}</span>
+                {/* A mesma palavra que a lista e a janela usam. Três telas
+                    falando de "fase 2" é uma conversa; três telas dizendo
+                    "9/18", "7/11" e "Diagnóstico" era o que confundia. */}
                 <span>
-                  passo {o.cumpridos} de {o.total}
+                  {o.fase ? `fase ${o.fase.n} · ` : ''}passo {o.cumpridos} de {o.total}
                 </span>
               </div>
             </div>

@@ -14,6 +14,13 @@ export type LinhaDeOrdem = {
   /** Em que passo dos onze ela está. Zero quando saiu do caminho. */
   passo: number
   totalPassos: number
+  /**
+   * Em qual das três fases ela está. `null` quando a ordem saiu do caminho —
+   * cancelada ou recusada não estão em fase nenhuma.
+   */
+  fase: { n: number; nome: string } | null
+  /** Já acabou de verdade. A fase 3 dela é verde, e não laranja de "agora". */
+  encerrada: boolean
   equipamento: string
   serie: string | null
   cliente: string
@@ -41,12 +48,17 @@ export type LinhaDeOrdem = {
  * existindo — a janela leva às duas, para quem quer o histórico inteiro.
  *
  * =============================================================================
- * A COLUNA "PASSO" SUBSTITUIU O LÁPIS
+ * A COLUNA "FASE" SUBSTITUIU O LÁPIS, E DEPOIS SUBSTITUIU O "5/11"
  * =============================================================================
  * O lápis era a única coisa que a última coluna oferecia, e era a ação MENOS
  * frequente da tela — corrigir o que foi digitado na abertura. No lugar dele
- * entrou a informação mais pedida: em que passo dos onze a ordem está. Ela
- * responde de relance a pergunta que faz alguém abrir a lista.
+ * entrou a informação mais pedida: onde a ordem está.
+ *
+ * Só que a primeira resposta foi "5/11", e "5/11" não é resposta: é uma fração
+ * que exige saber de cor o que são os onze. Quem passa o olho na lista de
+ * manhã quer separar as ordens em três montes — as que estão VINDO, as que
+ * estão na BANCADA, e as que estão VOLTANDO. Agora é isso que a coluna diz, com
+ * o passo exato logo abaixo, pequeno, para quem quiser a precisão.
  */
 export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
   const router = useRouter()
@@ -86,7 +98,7 @@ export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
               <th>O.S.</th>
               <th>Equipamento</th>
               <th>Cliente</th>
-              <th>Passo</th>
+              <th>Fase</th>
               <th>Etapa</th>
               <th>Técnico</th>
               <th>Última mexida</th>
@@ -127,14 +139,26 @@ export default function TabelaDeOrdens({ ordens }: { ordens: LinhaDeOrdem[] }) {
                   {o.serie ? <div className={estilo.fraco}>série {o.serie}</div> : null}
                 </td>
                 <td>{o.cliente}</td>
-                <td className={estilo.num}>
-                  {o.passo === 0 ? (
+                <td>
+                  {o.fase === null ? (
                     <span className={estilo.fraco}>fora da linha</span>
                   ) : (
-                    <span className={estilo.osPassoConta}>
-                      {o.passo}
-                      <span className={estilo.fraco}>/{o.totalPassos}</span>
-                    </span>
+                    <>
+                      <span
+                        className={`${estilo.osFaseChip} ${
+                          o.encerrada ? estilo.osFaseChipFeita : estilo.osFaseChipAgora
+                        }`}
+                      >
+                        {/* O selo desenhado vem junto da cor pelo mesmo motivo
+                            de sempre: a cor sozinha não é lida por todo mundo. */}
+                        <span aria-hidden="true">{o.encerrada ? '✓' : '●'}</span>
+                        Fase {o.fase.n}
+                      </span>
+                      <div className={estilo.forte}>{o.fase.nome}</div>
+                      <div className={estilo.fraco}>
+                        passo {o.passo} de {o.totalPassos}
+                      </div>
+                    </>
                   )}
                 </td>
                 <td>
