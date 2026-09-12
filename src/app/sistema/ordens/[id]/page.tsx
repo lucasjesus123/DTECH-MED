@@ -8,6 +8,7 @@ import { enderecoDaColeta, juntarEndereco } from '@/lib/endereco'
 import { prontuario } from '@/server/consultas/painel'
 import { motoristasDaEmpresa } from '@/server/consultas/listas'
 import { exigirTela } from '@/server/sistema/guarda'
+import AoVivo from '@/components/sistema/ao-vivo'
 import BotaoDaVez from '@/components/sistema/botao-da-vez'
 import CaptureFlow from '@/components/sistema/captura'
 import {
@@ -286,6 +287,13 @@ export default async function FichaDaOS({
           atrasada={o.prazoPrometido ? o.prazoPrometido.getTime() < agora : false}
         />
         <div className={estilo.cabecalhoAcao}>
+          {/* A FICHA ACOMPANHA A RUA — mas só quando ninguém está preenchendo.
+              Quem abre uma folha de captura ou de orçamento está DIGITANDO;
+              refazer o componente de servidor por baixo de um formulário meio
+              preenchido é o tipo de esperteza que faz a pessoa perder o que
+              escreveu e desconfiar da tela para sempre. Sem folha aberta, a
+              ficha é leitura, e leitura pode se atualizar sozinha. */}
+          {!fluxo ? <AoVivo rotulo="acompanhando" /> : null}
           {acao ? (
             <BotaoDaVez ordemId={o.id} acao={acao} />
           ) : (

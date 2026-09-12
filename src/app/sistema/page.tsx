@@ -7,6 +7,7 @@ import { podeVer } from '@/server/auth/guarda'
 import { alertaDoDia, resumoDoDia } from '@/server/consultas/painel'
 import { radarDoPapel } from '@/server/sistema/radar'
 import { casaDoPapelV2 } from '@/server/sistema/navegacao'
+import AoVivo from '@/components/sistema/ao-vivo'
 import RadarList from '@/components/sistema/radar-lista'
 import { Alerta, CabecalhoTela, EmptyState, Secao, StatCardRow, type Stat } from '@/components/sistema/pecas'
 import estilo from '@/components/sistema/pecas.module.css'
@@ -120,6 +121,13 @@ export default async function Painel() {
             : `${linhas.length} ${linhas.length === 1 ? 'item espera' : 'itens esperam'} uma ação sua.`
         }
       />
+
+      {/* A FILA SE ATUALIZA SOZINHA.
+          Este painel é a tela que fica aberta o dia inteiro num monitor — e
+          era exatamente a que mostrava o mundo de cinco minutos atrás. O
+          motorista aceita na calçada, o técnico fecha um laudo na bancada, e
+          quem despacha só descobria ao recarregar. */}
+      <AoVivo rotulo="fila ao vivo" />
 
       {/* O ALERTA vem antes de tudo. Ele é o único bloco da tela que a pessoa
           não pediu para ver — e é o único que ela precisava ver antes de
