@@ -36,6 +36,19 @@ export default async function Whatsapp() {
   const descartados = fila.DESCARTADO ?? 0
   const pendentes = fila.PENDENTE ?? 0
 
+  /**
+   * "NA FILA" QUER DIZER DUAS COISAS MUITO DIFERENTES.
+   *
+   * Com o número conectado, é o aviso que sai no próximo minuto. Sem ele, é o
+   * aviso que está PARADO esperando alguém ler o QR Code — e essa é a única
+   * informação que a pessoa olhando esta tela precisa naquele instante.
+   *
+   * O número dizia "aguardando o próximo disparo" nos dois casos. Quem via
+   * "37 na fila" com o WhatsApp desconectado entendia que estava tudo andando.
+   */
+  const conectado = instancia?.status === 'CONECTADA'
+  const esperandoConexao = !semEmpresa && !conectado && pendentes > 0
+
   return (
     <>
       <div className={estilo.cab}>
@@ -62,12 +75,21 @@ export default async function Whatsapp() {
       )}
 
       <div className={estilo.resumo}>
-        <Indicador rotulo="Na fila" valor={String(pendentes)} nota="aguardando o próximo disparo" />
+        <Indicador
+          rotulo="Na fila"
+          valor={String(pendentes)}
+          nota={
+            esperandoConexao
+              ? 'parados: o WhatsApp não está conectado'
+              : 'aguardando o próximo disparo'
+          }
+          alerta={esperandoConexao}
+        />
         <Indicador rotulo="Concluídos" valor={String(fila.CONCLUIDO ?? 0)} nota="avisos entregues à fila" />
         <Indicador
           rotulo="Desistiram"
           valor={String(descartados)}
-          nota={descartados > 0 ? 'estouraram as tentativas — veja o erro abaixo' : 'nenhum'}
+          nota={descartados > 0 ? 'ninguém recebeu — o motivo está no erro abaixo' : 'nenhum'}
           alerta={descartados > 0}
         />
         <Indicador rotulo="Em processamento" valor={String(fila.PROCESSANDO ?? 0)} nota="saindo agora" />

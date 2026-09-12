@@ -1,4 +1,5 @@
 import { cifrar, decifrar } from '@/lib/cripto'
+import { EsperandoWhatsapp } from './espera'
 import { configWhatsappEmUso } from '@/server/plataforma/config'
 import { comEscopo, type ContextoAcesso, type Transacao, exigirEmpresa } from '@/lib/db'
 
@@ -17,8 +18,6 @@ import { comEscopo, type ContextoAcesso, type Transacao, exigirEmpresa } from '@
  * pela sessão, e o servidor resolve qual token usar. Sem isso, o cliente A
  * dispara pelo WhatsApp do cliente B trocando um id na URL.
  */
-
-
 
 class ErroUazapi extends Error {
   constructor(
@@ -238,3 +237,55 @@ export async function guardarToken(ctx: ContextoAcesso, dados: {
 }
 
 export { ErroUazapi }
+
+/**
+ * O NÚMERO ESTÁ MESMO CONECTADO? — perguntado ao provedor, com memória curta.
+ *
+ * Só é chamada no caminho do ERRO, para separar as duas coisas que um envio
+ * recusado pode significar: o número caiu (espera), ou a mensagem é que está
+ * errada (falha de verdade, com tentativa contada).
+ *
+ * A memória de um minuto existe porque a fila pode ter centenas de trabalhos
+ * do mesmo tenant esperando. Sem ela, cada um perguntaria por conta própria e
+ * o castigo por estar desconectado seria uma enxurrada de chamadas ao
+ * provedor — justamente quando ele já está dizendo não.
+ */
+const MEMORIA_DE_CONEXAO = new Map<string, { conectado: boolean; em: number }>()
+const VALIDADE_DA_MEMORIA_MS = 60_000
+
+export async function conexaoViva(tenantId: string, token: string): Promise<boolean> {
+  const lembrado = MEMORIA_DE_CONEXAO.get(tenantId)
+  if (lembrado && Date.now() - lembrado.em < VALIDADE_DA_MEMORIA_MS) return lembrado.conectado
+
+  try {
+    const s = await status(token)
+    MEMORIA_DE_CONEXAO.set(tenantId, { conectado: s.conectado, em: Date.now() })
+    return s.conectado
+  } catch {
+    // O provedor não respondeu. Não dá para afirmar que o número caiu — e
+    // chamar de "desconectado" faria o trabalho esperar por um problema que é
+    // de rede, e que repetir resolve. Na dúvida, é falha comum.
+    return true
+  }
+}
+
+/**
+ * Grava na instância o que o provedor acabou de dizer.
+ *
+ * O campo `status` só era escrito quando alguém clicava em "Atualizar status"
+ * na tela. Quer dizer: o crachá do topo do painel podia jurar "conectado" por
+ * dias depois de o celular ter caído, e a única forma de descobrir era alguém
+ * desconfiar e clicar. Agora o worker, que é quem esbarra na verdade primeiro,
+ * escreve o que viu.
+ */
+export async function anotarConexao(tx: Transacao, tenantId: string, conectado: boolean) {
+  await tx.whatsappInstance.updateMany({
+    where: { tenantId },
+    data: {
+      status: conectado ? 'CONECTADA' : 'DESCONECTADA',
+      ultimoStatusEm: new Date(),
+    },
+  })
+}
+
+export { EsperandoWhatsapp }

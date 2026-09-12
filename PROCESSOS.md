@@ -141,7 +141,15 @@ flowchart LR
 
 Nada disso acontece dentro do clique de quem está usando o sistema: entra numa fila e um processo separado executa. É o que impede a geração de um PDF de travar a tela de quem está atendendo — e o que permite tentar de novo quando o WhatsApp está fora do ar.
 
-> ⚠️ **Hoje esta parte está parada.** O `UAZAPI_ADMIN_TOKEN` está vazio, então não há número de WhatsApp conectado. A fila funciona e acumula; ela só não tem para onde entregar. Enquanto isso, o cliente não recebe o link da ordem, nem o orçamento, nem aviso de etapa.
+**Esperar não é tentar de novo, e a diferença decide se o cliente é avisado.**
+
+| O que aconteceu | O que a fila faz |
+| --- | --- |
+| A rede oscilou, o provedor engasgou | **Tenta de novo**: 30s, 1min, 2min… até seis vezes. Repetir resolve. |
+| Ninguém leu o QR Code; o celular da empresa caiu | **Espera**, de 5 em 5 minutos, **sem gastar tentativa**. Repetir não resolve — o tempo resolve. |
+| Esperou mais de 12 horas | **Descarta dizendo isso.** Um aviso de retirada que chega no dia seguinte não é aviso, é confusão. |
+
+> ⚠️ **Hoje esta parte está parada.** Não há número de WhatsApp conectado, então o cliente não recebe o link da ordem, nem o orçamento, nem aviso de etapa. O que falta não é código: é o token da uazapi em **Administração → WhatsApp da plataforma** e alguém lendo o QR Code em **WhatsApp → Conectar**. Enquanto isso, `Painel → WhatsApp` mostra quantos avisos estão parados esperando.
 
 ---
 
