@@ -126,9 +126,57 @@ afterAll(async () => {
  * TRUNCATE exige ser dono da tabela. Se este helper conseguisse limpar com a
  * conexão do runtime, a trilha de auditoria não estaria protegida de verdade.
  */
+function exigirBancoDescartavel() {
+  const problemas: string[] = []
+
+  // NODE_ENV é o sinal mais confiável que existe aqui: o `infra/gerar-env.sh`
+  // escreve `production` no .env da VPS, e o `.env.example` de desenvolvimento
+  // escreve `development`.
+  if (process.env.NODE_ENV === 'production') {
+    problemas.push('NODE_ENV=production')
+  }
+  // O segundo sinal, para o caso de alguém ter mexido no primeiro: o endereço
+  // público. Um banco servido por trás de um domínio https não é banco de
+  // teste de ninguém.
+  const publico = process.env.APP_URL ?? ''
+  if (/^https:\/\//i.test(publico) && !/localhost|127\.0\.0\.1/.test(publico)) {
+    problemas.push(`APP_URL=${publico}`)
+  }
+
+  if (problemas.length === 0) return
+
+  throw new Error(
+    'RECUSADO: este teste APAGA 24 tabelas, e este ambiente parece ser o de ' +
+      `produção (${problemas.join(', ')}). Nenhuma linha foi tocada.\n\n` +
+      'Se você está na VPS: não rode `npm run test:integracao` nem ' +
+      '`npm run test:tudo` aqui. Eles existem para a máquina de desenvolvimento ' +
+      'e para a esteira de CI, contra um banco descartável.',
+  )
+}
+
+/**
+ * A TRAVA QUE FALTAVA — e por que ela vale um teste "mais lento".
+ *
+ * A função abaixo dá TRUNCATE em vinte e quatro tabelas: ordens, eventos,
+ * assinaturas, fotos, faturas, pagamentos, auditoria. Ela não perguntava a
+ * NINGUÉM em que banco estava; obedecia ao `DIRECT_DATABASE_URL` que
+ * encontrasse no ambiente.
+ *
+ * Na VPS, esse ambiente é o `.env` de produção. E `npm run test:tudo` é um
+ * comando de nome convidativo, num repositório cujo guia de operação está
+ * cheio de `npx tsx scripts/...` rodados ali dentro. Bastava alguém querer
+ * "conferir se está tudo passando" no servidor para o sistema inteiro ser
+ * apagado — sem confirmação, sem pergunta, e sem volta que não passe por
+ * restaurar o dump.
+ *
+ * Não era um risco teórico: foi o que me fez descobrir isto. Rodei a suíte de
+ * integração no meio do ensaio e ela levou junto a semeadura e as 22 ordens
+ * do cenário de demonstração, calada.
+ */
 async function limpar() {
   const url = process.env.DIRECT_DATABASE_URL
   if (!url) throw new Error('DIRECT_DATABASE_URL é necessária para limpar o banco de teste.')
+  exigirBancoDescartavel()
   const c = new Client({ connectionString: url })
   await c.connect()
   try {
