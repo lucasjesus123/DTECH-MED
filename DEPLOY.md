@@ -1020,9 +1020,21 @@ para ele. O celular tem que apitar, e tocar no aviso tem que abrir a parada.
 
 ```bash
 # A fila está entupida?
-docker compose -p dtechmed exec db psql -U dtechmed_owner -d dtechmed -c \
-  "SELECT status, count(*) FROM outbox_jobs GROUP BY status;"
+docker compose -p dtechmed exec -T db psql -U dtechmed_owner -d dtechmed -c \
+  "SET app.is_super_admin = 'on';
+   SELECT status, tipo, count(*) FROM outbox_jobs GROUP BY 1,2 ORDER BY 3 DESC;"
 ```
+
+> ⚠️ **O `SET` da primeira linha não é enfeite — sem ele a resposta é uma
+> mentira tranquilizadora.** As tabelas têm `FORCE ROW LEVEL SECURITY`, que vale
+> **inclusive para o dono da tabela**. Sem abrir a porta que a própria política
+> prevê, o `dtechmed_owner` enxerga zero linhas e a consulta devolve um
+> resultado vazio — que se lê como "a fila está limpa" no exato momento em que
+> ela tem duzentos avisos parados. É a mesma porta que o
+> `scripts/conferir-dinheiro.sql` já usava, e pelo mesmo motivo.
+>
+> Vale para qualquer consulta à mão neste guia: leitura sem esse `SET` não
+> responde "não há", responde "não vejo".
 
 - Muitos `PENDENTE` e nenhum `CONCLUIDO` → duas causas possíveis, e elas se
   separam olhando **Painel → WhatsApp**: se o cartão "Na fila" disser
