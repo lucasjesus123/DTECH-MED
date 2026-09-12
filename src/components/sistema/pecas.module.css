@@ -1167,3 +1167,47 @@ a.stat:hover { border-color: var(--brand); box-shadow: var(--luz); }
   border-radius: 3px;
   padding: 0 2px;
 }
+
+/* ==========================================================================
+   AO VIVO — o selo da tela que se atualiza sozinha
+   --------------------------------------------------------------------------
+   Discreto de propósito: ele informa, não compete. O pulso é o único
+   movimento da tela, e existe para separar "atualizando" de "congelou".
+   ========================================================================== */
+.aoVivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.aoVivoPulso {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ok-solida);
+  animation: aoVivoBatida 2s ease-in-out infinite;
+}
+@keyframes aoVivoBatida {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.82); }
+}
+/* Quem pediu menos movimento não recebe um ponto piscando no canto do olho
+   pelo dia inteiro. O selo continua ali, parado, dizendo a mesma coisa. */
+@media (prefers-reduced-motion: reduce) {
+  .aoVivoPulso { animation: none; }
+}
+
+/* O cliente e a O.S. do cartão de parada, quando levam a algum lugar. */
+.focoClienteLink {
+  composes: focoCliente;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--border-viva);
+}
+.focoClienteLink:hover { text-decoration-color: currentColor; }
+.focoLink { color: inherit; text-decoration: underline; text-underline-offset: 3px; }

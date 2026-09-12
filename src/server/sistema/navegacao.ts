@@ -170,6 +170,31 @@ export const TELAS_V2: readonly TelaV2[] = [
     papeis: [...CENTRAL, MOTO],
   },
   {
+    /**
+     * A PORTA DA RUA, PARA QUEM CONDUZ A RUA DE UMA MESA.
+     *
+     * =========================================================================
+     * ELA FALTAVA, E A FALTA TINHA SINTOMA
+     * =========================================================================
+     * O app de campo existia em `/campo` e o menu do sistema novo não levava a
+     * ele. O dono chegou lá digitando o endereço do painel ANTIGO —
+     * `/app/motorista` — e passou a operar a rota numa tela que o redesenho
+     * tinha aposentado, sem saber. Uma tela sem porta não é uma tela discreta:
+     * é uma tela que manda a pessoa procurar a versão velha.
+     *
+     * O MOTORISTA não vê este item: ele já MORA no app de campo — `casaDoPapelV2`
+     * o manda para lá ao entrar, e um link para a própria casa no menu é ruído.
+     *
+     * Quem vê é quem conduz a rua pelo painel (ADMIN_EMPRESA, SUPER_ADMIN) e
+     * quem despacha (GESTOR, ATENDENTE), que precisa ao menos enxergar o dia da
+     * equipe. O que cada um PODE FAZER lá dentro é outra conversa, e está em
+     * `@/server/campo/autonomia`.
+     */
+    chave: 'campo', rotulo: 'App de campo', grupo: 'OPERAÇÃO DIÁRIA',
+    href: '/campo', icone: 'rotas', espelha: 'rota',
+    papeis: CENTRAL,
+  },
+  {
     chave: 'clientes', rotulo: 'Clientes', grupo: 'OPERAÇÃO DIÁRIA',
     href: '/sistema/clientes', icone: 'clientes', espelha: 'clientes',
     papeis: CENTRAL,

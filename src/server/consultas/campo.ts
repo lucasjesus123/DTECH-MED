@@ -20,6 +20,14 @@ export type Parada = {
   tipo: 'RETIRADA' | 'ENTREGA'
   numero: number
   cliente: string
+  /**
+   * Para a tela poder LEVAR à ficha do cliente, e não só escrever o nome.
+   *
+   * Quem despacha olha a parada e quer o histórico: o que já passou por aqui,
+   * o que está em aberto, que telefone atende. Sem o id, o nome é texto morto e
+   * a pessoa vai procurar na busca — digitando de novo o que já está na tela.
+   */
+  clienteId: string
   contato: string | null
   telefone: string | null
   equipamento: string
@@ -127,7 +135,7 @@ export async function rotaDoDia(
       include: {
         ordem: {
           include: {
-            cliente: { select: { nome: true, contatoNome: true, telefone: true, whatsapp: true } },
+            cliente: { select: { id: true, nome: true, contatoNome: true, telefone: true, whatsapp: true } },
             equipamento: { select: { marca: true, modelo: true } },
           },
         },
@@ -147,6 +155,7 @@ export async function rotaDoDia(
     tipo: a.tipo as 'RETIRADA' | 'ENTREGA',
     numero: a.ordem.numero,
     cliente: a.ordem.cliente.nome,
+    clienteId: a.ordem.cliente.id,
     contato: a.ordem.cliente.contatoNome,
     // O da PARADA na frente: é o número de quem está no local. O do cadastro
     // fica de reserva, para a parada antiga que não tem contato próprio.

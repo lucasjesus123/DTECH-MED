@@ -41,8 +41,19 @@ export type EstadoDoJob = {
   emRota: boolean
   /** `false` quando ninguém registrou onde fica este endereço. */
   temGps: boolean
-  /** A parada é DESTE motorista? A gestão vê a tela e não age nela. */
+  /** De quem é a parada, quando a gestão está conduzindo no lugar dele. */
+  motoristaNome?: string | null
+  /** A parada é DESTE motorista? */
   minha: boolean
+  /**
+   * A gestão conduzindo pelo painel.
+   *
+   * Antes, quem não fosse o dono da parada via a frase "você está vendo a tela
+   * dele" e nada mais. O dono do negócio pediu autonomia completa — ele também
+   * faz entregas —, e agora age daqui. O botão é o mesmo; o que muda é o aviso
+   * em cima dele, que diz o que vai ficar escrito na trilha.
+   */
+  viaGestao?: boolean
 }
 
 const PASSOS = ['Aceitar', 'A caminho', 'Cheguei'] as const
@@ -106,7 +117,18 @@ export default function JobDaVez({ job }: { job: EstadoDoJob }) {
         </p>
       ) : null}
 
-      {job.minha ? (
+      {/* O AVISO VEM ANTES DO BOTÃO, e não depois.
+          Depois de clicar é tarde para descobrir que a ação vai entrar na
+          trilha com o seu nome e a marca de modo gestão. */}
+      {!job.minha && job.viaGestao ? (
+        <p className={estilo.semGps}>
+          Você está conduzindo esta parada pelo painel
+          {job.motoristaNome ? `, no lugar de ${job.motoristaNome}` : ''}. O que você
+          registrar entra na trilha com o seu nome e a marca de modo gestão.
+        </p>
+      ) : null}
+
+      {job.minha || job.viaGestao ? (
         <button
           type="button"
           className={`${estilo.acaoLarga} ${passoAtual === 2 ? estilo.acaoOk : ''}`}

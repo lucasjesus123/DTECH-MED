@@ -4,6 +4,8 @@ import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { redirect } from 'next/navigation'
 import { bancada, rotaDoDia, type Parada } from '@/server/consultas/campo'
 import { acaoDaVez, estadoDaEtapa } from '@/lib/esteira'
+import { pelaGestao } from '@/server/campo/autonomia'
+import AoVivo from '@/components/sistema/ao-vivo'
 import JobDaVez from '@/components/sistema/job-da-vez'
 import BotaoDaVez from '@/components/sistema/botao-da-vez'
 import { Chip, EmptyState } from '@/components/sistema/pecas'
@@ -44,6 +46,9 @@ export default async function Tarefas() {
   // Gestão entra em modo leitura: `null` traz as paradas de TODA a empresa, e
   // cada uma diz de quem é.
   const souMotorista = sessao.papel === Papel.MOTORISTA
+  // Quem conduz a rua a partir do painel — hoje ADMIN_EMPRESA e SUPER_ADMIN.
+  // A lista e o porquê estão em `@/server/campo/autonomia`.
+  const viaGestao = pelaGestao(sessao.papel)
   const paradas = await rotaDoDia(ctx, souMotorista ? sessao.userId : null)
 
   const abertas = paradas.filter((p) => !p.concluida)
@@ -72,7 +77,18 @@ export default async function Tarefas() {
         apoio={`${abertas.length} ${abertas.length === 1 ? 'parada' : 'paradas'} para hoje`}
       />
 
-      <FocoDaParada parada={agora} souMotorista={souMotorista} meuId={sessao.userId} />
+      {/* A TELA DE QUEM ACOMPANHA SE ATUALIZA SOZINHA.
+          Para o motorista não faz sentido: ele É a fonte do que muda, e cada
+          sondagem seria bateria e 4G gastos para lhe contar o que ele acabou de
+          fazer. Quem precisa disto é a mesa que olha a rua de longe. */}
+      {!souMotorista ? <AoVivo rotulo="rota ao vivo" /> : null}
+
+      <FocoDaParada
+        parada={agora}
+        souMotorista={souMotorista}
+        viaGestao={viaGestao}
+        meuId={sessao.userId}
+      />
 
       {resto.length > 0 ? (
         <section className={estilo.resto}>
@@ -123,10 +139,12 @@ function Cabecalho({ nome, apoio }: { nome: string; apoio: string }) {
 function FocoDaParada({
   parada,
   souMotorista,
+  viaGestao,
   meuId,
 }: {
   parada: Parada
   souMotorista: boolean
+  viaGestao: boolean
   meuId: string
 }) {
   const contato = parada.contatoDaParada ?? parada.contato
@@ -140,7 +158,16 @@ function FocoDaParada({
         <Chip tom={parada.tipo === 'RETIRADA' ? 'warn' : 'info'}>
           {parada.tipo === 'RETIRADA' ? 'Coletar' : 'Entregar'}
         </Chip>
-        <span className="mono">O.S. {String(parada.numero).padStart(5, '0')}</span>
+        {/* O NÚMERO DA O.S. LEVA À FICHA, para quem alcança a ficha.
+            O motorista não: a ordem dele o devolveria ao app de campo, e um
+            link que volta para onde já se está é uma porta pintada na parede. */}
+        {souMotorista ? (
+          <span className="mono">O.S. {String(parada.numero).padStart(5, '0')}</span>
+        ) : (
+          <Link href={`/sistema/ordens/${parada.ordemId}`} className={`mono ${estilo.focoLink}`}>
+            O.S. {String(parada.numero).padStart(5, '0')}
+          </Link>
+        )}
         {parada.atrasada ? <Chip tom="danger">Atrasada</Chip> : null}
         {parada.motorista && !souMotorista ? (
           <Chip tom="pending">{parada.motorista}</Chip>
@@ -148,7 +175,13 @@ function FocoDaParada({
       </div>
 
       <div>
-        <p className={estilo.focoCliente}>{parada.cliente}</p>
+        {souMotorista ? (
+          <p className={estilo.focoCliente}>{parada.cliente}</p>
+        ) : (
+          <Link href={`/sistema/clientes/${parada.clienteId}`} className={estilo.focoClienteLink}>
+            {parada.cliente}
+          </Link>
+        )}
         <p className={estilo.focoEndereco}>{parada.endereco}</p>
         {parada.referencia ? (
           <p className={estilo.campoDica}>Referência: {parada.referencia}</p>
@@ -211,6 +244,8 @@ function FocoDaParada({
           // registrou. Sem ela, a chegada segue e a ausência fica anotada.
           temGps: false,
           minha: souMotorista && parada.motoristaId === meuId,
+          viaGestao,
+          motoristaNome: parada.motorista,
         }}
       />
     </article>

@@ -107,7 +107,34 @@ export const TRANSICOES: Transicao[] = [
     para: T.COLETADO,
     tipo: 'ordem.coletada',
     titulo: 'Equipamento coletado e assinado pelo cliente',
-    papeis: [P.MOTORISTA],
+    /**
+     * A GESTÃO TAMBÉM CHEGA NA PORTA DO CLIENTE.
+     *
+     * =========================================================================
+     * POR QUE ESTA LINHA MUDOU
+     * =========================================================================
+     * Este passo era só do MOTORISTA, e a leitura era boa: quem assina o
+     * recebimento é quem está lá. O efeito colateral, medido: numa oficina onde
+     * o dono também dirige a van, ele conseguia marcar "saí para a coleta" e
+     * depois NÃO conseguia registrar a chegada — ficava com o aparelho na mão,
+     * a assinatura colhida no visor e a O.S. parada em EM_ROTA.
+     *
+     * =========================================================================
+     * O QUE CONTINUA PROTEGENDO O PASSO
+     * =========================================================================
+     * `exige` logo abaixo: sem assinatura gravada, ninguém fecha esta etapa —
+     * nem o motorista, nem a gestão. É a EXIGÊNCIA que protege, e não a lista
+     * de papéis; a lista só dizia quem tem o botão.
+     *
+     * E a trilha passou a distinguir os dois casos: a ação feita do painel sai
+     * com `viaGestao` no payload do evento e a frase "pelo painel, em modo
+     * gestão" na linha do tempo. Quem ler a folha de rastreabilidade vê a
+     * diferença entre a assinatura colhida na clínica e a colhida da mesa. Ver
+     * `@/server/campo/autonomia`.
+     *
+     * O ATENDENTE e o GESTOR ficaram de fora: eles despacham, não entregam.
+     */
+    papeis: [P.MOTORISTA, P.ADMIN_EMPRESA, P.SUPER_ADMIN],
     avisaCliente: true,
     // Comprovante, e não outra ordem de retirada: este documento já traz a
     // assinatura, e é ele que prova que o aparelho saiu de lá.
@@ -372,7 +399,9 @@ export const TRANSICOES: Transicao[] = [
     para: T.ENTREGUE,
     tipo: 'ordem.entregue',
     titulo: 'Entregue e assinado pelo cliente',
-    papeis: [P.MOTORISTA],
+    // Mesma razão da coleta, logo acima: quem protege este passo é
+    // `ASSINATURA_ENTREGA`, e a trilha marca quando foi pelo painel.
+    papeis: [P.MOTORISTA, P.ADMIN_EMPRESA, P.SUPER_ADMIN],
     avisaCliente: true,
     gera: 'COMPROVANTE_ENTREGA',
     exige: ['ASSINATURA_ENTREGA'],

@@ -9,6 +9,7 @@ import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos, lerValorBR } from '@/lib/dinheiro'
 import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
+import { marcaDaGestao, observacaoDaGestao, pelaGestao } from '@/server/campo/autonomia'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { proximoNumero } from '@/server/financeiro/servico'
 import { avancarOrdem } from '@/server/ordem/motor'
@@ -608,7 +609,7 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
   const a = await atorDaSessao()
   if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
   const podeAssinar: Papel[] = [Papel.MOTORISTA, Papel.SUPER_ADMIN]
-  if (!podeAssinar.includes(a.sessao.papel)) {
+  if (!podeAssinar.includes(a.sessao.papel) && !pelaGestao(a.sessao.papel)) {
     return { ok: false, motivo: 'Só o motorista coleta assinatura em campo.' }
   }
 
@@ -645,7 +646,13 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
       : ordem.etapa === EtapaOrdem.FATURADO || ordem.etapa === EtapaOrdem.DEVOLVIDO_SEM_REPARO
 
   if (faltouSair) {
-    const saida = await avancarOrdem(a.ctx, a.ator, { ordemId: v.ordemId, para: emRota, ip: ip0 })
+    const saida = await avancarOrdem(a.ctx, a.ator, {
+      ordemId: v.ordemId,
+      para: emRota,
+      observacao: observacaoDaGestao(a.sessao.papel, 'Saída registrada'),
+      payload: marcaDaGestao(a.sessao.papel),
+      ip: ip0,
+    })
     // Falhou aqui? Devolvemos ANTES de gravar a assinatura. O papel da
     // aplicação não pode apagar assinatura (é trilha de prova), então uma
     // assinatura gravada para uma transição que não vai acontecer ficaria órfã
@@ -684,10 +691,17 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
   const r = await avancarOrdem(a.ctx, a.ator, {
     ordemId: v.ordemId,
     para: destino,
+    observacao: observacaoDaGestao(a.sessao.papel, 'Assinatura colhida'),
     payload: {
       assinante: v.assinanteNome,
       // Sem coordenada não é falha: é informação de que o GPS não respondeu.
       geo: v.latitude != null ? { lat: v.latitude, lng: v.longitude, precisao: v.precisaoM } : null,
+      // A MARCA MAIS IMPORTANTE DESTA FOLHA.
+      //
+      // É esta linha que impede a assinatura colhida de uma mesa de se passar
+      // por assinatura colhida na porta do cliente. Ela viaja congelada dentro
+      // do evento, que é encadeado por hash — não dá para tirar depois.
+      ...marcaDaGestao(a.sessao.papel),
     },
     ip: ipDaRequisicao(h, env.TRUST_PROXY),
   })
@@ -713,8 +727,9 @@ export async function assinarNoVisor(form: FormData): Promise<Resposta> {
 export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREGA'): Promise<Resposta> {
   const a = await atorDaSessao()
   if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  const viaGestao = pelaGestao(a.sessao.papel)
   const podeRodar: Papel[] = [Papel.MOTORISTA, Papel.SUPER_ADMIN]
-  if (!podeRodar.includes(a.sessao.papel)) {
+  if (!podeRodar.includes(a.sessao.papel) && !viaGestao) {
     return { ok: false, motivo: 'Só o motorista marca a saída para a rota.' }
   }
 
@@ -741,7 +756,8 @@ export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREG
       select: { motoristaId: true, aceitoEm: true },
     }),
   )
-  if (paradaDele && paradaDele.motoristaId === a.sessao.userId && !paradaDele.aceitoEm) {
+  // A gestão não espera aceite de ninguém: quem está saindo é ela.
+  if (!viaGestao && paradaDele && paradaDele.motoristaId === a.sessao.userId && !paradaDele.aceitoEm) {
     return {
       ok: false,
       motivo: 'Aceite esta corrida antes de sair. O botão de aceitar está no cartão da parada.',
@@ -751,11 +767,18 @@ export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREG
   const r = await avancarOrdem(a.ctx, a.ator, {
     ordemId,
     para: tipo === 'RETIRADA' ? EtapaOrdem.EM_ROTA_RETIRADA : EtapaOrdem.EM_ROTA_ENTREGA,
+    observacao: observacaoDaGestao(a.sessao.papel, 'Saída registrada'),
+    payload: marcaDaGestao(a.sessao.papel),
     ip: await ipAtual(),
   })
   if (!r.ok) return { ok: false, motivo: r.motivo }
 
-  await auditar(a.ctx, a.sessao, { acao: 'rota.saida', entidade: 'ordem', entidadeId: ordemId })
+  await auditar(a.ctx, a.sessao, {
+    acao: 'rota.saida',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    detalhes: marcaDaGestao(a.sessao.papel),
+  })
   revalidatePath('/app/motorista')
   return { ok: true }
 }
@@ -779,7 +802,14 @@ export async function sairParaParada(ordemId: string, tipo: 'RETIRADA' | 'ENTREG
 export async function aceitarCorrida(agendamentoId: string): Promise<Resposta> {
   const a = await atorDaSessao()
   if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
-  if (a.sessao.papel !== Papel.MOTORISTA) {
+  // A GESTÃO ACEITA POR QUEM ESTÁ NA RUA — e a trilha diz que foi ela.
+  //
+  // A regra continua inteira para o motorista: ele aceita a própria corrida e
+  // só ela. O que passa aqui é a gestão conduzindo pelo painel, que é decisão
+  // de quem responde pelo negócio e não engano de quem clicou na linha errada.
+  // Ver `@/server/campo/autonomia`.
+  const viaGestao = pelaGestao(a.sessao.papel)
+  if (a.sessao.papel !== Papel.MOTORISTA && !viaGestao) {
     return { ok: false, motivo: 'Só o motorista aceita a própria corrida.' }
   }
 
@@ -789,7 +819,7 @@ export async function aceitarCorrida(agendamentoId: string): Promise<Resposta> {
       select: { id: true, ordemId: true, motoristaId: true, status: true, aceitoEm: true },
     })
     if (!ag) return { ok: false as const, motivo: 'Parada não encontrada.' }
-    if (ag.motoristaId !== a.sessao.userId) {
+    if (!viaGestao && ag.motoristaId !== a.sessao.userId) {
       return { ok: false as const, motivo: 'Esta corrida está no nome de outro motorista.' }
     }
     if (ag.status === 'CANCELADO') return { ok: false as const, motivo: 'Esta parada foi cancelada.' }
@@ -808,7 +838,7 @@ export async function aceitarCorrida(agendamentoId: string): Promise<Resposta> {
       acao: 'corrida.aceita',
       entidade: 'ordem',
       entidadeId: r.ordemId,
-      detalhes: { agendamentoId },
+      detalhes: { agendamentoId, ...marcaDaGestao(a.sessao.papel) },
     })
   }
   revalidatePath('/app/motorista')

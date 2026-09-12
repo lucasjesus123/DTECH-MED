@@ -628,6 +628,96 @@ try {
   }
 
   // ===========================================================================
+  // A GESTÃO CONDUZINDO A RUA DE UMA MESA
+  // ===========================================================================
+  /**
+   * O DONO TAMBÉM FAZ ENTREGA — e o sistema passou a deixar.
+   *
+   * ===========================================================================
+   * O QUE ESTE TRECHO GUARDA
+   * ===========================================================================
+   * Numa oficina de poucas pessoas, quem dirige a van muitas vezes é o dono.
+   * Antes, ele abria a rota no painel e lia "esta parada é de outro motorista,
+   * você está vendo a tela dele" — e ia operar pelo aplicativo ANTIGO, que o
+   * redesenho tinha aposentado, porque lá ele conseguia.
+   *
+   * Agora ele conduz do computador: aceita, sai, chega, fotografa e colhe a
+   * assinatura. A autonomia é inteira.
+   *
+   * ===========================================================================
+   * E A TRILHA CONTINUA DIZENDO A VERDADE — é isto que este bloco cobra
+   * ===========================================================================
+   * A assinatura no visor é a prova de que ALGUÉM ESTEVE na porta do cliente.
+   * Se ela pode ser colhida de uma mesa, ela deixa de provar isso sozinha — a
+   * menos que o registro diga qual dos dois casos aconteceu.
+   *
+   * Por isso as duas últimas conferências aqui não são sobre permissão: são
+   * sobre HONESTIDADE DO REGISTRO. Se um dia a marca `viaGestao` sumir do
+   * evento, a folha de rastreabilidade volta a responder menos do que sabe, e é
+   * aqui que isso reprova.
+   */
+  const lucas = await como('lucas', 'lucas@dtechmed.com.br')
+  ok(0, 'o menu do ADMIN tem porta para o app de campo',
+     /App de campo/i.test((await lucas.getByRole('navigation').first().innerText().catch(() => '')) || ''))
+
+  await lucas.getByRole('link', { name: /App de campo/i }).first().click()
+  await lucas.waitForURL(/\/campo/, { timeout: 20000 }).catch(() => {})
+  await lucas.waitForLoadState('networkidle').catch(() => {})
+  ok(0, 'e o link abre a rota do dia, em modo gestão', lucas.url().includes('/campo'))
+  ok(0, 'a tela diz que se atualiza sozinha — quem olha de longe não aperta F5',
+     /ao vivo/i.test(await lucas.locator('body').innerText()))
+
+  const idGestao = pornaFrenteDaFila()
+  if (!idGestao) {
+    console.log('   ·  gestão na rua: nenhuma coleta livre no cenário (não é falha)')
+  } else {
+    await abrir(lucas, '/campo', 'app de campo · pelo computador do dono')
+
+    const avisoGestao = await lucas.locator('body').innerText()
+    ok(0, 'o painel AVISA que a ação vai à trilha como modo gestão, antes do clique',
+       /modo gest/i.test(avisoGestao))
+    ok(0, 'e o nome do cliente leva à ficha dele — dá para clicar no cliente',
+       (await lucas.locator('a[href*="/sistema/clientes/"]').count()) > 0)
+
+    await lucas.getByRole('button', { name: /Aceitar corrida/i }).first().click()
+    await lucas.waitForTimeout(2500)
+    ok(0, 'o ADMIN ACEITA a corrida pelo painel',
+       sql(`SELECT count(*) FROM agendamentos WHERE "ordemId"='${idGestao}' AND "aceitoEm" IS NOT NULL`) === '1')
+
+    const antesG = etapaNoBanco(idGestao)
+    await lucas.getByRole('button', { name: /Sair para a coleta/i }).first().click()
+    for (let i = 0; i < 60 && etapaNoBanco(idGestao) === antesG; i++) await lucas.waitForTimeout(400)
+    ok(0, 'e SAI para a coleta pelo painel', etapaNoBanco(idGestao) === 'EM_ROTA_RETIRADA', etapaNoBanco(idGestao))
+
+    await lucas.getByRole('button', { name: /^Cheguei/i }).first().click()
+    await lucas.waitForURL(/\/campo\/parada\//, { timeout: 20000 }).catch(() => {})
+    await lucas.waitForLoadState('networkidle').catch(() => {})
+    await lucas.locator('input[type=file]').first().waitFor({ state: 'attached', timeout: 20000 })
+    await lucas.locator('input[type=file]').first().setInputFiles([foto(20)])
+    await lucas.waitForTimeout(1500)
+    await lucas.getByLabel('Quem está recebendo').fill('Paulo Renner')
+    await assinarNoVisor(lucas)
+    await lucas.getByRole('button', { name: /Finalizar e enviar/i }).click()
+    await ateQue(lucas, `SELECT count(*) FROM assinaturas WHERE "ordemId"='${idGestao}'`, 1, 40000)
+    for (let i = 0; i < 90 && etapaNoBanco(idGestao) !== 'COLETADO'; i++) await lucas.waitForTimeout(400)
+    ok(0, 'COLETADO · o dono fechou a coleta inteira do computador',
+       etapaNoBanco(idGestao) === 'COLETADO', etapaNoBanco(idGestao))
+
+    // --- e agora a parte que não é sobre poder, e sim sobre prova -----------
+    const marcado = sql(
+      `SELECT count(*) FROM eventos_ordem WHERE "ordemId"='${idGestao}'
+       AND "etapaNova"='COLETADO' AND payload::text LIKE '%viaGestao%'`)
+    ok(0, 'a trilha MARCA que a assinatura foi colhida pelo painel, e não na porta do cliente',
+       marcado === '1', `${marcado} evento(s) marcado(s)`)
+
+    const frase = sql(
+      `SELECT coalesce(descricao,'') FROM eventos_ordem WHERE "ordemId"='${idGestao}'
+       AND "etapaNova"='COLETADO' ORDER BY sequencia DESC LIMIT 1`)
+    ok(0, 'e a linha do tempo diz isso em português, para quem ler daqui a dois anos',
+       /modo gest/i.test(frase), frase.slice(0, 60))
+  }
+
+  // ===========================================================================
   // DEGRAU 6 e 7 · A BANCADA
   // ===========================================================================
   const rafael = await como('rafael', 'rafael@dtechmed.com.br')
