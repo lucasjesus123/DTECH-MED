@@ -831,6 +831,35 @@ try {
   ok(9, 'o orçamento tem valor, e ele saiu dos itens', Number(total) > 0, `R$ ${(Number(total) / 100).toFixed(2)}`)
 
   // ===========================================================================
+  // A RÉGUA DE TRÊS MARCOS
+  // ===========================================================================
+  /**
+   * "ONDE ESTÁ O MEU APARELHO?" — respondido em um olhar.
+   *
+   * As 18 etapas do banco agrupadas em três: coleta, serviço, devolução. É o
+   * que o dono pediu, e a régua fica no topo da ficha, abaixo do cabeçalho.
+   *
+   * As duas conferências que importam aqui não são sobre a régua aparecer:
+   *
+   *   · O ESTADO É DITO POR PALAVRA, e não só por cor. Cerca de 8% dos homens
+   *     não distingue verde de vermelho; uma régua que informa só por cor não
+   *     informa nada para eles. "CONCLUÍDA / AGORA / A FAZER" sobrevive à
+   *     falta de cor, e é isso que este teste guarda.
+   *
+   *   · A O.S. QUE SAIU DO CAMINHO NÃO MOSTRA PROGRESSO. Cancelada ou com
+   *     orçamento recusado, a régua desaparece em vez de exibir três marcos
+   *     apagados — pintar progresso numa ordem que não vai seguir é a tela
+   *     mentindo com cor.
+   */
+  const regua = rafael.locator('ol[aria-label*="Andamento"]').first()
+  const textoRegua = (await regua.innerText().catch(() => '')).replace(/\n/g, ' ')
+  ok(9, 'a régua de três marcos aparece na ficha', (await regua.count()) > 0, textoRegua.slice(0, 70))
+  ok(9, 'e diz o estado por PALAVRA, não só por cor',
+     /concluída/i.test(textoRegua) && /agora/i.test(textoRegua) && /a fazer/i.test(textoRegua))
+  ok(9, 'o marco de agora é marcado para o leitor de tela (aria-current)',
+     (await regua.locator('li[aria-current="step"]').count()) === 1)
+
+  // ===========================================================================
   // DEGRAU 10 · O CLIENTE APROVA — no portal, e ninguém por ele
   // ===========================================================================
   const token = sql(`SELECT "tokenPublico" FROM ordens WHERE id='${ordemId}'`)

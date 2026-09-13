@@ -9,6 +9,7 @@ import { prontuario } from '@/server/consultas/painel'
 import { motoristasDaEmpresa } from '@/server/consultas/listas'
 import { exigirTela } from '@/server/sistema/guarda'
 import AoVivo from '@/components/sistema/ao-vivo'
+import Marcos from '@/components/sistema/marcos'
 import BotaoDaVez from '@/components/sistema/botao-da-vez'
 import CaptureFlow from '@/components/sistema/captura'
 import {
@@ -303,6 +304,12 @@ export default async function FichaDaOS({
           )}
         </div>
       </div>
+
+      {/* A RÉGUA DE TRÊS MARCAS, logo abaixo do cabeçalho.
+          Ela responde "onde está isso?" antes de a pessoa ler a linha do
+          tempo inteira — e é a consolidação das 18 etapas em três fases que o
+          dono pediu. Informa; não decide. Ver `MARCOS` em `lib/esteira`. */}
+      <Marcos etapa={o.etapa} />
 
       <div className={estilo.split}>
         <div className={estilo.blocos}>
