@@ -4,9 +4,12 @@ import { TRANSICOES, validarTransicao } from '@/server/ordem/maquina-estados'
 import {
   COLUNAS_ESTEIRA,
   ESTEIRA,
+  MARCOS,
   acaoDaVez,
   estadoDaEtapa,
   etapasDoPapel,
+  marcoDaEtapa,
+  marcosDaOrdem,
 } from './esteira'
 
 /**
@@ -202,5 +205,70 @@ describe('a fila de cada papel', () => {
 
   it('o financeiro só recebe a etapa de cobrança', () => {
     expect(etapasDoPapel(Papel.FINANCEIRO)).toEqual([EtapaOrdem.FATURAMENTO])
+  })
+})
+
+describe('os três marcos', () => {
+  /**
+   * O AGRUPAMENTO É PROMESSA, E POR ISSO TEM TESTE.
+   *
+   * "As 18 etapas cabem em 3 fases" é uma frase fácil de dizer e fácil de
+   * quebrar: basta acrescentar uma etapa ao enum e esquecer de dizer em que
+   * marco ela mora. A O.S. não some da tela — ela aparece com os três marcos
+   * apagados, e ninguém entende por quê.
+   */
+  it('cobre os 13 degraus, sem sobra e sem repetição', () => {
+    const todos = MARCOS.flatMap((m) => m.passos).sort((a, b) => a - b)
+    expect(todos).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+  })
+
+  it('leva TODA etapa do caminho feliz a um marco — nenhuma fica órfã', () => {
+    const orfas = TODAS_AS_ETAPAS.filter((e) => {
+      const estado = estadoDaEtapa(e)
+      return estado.passo !== null && marcoDaEtapa(e) === null
+    })
+    expect(orfas).toEqual([])
+  })
+
+  it('deixa os DESVIOS fora dos marcos, de propósito', () => {
+    // Recusa, devolução sem reparo e cancelamento saem do caminho. Pintá-los
+    // numa régua de progresso seria a tela prometendo um fim que não vem.
+    expect(marcoDaEtapa(EtapaOrdem.CANCELADO)).toBeNull()
+    expect(marcoDaEtapa(EtapaOrdem.ORCAMENTO_REPROVADO)).toBeNull()
+    expect(marcoDaEtapa(EtapaOrdem.DEVOLVIDO_SEM_REPARO)).toBeNull()
+  })
+
+  it('põe cada etapa no marco que uma pessoa apontaria', () => {
+    expect(marcoDaEtapa(EtapaOrdem.SOLICITACAO_RECEBIDA)!.chave).toBe('COLETA')
+    expect(marcoDaEtapa(EtapaOrdem.COLETADO)!.chave).toBe('COLETA')
+    expect(marcoDaEtapa(EtapaOrdem.RECEBIDO_NA_EMPRESA)!.chave).toBe('SERVICO')
+    expect(marcoDaEtapa(EtapaOrdem.EM_MANUTENCAO)!.chave).toBe('SERVICO')
+    expect(marcoDaEtapa(EtapaOrdem.FATURAMENTO)!.chave).toBe('DEVOLUCAO')
+    expect(marcoDaEtapa(EtapaOrdem.FINALIZADO)!.chave).toBe('DEVOLUCAO')
+  })
+
+  it('a régua anda: o que passou fica concluído, o de agora acende, o resto espera', () => {
+    const naBancada = marcosDaOrdem(EtapaOrdem.EM_ANALISE)
+    expect(naBancada.map((m) => m.situacao)).toEqual(['concluido', 'agora', 'adiante'])
+
+    const naRua = marcosDaOrdem(EtapaOrdem.EM_ROTA_RETIRADA)
+    expect(naRua.map((m) => m.situacao)).toEqual(['agora', 'adiante', 'adiante'])
+
+    const entregue = marcosDaOrdem(EtapaOrdem.FINALIZADO)
+    expect(entregue.map((m) => m.situacao)).toEqual(['concluido', 'concluido', 'agora'])
+  })
+
+  it('uma O.S. cancelada não mostra progresso nenhum', () => {
+    expect(marcosDaOrdem(EtapaOrdem.CANCELADO).map((m) => m.situacao))
+      .toEqual(['adiante', 'adiante', 'adiante'])
+  })
+
+  it('NÃO existe trava de fase aqui — os marcos informam, não decidem', () => {
+    // Se um dia alguém acrescentar uma função tipo `podeEntrarNaFase`, este
+    // teste é o lembrete de por que ela não deveria existir: o técnico começa a
+    // avaliar o aparelho antes de a papelada de entrada fechar, e quem protege
+    // cada passo é a EXIGÊNCIA concreta, em `maquina-estados.ts`.
+    const chaves = Object.keys(MARCOS[0]!)
+    expect(chaves).toEqual(['chave', 'numero', 'rotulo', 'resumo', 'passos'])
   })
 })

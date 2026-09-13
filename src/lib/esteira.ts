@@ -475,3 +475,97 @@ export function acaoDaVez(etapa: EtapaOrdem, papel: Papel): AcaoDaVez | null {
 export function etapasDoPapel(papel: Papel): EtapaOrdem[] {
   return (Object.keys(RECEITAS) as EtapaOrdem[]).filter((e) => acaoDaVez(e, papel) !== null)
 }
+
+// ===========================================================================
+// OS TRÊS MARCOS — o pedido do dono, e o que ele não é
+// ===========================================================================
+
+/**
+ * AS 18 ETAPAS, AGRUPADAS EM TRÊS MARCOS.
+ *
+ * =============================================================================
+ * DE ONDE ISTO VEIO
+ * =============================================================================
+ * O dono pediu que as 18 etapas fossem "consolidadas e distribuídas
+ * harmonicamente dentro de 3 fases principais": coleta, serviço, devolução. O
+ * corte é bom porque é o corte da vida real — o aparelho chega, o aparelho é
+ * consertado, o aparelho volta — e qualquer pessoa entende os três sem
+ * treinamento.
+ *
+ * Os 13 degraus continuam existindo e continuam sendo o que move a esteira.
+ * Isto aqui é uma LEITURA por cima deles: uma régua de três marcas para quem
+ * quer saber "onde isso está" sem ler treze nomes.
+ *
+ * =============================================================================
+ * O QUE ESTES MARCOS NÃO SÃO — e esta parte é a que importa
+ * =============================================================================
+ * NÃO SÃO CANCELA. Nada aqui impede a fase 2 de começar antes de a fase 1
+ * fechar. O pedido original previa essa trava, e a análise que veio junto com
+ * ele já apontava o problema: no mundo real o técnico começa a avaliar o
+ * aparelho antes de a papelada de entrada estar concluída, e um sistema que o
+ * proíbe vira um sistema que ele contorna.
+ *
+ * Quem protege cada passo continua sendo a EXIGÊNCIA concreta — a assinatura,
+ * as seis fotos, a peça declarada, o orçamento montado. Elas prendem o que
+ * precisa ser preso sem prender a operação, e estão em `maquina-estados.ts`,
+ * onde sempre estiveram.
+ *
+ * Estes marcos INFORMAM. Não decidem.
+ */
+export type Marco = {
+  chave: 'COLETA' | 'SERVICO' | 'DEVOLUCAO'
+  numero: 1 | 2 | 3
+  rotulo: string
+  /** Uma linha para quem nunca viu o sistema. */
+  resumo: string
+  /** Os degraus da esteira que moram neste marco. */
+  passos: number[]
+}
+
+export const MARCOS: readonly Marco[] = [
+  {
+    chave: 'COLETA', numero: 1, rotulo: 'Coleta',
+    resumo: 'Do pedido do cliente até o aparelho sair da casa dele.',
+    passos: [1, 2, 3, 4],
+  },
+  {
+    chave: 'SERVICO', numero: 2, rotulo: 'Serviço',
+    resumo: 'Da bancada ao conserto pronto, passando pelo aval do cliente.',
+    passos: [5, 6, 7, 8, 9],
+  },
+  {
+    chave: 'DEVOLUCAO', numero: 3, rotulo: 'Devolução',
+    resumo: 'Do faturamento à assinatura de quem recebeu de volta.',
+    passos: [10, 11, 12, 13],
+  },
+]
+
+/** Em que marco esta etapa está? `null` para os desvios, que saem do caminho. */
+export function marcoDaEtapa(etapa: EtapaOrdem): Marco | null {
+  const estado = estadoDaEtapa(etapa)
+  if (estado.passo === null) return null
+  return MARCOS.find((m) => m.passos.includes(estado.passo!)) ?? null
+}
+
+export type SituacaoDoMarco = 'concluido' | 'agora' | 'adiante'
+
+/**
+ * O estado dos três marcos para uma O.S. — o que o stepper desenha.
+ *
+ * Um desvio (orçamento recusado, devolução sem reparo, cancelamento) devolve os
+ * três como `adiante`: a O.S. saiu do caminho, e pintar marcos de progresso numa
+ * ordem que não vai seguir seria a tela mentindo com cor.
+ */
+export function marcosDaOrdem(etapa: EtapaOrdem): Array<Marco & { situacao: SituacaoDoMarco }> {
+  const atual = marcoDaEtapa(etapa)
+  return MARCOS.map((m) => ({
+    ...m,
+    situacao: !atual
+      ? ('adiante' as const)
+      : m.numero < atual.numero
+        ? ('concluido' as const)
+        : m.numero === atual.numero
+          ? ('agora' as const)
+          : ('adiante' as const),
+  }))
+}
