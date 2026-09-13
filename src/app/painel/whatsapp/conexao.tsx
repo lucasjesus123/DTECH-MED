@@ -118,9 +118,15 @@ export default function Conexao({
       </div>
 
       {!conectada ? (
+        /* A frase aqui dizia "nada se perde", e isso não era verdade: sem
+           número conectado o aviso gastava as seis tentativas em meia hora e
+           morria. Agora ele espera de verdade — mas a espera tem prazo, e
+           esconder o prazo seria trocar uma promessa falsa por outra. */
         <p className={estilo.fraco} style={{ marginTop: 'var(--s3)' }}>
-          Enquanto o número não conecta, os avisos continuam sendo enfileirados —
-          nada se perde. Eles saem assim que a conexão subir.
+          Enquanto o número não conecta, os avisos ficam esperando na fila e saem
+          sozinhos assim que a conexão subir. <strong>A espera vale por 12 horas:</strong>{' '}
+          o que passar disso é descartado com o motivo escrito, porque um aviso de
+          retirada que chega no dia seguinte atrapalha mais do que ajuda.
         </p>
       ) : null}
     </div>

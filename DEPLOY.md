@@ -187,8 +187,18 @@ Procure estas três linhas vazias e preencha:
 
 ```bash
 # Vem do painel da uazapi. Sem ele o sistema sobe e funciona; as mensagens
-# automáticas ficam guardadas na fila e disparam sozinhas quando o token
-# entrar — que é o comportamento correto, não uma falha.
+# automáticas esperam na fila, de cinco em cinco minutos, e saem sozinhas
+# quando o número conectar.
+#
+# A espera tem prazo: 12 horas. Passadas elas, o aviso é descartado com o
+# motivo escrito em Painel → WhatsApp, em vez de chegar ao cliente um dia
+# atrasado — "o motorista está a caminho" de um motorista que já passou faz
+# mais estrago que silêncio.
+#
+# Este valor pode ficar VAZIO aqui: desde a tela de plataforma, o token é
+# digitado em Administração → WhatsApp da plataforma e guardado cifrado no
+# banco, sem editar arquivo nem subir contêiner. O que estiver na tela vence
+# o que estiver neste arquivo.
 UAZAPI_ADMIN_TOKEN=
 
 # Seu acesso de Super Admin. Usado uma única vez, no passo 7.
@@ -491,7 +501,7 @@ osv-scanner --lockfile=/opt/gavetas/DTECHMED/package-lock.json
 
 **Confira:** a tela mostra **conectado** e o número aparece. Clique em **Atualizar status** para ter certeza de que veio do provedor, e não da tela.
 
-> Enquanto o número não conecta, nada se perde: os avisos ficam enfileirados e saem assim que a conexão subir.
+> Enquanto o número não conecta, os avisos ficam enfileirados e saem assim que a conexão subir — **desde que ela suba em até 12 horas.** Passado esse prazo o aviso vence e é descartado dizendo isso, em vez de chegar ao cliente atrasado. Por isso este passo não fica para depois: com o sistema já em uso e o WhatsApp desconectado, cada meio dia que passa é um dia de avisos que ninguém recebeu.
 
 ---
 
@@ -1010,13 +1020,34 @@ para ele. O celular tem que apitar, e tocar no aviso tem que abrir a parada.
 
 ```bash
 # A fila está entupida?
-docker compose -p dtechmed exec db psql -U dtechmed_owner -d dtechmed -c \
-  "SELECT status, count(*) FROM outbox_jobs GROUP BY status;"
+docker compose -p dtechmed exec -T db psql -U dtechmed_owner -d dtechmed -c \
+  "SET app.is_super_admin = 'on';
+   SELECT status, tipo, count(*) FROM outbox_jobs GROUP BY 1,2 ORDER BY 3 DESC;"
 ```
 
-- Muitos `PENDENTE` e nenhum `CONCLUIDO` → o worker caiu. `docker compose -p dtechmed restart worker`.
-- Muitos `DESCARTADO` → estouraram as tentativas. Veja o motivo em **Painel → WhatsApp**, na coluna de situação.
+> ⚠️ **O `SET` da primeira linha não é enfeite — sem ele a resposta é uma
+> mentira tranquilizadora.** As tabelas têm `FORCE ROW LEVEL SECURITY`, que vale
+> **inclusive para o dono da tabela**. Sem abrir a porta que a própria política
+> prevê, o `dtechmed_owner` enxerga zero linhas e a consulta devolve um
+> resultado vazio — que se lê como "a fila está limpa" no exato momento em que
+> ela tem duzentos avisos parados. É a mesma porta que o
+> `scripts/conferir-dinheiro.sql` já usava, e pelo mesmo motivo.
+>
+> Vale para qualquer consulta à mão neste guia: leitura sem esse `SET` não
+> responde "não há", responde "não vejo".
+
+- Muitos `PENDENTE` e nenhum `CONCLUIDO` → duas causas possíveis, e elas se
+  separam olhando **Painel → WhatsApp**: se o cartão "Na fila" disser
+  *"parados: o WhatsApp não está conectado"*, o worker está vivo e os avisos
+  estão **esperando** o número voltar — leia o QR de novo. Se disser
+  *"aguardando o próximo disparo"*, aí sim o worker caiu:
+  `docker compose -p dtechmed restart worker`.
+- Muitos `DESCARTADO` → ninguém recebeu. O motivo está escrito em **Painel →
+  WhatsApp**, na coluna de situação: ou estouraram as tentativas, ou o aviso
+  passou de 12 horas esperando a conexão e venceu.
 - O número desconectou → **Painel → WhatsApp → Conectar** e leia o QR de novo.
+  Os avisos das últimas 12 horas saem sozinhos assim que ele voltar; os mais
+  velhos que isso não saem, e é de propósito.
 
 ### Espaço em disco
 

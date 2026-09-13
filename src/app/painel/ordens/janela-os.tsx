@@ -87,6 +87,16 @@ export default function JanelaOS({
   const [modo, setModo] = useState<Modo>({ tela: 'agora' })
   /** O passo que a pessoa clicou na régua só para ver o que é. */
   const [espiando, setEspiando] = useState<number | null>(null)
+  /**
+   * A FASE QUE A PESSOA ABRIU COM O DEDO.
+   *
+   * `null` quer dizer "a que está acontecendo" — e é assim que a janela abre,
+   * sempre. Quem chega na janela quer o trabalho de agora, não a fase que
+   * estava aberta da última vez. Clicar numa outra fase é uma visita: mostra o
+   * que acontece lá e quando aconteceu, e o botão de voltar traz de volta para
+   * o que fazer agora.
+   */
+  const [faseAberta, setFaseAberta] = useState<number | null>(null)
 
   /**
    * A ABA ABERTA. Começa sempre em 'agora'.
@@ -178,11 +188,21 @@ export default function JanelaOS({
   const andou = useCallback(() => {
     setModo({ tela: 'agora' })
     setEspiando(null)
+    // A ordem andou: a fase visitada perde o sentido, e a janela volta para a
+    // fase de agora — que pode inclusive ser outra, se este passo virou a
+    // página do processo.
+    setFaseAberta(null)
     void recarregar()
     router.refresh()
   }, [recarregar, router])
 
   const d = p?.dossie ?? null
+  /**
+   * A fase que está na tela: a que a pessoa abriu, ou a de agora quando ela
+   * não abriu nenhuma. Uma conta só, num lugar só — os três botões, a régua de
+   * dentro e o painel de baixo precisam concordar sobre qual fase é essa.
+   */
+  const faseVendo = faseAberta ?? p?.roteiro.faseAtual ?? 1
 
   return (
     <div className={estilo.janelaFundo}>
@@ -281,8 +301,34 @@ export default function JanelaOS({
 
               {aba === 'agora' ? (
                 <>
+                  {/* -------------------------------------------------------
+                      AS TRÊS FASES — a primeira coisa que a janela responde
+                      -------------------------------------------------------
+                      Antes destes três botões, quem abria a O.S. via onze
+                      bolinhas numa fileira e precisava LER para se localizar.
+                      Onze é informação demais para a pergunta que se faz
+                      primeiro, que é sempre a mesma: o aparelho está vindo,
+                      está na bancada, ou está voltando?
+
+                      Os onze passos não sumiram — eles moram dentro da fase e
+                      aparecem logo abaixo, só os da fase aberta. */}
+                  <Fases
+                    painel={p}
+                    aberta={faseVendo}
+                    viva={p.roteiro.faseAtual}
+                    aoAbrir={(n) => {
+                      setEspiando(null)
+                      setModo({ tela: 'agora' })
+                      // Clicar na fase que já está aberta volta para a de
+                      // agora: o botão é ida e volta, e não uma armadilha que
+                      // deixa a pessoa presa olhando o futuro.
+                      setFaseAberta(n === faseVendo && n !== p.roteiro.faseAtual ? null : n)
+                    }}
+                  />
+
                   <Regua
                     painel={p}
+                    fase={faseVendo}
                     espiando={espiando}
                     aoEspiar={(n) => setEspiando((atual) => (atual === n ? null : n))}
                   />
@@ -325,6 +371,17 @@ export default function JanelaOS({
                     </Voltando>
                   ) : espiando !== null ? (
                     <PassoEspiado painel={p} n={espiando} aoFechar={() => setEspiando(null)} />
+                  ) : faseVendo !== p.roteiro.faseAtual ? (
+                    /* A pessoa foi olhar outra fase. Ela lê o que acontece lá e
+                       quando aconteceu; o que ela não encontra é botão que ande
+                       a esteira — não porque a tela esconda, mas porque a
+                       máquina de estados não aceita passo fora de ordem, e um
+                       botão que só sabe dar erro é pior que botão nenhum. */
+                    <FaseVisitada
+                      painel={p}
+                      n={faseVendo}
+                      aoVoltar={() => setFaseAberta(null)}
+                    />
                   ) : (
                     <Agora
                       painel={p}
@@ -367,29 +424,145 @@ export default function JanelaOS({
 }
 
 /* ==========================================================================
-   A RÉGUA DOS ONZE PASSOS
+   OS TRÊS BOTÕES DAS FASES — o mapa inteiro numa olhada
+   ==========================================================================
+   O pedido que os criou, depois de a janela ficar pronta:
+
+     "Não quero mais 300 mil telas de O.S. tudo bagunçado, quero algo
+      simplificado que até uma criança de 6 anos possa executar."
+
+   Três botões, e cada um responde sozinho três coisas: QUE FASE é, EM QUE PÉ
+   está, e QUANTO falta. Quem passa o olho de longe lê a cor; quem precisa de
+   certeza lê o selo (✓ ● ○ !) e a palavra escrita ao lado dele.
+
+   A COR NUNCA ANDA SOZINHA, e isso não é preciosismo: cerca de um homem em
+   cada doze não separa verde de vermelho, e um sistema que só diz "está verde"
+   está mandando essa pessoa adivinhar. Por isso o selo e a palavra existem —
+   eles são a informação, e a cor é o atalho.
+
+   O botão da fase adiante ABRE. O pedido original travava, e travar aqui não
+   protegeria nada: quem impede a fase 2 de começar antes da 1 é a máquina de
+   estados, que não aceita "recebido na empresa" sem "coletado" antes. A trava
+   de verdade está lá e continua lá. O que a fase adiante não tem é botão que
+   ande a esteira — porque a esteira não anda fora de ordem.
+   ========================================================================== */
+function Fases({
+  painel,
+  aberta,
+  viva,
+  aoAbrir,
+}: {
+  painel: PainelDaOrdem
+  aberta: number
+  viva: number
+  aoAbrir: (n: number) => void
+}) {
+  return (
+    <div className={estilo.osFases} role="tablist" aria-label="As três fases da O.S.">
+      {painel.roteiro.fases.map((f) => (
+        <button
+          key={f.n}
+          type="button"
+          role="tab"
+          aria-selected={aberta === f.n}
+          className={[
+            estilo.osFase,
+            f.estado === 'concluida'
+              ? estilo.osFaseFeita
+              : f.estado === 'agora'
+                ? estilo.osFaseAgora
+                : f.estado === 'parada'
+                  ? estilo.osFaseParada
+                  : estilo.osFaseAdiante,
+            aberta === f.n ? estilo.osFaseAberta : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          onClick={() => aoAbrir(f.n)}
+        >
+          <span className={estilo.osFaseTopo}>
+            <span className={estilo.osFaseSelo} aria-hidden="true">
+              {f.selo}
+            </span>
+            <span className={estilo.osFaseOrdem}>Fase {f.n}</span>
+            {f.n === viva ? <span className={estilo.osFaseAqui}>você está aqui</span> : null}
+          </span>
+
+          <strong className={estilo.osFaseNome}>{f.nome}</strong>
+          <span className={estilo.osFaseFormal}>{f.formal}</span>
+
+          {/* A situação por extenso é a metade da informação que a cor não
+              entrega. Sai do fluxo visual, mas nunca da tela. */}
+          <span className={estilo.osFaseSituacao}>{f.situacao}</span>
+
+          <span className={estilo.osFaseBarra} aria-hidden="true">
+            <span className={estilo.osFaseFio} style={{ width: `${f.porcento}%` }} />
+          </span>
+          <span className={estilo.osFaseConta}>
+            {f.feitos} de {f.total} passos
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+/* ==========================================================================
+   A RÉGUA — os passos DA FASE ABERTA, e não os onze de uma vez
    ==========================================================================
    Ela responde de relance a pergunta que se faz cem vezes por dia: em que pé
    está. Cada bolinha é clicável — não para ANDAR, que seria pular trava, mas
    para LER o que aquele passo é e quando ele aconteceu.
+
+   Ela mostrava os onze passos sempre, e no celular isso dava onze colunas de
+   28px: uma fileira de números ilegíveis. Agora ela é a lupa da fase que está
+   aberta — quatro, dois ou três passos, com nome que cabe. Os onze continuam
+   existindo e continuam contados no topo; o que mudou é que a régua só desenha
+   o pedaço que interessa agora.
    ========================================================================== */
 function Regua({
   painel,
+  fase,
   espiando,
   aoEspiar,
 }: {
   painel: PainelDaOrdem
+  fase: number
   espiando: number | null
   aoEspiar: (n: number) => void
 }) {
   const r = painel.roteiro
+  const daFase = r.fases.find((f) => f.n === fase)
+  const passos = r.passos.filter((p) => daFase?.passos.includes(p.n))
+  if (passos.length === 0) return null
+
+  /**
+   * O CABEÇALHO SEGUE O QUE ESTÁ DESENHADO EMBAIXO DELE.
+   *
+   * Visitando a fase 3, ele dizia "Passo 8 de 11 · Manutenção" com as bolinhas
+   * 9, 10 e 11 logo abaixo — a mesma caixa afirmando duas coisas diferentes. Ao
+   * visitar, o título passa a ser a FASE que está na tela, e onde a ordem
+   * realmente está vai para a direita, dito por extenso.
+   */
+  const visitando = fase !== r.faseAtual
+
   return (
     <div className={estilo.osReguaCaixa}>
       <div className={estilo.osReguaTopo}>
         <span className={estilo.osReguaAgora}>
-          {r.desvio ? r.desvio.rotulo : `Passo ${r.atual} de ${r.total} · ${r.passos[r.atual - 1]?.nome ?? ''}`}
+          {visitando
+            ? `Fase ${fase} · ${daFase?.nome ?? ''}`
+            : r.desvio
+              ? r.desvio.rotulo
+              : `Passo ${r.atual} de ${r.total} · ${r.passos[r.atual - 1]?.nome ?? ''}`}
         </span>
-        <span className={estilo.osReguaConta}>{Math.round(r.porcento)}%</span>
+        <span className={estilo.osReguaConta}>
+          {visitando
+            ? r.desvio
+              ? r.desvio.rotulo
+              : `a ordem está no passo ${r.atual} de ${r.total}`
+            : `${Math.round(r.porcento)}%`}
+        </span>
       </div>
 
       <div className={estilo.osReguaPista} aria-hidden="true">
@@ -399,8 +572,20 @@ function Regua({
         />
       </div>
 
-      <ol className={estilo.osReguaNos}>
-        {r.passos.map((n) => (
+      {/* As colunas são as da FASE aberta — duas, três ou seis. Com poucas, a
+          largura de cada uma é limitada e a fila fica centrada: dois pontos
+          esticados até as bordas pareciam duas ilhas sem relação, e não dois
+          degraus seguidos. */}
+      <ol
+        className={estilo.osReguaNos}
+        style={{
+          gridTemplateColumns: `repeat(${Math.min(passos.length, 6)}, minmax(0, ${
+            passos.length <= 3 ? '148px' : '1fr'
+          }))`,
+          justifyContent: passos.length <= 3 ? 'center' : undefined,
+        }}
+      >
+        {passos.map((n) => (
           <li key={n.n}>
             <button
               type="button"
@@ -421,6 +606,78 @@ function Regua({
           </li>
         ))}
       </ol>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   A FASE VISITADA — o que acontece numa fase que não é a de agora
+   ==========================================================================
+   Serve às duas visitas que a operação faz de verdade, e que são opostas:
+
+   Para TRÁS, a pergunta é de conferência — "quando foi que o motorista trouxe?
+   quem assinou?". Para FRENTE, é de expectativa — "depois disso, o que o
+   cliente ainda vai ter que fazer?". As duas se respondem lendo, e nenhuma
+   delas precisa de botão que ande a esteira.
+   ========================================================================== */
+function FaseVisitada({
+  painel,
+  n,
+  aoVoltar,
+}: {
+  painel: PainelDaOrdem
+  n: number
+  aoVoltar: () => void
+}) {
+  const f = painel.roteiro.fases.find((x) => x.n === n)
+  if (!f) return null
+  const passos = painel.roteiro.passos.filter((p) => f.passos.includes(p.n))
+  const daVez = painel.roteiro.fases.find((x) => x.n === painel.roteiro.faseAtual)
+
+  return (
+    <div className={estilo.osPainelLido}>
+      <p className={estilo.osPainelTitulo}>
+        Fase {f.n} · {f.nome}
+        <span className={estilo.osPainelQuem}>{f.quem}</span>
+      </p>
+      <p className={estilo.texto}>{f.oQue}</p>
+
+      <ul className={estilo.osFaseLista}>
+        {passos.map((p) => (
+          <li key={p.n} className={estilo.osFaseItem}>
+            <span
+              className={
+                p.estado === 'cumprido'
+                  ? estilo.osFaseItemFeito
+                  : p.estado === 'agora'
+                    ? estilo.osFaseItemAgora
+                    : estilo.osFaseItemAdiante
+              }
+              aria-hidden="true"
+            >
+              {p.estado === 'cumprido' ? '✓' : p.estado === 'agora' ? '●' : '○'}
+            </span>
+            <span>
+              <strong>{p.nome}</strong>
+              <span className={estilo.osFaseItemQuando}>
+                {p.quando
+                  ? `${quando(p.quando)}${p.autor ? ` · ${p.autor}` : ''}`
+                  : p.estado === 'cumprido'
+                    ? 'já cumprido'
+                    : 'ainda não'}
+              </span>
+              <span className={estilo.osFaseItemOque}>{p.oQue}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <div className={estilo.acoesForm}>
+        <button type="button" className={estilo.btn} onClick={aoVoltar}>
+          Voltar para o que fazer agora
+          {daVez ? ` · fase ${daVez.n}, ${daVez.nome.toLowerCase()}` : ''}
+        </button>
+      </div>
     </div>
   )
 }
@@ -483,6 +740,15 @@ function Agora({
   const [observacao, setObservacao] = useState('')
   const [pendente, iniciar] = useTransition()
   const passoAtual = painel.roteiro.passos.find((x) => x.n === painel.roteiro.atual)
+  /**
+   * A fase de agora, escrita no título junto do passo.
+   *
+   * Sem ela o painel dizia "Agora · passo 7" e a pessoa precisava olhar de
+   * volta para os botões de cima para saber de que fase aquele 7 era. Escrever
+   * as duas coisas na mesma linha custa cinco palavras e tira uma ida e volta
+   * do olho a cada abertura de janela.
+   */
+  const faseDeAgora = painel.roteiro.fases.find((f) => f.n === painel.roteiro.faseAtual)
   const d = painel.dossie
 
   function executar(para: PainelDaOrdem['passos'][number]['para']) {
@@ -520,7 +786,8 @@ function Agora({
           <>Fora do caminho · {painel.roteiro.desvio.rotulo}</>
         ) : (
           <>
-            Agora · passo {painel.roteiro.atual}
+            {faseDeAgora ? `Fase ${faseDeAgora.n} · ${faseDeAgora.nome} · ` : 'Agora · '}
+            passo {painel.roteiro.atual} de {painel.roteiro.total}
             {passoAtual ? ` · ${passoAtual.nome}` : ''}
           </>
         )}

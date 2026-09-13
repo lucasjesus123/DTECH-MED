@@ -1,8 +1,16 @@
 import { StatusJob } from '@/generated/prisma/enums'
+import { planoDaFalha } from './plano'
 import { comContextoWorker, comEscopo, prisma } from '@/lib/db'
 import { env } from '@/lib/env'
 import { montarMensagem, normalizarNumero, type DadosMensagem } from '@/server/whatsapp/mensagens'
-import { enviarDocumento, enviarTexto, tokenDaEmpresaNaTx } from '@/server/whatsapp/uazapi'
+import {
+  EsperandoWhatsapp,
+  anotarConexao,
+  conexaoViva,
+  enviarDocumento,
+  enviarTexto,
+  tokenDaEmpresaNaTx,
+} from '@/server/whatsapp/uazapi'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { enfileirar } from '@/server/ordem/motor'
 import { formatarBRL } from '@/lib/dinheiro'
@@ -36,6 +44,8 @@ type Job = {
   payload: Record<string, unknown>
   tentativas: number
   maxTentativas: number
+  /** Quando o trabalho nasceu. É o relógio da espera — ver `falhar`. */
+  criadoEm: Date
 }
 
 const IDENTIDADE = `worker-${process.pid}-${Math.random().toString(36).slice(2, 8)}`
@@ -63,9 +73,58 @@ async function tomarJobs(limite: number): Promise<Job[]> {
           LIMIT ${limite}
           FOR UPDATE SKIP LOCKED
        )
-       RETURNING id, "tenantId", tipo, payload, tentativas, "maxTentativas"
+       RETURNING id, "tenantId", tipo, payload, tentativas, "maxTentativas", "criadoEm"
     `
     return linhas
+  })
+}
+
+/**
+ * OS TRABALHOS QUE FICARAM PRESOS EM "PROCESSANDO" — e por que eles existiam.
+ *
+ * =============================================================================
+ * O BURACO QUE O PRÓPRIO DEPLOY ABRIA
+ * =============================================================================
+ * A tomada marca o trabalho como PROCESSANDO e o worker sai para fazê-lo. Se o
+ * worker MORRE no meio — `docker compose restart worker`, a VPS reiniciando,
+ * o contêiner ficando sem memória —, ninguém devolve aquele trabalho para a
+ * fila. Ele fica PROCESSANDO **para sempre**: nunca é tentado de novo, nunca é
+ * descartado, nunca aparece como erro em lugar nenhum.
+ *
+ * Quer dizer: toda atualização do sistema engolia calada os avisos que
+ * estavam saindo naquele segundo. E o contador da tela mostrava "1 em
+ * processamento · saindo agora" indefinidamente, o que é pior do que mostrar
+ * um erro — parece que está acontecendo.
+ *
+ * A coluna `travadoEm` já era escrita desde sempre. Ela nunca foi lida por
+ * ninguém; é ela que responde esta pergunta.
+ *
+ * Dez minutos porque nenhum trabalho honesto demora isso: a conversa com o
+ * provedor tem teto de 20 segundos e o PDF mais pesado leva poucos. O que
+ * passar de dez minutos não está demorando — está órfão.
+ *
+ * A tentativa que ele gastou ao ser tomado NÃO é devolvida, de propósito: não
+ * dá para saber se ele morreu antes ou depois de a mensagem sair, e um
+ * trabalho que volta de graça pode virar mensagem repetida para o cliente. Com
+ * a tentativa contada, ele tenta de novo um número limitado de vezes e depois
+ * aparece como DESCARTADO — visível, que é o que faltava.
+ */
+const LIMITE_DE_TRAVA_MS = 10 * 60_000
+
+async function destravarOrfaos(): Promise<number> {
+  return comContextoWorker(async (tx) => {
+    const limite = new Date(Date.now() - LIMITE_DE_TRAVA_MS)
+    const r = await tx.outboxJob.updateMany({
+      where: { status: StatusJob.PROCESSANDO, travadoEm: { lt: limite } },
+      data: {
+        status: StatusJob.PENDENTE,
+        travadoPor: null,
+        travadoEm: null,
+        agendadoPara: new Date(),
+        ultimoErro: 'O worker foi interrompido no meio deste trabalho. Devolvido para a fila.',
+      },
+    })
+    return r.count
   })
 }
 
@@ -79,37 +138,101 @@ async function concluir(id: string) {
 }
 
 /**
- * Devolve o job para a fila com espera crescente, ou descarta se estourou.
+ * Devolve o job para a fila, ou o descarta — conforme o plano acima.
  *
  * Descartar em silêncio seria pior que falhar: o cliente não recebeu o aviso e
  * ninguém ficaria sabendo. Por isso o job vira DESCARTADO com o erro gravado,
  * e aparece no painel de saúde da fila.
  */
 async function falhar(job: Job, erro: unknown) {
-  const msg = erro instanceof Error ? erro.message : String(erro)
-  const estourou = job.tentativas >= job.maxTentativas
-  // 30s, 1min, 2min, 4min... com teto de 30 minutos.
-  const espera = Math.min(30_000 * 2 ** (job.tentativas - 1), 30 * 60_000)
+  const plano = planoDaFalha(job, erro)
 
   await comContextoWorker(async (tx) => {
     await tx.outboxJob.update({
       where: { id: job.id },
-      data: estourou
-        ? { status: StatusJob.DESCARTADO, ultimoErro: msg.slice(0, 900), processadoEm: new Date() }
-        : {
-            status: StatusJob.PENDENTE,
-            ultimoErro: msg.slice(0, 900),
-            agendadoPara: new Date(Date.now() + espera),
-            travadoPor: null,
-            travadoEm: null,
-          },
+      data:
+        plano.destino === 'descarte'
+          ? {
+              status: StatusJob.DESCARTADO,
+              ultimoErro: plano.motivo.slice(0, 900),
+              processadoEm: new Date(),
+            }
+          : {
+              status: StatusJob.PENDENTE,
+              ultimoErro: plano.motivo.slice(0, 900),
+              agendadoPara: new Date(Date.now() + plano.emMs),
+              tentativas: plano.tentativas,
+              travadoPor: null,
+              travadoEm: null,
+            },
     })
   })
 
-  console.error(
-    `[fila] ${job.tipo} ${job.id} falhou (${job.tentativas}/${job.maxTentativas})` +
-      `${estourou ? ' — DESCARTADO' : ` — nova tentativa em ${Math.round(espera / 1000)}s`}: ${msg}`,
+  const linha =
+    plano.destino === 'espera'
+      ? `esperando o WhatsApp — vê de novo em ${Math.round(plano.emMs / 60_000)}min`
+      : plano.destino === 'descarte'
+        ? 'DESCARTADO'
+        : `nova tentativa em ${Math.round(plano.emMs / 1000)}s`
+
+  const escrever = plano.destino === 'espera' ? console.warn : console.error
+  escrever(
+    `[fila] ${job.tipo} ${job.id} (${job.tentativas}/${job.maxTentativas}) — ${linha}: ${plano.motivo}`,
   )
+}
+
+/**
+ * O TOKEN DA EMPRESA, OU A ESPERA.
+ *
+ * Não haver token quer dizer que ninguém leu o QR Code ainda. É a única
+ * resposta possível, e ela não é um erro do sistema — é uma etapa da
+ * instalação que ainda não aconteceu.
+ */
+async function tokenParaEnviar(tenantId: string): Promise<string> {
+  const token = await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+    tokenDaEmpresaNaTx(tx, tenantId),
+  )
+  if (!token) {
+    throw new EsperandoWhatsapp(
+      'O WhatsApp desta empresa ainda não foi conectado. O aviso espera o QR Code ser lido.',
+    )
+  }
+  return token
+}
+
+/**
+ * ENVIA, E SE O PROVEDOR RECUSAR, DESCOBRE DE QUAL DOS DOIS CASOS SE TRATA.
+ *
+ * Um envio recusado significa uma de duas coisas muito diferentes:
+ *
+ *   o número CAIU       → nada a repetir agora; a mensagem espera a conexão
+ *   a mensagem é ruim   → número inválido, mídia recusada; repetir é o certo
+ *
+ * Tratar os dois igual é o que fazia o fim de semana inteiro de avisos morrer
+ * quando o celular da empresa ficava sem bateria. A pergunta ao provedor só
+ * acontece no caminho do erro, e a resposta fica um minuto na memória do
+ * worker — senão uma fila de duzentos trabalhos viraria duzentas perguntas.
+ */
+async function enviarOuEsperar<T>(
+  tenantId: string,
+  token: string,
+  envio: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await envio()
+  } catch (e) {
+    const viva = await conexaoViva(tenantId, token)
+    // O worker é quem esbarra na verdade primeiro; ele escreve o que viu, e o
+    // crachá do topo do painel para de jurar "conectado" com o celular
+    // desligado desde sexta.
+    await comContextoWorker((tx) => anotarConexao(tx, tenantId, viva))
+    if (!viva) {
+      throw new EsperandoWhatsapp(
+        'O número de WhatsApp da empresa está desconectado. O aviso espera ele voltar.',
+      )
+    }
+    throw e
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -420,12 +543,7 @@ async function enviarAvisoDaEtapa(job: Job) {
   const empresa = job.tenantId
   if (!empresa) throw new Error('Trabalho de WhatsApp sem empresa; nada foi enviado.')
 
-  const token = await comEscopo({ tenantId: empresa, userId: null, ehSuperAdmin: false }, (tx) =>
-    tokenDaEmpresaNaTx(tx, empresa),
-  )
-  if (!token) {
-    throw new Error('WhatsApp da empresa não está conectado.')
-  }
+  const token = await tokenParaEnviar(empresa)
 
   /**
    * COM ANEXO, O TEXTO VIRA LEGENDA — e não uma segunda mensagem.
@@ -451,10 +569,12 @@ async function enviarAvisoDaEtapa(job: Job) {
       })
     } catch (e) {
       console.warn(`[fila] anexo falhou (${dados.anexo.nome}), mandando só o texto:`, e)
-      r = await enviarTexto({ token, numero, texto: corpo })
+      // A segunda tentativa é que decide entre esperar e falhar: se o texto
+      // puro também não passa, o problema não era a mídia.
+      r = await enviarOuEsperar(empresa, token, () => enviarTexto({ token, numero, texto: corpo }))
     }
   } else {
-    r = await enviarTexto({ token, numero, texto: corpo })
+    r = await enviarOuEsperar(empresa, token, () => enviarTexto({ token, numero, texto: corpo }))
   }
 
   await registrarMensagem(job.tenantId, dados.ordemId, {
@@ -517,9 +637,10 @@ async function gerarDocumento(job: Job) {
    * não acha nada liga para perguntar, que é o oposto do que o aviso serve.
    *
    * O aviso é um trabalho NOVO, e não uma chamada direta: assim ele tem as
-   * mesmas seis tentativas e o mesmo backoff dos outros. Se o WhatsApp da
-   * empresa estiver fora do ar neste minuto, a mensagem sai quando ele voltar,
-   * em vez de sumir junto com este trabalho.
+   * mesmas seis tentativas e o mesmo backoff dos outros — e, quando o WhatsApp
+   * é que está fora, a mesma espera sem gasto de tentativa (ver `plano.ts`).
+   * A mensagem sai quando o número voltar, em vez de sumir junto com este
+   * trabalho.
    */
   const p = job.payload as { ordemId?: string; enviarAoCliente?: boolean }
   if (p.enviarAoCliente && p.ordemId) {
@@ -566,8 +687,30 @@ export async function rodarUmaVolta(): Promise<number> {
   return jobs.length
 }
 
+/** De quanto em quanto tempo o worker procura trabalho órfão. */
+const VARREDURA_DE_ORFAOS_MS = 5 * 60_000
+
 export async function iniciarWorker(): Promise<void> {
   console.log(`[fila] worker ${IDENTIDADE} no ar, lendo a cada ${env.WORKER_POLL_INTERVAL_MS}ms`)
+
+  /**
+   * A PRIMEIRA COISA AO SUBIR é recolher o que a queda anterior deixou preso.
+   *
+   * É aqui que a atualização do sistema deixa de engolir aviso: quem morreu no
+   * `restart worker` volta para a fila no arranque do worker novo.
+   */
+  let proximaVarredura = 0
+  const varrer = async () => {
+    if (Date.now() < proximaVarredura) return
+    proximaVarredura = Date.now() + VARREDURA_DE_ORFAOS_MS
+    try {
+      const n = await destravarOrfaos()
+      if (n > 0) console.warn(`[fila] ${n} trabalho(s) preso(s) em PROCESSANDO devolvido(s) à fila.`)
+    } catch (e) {
+      console.error('[fila] não consegui procurar trabalho órfão:', e)
+    }
+  }
+  await varrer()
 
   const encerrar = async (sinal: string) => {
     console.log(`[fila] ${sinal} recebido, terminando o lote em andamento…`)
@@ -578,6 +721,7 @@ export async function iniciarWorker(): Promise<void> {
 
   while (!parando) {
     try {
+      await varrer()
       const n = await rodarUmaVolta()
       // Fila vazia: espera o intervalo cheio. Fila com trabalho: volta logo.
       await dormir(n === 0 ? env.WORKER_POLL_INTERVAL_MS : 200)
@@ -678,10 +822,10 @@ async function enviarPropostaAoCliente(job: Job) {
   const corpo = montarMensagem(template, dados.d)
   if (!corpo) throw new Error(`Modelo de mensagem desconhecido: ${template}`)
 
-  const token = await comEscopo(ctx, (tx) => tokenDaEmpresaNaTx(tx, tenantId))
-  if (!token) throw new Error('WhatsApp da empresa não está conectado.')
-
-  const r = await enviarTexto({ token, numero, texto: corpo })
+  const token = await tokenParaEnviar(tenantId)
+  const r = await enviarOuEsperar(tenantId, token, () =>
+    enviarTexto({ token, numero, texto: corpo }),
+  )
   await registrarMensagem(tenantId, null, {
     numero,
     corpo,

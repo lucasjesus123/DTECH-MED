@@ -4,7 +4,7 @@ import { EtapaOrdem } from '@/generated/prisma/enums'
 import { exigirSessao, exigirAba } from '@/server/auth/guarda'
 import { listarOrdens, tecnicosDaEmpresa } from '@/server/consultas/listas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
-import { TOTAL_DE_PASSOS, passoDaEtapa } from '@/server/ordem/roteiro'
+import { TOTAL_DE_PASSOS, faseDaEtapa, passoDaEtapa } from '@/server/ordem/roteiro'
 import AbasOS from '../os-abas'
 import AbrirOS from './abrir-os'
 import TabelaDeOrdens, { type LinhaDeOrdem } from './tabela'
@@ -64,22 +64,35 @@ export default async function Ordens({
    * do Prisma inteiro levaria junto campo que a tela não usa — e um dia levaria
    * um que ela não devia ver. Aqui a forma é declarada, e é ela que manda.
    */
-  const linhas: LinhaDeOrdem[] = ordens.map((o) => ({
-    id: o.id,
-    numero: o.numero,
-    prioridade: o.prioridade,
-    etapaRotulo: ROTULO_ETAPA[o.etapa],
-    passo: passoDaEtapa(o.etapa),
-    totalPassos: TOTAL_DE_PASSOS,
-    equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`,
-    serie: o.equipamento.numeroSerie,
-    cliente: o.cliente.nome,
-    tecnico: o.tecnico?.nome ?? null,
-    diasParado: o.diasParado,
-    atrasada: o.atrasada,
-    faturaCentavos: o.fatura?.valorTotalCentavos ?? null,
-    faturaStatus: o.fatura?.status ?? null,
-  }))
+  const linhas: LinhaDeOrdem[] = ordens.map((o) => {
+    /**
+     * A FASE VEM DA ETAPA, e não de montar o roteiro de cada linha.
+     *
+     * Montar as fases de verdade custa a linha do tempo inteira da ordem —
+     * sessenta viagens de banco para desenhar sessenta linhas de tabela. A
+     * lista não precisa de tanto: ela só responde "em que fase esta está", e
+     * isso a etapa sozinha já diz.
+     */
+    const fase = faseDaEtapa(o.etapa)
+    return {
+      id: o.id,
+      numero: o.numero,
+      prioridade: o.prioridade,
+      etapaRotulo: ROTULO_ETAPA[o.etapa],
+      passo: passoDaEtapa(o.etapa),
+      totalPassos: TOTAL_DE_PASSOS,
+      fase: fase ? { n: fase.n, nome: fase.nome } : null,
+      encerrada: o.etapa === EtapaOrdem.FINALIZADO,
+      equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`,
+      serie: o.equipamento.numeroSerie,
+      cliente: o.cliente.nome,
+      tecnico: o.tecnico?.nome ?? null,
+      diasParado: o.diasParado,
+      atrasada: o.atrasada,
+      faturaCentavos: o.fatura?.valorTotalCentavos ?? null,
+      faturaStatus: o.fatura?.status ?? null,
+    }
+  })
 
   return (
     <>
