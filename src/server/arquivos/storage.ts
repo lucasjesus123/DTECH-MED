@@ -3,6 +3,7 @@ import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp, { type Metadata } from 'sharp'
 import { hashArquivo } from '@/lib/cripto'
+import { RECUSA_DE_FORMATO, formatoReal } from '@/lib/formato-imagem'
 import { env } from '@/lib/env'
 
 /**
@@ -36,8 +37,14 @@ export type ResultadoUpload =
  *
  * A validação olha os BYTES do arquivo, não o `Content-Type` que o navegador
  * declarou nem a extensão do nome. Os dois são texto livre; quem quer subir um
- * script disfarçado só precisa renomear para `.jpg`. O `sharp` recusa o que
- * não for imagem de verdade.
+ * script disfarçado só precisa renomear para `.jpg`.
+ *
+ * Este parágrafo já estava escrito aqui, e era meia verdade — a metade que
+ * faltava era a que importa. O `sharp` recusa o que não é imagem, sim; mas
+ * aceita QUALQUER imagem que saiba ler, e ele lê HEIF nesta instalação. Um
+ * `.heic` malicioso declarando `image/jpeg` passava pela lista de tipos e
+ * chegava ao libheif. Agora `formatoReal()` lê os bytes e recusa antes de o
+ * `sharp` encostar no arquivo. Ver `lib/formato-imagem.ts`.
  *
  * Além de validar, reescrevemos a imagem. Isso descarta qualquer coisa
  * pendurada no arquivo original — metadados EXIF com a localização de casa do
@@ -77,6 +84,13 @@ export async function guardarFoto(entrada: {
   }
 
   const bruto = Buffer.from(await arquivo.arrayBuffer())
+
+  // O QUE O ARQUIVO É, conferido ANTES de qualquer biblioteca de imagem abrir
+  // ele. A linha acima confere o que o navegador DECLAROU, que se troca num
+  // cabeçalho; esta confere os bytes, que não se trocam.
+  if (formatoReal(bruto) === null) {
+    return { ok: false, motivo: RECUSA_DE_FORMATO }
+  }
 
   let meta: Metadata
   try {
@@ -162,6 +176,21 @@ export async function guardarAssinatura(entrada: {
   if (bytes.length > 2 * 1024 * 1024) return { ok: false, motivo: 'Assinatura grande demais.' }
   if (bytes.length < 200) return { ok: false, motivo: 'A assinatura ficou em branco.' }
 
+  /**
+   * O `data:image/png;base64,` DO REGEX ACIMA É TEXTO, NÃO É O ARQUIVO.
+   *
+   * Este foi o terceiro ponto de entrada, e só apareceu ao ler o arquivo
+   * inteiro — os outros dois estão nas fotos. O regex confere o PREFIXO da
+   * data URL, que quem envia escreve à mão; os bytes depois da vírgula podem
+   * ser qualquer coisa, e o `sharp(bytes)` abaixo fareja o formato de verdade.
+   *
+   * É o pior lugar dos três para ter um buraco: a assinatura do cliente acaba
+   * dentro de um PDF com valor de contrato.
+   */
+  if (formatoReal(bytes) !== 'png') {
+    return { ok: false, motivo: 'Assinatura em formato inesperado.' }
+  }
+
   let png: Buffer
   try {
     // Reescreve como PNG: descarta qualquer coisa que não seja imagem.
@@ -227,6 +256,14 @@ export async function guardarFotoDoSite(entrada: {
   }
 
   const bruto = Buffer.from(await arquivo.arrayBuffer())
+
+  // Mesma conferência de bytes da foto de ordem. A foto do site entra pelo
+  // painel, por gente da casa — o que não muda nada: o arquivo continua sendo
+  // um arquivo, e continua indo para o mesmo decodificador.
+  if (formatoReal(bruto) === null) {
+    return { ok: false, motivo: RECUSA_DE_FORMATO }
+  }
+
   let meta: Metadata
   try {
     meta = await sharp(bruto).metadata()
