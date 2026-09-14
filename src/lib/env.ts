@@ -39,6 +39,16 @@ const schema = z.object({
   UAZAPI_WEBHOOK_SECRET: z.string().optional(),
 
   /**
+   * Teto de tempo de UMA consulta, em milissegundos.
+   *
+   * Vinte segundos é folgado para tela e apertado para estrago: nenhuma tela
+   * deste sistema leva isso, e uma consulta que leva já está segurando a vaga
+   * de outra pessoa no pool. Sobe se algum relatório legítimo começar a
+   * esbarrar — mas o certo, nesse caso, costuma ser o índice que falta.
+   */
+  DB_STATEMENT_TIMEOUT_MS: z.coerce.number().int().min(1000).max(300_000).default(20_000),
+
+  /**
    * OS AVISOS NO CELULAR DE QUEM ESTÁ NA RUA — e por que as três são opcionais.
    *
    * Sem elas o sistema sobe igual e o aplicativo diz, com todas as letras, que

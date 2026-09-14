@@ -16,7 +16,55 @@ import { env } from './env'
  * fim da transação, então a conexão volta ao pool limpa.
  */
 
-const adapter = new PrismaPg({ connectionString: env.DATABASE_URL })
+/**
+ * O TETO DE TEMPO DE CADA CONSULTA — por que uma lentidão é falha de segurança.
+ *
+ * =============================================================================
+ * O QUE ACONTECE SEM ISTO
+ * =============================================================================
+ * Uma consulta sem índice, um `LIKE '%texto%'` numa tabela que cresceu, um
+ * relatório que alguém pediu com o filtro aberto: sozinhos, são lentidão. Com
+ * vinte pessoas usando ao mesmo tempo, são outra coisa — a consulta segura a
+ * conexão, a conexão segura a vaga no pool, e a vigésima primeira pessoa não
+ * consegue nem abrir a tela de login.
+ *
+ * Quer dizer: **um usuário derruba o sistema para todos os outros, sem querer
+ * e sem nenhum ataque.** É negação de serviço acidental, e é o mais comum.
+ *
+ * Com o teto, a consulta que passar do tempo morre sozinha e devolve erro para
+ * QUEM a pediu. Os outros continuam trabalhando. Falhar um é melhor que travar
+ * todos.
+ *
+ * =============================================================================
+ * POR QUE AQUI, E NÃO NO PAPEL DO BANCO
+ * =============================================================================
+ * Um `ALTER ROLE ... SET statement_timeout` valeria também para as MIGRAÇÕES, e
+ * migração demora mesmo: criar índice numa tabela grande leva minutos, e
+ * matá-la pela metade é pior do que a lentidão que se queria evitar.
+ *
+ * Aqui o teto vale só para o pool da aplicação (`DATABASE_URL`). O
+ * `prisma migrate` usa a `DIRECT_DATABASE_URL`, que não passa por este
+ * adaptador — e continua sem teto, que é o certo.
+ *
+ * =============================================================================
+ * O SEGUNDO TETO É PARA A TRANSAÇÃO ABANDONADA
+ * =============================================================================
+ * Uma transação aberta que ninguém fecha — porque o processo morreu, porque a
+ * rede caiu no meio — fica segurando os bloqueios das linhas que tocou. Quem
+ * tentar mexer naquelas linhas espera para sempre. O
+ * `idle_in_transaction_session_timeout` é o que encerra essa transação órfã.
+ */
+const TETO_DE_CONSULTA_MS = env.DB_STATEMENT_TIMEOUT_MS
+const TETO_DE_TRANSACAO_OCIOSA_MS = TETO_DE_CONSULTA_MS * 3
+
+const adapter = new PrismaPg({
+  connectionString: env.DATABASE_URL,
+  // Aplicado pelo próprio Postgres em toda conexão que este pool abrir. Não
+  // depende de o código lembrar de pedir.
+  options:
+    `-c statement_timeout=${TETO_DE_CONSULTA_MS}` +
+    ` -c idle_in_transaction_session_timeout=${TETO_DE_TRANSACAO_OCIOSA_MS}`,
+})
 
 function criarCliente() {
   return new PrismaClient({
