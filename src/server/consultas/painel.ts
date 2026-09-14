@@ -359,7 +359,7 @@ export type Ofensor = {
 
 export type AlertaDoDia = {
   /** `null` quando não há nada gritando. Dia calmo é resposta, não ausência. */
-  tipo: 'atraso' | 'aviso' | 'estoque' | null
+  tipo: 'atraso' | 'estoque' | null
   titulo: string
   consequencia: string
   /** No máximo quatro; `total` diz quantos são de verdade. */
@@ -381,11 +381,13 @@ export type AlertaDoDia = {
  * O.S., o cliente e o valor de cada caso. Chip com nome é acionável; "3
  * atrasadas" é uma estatística sobre a qual não se faz nada.
  *
- * UM PROBLEMA POR VEZ, E O MAIS CARO PRIMEIRO. Mostrar os três juntos devolve
+ * UM PROBLEMA POR VEZ, E O MAIS CARO PRIMEIRO. Mostrar os dois juntos devolve
  * a pessoa ao estado anterior — uma parede de coisas erradas, e nenhuma
- * primeira. A ordem é: atraso, aviso que não saiu, estoque no mínimo. A
- * primeira quebra promessa feita a cliente, a segunda deixa o cliente sem
- * notícia, a terceira ainda vai travar uma O.S. amanhã.
+ * primeira. A ordem é: atraso, depois estoque no mínimo. A primeira quebra
+ * promessa feita a cliente; a segunda ainda vai travar uma O.S. amanhã.
+ *
+ * Eram três. O aviso de WhatsApp que não saiu ficava no meio, e saiu daqui —
+ * o motivo está escrito no lugar onde ele morava, mais abaixo.
  *
  * O DINHEIRO É CORTADO NA CONSULTA. Os chips carregam valor, e quem não pode
  * ver dinheiro roda a consulta SEM a junção que o traz — não a versão com o
@@ -414,7 +416,7 @@ async function alertaEm(
   }
 
   {
-    // 1. PRAZO VENCIDO — a única das três que quebra uma promessa já feita.
+    // 1. PRAZO VENCIDO — a única das duas que quebra uma promessa já feita.
     //
     // Duas consultas quase iguais, e a diferença é a junção do valor. Elas
     // estão escritas por extenso, e não montadas com um fragmento condicional,
@@ -485,28 +487,31 @@ async function alertaEm(
       }
     }
 
-    // 2. AVISO QUE NÃO SAIU — o cliente ficou sem notícia e ninguém soube.
-    const descartados = await tx.$queryRaw<Array<{ n: bigint }>>`
-      SELECT count(*) AS n FROM outbox_jobs
-       WHERE "tenantId" = ${tenantId} AND status = 'DESCARTADO'
-    `
-    const quantos = Number(descartados[0]?.n ?? 0)
-    if (quantos > 0) {
-      return {
-        ...VAZIO,
-        tipo: 'aviso' as const,
-        titulo:
-          quantos === 1
-            ? 'Um aviso ao cliente não conseguiu sair'
-            : `${quantos} avisos ao cliente não conseguiram sair`,
-        consequencia:
-          'O sistema tentou e desistiu. Quem estava esperando notícia não recebeu nenhuma.',
-        total: quantos,
-        href: '/painel/whatsapp',
-      }
-    }
+    /*
+     * O AVISO QUE NÃO SAIU FICAVA AQUI, E SAIU DAQUI.
+     *
+     * Ele tomava a faixa larga do topo do Dashboard — "4 avisos ao cliente não
+     * conseguiram sair" — e o dono do sistema pediu para tirar: chamava atenção
+     * demais para o tamanho do problema.
+     *
+     * Tirar daqui não esconde nada, e é por isso que dava para tirar. A mesma
+     * contagem vive em Painel → WhatsApp, no cartão "Desistiram", em vermelho,
+     * e lá com o que esta faixa nunca teve: o MOTIVO de cada um, mensagem por
+     * mensagem. Quem vai agir sobre isso precisa do motivo, e o motivo nunca
+     * esteve no Dashboard.
+     *
+     * Há um segundo motivo, e é o que torna a remoção segura: a maior parte do
+     * que enchia essa contagem era defeito nosso. Até a correção da fila, um
+     * aviso enfileirado sem WhatsApp conectado gastava as seis tentativas em
+     * trinta e um minutos e morria — e cada morte dessas virava número nesta
+     * faixa. Agora ele espera a conexão, e só é descartado depois de doze horas
+     * esperando, dizendo isso por escrito.
+     *
+     * A faixa continua existindo para o que ela faz bem: a ordem que passou do
+     * prazo, e a peça que vai travar a bancada.
+     */
 
-    // 3. ESTOQUE NO MÍNIMO — ainda não travou nada, e vai travar.
+    // 2. ESTOQUE NO MÍNIMO — ainda não travou nada, e vai travar.
     const pecas = await tx.$queryRaw<Array<{ n: bigint }>>`
       SELECT count(*) AS n FROM pecas
        WHERE "tenantId" = ${tenantId} AND ativo = true AND saldo <= "estoqueMinimo"

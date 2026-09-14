@@ -575,7 +575,7 @@ function BannerDoDia({ alerta }: { alerta: AlertaDoDia }) {
   return (
     <section className={estilo.alertaDia} aria-labelledby="alerta-do-dia">
       <div className={estilo.alertaCorpo}>
-        <Term nome="Atenção" estado={alerta.tipo === 'atraso' ? 'prazo' : alerta.tipo === 'aviso' ? 'whatsapp' : 'estoque'} tom="alerta" />
+        <Term nome="Atenção" estado={alerta.tipo === 'atraso' ? 'prazo' : 'estoque'} tom="alerta" />
         <h2 id="alerta-do-dia" className={estilo.alertaTitulo}>
           {alerta.titulo}
         </h2>
