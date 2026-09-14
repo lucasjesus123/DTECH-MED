@@ -82,7 +82,7 @@ export default function QualEOAparelho({
   // cliente, e pelo mesmo motivo.
   useEffect(() => {
     const t = termo.trim()
-    if (t.length < 2) return
+    if (t.length < 1) return
     const meu = ++pedido.current
     const relogio = setTimeout(async () => {
       setBuscando(true)
@@ -110,7 +110,7 @@ export default function QualEOAparelho({
     setTermo('')
   }
 
-  const mostrarSugestoes = termo.trim().length >= 2
+  const mostrarSugestoes = termo.trim().length >= 1
 
   /**
    * O aparelho é de outro cliente?

@@ -78,6 +78,16 @@ export default function QuemEOCliente({
   const [achados, setAchados] = useState<ClienteAchado[]>([])
   const [escolhido, setEscolhido] = useState<ClienteAchado | null>(null)
   const [buscando, setBuscando] = useState(false)
+  /**
+   * A pessoa olhou a lista, não achou, e disse "é novo mesmo".
+   *
+   * Não muda NADA no que vai ser salvo — o cadastro já nascia junto com a
+   * ordem, e continua nascendo. O que isto muda é a dúvida: sem o botão, quem
+   * digitava um nome desconhecido via a lista ficar vazia e não sabia se o
+   * sistema estava procurando, se tinha achado nada, ou se ele precisava
+   * cadastrar em outra tela antes. Vazio não responde pergunta nenhuma.
+   */
+  const [ehNovo, setEhNovo] = useState(false)
 
   /** O termo que a busca deve perseguir. Muda no nome E no documento. */
   const [termo, setTermo] = useState('')
@@ -100,7 +110,7 @@ export default function QuemEOCliente({
   useEffect(() => {
     if (escolhido) return
     const t = termo.trim()
-    if (t.length < 3) return
+    if (t.length < 1) return
     const meu = ++pedido.current
     const relogio = setTimeout(async () => {
       // "Procurando…" acende quando a busca COMEÇA, e não durante os 300ms de
@@ -117,6 +127,7 @@ export default function QuemEOCliente({
   }, [termo, escolhido])
 
   function escolher(c: ClienteAchado) {
+    setEhNovo(false)
     setEscolhido(c)
     aoMudarEscolha?.({ id: c.id, nome: c.nome })
     setNome(c.nome)
@@ -130,9 +141,10 @@ export default function QuemEOCliente({
 
   // Sem termo suficiente não há o que sugerir, mesmo que a lista ainda guarde o
   // resultado da busca anterior. Ver o comentário do efeito acima.
-  const mostrarSugestoes = !escolhido && termo.trim().length >= 3
+  const mostrarSugestoes = !escolhido && termo.trim().length >= 1
 
   function trocar() {
+    setEhNovo(false)
     setEscolhido(null)
     aoMudarEscolha?.(null)
     setAchados([])
@@ -156,6 +168,13 @@ export default function QuemEOCliente({
         </p>
       ) : null}
 
+      {ehNovo && !escolhido ? (
+        <p className={estilo.avisoCaixa} role="status">
+          <strong>Cliente novo: {nome}.</strong> O cadastro dele nasce junto com esta O.S. —
+          preencha o CPF/CNPJ, o WhatsApp e o endereço abaixo e pode seguir.
+        </p>
+      ) : null}
+
       <div className={estilo.grade}>
         <label className={estilo.rotulo} style={{ position: 'relative' }}>
           Nome ou razão social *
@@ -169,6 +188,9 @@ export default function QuemEOCliente({
             onChange={(e) => {
               setNome(e.target.value)
               setTermo(e.target.value)
+              // Mudou o nome, a confirmação de "é novo" não vale mais: ela era
+              // sobre o nome de antes.
+              setEhNovo(false)
               // Editar o nome desfaz a escolha: quem digita por cima de um
               // cliente escolhido está dizendo que não era aquele.
               if (escolhido) {
@@ -177,11 +199,21 @@ export default function QuemEOCliente({
               }
             }}
           />
-          {mostrarSugestoes && (achados.length > 0 || buscando) ? (
-            <Sugestoes achados={achados} buscando={buscando} aoEscolher={escolher} />
+          {/* A lista abre também QUANDO NÃO ACHA NADA — é ali que mora o
+              "+ cadastrar". Antes ela só abria com resultado, e o silêncio de
+              uma lista que não aparece era o que deixava a pessoa na dúvida. */}
+          {mostrarSugestoes && !ehNovo ? (
+            <Sugestoes
+              achados={achados}
+              buscando={buscando}
+              termo={nome.trim()}
+              aoEscolher={escolher}
+              aoCadastrarNovo={() => setEhNovo(true)}
+            />
           ) : null}
           <span className={estilo.dica}>
             Comece a digitar: se ele já for cliente, aparece aqui e o resto se preenche sozinho.
+            Se não for, use o <strong>+</strong> da lista para seguir com um cadastro novo.
           </span>
         </label>
 
@@ -204,7 +236,7 @@ export default function QuemEOCliente({
             }}
           />
           {mostrarSugestoes && achados.length > 0 && /\d{4}/.test(documento) ? (
-            <Sugestoes achados={achados} buscando={false} aoEscolher={escolher} />
+            <Sugestoes achados={achados} buscando={false} termo="" aoEscolher={escolher} />
           ) : null}
           <span className={estilo.dica}>
             Também acha o cliente. É o que ele digita para aprovar o orçamento.
@@ -286,12 +318,19 @@ export default function QuemEOCliente({
 function Sugestoes({
   achados,
   buscando,
+  termo,
   aoEscolher,
+  aoCadastrarNovo,
 }: {
   achados: ClienteAchado[]
   buscando: boolean
+  /** O que está escrito no campo. Vira o nome do cliente novo. */
+  termo: string
   aoEscolher: (c: ClienteAchado) => void
+  /** Ausente no campo do documento: ninguém cadastra um cliente por CPF. */
+  aoCadastrarNovo?: () => void
 }) {
+  const nadaEncontrado = !buscando && achados.length === 0
   return (
     <ul className={estilo.sugestoes} role="listbox" aria-label="Clientes encontrados">
       {buscando && achados.length === 0 ? (
@@ -318,6 +357,33 @@ function Sugestoes({
           </button>
         </li>
       ))}
+
+      {/* O "+" APARECE DOS DOIS JEITOS, e não só quando a lista está vazia.
+          Com resultado na tela, ele diz "nenhum desses, é outro" — o caso de
+          dois clientes de nome parecido. Sem resultado, ele é a única linha, e
+          responde a pergunta que a lista vazia deixava no ar. */}
+      {aoCadastrarNovo && termo.length > 0 && !buscando ? (
+        <li>
+          <button
+            type="button"
+            className={`${estilo.sugestao} ${estilo.sugestaoNova}`}
+            onMouseDown={(e) => {
+              e.preventDefault()
+              aoCadastrarNovo()
+            }}
+          >
+            <strong>
+              <span aria-hidden="true">+ </span>
+              Cadastrar “{termo}” como cliente novo
+            </strong>
+            <span className={estilo.fraco}>
+              {nadaEncontrado
+                ? 'Nenhum cliente com esse nome na carteira.'
+                : 'Nenhum dos de cima é ele.'}
+            </span>
+          </button>
+        </li>
+      ) : null}
     </ul>
   )
 }

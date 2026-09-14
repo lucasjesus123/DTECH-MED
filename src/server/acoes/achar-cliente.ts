@@ -74,7 +74,10 @@ export async function acharCliente(termo: string): Promise<ClienteAchado[]> {
 
   const t = termo.trim()
   // Menos de três letras traz meia carteira e não ajuda ninguém a escolher.
-  if (t.length < 3) return []
+  // DA PRIMEIRA LETRA. Eram três, e três é tarde: quem atende o telefone
+  // digita "ma" e já quer ver a Maira na lista. O teto de 8 resultados e o
+  // atraso de 300ms do campo é o que segura o custo — não o número de letras.
+  if (t.length < 1) return []
 
   const digitos = t.replace(/\D/g, '')
   const ctx = contextoDe(sessao)

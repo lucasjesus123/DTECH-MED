@@ -75,7 +75,8 @@ export async function acharEquipamento(termo: string): Promise<EquipamentoAchado
   if (!sessao || !PODE_BUSCAR.includes(sessao.papel)) return []
 
   const t = termo.trim()
-  if (t.length < 2) return []
+  // Da primeira letra, pelo mesmo motivo da busca de cliente.
+  if (t.length < 1) return []
 
   const ctx = contextoDe(sessao)
 

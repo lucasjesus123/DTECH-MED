@@ -5981,6 +5981,15 @@ a.calNumero:hover, a.calNumero:focus-visible {
 }
 .sugestao:hover,
 .sugestao:focus-visible { background: var(--vio-veu-2); }
+/* O "+ cadastrar novo" da lista de clientes.
+   Separado do resto por uma linha: ele não é mais um cliente da lista, é a
+   saída para quando nenhum deles serve. Sem o traço, vira o quinto item e
+   alguém clica achando que é cadastro existente. */
+.sugestaoNova {
+  border-top: 1px solid var(--borda);
+}
+.sugestaoNova strong { color: var(--vio-claro); }
+
 .sugestaoVazia {
   padding: 8px 10px;
   font-size: var(--t-sm);
