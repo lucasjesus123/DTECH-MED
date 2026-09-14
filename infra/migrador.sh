@@ -97,16 +97,51 @@ if [ "$#" -eq 0 ]; then
   USUARIO=$(grep -E '^POSTGRES_USER=' .env | cut -d= -f2-)
   BANCO=$(grep -E '^POSTGRES_DB=' .env | cut -d= -f2-)
 
-  NO_REPO=$(find prisma/migrations -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-  NO_BANCO=$(docker exec dtechmed_db psql -U "${USUARIO:-dtechmed_owner}" -d "${BANCO:-dtechmed}" -tAc \
-    "SELECT count(*) FROM _prisma_migrations WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL" \
-    2>/dev/null | tr -d ' ')
+  # -------------------------------------------------------------------------
+  # COMPARA OS NOMES, E NÃO A CONTAGEM.
+  #
+  # A contagem foi o que esta conferência fazia antes, e ela tem dois defeitos
+  # que apareceram na prática:
+  #
+  #   1. Ela ACUSA sem dizer o quê. "O repositório tem 42 e o banco registra
+  #      43" manda parar o deploy e deixa quem está no terminal sem a única
+  #      informação que resolve: QUAL migração. Foi uma caçada por quatro
+  #      branches para descobrir que era a `20260910150000_flag_ui_v2`, aplicada
+  #      quando a gaveta esteve no branch do redesenho e esquecida no banco.
+  #
+  #   2. Pior: ela pode PASSAR estando tudo errado. Uma migração sobrando e
+  #      outra faltando dão a mesma contagem, e a conferência diz "certo" para
+  #      um banco que não é o que este código espera — que é exatamente o
+  #      cenário contra o qual ela existe.
+  #
+  # Comparar os nomes custa o mesmo e responde as duas coisas.
+  # -------------------------------------------------------------------------
+  DO_REPO=$(find prisma/migrations -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+  DO_BANCO=$(docker exec dtechmed_db psql -U "${USUARIO:-dtechmed_owner}" -d "${BANCO:-dtechmed}" -tAc \
+    "SELECT migration_name FROM _prisma_migrations
+      WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL" \
+    2>/dev/null | sed 's/[[:space:]]*$//' | grep -v '^$' | sort)
+
+  SOBRANDO=$(comm -13 <(printf '%s\n' "$DO_REPO") <(printf '%s\n' "$DO_BANCO"))
+  FALTANDO=$(comm -23 <(printf '%s\n' "$DO_REPO") <(printf '%s\n' "$DO_BANCO"))
 
   titulo "O banco está no ponto que este código espera?"
-  if [ "${NO_BANCO:-0}" = "$NO_REPO" ]; then
-    verde "$NO_BANCO migrações no repositório, $NO_BANCO aplicadas no banco"
+  if [ -z "$SOBRANDO" ] && [ -z "$FALTANDO" ]; then
+    verde "$(printf '%s\n' "$DO_REPO" | wc -l | tr -d ' ') migrações, as mesmas no repositório e no banco"
   else
-    morre "o repositório tem $NO_REPO migrações e o banco registra ${NO_BANCO:-0}. NÃO coloque em uso."
+    [ -n "$FALTANDO" ] && {
+      printf '\n  \033[31mNO REPOSITÓRIO, MAS NÃO APLICADAS NO BANCO:\033[0m\n'
+      printf '%s\n' "$FALTANDO" | sed 's/^/      /'
+    }
+    [ -n "$SOBRANDO" ] && {
+      printf '\n  \033[31mAPLICADAS NO BANCO, MAS AUSENTES DESTE BRANCH:\033[0m\n'
+      printf '%s\n' "$SOBRANDO" | sed 's/^/      /'
+      printf '\n  Isso costuma ser migração aplicada quando a gaveta esteve em outro\n'
+      printf '  branch. O conserto é TRAZER a migração para este branch — nunca\n'
+      printf '  apagar a linha do _prisma_migrations, que faria a contagem bater\n'
+      printf '  mentindo, nem derrubar o que ela criou, que é destrutivo.\n'
+    }
+    morre "o banco e este código não descrevem a mesma coisa. NÃO coloque em uso."
   fi
 fi
 

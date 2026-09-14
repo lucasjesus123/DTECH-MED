@@ -3551,6 +3551,7 @@ export const TenantScalarFieldEnum = {
   corSecundaria: 'corSecundaria',
   ativo: 'ativo',
   plano: 'plano',
+  uiV2: 'uiV2',
   bloqueado: 'bloqueado',
   motivoBloqueio: 'motivoBloqueio',
   criadoEm: 'criadoEm',

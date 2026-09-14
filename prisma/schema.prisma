@@ -302,6 +302,24 @@ model Tenant {
 
   ativo          Boolean @default(true)
   plano          String  @default("padrao")
+
+  /// O SISTEMA NOVO ("Azul Máquina") ligado para esta empresa.
+  ///
+  /// Este campo NÃO é usado por nada neste branch, e mesmo assim precisa estar
+  /// aqui: a coluna existe no banco de produção. Ela entrou pela migração
+  /// `20260910150000_flag_ui_v2`, aplicada quando a gaveta esteve no branch do
+  /// redesenho, e ficou quando a gaveta voltou para cá.
+  ///
+  /// Deixar de declará-la seria a pior das três saídas. Apagar a linha do
+  /// `_prisma_migrations` faria a contagem bater mentindo — a coluna
+  /// continuaria lá, sem nada explicando de onde veio. Derrubar a coluna seria
+  /// DDL destrutivo em produção para não ganhar nada. Declará-la é dizer a
+  /// verdade: o repositório passa a descrever o banco que existe.
+  ///
+  /// Quando o redesenho chegar aqui, é este o interruptor: `true` manda a
+  /// empresa para `/sistema`, `false` mantém em `/painel`. Por empresa de
+  /// propósito — voltar atrás é um UPDATE, não uma implantação.
+  uiV2           Boolean @default(false)
   /// Bloqueio administrativo pelo Super Admin (inadimplência, suspensão).
   bloqueado      Boolean @default(false)
   motivoBloqueio String?
