@@ -265,6 +265,24 @@ export default function JanelaOS({
               </p>
             ) : null}
           </div>
+          {/* A O.S. EM PDF FICA NO CABEÇALHO, e não no rodapé.
+              Ela nasceu no rodapé, junto de "o que o cliente vê" — e lá ela
+              não existia: o corpo desta janela é longo, e o rodapé só aparece
+              para quem rola até o fim. Quem está com o cliente no telefone não
+              rola nada, e disse, com razão, que o botão não tinha aparecido.
+
+              Aqui ele está sempre à vista, na faixa que não sai da tela — que
+              é o único lugar onde um botão de "me manda a O.S." serve. */}
+          {p ? (
+            <a
+              href={`/painel/ordens/${d!.id}/os.pdf`}
+              target="_blank"
+              rel="noreferrer"
+              className={estilo.btnPrimario}
+            >
+              O.S. em PDF
+            </a>
+          ) : null}
           <button type="button" className={estilo.janelaX} onClick={aoFechar} aria-label="Fechar">
             ×
           </button>
