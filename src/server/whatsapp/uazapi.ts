@@ -253,7 +253,21 @@ export { ErroUazapi }
 const MEMORIA_DE_CONEXAO = new Map<string, { conectado: boolean; em: number }>()
 const VALIDADE_DA_MEMORIA_MS = 60_000
 
-export async function conexaoViva(tenantId: string, token: string): Promise<boolean> {
+/**
+ * `true` conectado · `false` caiu · **`null` não deu para saber**.
+ *
+ * Os três estados existem porque dois não bastavam, e a falta do terceiro era
+ * um defeito de verdade: quando o provedor não respondia, esta função devolvia
+ * `true`. Para a fila isso estava certo — "na dúvida, é falha comum, tente de
+ * novo". Mas quem também chama daqui é o receptor de webhook, que GRAVA o que
+ * ela devolve. Lá, o mesmo `true` viraria "conectado" escrito no banco por
+ * falta de resposta — o sistema afirmando, com todas as letras, uma coisa que
+ * ninguém verificou.
+ *
+ * Agora quem chama decide o que fazer com o não-sei, e ninguém grava dúvida
+ * como se fosse fato.
+ */
+export async function conexaoViva(tenantId: string, token: string): Promise<boolean | null> {
   const lembrado = MEMORIA_DE_CONEXAO.get(tenantId)
   if (lembrado && Date.now() - lembrado.em < VALIDADE_DA_MEMORIA_MS) return lembrado.conectado
 
@@ -262,10 +276,9 @@ export async function conexaoViva(tenantId: string, token: string): Promise<bool
     MEMORIA_DE_CONEXAO.set(tenantId, { conectado: s.conectado, em: Date.now() })
     return s.conectado
   } catch {
-    // O provedor não respondeu. Não dá para afirmar que o número caiu — e
-    // chamar de "desconectado" faria o trabalho esperar por um problema que é
-    // de rede, e que repetir resolve. Na dúvida, é falha comum.
-    return true
+    // Não se guarda o não-sei na memória: a próxima chamada tenta de novo, em
+    // vez de repetir a dúvida por um minuto.
+    return null
   }
 }
 
@@ -275,17 +288,40 @@ export async function conexaoViva(tenantId: string, token: string): Promise<bool
  * O campo `status` só era escrito quando alguém clicava em "Atualizar status"
  * na tela. Quer dizer: o crachá do topo do painel podia jurar "conectado" por
  * dias depois de o celular ter caído, e a única forma de descobrir era alguém
- * desconfiar e clicar. Agora o worker, que é quem esbarra na verdade primeiro,
- * escreve o que viu.
+ * desconfiar e clicar. Agora quem esbarra na verdade primeiro escreve o que viu.
+ *
+ * =============================================================================
+ * ELA ABRE O PRÓPRIO ESCOPO, E ISSO É CORREÇÃO DE UM DEFEITO REAL
+ * =============================================================================
+ * A primeira versão recebia a transação de quem chamava, e o worker a chamava
+ * dentro de `comContextoWorker`. Parecia certo e **não funcionava**: a política
+ * de RLS de `whatsapp_instances` é `tenantId = app.current_tenant_id() OR
+ * app.is_super_admin()` — o contexto de worker não está nela. O `updateMany`
+ * encontrava zero linhas e **não reclamava**, porque `updateMany` nunca
+ * reclama. A funcionalidade inteira não existia, sem uma linha de erro.
+ *
+ * Medido, não deduzido: contexto de worker e de plataforma leem 0 linhas desta
+ * tabela; escopo da empresa lê 1 e escreve 1.
+ *
+ * Agora o escopo é aberto AQUI. Quem chama não tem como errar o contexto, e a
+ * contagem de linhas é conferida: zero vira aviso no log em vez de silêncio.
  */
-export async function anotarConexao(tx: Transacao, tenantId: string, conectado: boolean) {
-  await tx.whatsappInstance.updateMany({
-    where: { tenantId },
-    data: {
-      status: conectado ? 'CONECTADA' : 'DESCONECTADA',
-      ultimoStatusEm: new Date(),
-    },
-  })
+export async function anotarConexao(tenantId: string, conectado: boolean): Promise<void> {
+  const r = await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+    tx.whatsappInstance.updateMany({
+      where: { tenantId },
+      data: {
+        status: conectado ? 'CONECTADA' : 'DESCONECTADA',
+        ultimoStatusEm: new Date(),
+      },
+    }),
+  )
+  if (r.count === 0) {
+    console.warn(
+      `[whatsapp] nada gravado ao anotar a conexão da empresa ${tenantId} — ` +
+        'ou ela não tem instância, ou a política de RLS desta tabela mudou.',
+    )
+  }
 }
 
 export { EsperandoWhatsapp }

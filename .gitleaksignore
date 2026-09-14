@@ -18,3 +18,22 @@
 7849ad5b6578b353fcea93e52fe18ab8de062073:Dockerfile:generic-api-key:43
 df74532ccb14b961394f69c73a0ee384a114664c:Dockerfile:generic-api-key:42
 df74532ccb14b961394f69c73a0ee384a114664c:Dockerfile:generic-api-key:43
+
+# ---------------------------------------------------------------------------
+# As duas de baixo são minhas, e a história merece ficar escrita.
+#
+# A primeira versão do `.github/workflows/seguranca.yml` trazia as chaves do
+# banco DESCARTÁVEL do CI escritas por extenso. O gitleaks — o mesmo que aquele
+# arquivo põe para rodar — marcou as duas. Quer dizer: a trava que o arquivo
+# criava teria derrubado o próprio arquivo, e isso foi descoberto rodando a
+# ferramenta antes de commitar, não depois.
+#
+# O arquivo foi corrigido: agora as chaves são sorteadas a cada execução, com
+# `openssl rand`. Mas o commit que as trouxe é imutável, e elas continuam lá.
+#
+# Não há o que rotacionar: eram chaves de um Postgres em contêiner que nasce e
+# morre dentro de uma execução de CI, que nunca existiu fora dela e que nunca
+# guardou dado de ninguém. Decodificam, por extenso, para
+# `ci-descartavel-nao-eh-segredo-de-verdade`.
+55f101e87e9f29a04affb91daa4601c720ba1343:.github/workflows/seguranca.yml:generic-api-key:100
+55f101e87e9f29a04affb91daa4601c720ba1343:.github/workflows/seguranca.yml:generic-api-key:101

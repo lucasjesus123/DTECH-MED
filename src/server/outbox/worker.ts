@@ -222,11 +222,14 @@ async function enviarOuEsperar<T>(
     return await envio()
   } catch (e) {
     const viva = await conexaoViva(tenantId, token)
-    // O worker é quem esbarra na verdade primeiro; ele escreve o que viu, e o
-    // crachá do topo do painel para de jurar "conectado" com o celular
-    // desligado desde sexta.
-    await comContextoWorker((tx) => anotarConexao(tx, tenantId, viva))
-    if (!viva) {
+    // O worker é quem esbarra na verdade primeiro; ele escreve o que viu — e
+    // só o que viu. Quando o provedor não respondeu (`null`), nada é gravado:
+    // o crachá do painel continua mostrando a última informação de verdade, em
+    // vez de trocá-la por um palpite.
+    // `anotarConexao` abre o próprio escopo: passar o `tx` do worker aqui era
+    // justamente o defeito — a tabela não é visível nesse contexto.
+    if (viva !== null) await anotarConexao(tenantId, viva)
+    if (viva === false) {
       throw new EsperandoWhatsapp(
         'O número de WhatsApp da empresa está desconectado. O aviso espera ele voltar.',
       )

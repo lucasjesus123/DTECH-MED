@@ -97,9 +97,6 @@ jobs:
       APP_URL: http://localhost:3000
       DATABASE_URL: postgresql://dtechmed_app:ci_descartavel@localhost:5432/dtechmed?schema=public
       DIRECT_DATABASE_URL: postgresql://dtechmed_owner:ci_descartavel@localhost:5432/dtechmed?schema=public
-      SESSION_SECRET: Y2ktZGVzY2FydGF2ZWwtbmFvLWVoLXNlZ3JlZG8tZGUtdmVyZGFkZQ==
-      ENCRYPTION_KEY: Y2ktZGVzY2FydGF2ZWwtbmFvLWVoLWNoYXZlLWRlLXZlcmRhZGUtMDE=
-      DOCUMENT_HASH_SALT: ci-descartavel-nao-eh-sal-de-verdade
       STORAGE_LOCAL_PATH: /tmp/storage-ci
       ALLOWED_ORIGINS: http://localhost:3000
     steps:
@@ -109,6 +106,25 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+
+      # SORTEADOS A CADA EXECUÇÃO, e não escritos aqui.
+      #
+      # A primeira versão deste arquivo trazia as três chaves por extenso — de
+      # mentira, só para o banco descartável subir. O gitleaks do trabalho de
+      # cima marcou as duas em base64 como segredo, e estava certo em marcar:
+      # ele não tem como saber que são de mentira, e é exatamente essa dúvida
+      # que faz dele uma trava útil.
+      #
+      # Quer dizer: a trava que este arquivo cria teria derrubado este arquivo.
+      # Sorteando, não há o que vazar nem o que liberar — e o banco do teste
+      # ganha chave nova a cada execução, que é melhor de qualquer jeito.
+      - name: chaves descartáveis para este teste
+        run: |
+          {
+            echo "SESSION_SECRET=$(openssl rand -base64 32)"
+            echo "ENCRYPTION_KEY=$(openssl rand -base64 32)"
+            echo "DOCUMENT_HASH_SALT=$(openssl rand -base64 24)"
+          } >> "$GITHUB_ENV"
 
       - name: papel da aplicação, como em produção
         run: |
