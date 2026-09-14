@@ -8170,6 +8170,18 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .osNoEspiado { border-color: var(--vio); background: var(--vio-veu); }
 
+/* O passo que NÃO pede clique: a retirada já está com o motorista.
+   Fundo neutro em vez do azul do painel de ação — a diferença de cor é o que
+   diz, antes de qualquer texto, que aqui não há botão esperando por você. */
+.osEsperando {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s4);
+  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+}
+
 /* ----- O painel do "agora" ---------------------------------------------- */
 .osPainel {
   padding: var(--s4);

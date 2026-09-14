@@ -173,6 +173,27 @@ export default function JanelaOS({
     [aoFechar],
   )
 
+  /**
+   * A JANELA SE ATUALIZA SOZINHA ENQUANTO ESTIVER ABERTA.
+   *
+   * O pedido: *"quando o motorista aceita a retirada, aqui atualiza sozinho"*.
+   * Sem isto, a tela mostrava o estado do instante em que foi aberta — a
+   * central ficava olhando "esperando ele aceitar" com o motorista já a
+   * caminho, e só descobria fechando e abrindo de novo.
+   *
+   * Vinte segundos, e só com a janela aberta: é uma consulta por ordem sendo
+   * olhada, não uma por ordem existente. Fechou a janela, para.
+   *
+   * `document.hidden` corta a aba esquecida em segundo plano — o navegador que
+   * fica a tarde inteira numa aba oculta não tem por que consultar o banco.
+   */
+  useEffect(() => {
+    const relogio = setInterval(() => {
+      if (!document.hidden) void recarregar()
+    }, 20_000)
+    return () => clearInterval(relogio)
+  }, [recarregar])
+
   useEffect(() => {
     document.addEventListener('keydown', aoTeclar)
     const antes = document.body.style.overflow
@@ -779,6 +800,21 @@ function Agora({
   const escolhendoComoVem =
     d.etapa === 'ORDEM_RETIRADA_GERADA' && painel.passos.some((x) => x.pedeParada === 'RETIRADA')
 
+  /**
+   * A RETIRADA JÁ ESTÁ NA MÃO DE UM MOTORISTA.
+   *
+   * Duas coisas precisam ser verdade: a ordem está no passo de espera
+   * (`RETIRADA_AGENDADA`) e existe uma parada de retirada com motorista
+   * designado. Sem a segunda, a parada foi marcada e ninguém foi escolhido —
+   * e aí a central TEM trabalho, que é escolher.
+   */
+  const comOMotorista =
+    d.etapa === 'RETIRADA_AGENDADA'
+      ? (painel.paradasMarcadas.find(
+          (p) => p.tipo === 'RETIRADA' && p.motoristaId !== null && !p.fechada,
+        ) ?? null)
+      : null
+
   return (
     <div className={estilo.osPainel}>
       <p className={estilo.osPainelTitulo}>
@@ -829,6 +865,67 @@ function Agora({
               ? 'Esta ordem saiu do caminho. O histórico completo conta o que aconteceu.'
               : 'Nada para fazer agora com o seu perfil — este passo é de outra pessoa da equipe.'}
         </p>
+      ) : comOMotorista ? (
+        /* ---------------------------------------------------------------
+           O PASSO DO MOTORISTA NÃO PEDE CLIQUE DA CENTRAL.
+           ---------------------------------------------------------------
+           A frase do dono, olhando esta tela: *"o importante não é ser nada
+           manual — quando o motorista aceita a retirada, aqui atualiza
+           sozinho"*.
+
+           Ele está certo, e o sistema já fazia a parte difícil: designar o
+           motorista põe a parada em ATRIBUIDO, e é exatamente isso que o
+           aplicativo dele lista. A corrida JÁ ESTÁ no celular do motorista
+           antes de qualquer botão ser apertado aqui.
+
+           O que a tela fazia era oferecer à central um botão que é DELE —
+           "motorista saiu para a retirada" — como se ainda faltasse trabalho
+           aqui. Daí a confusão: o passo parecia parado, e estava resolvido.
+
+           Agora ele conta o que está acontecendo e espera. O botão continua
+           existindo, porque o celular do motorista descarrega e ele liga
+           avisando que saiu — mas como link discreto, que é o peso certo de
+           uma exceção. */
+        <div className={estilo.osEsperando}>
+          <p className={estilo.texto}>
+            <strong>Está no aplicativo de {comOMotorista.motorista}.</strong>{' '}
+            {comOMotorista.aceitoEm
+              ? `Ele aceitou a corrida em ${comOMotorista.aceitoEm}. Quando sair, esta tela anda sozinha.`
+              : 'Assim que ele aceitar e sair, esta tela anda sozinha — e o cliente é avisado no link que recebeu.'}
+          </p>
+          {/* A OBSERVAÇÃO CONTINUA AQUI, e continua opcional.
+              Ela some de qualquer tela onde não haja ação, e não devia: é onde
+              se anota "o cliente pediu para ir depois das 14h" no minuto em que
+              a informação chega, sem ter de abrir outra coisa. */}
+          <label className={estilo.rotulo}>
+            Observação (opcional)
+            <input
+              className={estilo.campo}
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+              placeholder="Fica registrada na linha do tempo, junto do seu nome"
+              disabled={pendente}
+            />
+            <span className={estilo.dica}>
+              Ela entra na linha do tempo quando o passo andar — pelo motorista, no aplicativo
+              dele, ou pelo link abaixo.
+            </span>
+          </label>
+
+          {painel.passos
+            .filter((x) => x.para === 'EM_ROTA_RETIRADA')
+            .map((x) => (
+              <button
+                key={x.para}
+                type="button"
+                className={estilo.osLinkBaixo}
+                disabled={pendente}
+                onClick={() => executar(x.para)}
+              >
+                O motorista saiu e não apertou no aplicativo? Marcar aqui
+              </button>
+            ))}
+        </div>
       ) : (
         <>
           <div className={estilo.acoesForm}>
