@@ -8,7 +8,8 @@
 #   bash infra/piloto.sh agora      # força, mesmo sem commit novo
 #   bash infra/piloto.sh pausar     # trava: nada sobe até você liberar
 #   bash infra/piloto.sh voltar     # destrava
-#   bash infra/piloto.sh log        # as últimas 60 linhas do diário
+#   bash infra/piloto.sh log        # o diário: o que subiu e quando
+#   bash infra/piloto.sh log tudo   # a saída completa do último deploy
 #   bash infra/piloto.sh situacao   # ligado? pausado? travado? em que commit?
 #
 # -----------------------------------------------------------------------------
@@ -114,7 +115,27 @@ case "${1:-}" in
     exit 0
     ;;
   log)
-    tail -n 60 "$DIARIO" 2>/dev/null || echo "Ainda não há diário."
+    # -----------------------------------------------------------------------
+    # POR PADRÃO, SÓ AS LINHAS DO PILOTO.
+    #
+    # O diário recebe DUAS coisas: as linhas que o piloto escreve ("commit
+    # novo…", "✓ NO AR") e a saída inteira do `subir.sh`, que inclui a
+    # construção das imagens Docker. A segunda é centenas de linhas por deploy.
+    #
+    # Um `tail -60` cru mostrava "#16 exporting layers" e mais nada — o diário
+    # existia e não se podia lê-lo. As linhas do piloto começam todas com data e
+    # hora; é por aí que elas se separam do resto.
+    #
+    # A saída completa continua a um comando de distância, e é ela que serve
+    # quando um deploy falha e se quer saber em que passo.
+    # -----------------------------------------------------------------------
+    if [ "${2:-}" = "tudo" ]; then
+      tail -n 200 "$DIARIO" 2>/dev/null || echo "Ainda não há diário."
+    else
+      grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2} ' "$DIARIO" 2>/dev/null | tail -n 40 \
+        || echo "Ainda não há nada no diário."
+      printf '\n  (a saída completa do deploy: bash infra/piloto.sh log tudo)\n'
+    fi
     exit 0
     ;;
   situacao)
