@@ -819,7 +819,10 @@ model Foto {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   ordemId String
-  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
+  /// RESTRICT, e não Cascade: a cascata do banco não passa pela checagem de
+  /// privilégio, então CASCADE aqui apagaria prova por um caminho que a
+  /// revogação de DELETE não cobre. Ver `20260914150000_cascata_nao_apaga_prova`.
+  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Restrict)
 
   categoria    CategoriaFoto
   /// Caminho interno no storage. Nunca é URL pública — o download passa por
@@ -856,7 +859,10 @@ model Assinatura {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   ordemId String
-  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
+  /// RESTRICT, e não Cascade: a cascata do banco não passa pela checagem de
+  /// privilégio, então CASCADE aqui apagaria prova por um caminho que a
+  /// revogação de DELETE não cobre. Ver `20260914150000_cascata_nao_apaga_prova`.
+  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Restrict)
 
   tipo TipoAssinatura
 
@@ -1103,7 +1109,10 @@ model PecaRetirada {
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   ordemId String
-  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Cascade)
+  /// RESTRICT, e não Cascade: a cascata do banco não passa pela checagem de
+  /// privilégio, então CASCADE aqui apagaria prova por um caminho que a
+  /// revogação de DELETE não cobre. Ver `20260914150000_cascata_nao_apaga_prova`.
+  ordem   Ordem  @relation(fields: [ordemId], references: [id], onDelete: Restrict)
 
   /// O que era, escrito pelo técnico. Nem toda peça que sai está no catálogo:
   /// a fonte queimada de um aparelho de 2011 não tem SKU aqui dentro.

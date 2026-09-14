@@ -21,6 +21,7 @@ import Diagnostico from './[id]/diagnostico'
 import Responsavel from './[id]/responsavel'
 import Orcamento from './[id]/orcamento'
 import Cancelar from './[id]/cancelar'
+import Excluir from './[id]/excluir'
 import estilo from '../painel.module.css'
 
 /**
@@ -435,7 +436,12 @@ export default function JanelaOS({
                 </Link>
               </div>
 
-              {p.podeCancelar && aba === 'ordem' ? <Cancelar ordemId={d!.id} /> : null}
+              {aba === 'ordem' && (p.podeCancelar || p.podeExcluir) ? (
+                <div className={estilo.acoesLinha}>
+                  {p.podeCancelar ? <Cancelar ordemId={d!.id} /> : null}
+                  {p.podeExcluir ? <Excluir ordemId={d!.id} /> : null}
+                </div>
+              ) : null}
             </>
           )}
         </div>

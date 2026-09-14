@@ -1098,6 +1098,11 @@ export type $AssinaturaPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "Assinatura"
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
+    /**
+     * RESTRICT, e não Cascade: a cascata do banco não passa pela checagem de
+     * privilégio, então CASCADE aqui apagaria prova por um caminho que a
+     * revogação de DELETE não cobre. Ver `20260914150000_cascata_nao_apaga_prova`.
+     */
     ordem: Prisma.$OrdemPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{

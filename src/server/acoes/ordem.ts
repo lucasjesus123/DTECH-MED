@@ -3,7 +3,7 @@
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
+import { EtapaOrdem, Papel, StatusOrcamento } from '@/generated/prisma/enums'
 import { hashDocumento, novoToken } from '@/lib/cripto'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos, lerValorBR } from '@/lib/dinheiro'
@@ -12,8 +12,9 @@ import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { proximoNumero } from '@/server/financeiro/servico'
 import { avancarOrdem } from '@/server/ordem/motor'
-import { guardarAssinatura, guardarFoto } from '@/server/arquivos/storage'
+import { apagarArquivo, guardarAssinatura, guardarFoto } from '@/server/arquivos/storage'
 import { coberturaDoEquipamento } from '@/server/ordem/garantia'
+import { JA_ANDOU, podeExcluir, type Veredito } from '@/server/ordem/exclusao'
 
 /**
  * Ações do painel e dos apps de campo.
@@ -907,4 +908,202 @@ export async function aceitarOrdemDoTecnico(form: FormData): Promise<Resposta> {
   revalidatePath(`/app/tecnico/${ordemId}`)
   revalidatePath(`/painel/ordens/${ordemId}`)
   return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// Exclusão da ordem
+// ---------------------------------------------------------------------------
+
+/**
+ * APAGAR UMA ORDEM — o caminho mais curto para destruir a razão de ser deste
+ * sistema, e por isso o mais cercado.
+ *
+ * Três coisas acontecem aqui, nesta ordem, e nenhuma é decorativa:
+ *
+ *   1. `podeExcluir` decide. A regra mora em `ordem/exclusao.ts`, é pura e é
+ *      testada. Aqui só se lê o banco e se obedece.
+ *   2. A auditoria é gravada ANTES do `delete`. Depois é tarde: a linha some e
+ *      não sobra de onde tirar o que foi apagado. O `AuditLog` não tem chave
+ *      estrangeira para a ordem, então ele sobrevive à cascata de propósito.
+ *   3. Só então os arquivos saem do disco — depois do banco ter confirmado. Na
+ *      ordem inversa, um erro no banco deixaria PDF órfão de linha viva.
+ *
+ * Quem confirma escreve o número da O.S. e o motivo. Não é cerimônia: o número
+ * é o que impede apagar a ordem errada na lista, e o motivo é a única frase que
+ * vai sobrar sobre esta ordem daqui a seis meses.
+ */
+export async function excluirOrdem(
+  ordemId: string,
+  confirmacao: string,
+  motivo: string,
+): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  const podeApagar: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
+  if (!podeApagar.includes(a.sessao.papel)) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'ordem.excluida',
+      entidade: 'ordem',
+      entidadeId: ordemId,
+      negado: true,
+      detalhes: { recusa: 'papel' },
+      ip: await ipAtual(),
+    })
+    return { ok: false, motivo: 'Só a gestão da empresa pode excluir uma ordem.' }
+  }
+
+  const razao = motivo.trim()
+  if (razao.length < 5) {
+    return { ok: false, motivo: 'Escreva por que esta ordem está sendo apagada.' }
+  }
+
+  const ordem = await lerPesoDaOrdem(a.ctx, ordemId)
+  if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+
+  // O número digitado tem de bater. Aceitamos com ou sem os zeros à esquerda:
+  // a lista mostra "#0004" e é isso que a pessoa lê antes de digitar.
+  const digitado = confirmacao.trim().replace(/^#/, '').replace(/^0+/, '')
+  if (digitado !== String(ordem.numero)) {
+    return { ok: false, motivo: `Digite o número da ordem (${ordem.numero}) para confirmar.` }
+  }
+
+  const veredito = podeExcluir(ordem.peso)
+  if (!veredito.pode) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'ordem.excluida',
+      entidade: 'ordem',
+      entidadeId: ordemId,
+      negado: true,
+      detalhes: { numero: ordem.numero, recusa: veredito.motivo },
+      ip: await ipAtual(),
+    })
+    return { ok: false, motivo: veredito.motivo }
+  }
+
+  // O retrato do que vai deixar de existir, gravado enquanto ainda existe.
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.excluida',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    ip: await ipAtual(),
+    detalhes: {
+      numero: ordem.numero,
+      motivo: razao,
+      etapa: ordem.peso.etapa,
+      abertaEm: ordem.abertaEm.toISOString(),
+      cliente: ordem.clienteNome,
+      equipamento: ordem.equipamento,
+      defeitoRelatado: ordem.defeitoRelatado,
+      apagados: {
+        eventos: ordem.eventos,
+        documentos: ordem.peso.documentos,
+        agendamentos: ordem.agendamentos,
+        orcamentos: ordem.orcamentos,
+      },
+    },
+  })
+
+  await comEscopo(a.ctx, (tx) => tx.ordem.delete({ where: { id: ordemId } }))
+
+  // Só agora o disco. O banco já disse sim.
+  for (const caminho of ordem.arquivos) await apagarArquivo(caminho)
+
+  revalidatePath('/painel')
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel/acompanhar')
+  return { ok: true }
+}
+
+/**
+ * Lê do banco tudo que a regra de exclusão precisa saber — e mais o que a
+ * auditoria vai congelar antes do apagamento.
+ *
+ * `jaColetada` sai da linha do tempo, e não da etapa atual: uma ordem que rodou
+ * inteira e foi CANCELADA no fim tem etapa `CANCELADO`, que não está em
+ * `JA_ANDOU`. Sem olhar o histórico, cancelar viraria o atalho para apagar.
+ */
+async function lerPesoDaOrdem(ctx: Parameters<typeof comEscopo>[0], ordemId: string) {
+  return comEscopo(ctx, async (tx) => {
+    const o = await tx.ordem.findUnique({
+      where: { id: ordemId },
+      select: {
+        numero: true,
+        etapa: true,
+        abertaEm: true,
+        defeitoRelatado: true,
+        cliente: { select: { nome: true } },
+        equipamento: { select: { marca: true, modelo: true } },
+        fatura: { select: { id: true } },
+        fotos: { select: { caminho: true, caminhoThumb: true } },
+        assinaturas: { select: { caminhoImagem: true } },
+        documentos: { select: { caminho: true } },
+        orcamentos: { select: { id: true, status: true } },
+        _count: {
+          select: {
+            eventos: true,
+            pecasRetiradas: true,
+            movimentos: true,
+            agendamentos: true,
+            retornos: true,
+          },
+        },
+      },
+    })
+    if (!o) return null
+
+    const jaColetada =
+      (await tx.eventoOrdem.count({
+        where: { ordemId, etapaNova: { in: [...JA_ANDOU] } },
+      })) > 0
+
+    return {
+      numero: o.numero,
+      abertaEm: o.abertaEm,
+      defeitoRelatado: o.defeitoRelatado,
+      clienteNome: o.cliente.nome,
+      equipamento: `${o.equipamento.marca} ${o.equipamento.modelo}`.trim(),
+      eventos: o._count.eventos,
+      agendamentos: o._count.agendamentos,
+      orcamentos: o.orcamentos.length,
+      arquivos: [
+        ...o.fotos.flatMap((f) => [f.caminho, f.caminhoThumb]),
+        ...o.assinaturas.map((s) => s.caminhoImagem),
+        ...o.documentos.map((d) => d.caminho),
+      ].filter((c): c is string => Boolean(c)),
+      peso: {
+        etapa: o.etapa,
+        jaColetada,
+        assinaturas: o.assinaturas.length,
+        fotos: o.fotos.length,
+        pecasRetiradas: o._count.pecasRetiradas,
+        movimentosEstoque: o._count.movimentos,
+        temFatura: o.fatura !== null,
+        orcamentoAprovado: o.orcamentos.some((x) => x.status === StatusOrcamento.APROVADO),
+        retornosDeGarantia: o._count.retornos,
+        documentos: o.documentos.length,
+      },
+    }
+  })
+}
+
+/**
+ * O que a janela de confirmação precisa mostrar ANTES de alguém digitar nada:
+ * pode ou não pode, e por quê. A mesma função decide de novo no `excluirOrdem`
+ * — esta aqui é só para a tela, e nunca é a que autoriza.
+ */
+export async function examinarExclusao(
+  ordemId: string,
+): Promise<Resposta<{ numero: number; veredito: Veredito }>> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+
+  const podeApagar: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
+  if (!podeApagar.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Só a gestão da empresa pode excluir uma ordem.' }
+  }
+
+  const ordem = await lerPesoDaOrdem(a.ctx, ordemId)
+  if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+  return { ok: true, dados: { numero: ordem.numero, veredito: podeExcluir(ordem.peso) } }
 }

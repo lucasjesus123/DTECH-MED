@@ -18,6 +18,7 @@ import { verificarIntegridade } from '@/server/ordem/motor'
 import { env } from '@/lib/env'
 import BotoesEtapa from './botoes-etapa'
 import Cancelar from './cancelar'
+import Excluir from './excluir'
 import Diagnostico from './diagnostico'
 import Responsavel from './responsavel'
 import Orcamento from './orcamento'
@@ -129,11 +130,11 @@ export default async function Prontuario({
    * lugar — e por isso não aparece em `proximosPassos`. Quem decide de verdade
    * é a máquina de estados; aqui só se resolve se vale desenhar o bloco.
    */
-  const podeCancelar =
-    (sessao.papel === Papel.SUPER_ADMIN ||
-      sessao.papel === Papel.ADMIN_EMPRESA ||
-      sessao.papel === Papel.GESTOR) &&
-    !TERMINAIS.includes(o.etapa)
+  const podeGestao =
+    sessao.papel === Papel.SUPER_ADMIN ||
+    sessao.papel === Papel.ADMIN_EMPRESA ||
+    sessao.papel === Papel.GESTOR
+  const podeCancelar = podeGestao && !TERMINAIS.includes(o.etapa)
   const linkPortal = `${env.APP_URL}/os/${o.tokenPublico}`
 
   /**
@@ -365,6 +366,7 @@ export default async function Prontuario({
             )}
 
             {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
+            {podeGestao ? <Excluir ordemId={o.id} /> : null}
 
             <div className={estilo.passos}>
               <a href={linkPortal} target="_blank" rel="noreferrer" className={estilo.btnSec}>

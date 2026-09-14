@@ -372,10 +372,31 @@ async function main() {
     console.log(`  ${c.ok('✓')} ${movimentos} movimento(s) de estoque`)
 
     /**
-     * As ordens levam junto, por cascata declarada no esquema: eventos, fotos,
-     * assinaturas, orçamentos (e seus itens), faturas (e seus pagamentos),
-     * agendamentos e documentos. Não é preciso apagar um a um — e apagar à mão
-     * o que a cascata já cobre é como o histórico ganha buraco.
+     * FOTO, ASSINATURA E PEÇA RETIRADA SAEM À MÃO, E ISSO É DE PROPÓSITO.
+     *
+     * Essas três são RESTRICT desde
+     * `20260914150000_cascata_nao_apaga_prova`, porque a cascata do banco não
+     * passa pela checagem de privilégio: enquanto eram CASCADE, um `delete`
+     * numa ordem destruía assinatura de cliente por um caminho que a revogação
+     * de DELETE não cobria.
+     *
+     * Aqui elas precisam sair mesmo — é DADO DE DEMONSTRAÇÃO, aparelho que
+     * nunca existiu, assinatura de cliente que nunca foi cliente. Mas sai
+     * escrito, numa linha que se lê, e não de carona. Apagar prova é operação
+     * que tem de custar uma linha de código a quem a escreve.
+     */
+    await comManutencao(ctx, (tx) => tx.foto.deleteMany({ where: { ordemId: { in: idsOrdens } } }))
+    await comManutencao(ctx, (tx) => tx.assinatura.deleteMany({ where: { ordemId: { in: idsOrdens } } }))
+    await comManutencao(ctx, (tx) =>
+      tx.pecaRetirada.deleteMany({ where: { ordemId: { in: idsOrdens } } }),
+    )
+    console.log(`  ${c.ok('✓')} fotos, assinaturas e peças retiradas das ordens de demonstração`)
+
+    /**
+     * O resto as ordens levam junto, por cascata declarada no esquema: eventos,
+     * orçamentos (e seus itens), faturas (e seus pagamentos), agendamentos e
+     * documentos. Não é preciso apagar um a um — e apagar à mão o que a cascata
+     * já cobre é como o histórico ganha buraco.
      */
     await comManutencao(ctx, (tx) => tx.ordem.deleteMany({ where: { id: { in: idsOrdens } } }))
     console.log(`  ${c.ok('✓')} ${ordens.length} ordem(ns) e tudo que dependia delas`)

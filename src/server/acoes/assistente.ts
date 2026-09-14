@@ -164,6 +164,8 @@ export type PainelDaOrdem = {
   /** Quem pode mexer na rota. Só ela vê os controles da parada. */
   podeMexerNaRota: boolean
   podeCancelar: boolean
+  /** Só a gestão vê o caminho de apagar. O servidor recusa de novo por conta própria. */
+  podeExcluir: boolean
   /** Só quem pode mexer em dinheiro vê e edita o combinado. */
   podeCombinar: boolean
   /** O que saiu da prateleira nesta ordem, já lançado. */
@@ -709,6 +711,9 @@ export async function painelDaOrdem(
       motoristasDaCasa,
       podeMexerNaRota,
       podeCancelar: GESTAO.includes(sessao.papel) && !TERMINAIS.includes(extra.etapa),
+      // Sem trava de etapa aqui: quem decide é `podeExcluir`, no servidor, lendo
+      // o que a ordem carrega. A etapa é só um dos sete motivos que ele checa.
+      podeExcluir: GESTAO.includes(sessao.papel),
       podeCombinar: CENTRAL.includes(sessao.papel),
       pecasLancadas: extra.movimentos.map((m) => ({
         id: m.id,

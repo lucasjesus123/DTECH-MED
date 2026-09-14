@@ -659,4 +659,32 @@ describe('a trilha não pode ser apagada', () => {
       comEscopo(A.ctx, (tx) => tx.assinatura.deleteMany({ where: { ordemId: A.ordemId } })),
     ).rejects.toThrow()
   })
+
+  /**
+   * O BURACO QUE AS DUAS ASSERÇÕES ACIMA NÃO PEGAVAM.
+   *
+   * Elas provam que o papel da aplicação não apaga evento nem assinatura
+   * DIRETAMENTE. Mas a cascata do PostgreSQL não passa pela checagem de
+   * privilégio da tabela filha — ela roda como o sistema. Enquanto `fotos` e
+   * `assinaturas` eram `ON DELETE CASCADE`, um único `delete` na ordem levava
+   * tudo junto, e as duas asserções acima continuavam verdes o tempo inteiro.
+   *
+   * Medido antes da correção, com este mesmo papel: 17 eventos, 2 assinaturas
+   * e 6 fotos destruídos por um `delete` que o banco aceitou sem reclamar.
+   */
+  it('e a cascata da ordem também não apaga: o banco recusa o delete inteiro', async () => {
+    await expect(
+      comEscopo(A.ctx, (tx) => tx.ordem.delete({ where: { id: A.ordemId } })),
+    ).rejects.toThrow()
+
+    // E não é só o erro: nada foi levado junto antes de a transação voltar.
+    const sobraram = await comEscopo(A.ctx, async (tx) => ({
+      ordem: await tx.ordem.count({ where: { id: A.ordemId } }),
+      assinaturas: await tx.assinatura.count({ where: { ordemId: A.ordemId } }),
+      eventos: await tx.eventoOrdem.count({ where: { ordemId: A.ordemId } }),
+    }))
+    expect(sobraram.ordem).toBe(1)
+    expect(sobraram.assinaturas).toBeGreaterThan(0)
+    expect(sobraram.eventos).toBeGreaterThan(0)
+  })
 })
