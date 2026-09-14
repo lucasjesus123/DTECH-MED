@@ -42,11 +42,43 @@
 # =============================================================================
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
-RAIZ="$(pwd)"
-
 DIARIO=/var/log/dtechmed-piloto.log
 TRAVA=/var/lock/dtechmed-piloto.lock
+
+quando() { date '+%Y-%m-%d %H:%M:%S'; }
+diga()   { printf '%s  %s\n' "$(quando)" "$1" | tee -a "$DIARIO"; }
+grite()  { printf '%s  !! %s\n' "$(quando)" "$1" | tee -a "$DIARIO" >&2; }
+
+# ---------------------------------------------------------------------------
+# ONDE FICA A GAVETA — e por que isto não é `dirname $0`
+# ---------------------------------------------------------------------------
+# Era `cd "$(dirname "$0")/.."`, e quebrava tudo.
+#
+# O serviço do systemd chama a CÓPIA em `/usr/local/bin/dtechmed-piloto` (para
+# que o `git merge` do próprio piloto não troque o arquivo no meio da
+# execução). Só que ali `dirname $0` é `/usr/local/bin`, e `..` é
+# `/usr/local` — que não é repositório nenhum. O piloto morria na primeira
+# linha com "not a git repository", saída 128, ANTES de escrever no diário.
+#
+# Disparando de minuto em minuto, sem subir nada, sem deixar rastro. Silêncio
+# é o pior defeito possível numa automação, e este arquivo tinha um comentário
+# dizendo isso enquanto era exatamente o que fazia.
+#
+# Agora a raiz é declarada pelo serviço (`DTECHMED_RAIZ`), e quem roda à mão de
+# dentro da gaveta continua sem precisar declarar nada. E, principalmente: se a
+# raiz não for uma gaveta de verdade, ele GRITA no diário em vez de sumir.
+# ---------------------------------------------------------------------------
+RAIZ="${DTECHMED_RAIZ:-}"
+[ -n "$RAIZ" ] || RAIZ="$(cd "$(dirname "$0")/.." 2>/dev/null && pwd)" || RAIZ=""
+
+if [ -z "$RAIZ" ] || [ ! -f "$RAIZ/infra/subir.sh" ] || [ ! -e "$RAIZ/.git" ]; then
+  touch "$DIARIO" 2>/dev/null || true
+  grite "não achei a gaveta em '${RAIZ:-(vazio)}' — sem infra/subir.sh ou sem .git."
+  grite "Rode de dentro dela, ou reinstale: bash infra/instalar-piloto.sh"
+  exit 1
+fi
+cd "$RAIZ"
+
 PAUSA="$RAIZ/.piloto-pausado"
 # -----------------------------------------------------------------------------
 # DOIS TRAVAMENTOS, PORQUE SÃO DOIS PROBLEMAS DIFERENTES
@@ -66,9 +98,6 @@ COMMIT_RUIM="$RAIZ/.piloto-commit-ruim"
 DUMPS="$RAIZ/backups-piloto"
 INSTALADO=/usr/local/bin/dtechmed-piloto
 
-quando() { date '+%Y-%m-%d %H:%M:%S'; }
-diga()   { printf '%s  %s\n' "$(quando)" "$1" | tee -a "$DIARIO"; }
-grite()  { printf '%s  !! %s\n' "$(quando)" "$1" | tee -a "$DIARIO" >&2; }
 
 # ---------------------------------------------------------------------------
 # Subcomandos — as três palavras que substituem um procedimento

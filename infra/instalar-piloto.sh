@@ -80,6 +80,10 @@ Requires=docker.service
 [Service]
 Type=oneshot
 WorkingDirectory=$RAIZ
+# A raiz vai DECLARADA, e não deduzida do caminho do executável. A cópia mora
+# em /usr/local/bin, então `dirname \$0/..` daria /usr/local — foi assim que a
+# primeira versão morria com "not a git repository" toda vez, em silêncio.
+Environment=DTECHMED_RAIZ=$RAIZ
 ExecStart=/usr/local/bin/dtechmed-piloto
 # Uma passada não pode durar para sempre: build travado seguraria a trava e
 # nenhum commit subiria mais, em silêncio.
@@ -120,6 +124,25 @@ verde "diário em /var/log/dtechmed-piloto.log (rotaciona sozinho)"
 systemctl daemon-reload
 systemctl enable --now dtechmed-piloto.timer >/dev/null 2>&1
 verde "timer ligado"
+
+# ---------------------------------------------------------------------------
+# E AGORA RODA UMA VEZ, PELO MESMO CAMINHO QUE O SYSTEMD USA.
+#
+# Sem isto, a instalação termina dizendo "pronto" sem nunca ter executado o
+# piloto do jeito que ele vai ser executado de verdade. Foi exatamente assim
+# que um defeito passou: tudo verde na instalação, e a cópia em /usr/local/bin
+# morrendo em silêncio a cada minuto porque procurava a gaveta no lugar errado.
+# ---------------------------------------------------------------------------
+titulo "4. A cópia instalada roda mesmo?"
+if DTECHMED_RAIZ="$RAIZ" /usr/local/bin/dtechmed-piloto situacao >/tmp/piloto-prova.txt 2>&1; then
+  sed 's/^/     /' /tmp/piloto-prova.txt
+  verde "a cópia de /usr/local/bin enxerga a gaveta e responde"
+  rm -f /tmp/piloto-prova.txt
+else
+  sed 's/^/     /' /tmp/piloto-prova.txt
+  rm -f /tmp/piloto-prova.txt
+  morre "a cópia instalada NÃO roda. O piloto não vai subir nada — não confie nele assim."
+fi
 
 titulo "Pronto"
 cat <<FIM
