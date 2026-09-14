@@ -10,6 +10,7 @@ import { valoresDaOrdem } from './valores'
 import { reaisPorExtenso } from '@/lib/extenso'
 import { env } from '@/lib/env'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { corpoDaOrdemDeServico } from './ordem-de-servico'
 
 /**
  * Geração dos documentos em PDF.
@@ -80,9 +81,19 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
          * aparelho saiu da clínica, o que o técnico achou, como ele voltou.
          */
         fotos: { orderBy: { criadoEm: 'asc' } },
+        /**
+         * TODOS os orçamentos, e não só o mais recente.
+         *
+         * A ordem de serviço precisa do APROVADO — o que o cliente assinou pelo
+         * link. Uma versão 2 aberta em rascunho para reorçar uma peça extra é a
+         * mais recente e não foi combinada com ninguém; imprimi-la seria pôr no
+         * papel um valor que o cliente leria como cobrança.
+         *
+         * Os demais documentos seguem usando `orcamentos[0]`, que continua
+         * sendo o mais recente pela ordenação abaixo.
+         */
         orcamentos: {
           orderBy: { versao: 'desc' },
-          take: 1,
           include: { itens: { orderBy: { ordem: 'asc' } } },
         },
         fatura: { include: { pagamentos: { where: { estornadoEm: null } } } },
@@ -392,6 +403,55 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     doc.moveTo(48, doc.y + 26).lineTo(320, doc.y + 26).strokeColor('#CFCBD9').lineWidth(1).stroke()
     doc.y += 30
     doc.fillColor(CINZA).fontSize(8).font('Helvetica').text('Assinatura do emitente')
+  }
+
+  /* =========================================================================
+     ORDEM DE SERVIÇO — o papel que vai para a mão do cliente
+     =========================================================================
+     O QUE ele imprime é decidido em `ordem-de-servico.ts`, que é puro e
+     testado. Aqui só se desenha o que aquele módulo devolveu.
+
+     A separação não é preciosismo de arquitetura: a regra mais importante
+     desta folha é uma OMISSÃO — o `parecerTecnico` não pode sair aqui — e
+     omissão não se enxerga lendo código de desenho. Enquanto a decisão morasse
+     no meio do PDFKit, ela seria uma linha que alguém acrescenta sem querer.
+
+     Antes disto, a ORDEM_SERVICO sem modelo cadastrado saía como capa vazia:
+     cabeçalho, cliente, equipamento, e acabou. Sem laudo e sem valores — que é
+     justamente o que o cliente abre o documento para ver.
+     ========================================================================= */
+  if (pedido.documento === 'ORDEM_SERVICO' && !usouModelo) {
+    for (const secao of corpoDaOrdemDeServico(dados)) {
+      if (secao.tipo === 'bloco') {
+        bloco(doc, secao.titulo, secao.linhas)
+        continue
+      }
+      doc.moveDown(0.4)
+      rotulo(doc, 'VALORES')
+      const larguras = [246, 48, 88, 88]
+      linhaTabela(doc, ['Descrição', 'Qtd', 'Unitário', 'Total'], larguras, true)
+      for (const i of secao.itens) {
+        linhaTabela(
+          doc,
+          [
+            i.descricao,
+            String(Number(i.quantidade)),
+            formatarBRL(i.valorUnitCentavos),
+            formatarBRL(i.valorTotalCentavos),
+          ],
+          larguras,
+        )
+      }
+      doc.moveDown(0.5)
+      doc
+        .fillColor(TINTA)
+        .fontSize(13)
+        .font('Helvetica-Bold')
+        .text(`TOTAL: ${formatarBRL(secao.totalCentavos)}`, { align: 'right' })
+      doc.moveDown(0.3)
+      doc.fillColor(CINZA).fontSize(8).font('Helvetica').text(secao.rodape, { align: 'right' })
+      doc.moveDown(0.6)
+    }
   }
 
   if (pedido.documento === 'LAUDO_TECNICO') {

@@ -30,6 +30,7 @@ import { TrilhaDoEquipamento } from './trilha'
 import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
 import { pendenciaDe } from '@/server/estoque/pendencia'
 import DocumentosDaOrdem from './documentos'
+import OsEmPdf from './os-em-pdf'
 
 export const metadata: Metadata = { title: 'Prontuário da ordem', robots: { index: false } }
 export const dynamic = 'force-dynamic'
@@ -266,6 +267,15 @@ export default async function Prontuario({
           está o aparelho. Ela vem antes das ações porque responder é mais
           rápido que decidir. */}
       <TrilhaDoEquipamento trilha={trilha} />
+
+      {/* A O.S. EM PDF, ANTES DAS ABAS.
+          "Ao abrir a ficha completa eu preciso de um PDF já pronto, que é o
+          que vai direto para o cliente." Quem pede isso está com o cliente no
+          telefone — então o caminho é um botão no lugar onde o olho já está, e
+          não trocar de aba e procurar o documento certo no meio dos outros. */}
+      <div className={estilo.acoesLinha}>
+        <OsEmPdf ordemId={o.id} />
+      </div>
 
       {/* A barra de abas vem DEPOIS da trilha, e não antes. A trilha responde
           "onde está o aparelho", que é a primeira pergunta de quem abre a
