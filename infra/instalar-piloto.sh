@@ -47,14 +47,66 @@ echo "     origem .... $REMOTO"
 
 if ! git fetch --quiet origin "$BRANCH" 2>/dev/null; then
   printf '\n'
-  printf '  \033[31m✗ o servidor NÃO consegue buscar do GitHub.\033[0m\n\n'
-  printf '  Se o repositório virou privado, ele precisa da chave de leitura:\n\n'
-  printf '    ssh-keygen -t ed25519 -C "vps-dtechmed" -f /root/.ssh/dtechmed -N ""\n'
-  printf '    cat /root/.ssh/dtechmed.pub\n\n'
-  printf '  Cole a chave em: GitHub → Settings → Deploy keys → Add deploy key\n'
-  printf '  (SEM marcar "Allow write access" — o servidor só precisa ler.)\n\n'
-  printf '  E depois:\n\n'
-  printf '    git remote set-url origin git@github.com:lucasjesus123/DTECH-MED.git\n\n'
+  printf '  \033[31m✗ o servidor NÃO consegue buscar do GitHub.\033[0m\n'
+
+  # -------------------------------------------------------------------------
+  # ANTES DE CULPAR A CHAVE, OLHE O ssh_config.
+  #
+  # A primeira versão daqui dizia direto "a chave não foi posta", e estava
+  # errada no caso real que aconteceu: a chave ESTAVA posta e autorizada. O que
+  # atrapalhava era o `~/.ssh/config` ter DOIS blocos `Host github.com` — um de
+  # outro projeto na mesma VPS, e o nosso acrescentado no fim.
+  #
+  # No SSH, para cada parâmetro vale o PRIMEIRO valor encontrado. Então o bloco
+  # de cima vencia, a chave do outro projeto era usada, e o GitHub respondia
+  # "Repository not found" — que é como ele diz "sem acesso" sem confirmar que o
+  # repositório existe.
+  #
+  # Enquanto o repositório era público isso nem aparecia: repositório público é
+  # legível por QUALQUER chave autenticada. O defeito só se revelou no dia em
+  # que ele foi fechado, que é o pior dia possível para descobrir.
+  #
+  # Uma VPS compartilhada tende a ter vários projetos e várias chaves. Então
+  # esta conferência não é caso de canto: é o caso comum.
+  # -------------------------------------------------------------------------
+  HOSPEDEIRO=$(git remote get-url origin | sed -n 's/^git@\([^:]*\):.*/\1/p')
+  CONFIG="$HOME/.ssh/config"
+
+  if [ -n "$HOSPEDEIRO" ]; then
+    printf '\n  Diagnóstico:\n'
+    QUANTOS=0
+    [ -f "$CONFIG" ] && QUANTOS=$(grep -ciE "^[[:space:]]*Host[[:space:]]+${HOSPEDEIRO}([[:space:]]|$)" "$CONFIG" || true)
+
+    if [ "$QUANTOS" -gt 1 ]; then
+      printf '    \033[31m· há %s blocos "Host %s" em %s.\033[0m\n' "$QUANTOS" "$HOSPEDEIRO" "$CONFIG"
+      printf '      O SSH usa o PRIMEIRO, e os de baixo nunca são lidos. É quase\n'
+      printf '      certo que seja isto. Dê um apelido próprio a esta gaveta:\n\n'
+      printf '        Host github-dtechmed\n'
+      printf '          HostName github.com\n'
+      printf '          User git\n'
+      printf '          IdentityFile /root/.ssh/dtechmed\n'
+      printf '          IdentitiesOnly yes\n\n'
+      printf '        git remote set-url origin git@github-dtechmed:%s\n\n' "$(git remote get-url origin | sed 's/^git@[^:]*://')"
+    else
+      RESPOSTA=$(ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T "git@${HOSPEDEIRO}" 2>&1 | head -1)
+      printf '    · o GitHub responde a esta chave: %s\n' "${RESPOSTA:-(silêncio)}"
+      case "$RESPOSTA" in
+        *"$(basename "$(git remote get-url origin)" .git)"*)
+          printf '      A chave é a certa. Então o problema é o branch ou a permissão\n'
+          printf '      dela — confira se a chave de deploy não foi removida.\n' ;;
+        Hi*)
+          printf '      \033[31mEsta chave pertence a OUTRO repositório.\033[0m Ponha a chave\n'
+          printf '      desta gaveta nos Deploy keys do repositório certo.\n' ;;
+        *)
+          printf '      O GitHub não reconheceu a chave. Ela precisa ser cadastrada:\n'
+          printf '        ssh-keygen -t ed25519 -C "vps-dtechmed" -f /root/.ssh/dtechmed -N ""\n'
+          printf '        cat /root/.ssh/dtechmed.pub\n'
+          printf '      Cole em: GitHub → o repositório → Settings → Deploy keys →\n'
+          printf '      Add deploy key (SEM marcar "Allow write access").\n' ;;
+      esac
+      printf '\n'
+    fi
+  fi
   exit 1
 fi
 verde "git fetch funciona — o piloto vai conseguir ver os commits novos"

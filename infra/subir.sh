@@ -292,16 +292,48 @@ fi
 # ---------------------------------------------------------------------------
 titulo "Pronto"
 # ---------------------------------------------------------------------------
-cat <<FIM
+# O QUE FALTA É CONFERIDO, NÃO DECORADO.
+#
+# Este rodapé era texto fixo, escrito para o primeiro deploy. Ele anunciava
+# "falta publicar na portaria (Caddy)" em TODA execução — inclusive com o site
+# no ar há semanas, respondendo 200 no domínio público.
+#
+# Isso não é imprecisão inofensiva. Um script que erra sempre no mesmo lugar
+# ensina quem o lê a pular a saída dele — e a saída deste script é onde moram
+# as conferências de RLS forçado, de política de escrita sem WITH CHECK e dos
+# vizinhos. Um ✗ de verdade, no meio de um aviso que todo mundo aprendeu a
+# ignorar, passa batido. O aviso que mente sempre é pior que aviso nenhum.
+#
+# Agora ele bate no domínio público e olha o .env, e lista só o que falta de
+# fato. Quando não falta nada, ele diz isso.
+# ---------------------------------------------------------------------------
+PENDENTES=""
 
-  A gaveta está no ar em http://127.0.0.1:5400 — ainda sem acesso pela
-  internet, o que é o certo neste ponto.
+# A portaria: o teste é o próprio domínio público respondendo. A requisição sai
+# pelo DNS e volta pelo Caddy — se o 200 chega, a portaria existe e funciona.
+# É a mesma conferência que uma pessoa faria abrindo o site no navegador.
+# O `|| true` e não `|| echo 000`: na falha o curl JÁ escreve 000 na saída e
+# ainda sai com código não-zero. Somar um echo devolvia "000000".
+CODIGO_PUBLICO=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "${URL_PUBLICA%/}/api/health" 2>/dev/null || true)
+CODIGO_PUBLICO=${CODIGO_PUBLICO:-000}
+if [ "$CODIGO_PUBLICO" = "200" ]; then
+  verde "$URL_PUBLICA responde 200 — a portaria já está publicada"
+else
+  PENDENTES="$PENDENTES\n    · Publicar na portaria (Caddy) → passo 8 do DEPLOY.md"
+  PENDENTES="$PENDENTES\n      ($URL_PUBLICA/api/health devolveu $CODIGO_PUBLICO)"
+fi
 
-  Falta:
-    1. Publicar na portaria (Caddy)  → passo 8 do DEPLOY.md
-    2. Conectar o WhatsApp           → passo 11, precisa do token da uazapi
+if grep -qE '^UAZAPI_ADMIN_TOKEN=.+' .env; then
+  verde "UAZAPI_ADMIN_TOKEN preenchido"
+else
+  PENDENTES="$PENDENTES\n    · Conectar o WhatsApp → passo 11, precisa do token da uazapi"
+  PENDENTES="$PENDENTES\n      (sem ele o cliente não recebe aviso nem link de acompanhamento)"
+fi
 
-  No primeiro login o sistema vai exigir a troca da senha. Faça — a senha
-  atual passou pelo terminal e está no histórico do shell.
-
-FIM
+printf '\n'
+if [ -n "$PENDENTES" ]; then
+  printf '  Falta:%b\n' "$PENDENTES"
+else
+  printf '  Nada pendente: o sistema está no ar e completo.\n'
+fi
+printf '\n  A aplicação responde em http://127.0.0.1:5400, por dentro da máquina.\n\n'
