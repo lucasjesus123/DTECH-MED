@@ -1,0 +1,20 @@
+# Achados conhecidos e conferidos — NÃO são segredo.
+#
+# Os quatro apontam para as mesmas duas linhas do Dockerfile, nos dois commits
+# em que elas foram escritas. São os valores de fachada que o `next build` exige
+# para terminar, e ambos decodificam, por extenso, para:
+#
+#     CONSTRUCAO-SEM-SEGREDO-REAL-0001
+#     CONSTRUCAO-SEM-SEGREDO-REAL-0002
+#
+# Eles vivem só no estágio de construção, não são declarados na imagem final, e
+# o `src/lib/env.ts` os RECUSA em execução: se alguém subir a aplicação com um
+# deles, o servidor não sobe. O gitleaks não tem como saber disso — ele vê uma
+# atribuição com valor longo em base64.
+#
+# A liberação é por impressão digital: commit + arquivo + regra + linha. Qualquer
+# segredo novo, inclusive neste mesmo arquivo, continua derrubando a construção.
+7849ad5b6578b353fcea93e52fe18ab8de062073:Dockerfile:generic-api-key:42
+7849ad5b6578b353fcea93e52fe18ab8de062073:Dockerfile:generic-api-key:43
+df74532ccb14b961394f69c73a0ee384a114664c:Dockerfile:generic-api-key:42
+df74532ccb14b961394f69c73a0ee384a114664c:Dockerfile:generic-api-key:43

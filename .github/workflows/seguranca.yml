@@ -1,0 +1,196 @@
+# =============================================================================
+# A TRAVA — o que impede um buraco corrigido de voltar
+# =============================================================================
+# Nasceu da auditoria de segurança: o repositório não tinha CI nenhum, e por
+# isso cada correção dependia de alguém lembrar. Um buraco só está fechado
+# quando existe uma regra que barra a volta dele.
+#
+# Quatro trabalhos BARRAM a construção; um roda em modo-alerta. A separação é
+# proposital, e é a mesma regra que vale para firewall e IDS: regra nova observa
+# antes de bloquear. Barrar por uma ferramenta que ninguém conferiu ainda é
+# trocar um risco por outro — o de a equipe aprender a ignorar o CI vermelho.
+# =============================================================================
+name: segurança
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Só leitura. Este fluxo não publica nada, não comenta em PR, não escreve tag.
+permissions:
+  contents: read
+
+concurrency:
+  group: seguranca-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  segredos:
+    name: Segredo no código ou no histórico
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # o histórico inteiro: segredo apagado hoje continua no commit de ontem
+
+      # O binário direto, e não a action oficial, de propósito: a action pede
+      # licença para repositório privado de organização, e a recomendação desta
+      # auditoria é justamente FECHAR este repositório. Um CI que quebra no dia
+      # em que o repositório vira privado seria uma armadilha.
+      - name: instalar gitleaks
+        run: |
+          V=8.21.2
+          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${V}/gitleaks_${V}_linux_x64.tar.gz" \
+            | tar xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      # Os achados conhecidos e conferidos ficam em `.gitleaksignore`, liberados
+      # por impressão digital (commit + arquivo + regra + linha). Segredo novo,
+      # inclusive no mesmo arquivo, continua derrubando.
+      - name: varrer
+        run: gitleaks detect --source . --redact --no-banner --verbose
+
+  # ---------------------------------------------------------------------------
+  qualidade:
+    name: Tipos, lint e testes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
+      - run: npx eslint src
+      - run: npx vitest run
+
+  # ---------------------------------------------------------------------------
+  # O ISOLAMENTO ENTRE EMPRESAS É A JOIA DA COROA, e é o que mais merece trava.
+  #
+  # Os testes de integração provam, contra um Postgres de verdade, que a empresa
+  # vizinha enxerga zero ordens e que a aplicação não consegue apagar evento nem
+  # assinatura. Uma regressão aí não aparece em tela nenhuma: o sistema continua
+  # funcionando, e passa a mostrar dado de um cliente para outro.
+  #
+  # O banco é descartável e morre com o trabalho. Os papéis são criados como o
+  # `infra/postgres/init` cria em produção — inclusive o NOBYPASSRLS, sem o qual
+  # o teste passaria por engano.
+  isolamento:
+    name: Isolamento entre empresas (RLS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: dtechmed_owner
+          POSTGRES_PASSWORD: ci_descartavel
+          POSTGRES_DB: dtechmed
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NODE_ENV: development
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgresql://dtechmed_app:ci_descartavel@localhost:5432/dtechmed?schema=public
+      DIRECT_DATABASE_URL: postgresql://dtechmed_owner:ci_descartavel@localhost:5432/dtechmed?schema=public
+      SESSION_SECRET: Y2ktZGVzY2FydGF2ZWwtbmFvLWVoLXNlZ3JlZG8tZGUtdmVyZGFkZQ==
+      ENCRYPTION_KEY: Y2ktZGVzY2FydGF2ZWwtbmFvLWVoLWNoYXZlLWRlLXZlcmRhZGUtMDE=
+      DOCUMENT_HASH_SALT: ci-descartavel-nao-eh-sal-de-verdade
+      STORAGE_LOCAL_PATH: /tmp/storage-ci
+      ALLOWED_ORIGINS: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+
+      - name: papel da aplicação, como em produção
+        run: |
+          export PGPASSWORD=ci_descartavel
+          psql -h localhost -U dtechmed_owner -d dtechmed -v ON_ERROR_STOP=1 <<'SQL'
+          SELECT 'CREATE ROLE dtechmed_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOINHERIT'
+           WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'dtechmed_app')
+          \gexec
+          ALTER ROLE dtechmed_app WITH PASSWORD 'ci_descartavel';
+          SQL
+
+      - run: npx prisma migrate deploy
+      - run: npx prisma generate
+
+      - name: nenhuma tabela sem RLS forçado
+        run: |
+          export PGPASSWORD=ci_descartavel
+          FROUXAS=$(psql -h localhost -U dtechmed_owner -d dtechmed -tAc \
+            "SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+              WHERE n.nspname='public' AND c.relkind='r' AND c.relname NOT LIKE '_prisma%'
+                AND (c.relrowsecurity=false OR c.relforcerowsecurity=false)")
+          echo "tabelas sem RLS forçado: $FROUXAS"
+          [ "$FROUXAS" = "0" ] || { echo '::error::há tabela sem FORCE ROW LEVEL SECURITY'; exit 1; }
+
+      - name: nenhuma política de escrita sem WITH CHECK
+        run: |
+          export PGPASSWORD=ci_descartavel
+          SEM=$(psql -h localhost -U dtechmed_owner -d dtechmed -tAc \
+            "SELECT count(*) FROM pg_policies WHERE schemaname='public'
+               AND cmd IN ('ALL','INSERT','UPDATE') AND with_check IS NULL")
+          echo "políticas de escrita sem WITH CHECK: $SEM"
+          [ "$SEM" = "0" ] || { echo '::error::brecha de gravação'; exit 1; }
+
+      - run: npm run test:integracao
+
+  # ---------------------------------------------------------------------------
+  dependencias:
+    name: Dependência vulnerável
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      # Barra em alta e crítica. A auditoria de 13/09 encontrou duas — uma RCE
+      # sem autenticação no Next e a libheif no sharp — e é exatamente este
+      # comando que teria avisado no dia em que entraram.
+      - run: npm audit --omit=dev --audit-level=high
+
+  # ---------------------------------------------------------------------------
+  # MODO-ALERTA, de propósito.
+  #
+  # O Semgrep não pôde ser executado no ambiente onde este arquivo foi escrito,
+  # então ninguém ainda olhou o que ele acha neste código. Entrar barrando
+  # significaria, no primeiro push, um CI vermelho por achados que ninguém
+  # triou — e a lição que a equipe aprende aí é a de ignorar CI vermelho.
+  #
+  # Ele roda, publica o relatório, e NÃO derruba. Depois da primeira leitura:
+  # trate ou dispense cada achado e apague o `continue-on-error` — aí ele vira
+  # trava de verdade. É a mesma disciplina de IDS: observar, ajustar, bloquear.
+  sast:
+    name: SAST (modo-alerta — ainda não barra)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    container: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          semgrep scan --error --metrics=off \
+            --config p/owasp-top-ten \
+            --config p/typescript \
+            --config p/nextjs \
+            --config p/secrets \
+            --sarif --output semgrep.sarif || true
+          semgrep scan --metrics=off \
+            --config p/owasp-top-ten --config p/typescript \
+            --config p/nextjs --config p/secrets
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          if-no-files-found: ignore
