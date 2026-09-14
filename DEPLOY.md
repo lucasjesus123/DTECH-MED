@@ -870,6 +870,57 @@ docker compose -p dtechmed logs -f worker     # fila de WhatsApp e PDF
 docker compose -p dtechmed ps                 # saúde dos serviços
 ```
 
+### Piloto automático — o commit sobe sozinho
+
+Tudo que está escrito abaixo nesta seção continua valendo, e é o caminho à mão. O piloto não substitui esse caminho: ele **chama exatamente o mesmo `infra/subir.sh`**, com as mesmas conferências. O que ele tira de você é o ato de lembrar de rodar.
+
+**Instala uma vez, como root, dentro da gaveta:**
+
+```bash
+cd /opt/gavetas/DTECHMED
+bash infra/instalar-piloto.sh
+```
+
+A instalação **falha de propósito** se o servidor não conseguir buscar do GitHub — que é o que acontece quando o repositório vira privado e a chave de leitura ainda não foi posta. Uma automação que não consegue ler o repositório não reclama: ela simplesmente nunca sobe nada, e você descobre uma semana depois. Melhor falhar na cara.
+
+Depois disso, todo commit empurrado para o branch que a gaveta segue entra no ar em até um minuto.
+
+**As cinco palavras que você vai usar:**
+
+```bash
+bash infra/piloto.sh situacao   # ligado? em que commit está no ar?
+bash infra/piloto.sh log        # o diário das últimas subidas
+bash infra/piloto.sh pausar     # trava tudo — véspera de feriado, cliente na sala
+bash infra/piloto.sh voltar     # destrava
+bash infra/piloto.sh agora      # força uma passada sem esperar o minuto
+```
+
+#### O que ele faz quando dá errado
+
+A pergunta que decide tudo é se o commit trazia migração.
+
+**Sem migração** — o `subir.sh` falhou, então o piloto volta o código para o commit anterior, sobe de novo e trava **aquele commit**. Em um minuto o sistema está como estava. A correção que você empurrar por cima sobe sozinha; é só o commit quebrado que fica de fora.
+
+**Com migração** — ele **não volta sozinho**, e isso é escolha. Migração já aplicada não se desfaz movendo o código para trás: o banco continua com a coluna nova e o código velho não sabe dela. O que se faz é restaurar o backup, e restaurar backup é perder o que entrou desde ele — uma O.S. aberta, uma assinatura coletada. Essa conta é sua, não de um script rodando às três da manhã. Ele para, grita no diário, e diz onde está o dump.
+
+Por isso, **antes de qualquer migração ele tira um dump e confere o dump** (`gzip -t`, o mesmo cuidado do backup diário: `pg_dump` pode sair com código zero e deixar arquivo truncado). Se o backup não passar na conferência, a migração não acontece e o código nem é puxado. Os dumps ficam em `backups-piloto/`, os 30 últimos.
+
+#### Quando ele se recusa a agir
+
+- **Alguém editou arquivo no servidor.** Ele para antes de puxar e mostra o quê. O servidor não é lugar de editar arquivo, mas se você editou, a edição não é atropelada — some com ela quem escreveu, com `git checkout -- <arquivo>`.
+- **O branch divergiu** (histórico reescrito). Ele não adivinha qual lado vale.
+- **Não consegue falar com o GitHub.** Normalmente é a chave de leitura faltando.
+
+Em todos esses o destravamento é o mesmo: resolva a causa e rode `bash infra/piloto.sh voltar`.
+
+#### O que você precisa saber antes de ligar
+
+- **Cada commit é um restart.** A reconstrução derruba o `app` por alguns segundos. Num dia de muitos commits seguidos, são vários. Se houver gente usando o sistema numa hora crítica, `pausar` antes.
+- **O piloto segue o branch que a gaveta está.** Ele lê do `git`, não de configuração. Para trocar de branch, `git checkout` na gaveta e pronto.
+- **O diário fica em `/var/log/dtechmed-piloto.log`** e rotaciona sozinho, 8 semanas.
+
+---
+
 ### Atualizar o sistema
 
 **O caminho curto, quando a atualização não mexe no banco:**

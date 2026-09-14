@@ -64,3 +64,9 @@ qa/*.png
 
 # A bateria grava print de cada execução — descartável, o roteiro é que versiona.
 qa/telas/
+
+# Estado do piloto automático — vive no servidor, não no repositório.
+.piloto-pausado
+.piloto-recusado
+.piloto-commit-ruim
+backups-piloto/
