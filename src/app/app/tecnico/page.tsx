@@ -58,9 +58,7 @@ export default async function Tecnico() {
 
         {naBancada.length > 0 ? (
           <>
-            <p className={estilo.grav} style={{ marginTop: 'var(--s6)' }}>
-              Na sua bancada
-            </p>
+            <p className={estilo.grav}>Na sua bancada</p>
             {naBancada.map((o) => (
               <Link key={o.ordemId} href={`/app/tecnico/${o.ordemId}`} className={estilo.cartaoBancada}>
                 <div className={estilo.cbTopo}>
