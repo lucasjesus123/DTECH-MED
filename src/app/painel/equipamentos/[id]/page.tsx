@@ -290,7 +290,9 @@ export default async function Prontuario({
                         <div className={estilo.trilhaMiniTxt}>
                           <span>{t.agora}</span>
                           <span>
-                            {t.cumpridos}/{t.total}
+                            {/* Os onze do roteiro, como em toda tela do
+                                sistema. Este chip mostrava "3/18". */}
+                            {t.passoDoRoteiro}/{t.totalDoRoteiro}
                           </span>
                         </div>
                       </div>

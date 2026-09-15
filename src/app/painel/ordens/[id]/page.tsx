@@ -464,6 +464,13 @@ export default async function Prontuario({
                   /* O nome do próximo passo, para o laudo emendar nele em vez
                      de fechar e deixar a pessoa procurando onde clicar. */
                   proximoPasso={passos[0]?.titulo ?? null}
+                  /* A FICHA NÃO ESCANCARA EDITOR. Ver a nota no componente: o
+                     padrão "abre quando está vazio" está certo na JANELA, que
+                     mostra um passo por vez, e errado aqui, onde tudo é
+                     desenhado junto. Somado ao mesmo padrão do orçamento, ele
+                     fazia a O.S. recém-aberta — aquela sobre a qual menos se
+                     sabe — chegar com dois editores grandes abertos. */
+                  comecaAberto={false}
                 />
               </div>
             ) : null}
@@ -498,6 +505,7 @@ export default async function Prontuario({
             ordemId={o.id}
             etapa={o.etapa}
             papel={sessao.papel}
+            comecaAberto={false}
             pecas={pecas.map((p) => ({
               id: p.id,
               sku: p.sku,

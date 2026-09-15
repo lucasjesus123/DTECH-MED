@@ -106,7 +106,13 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
                     f.nos.some((n) => n.estado === 'agora'),
                   )
                   return i < 0
-                    ? `etapa ${trilha.cumpridos} de ${trilha.total}`
+                    /* O recuo conta em PASSOS DO ROTEIRO, os mesmos onze que
+                       a equipe vê no painel. Ele dizia "etapa 3 de 18" — e o
+                       cliente ao telefone ouvindo "passo 4 de 11" de quem
+                       atende é o caso que o comentário no topo de `trilha.ts`
+                       avisa: quando duas telas discordam, a errada acaba sendo
+                       justamente a do cliente. */
+                    ? `passo ${trilha.passoDoRoteiro} de ${trilha.totalDoRoteiro}`
                     : `fase ${i + 1} de ${trilha.fases.length} · ${trilha.fases[i]!.nome.toLowerCase()}`
                 })()}
           </p>

@@ -46,6 +46,7 @@ export default function Diagnostico({
   testesFinais,
   jaExecutou,
   proximoPasso,
+  comecaAberto,
   aoSalvar,
 }: {
   ordemId: string
@@ -64,8 +65,21 @@ export default function Diagnostico({
    * estado próprio, e o refresh da rota não o toca.
    */
   aoSalvar?: () => void
+  /**
+   * SE O FORMULÁRIO JÁ NASCE ABERTO.
+   *
+   * O padrão é abrir quando ainda não há laudo — na JANELA da O.S. isso está
+   * certo: ela mostra um passo de cada vez, e se o passo é o laudo, o campo do
+   * laudo é o que a pessoa veio ver.
+   *
+   * Na FICHA não. Ela desenha tudo de uma vez, e "abre quando está vazio" se
+   * soma ao mesmo padrão do orçamento: quanto MENOS a ordem tem preenchido,
+   * MAIS caixas de texto ela escancara. Uma O.S. recém-aberta chegava com dois
+   * editores grandes abertos, e é a ordem sobre a qual menos se sabe.
+   */
+  comecaAberto?: boolean
 }) {
-  const [aberto, setAberto] = useState(!diagnostico)
+  const [aberto, setAberto] = useState(comecaAberto ?? !diagnostico)
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [salvou, setSalvou] = useState(false)
   const [pendente, iniciar] = useTransition()

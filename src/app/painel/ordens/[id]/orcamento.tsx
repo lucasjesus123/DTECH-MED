@@ -109,6 +109,7 @@ export default function Orcamento({
   orcamentos,
   pecas,
   aoMudar,
+  comecaAberto,
 }: {
   ordemId: string
   etapa: string
@@ -121,13 +122,15 @@ export default function Orcamento({
    * guarda o painel em estado próprio, e o refresh da rota não o toca.
    */
   aoMudar?: () => void
+  /** Ver a nota igual em `diagnostico.tsx`: na ficha o editor não escancara. */
+  comecaAberto?: boolean
 }) {
   const atual = orcamentos[0] ?? null
   const editavel =
     PODE_MONTAR.includes(papel) &&
     (!atual || atual.status === 'RASCUNHO' || atual.status === 'EM_REVISAO' || atual.status === 'REPROVADO')
 
-  const [abrirEditor, setAbrirEditor] = useState(!atual)
+  const [abrirEditor, setAbrirEditor] = useState(comecaAberto ?? !atual)
   const [itens, setItens] = useState<Item[]>(
     atual && atual.itens.length
       ? atual.itens.map((i) => ({
@@ -532,9 +535,25 @@ export default function Orcamento({
       ) : null}
 
       {!atual && !abrirEditor ? (
-        <p className={estilo.texto}>
-          Ainda não há orçamento. {editavel ? 'Monte um para a gestão revisar.' : 'Aguardando o técnico montar.'}
-        </p>
+        <>
+          <p className={estilo.texto}>
+            Ainda não há orçamento.{' '}
+            {editavel ? 'Monte um para a gestão revisar.' : 'Aguardando o técnico montar.'}
+          </p>
+          {/* O BOTÃO QUE FALTAVA.
+              Este estado — sem orçamento e com o editor fechado — era
+              inalcançável enquanto `abrirEditor` começava sempre em `!atual`:
+              sem orçamento, ele já vinha aberto. Agora a ficha pode pedir que
+              comece fechado, e sem este botão a frase acima seria um beco:
+              "monte um" sem nenhum lugar onde montar. */}
+          {editavel ? (
+            <div className={estilo.passos}>
+              <button type="button" className={estilo.btn} onClick={() => setAbrirEditor(true)}>
+                Montar o orçamento
+              </button>
+            </div>
+          ) : null}
+        </>
       ) : null}
     </div>
   )

@@ -12,15 +12,23 @@ import estilo from '../../painel.module.css'
  * que compete com a resposta atrapalha.
  *
  * ---------------------------------------------------------------------------
- * POR QUE AS QUATRO FASES APARECEM
+ * POR QUE AS FASES APARECEM, E POR QUE OS NÚMEROS SAÍRAM
  * ---------------------------------------------------------------------------
  * Dezoito bolinhas numa régua viram um código de barras: dá para contar, não
- * dá para ler. Agrupadas em Retirada, Diagnóstico, Execução e Fechamento, elas
- * ganham a única divisão que o negócio já usa para falar — "está no
- * diagnóstico" é uma frase que se diz ao telefone; "está no passo 7" não é.
+ * dá para ler. Agrupadas nas três fases de `fases.ts` — buscar o aparelho,
+ * consertar, devolver e receber — elas ganham a única divisão que o negócio já
+ * usa para falar: "está no conserto" é uma frase que se diz ao telefone; "está
+ * no passo 7" não é.
  *
- * A numeração de 1 a 18 fica, pequena, porque ela é verdadeira: o processo É
- * uma sequência, e o número é o que a pessoa confere com o dedo.
+ * Este parágrafo já estava escrito aqui, e a peça fazia o contrário do que ele
+ * dizia: escrevia 1…18 dentro das bolinhas, que é o que dá dígitos ao código de
+ * barras. Os números saíram, e o que cada ponto é continua à mão pelo `title`
+ * e pelo texto do leitor de tela — com a etapa, a hora e quem fez, que é mais
+ * do que o dígito dizia.
+ *
+ * O número que a peça ainda escreve é UM: "passo 4 de 11", no canto, e ele
+ * agora é o do roteiro. Antes era o dos 18 nós, e a janela da O.S. mostrava o
+ * dos 11 — a mesma ordem, na mesma hora, com dois números diferentes.
  *
  * ---------------------------------------------------------------------------
  * POR QUE NÃO É CLICÁVEL
@@ -31,7 +39,7 @@ import estilo from '../../painel.module.css'
  * um quadro de tarefas: cada passo tem uma trava por trás.
  */
 export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento' }: { trilha: Trilha; titulo?: string }) {
-  const { fases, cumpridos, total, porcento, agora, desvio } = trilha
+  const { fases, porcento, agora, desvio, passoDoRoteiro, totalDoRoteiro } = trilha
 
   return (
     <section className={estilo.trilha} aria-label={titulo}>
@@ -42,8 +50,13 @@ export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento
             {desvio ? desvio.rotulo : agora}
           </strong>
         </div>
+        {/* A CONTAGEM É A DO ROTEIRO, e não a dos 18 nós desenhados abaixo.
+            Ver a nota em `Trilha.passoDoRoteiro`: esta caixa dizia "passo 3 de
+            18" enquanto a janela da O.S., na mesma hora e sobre a mesma ordem,
+            dizia "passo 4 de 11". Agora as duas telas contam igual, e a régua
+            continua com os 18 pontos que são o detalhe do prontuário. */}
         <span className={estilo.trilhaConta}>
-          {desvio ? 'saiu do caminho' : `passo ${cumpridos} de ${total}`}
+          {desvio ? 'saiu do caminho' : `passo ${passoDoRoteiro} de ${totalDoRoteiro}`}
         </span>
       </header>
 
@@ -64,7 +77,7 @@ export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento
         className={estilo.trilhaPista}
         tabIndex={0}
         role="group"
-        aria-label={`Trilha do equipamento: ${desvio ? desvio.rotulo : `passo ${cumpridos} de ${total}`}`}
+        aria-label={`Trilha do equipamento: ${desvio ? desvio.rotulo : `passo ${passoDoRoteiro} de ${totalDoRoteiro}`}`}
       >
         {/* O trilho de fundo e o quanto dele já foi percorrido. A largura é o
             ÚNICO valor calculado em linha: é dado, não estilo. */}
@@ -106,7 +119,20 @@ export function TrilhaDoEquipamento({ trilha, titulo = 'Onde está o equipamento
                         title={detalhe}
                         style={{ '--ordem': no.passo } as React.CSSProperties}
                       >
-                        <span className={estilo.trilhaNum}>{no.passo}</span>
+                        {/* O NÚMERO DE 1 A 18 SAIU DE DENTRO DA BOLINHA.
+                            O comentário no topo deste arquivo já dizia que
+                            "dezoito bolinhas numa régua viram um código de
+                            barras" — e então escrevia 1…18 dentro delas, que é
+                            o que faz o código de barras ter dígitos. Pior: o
+                            número aqui era o da etapa, e a contagem no canto
+                            passou a ser a do roteiro, então os dois iam
+                            discordar dentro da MESMA peça.
+
+                            O que cada ponto é continua à mão: o `title` para o
+                            mouse e o texto do leitor de tela logo abaixo, os
+                            dois com o nome da etapa, quando ela aconteceu e
+                            quem a fez. O `--ordem` fica, porque é ele que faz
+                            os pontos cumpridos acenderem em sequência. */}
                       </span>
                       <span className={estilo.soLeitor}>{detalhe}</span>
                     </span>

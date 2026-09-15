@@ -1,7 +1,7 @@
 import { EtapaOrdem as E } from '@/generated/prisma/enums'
 import { ROTULO_ETAPA } from './maquina-estados'
 import { FASES } from './fases'
-import { etapasDaFase } from './roteiro'
+import { etapasDaFase, passoDaEtapa, TOTAL_DE_PASSOS as PASSOS_DO_ROTEIRO } from './roteiro'
 
 /**
  * A TRILHA: onde o equipamento está, numa linha.
@@ -54,6 +54,20 @@ export type Trilha = {
   /** Quantos dos 18 já foram cumpridos. */
   cumpridos: number
   total: number
+  /**
+   * A MESMA CONTAGEM QUE O RESTO DO SISTEMA MOSTRA.
+   *
+   * A trilha é de 18 nós porque ela é o prontuário detalhado — cada etapa da
+   * máquina tem um ponto, e o cliente tem direito ao detalhe. Mas ela também
+   * IMPRIMIA "passo 3 de 18" no canto, enquanto a janela da O.S., na mesma
+   * hora e sobre a mesma ordem, dizia "passo 4 de 11". Dois números para a
+   * mesma pergunta, nenhum dos dois errado, e a pessoa entre os dois.
+   *
+   * A régua continua de 18 pontos; o NÚMERO que ela escreve passa a ser o do
+   * roteiro, que é como a equipe conta em voz alta e o que a janela mostra.
+   */
+  passoDoRoteiro: number
+  totalDoRoteiro: number
   /** De 0 a 100, para a barra curta e para a régua preenchida. */
   porcento: number
   /** A etapa em que a peça está agora, com nome de gente. */
@@ -167,6 +181,8 @@ export function montarTrilha(
     fases,
     cumpridos,
     total: TOTAL_DE_PASSOS,
+    passoDoRoteiro: passoDaEtapa(saiuDoCaminho ? (SEQUENCIA[indiceAtual] ?? etapaAtual) : etapaAtual),
+    totalDoRoteiro: PASSOS_DO_ROTEIRO,
     // A régua enche até o CENTRO do nó atual, não até o fim dele: o passo em
     // que se está ainda não terminou.
     porcento: TOTAL_DE_PASSOS <= 1 ? 0 : Math.max(0, (indiceAtual / (TOTAL_DE_PASSOS - 1)) * 100),
