@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTransition, useState } from 'react'
 import { descartarContato, restaurarContato } from '@/server/acoes/contatos'
+import { linkDeWhatsapp } from '@/lib/telefone'
 import estilo from '../painel.module.css'
 
 export type Contato = {
@@ -97,10 +98,22 @@ export default function Lista({ contatos, situacao }: { contatos: Contato[]; sit
                 <dd>
                   {/* O link do WhatsApp é o caminho mais curto entre ver o
                       contato e responder. Sem ele, alguém copia o número à mão
-                      e é aí que se erra um dígito. */}
-                  <a href={`https://wa.me/55${c.telefone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
-                    {c.telefone}
-                  </a>
+                      e é aí que se erra um dígito.
+
+                      O número é MOSTRADO como foi anotado; o LINK passa pelo
+                      normalizador. Prefixar o 55 na unha duplicava o país em
+                      todo contato anotado com DDI, e quem não dá para discar
+                      deixa de ser link — é melhor não poder chamar do que
+                      abrir a conversa de outra pessoa. */}
+                  {linkDeWhatsapp(c.telefone) ? (
+                    <a href={linkDeWhatsapp(c.telefone)!} target="_blank" rel="noreferrer">
+                      {c.telefone}
+                    </a>
+                  ) : (
+                    <>
+                      {c.telefone} <span className={estilo.fraco}>(não dá para discar)</span>
+                    </>
+                  )}
                 </dd>
               </div>
               <div>

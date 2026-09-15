@@ -490,41 +490,15 @@ export function montarMensagem(tipo: string, dados: DadosMensagem): string | nul
 }
 
 /**
- * Normaliza o número para o formato que a uazapi aceita: só dígitos, com DDI.
+ * O NORMALIZADOR MUDOU DE CASA, e continua saindo por aqui.
  *
- * Devolve `null` quando o número não dá para discar. É melhor não enviar do
- * que enviar para o número errado — mensagem de cliente que cai na caixa de
- * outra pessoa é vazamento de dado, não só engano.
+ * Ele foi para `lib/telefone.ts` porque quatro telas do painel precisavam dele
+ * e não podem importar um módulo de servidor — arrastariam toda esta tabela de
+ * textos para dentro do pacote do navegador. Sem ele à mão, as quatro montaram
+ * o link do WhatsApp na unha, e três delas duplicavam o DDI.
+ *
+ * A reexportação fica porque o worker e os testes chamam por aqui desde
+ * sempre, e trocar o caminho em todos eles seria mexer em código que está
+ * certo para arrumar código que estava errado.
  */
-export function normalizarNumero(bruto: string | null | undefined): string | null {
-  if (!bruto) return null
-  let n = bruto.replace(/\D/g, '')
-  if (!n) return null
-
-  // Sem DDI: assume Brasil, que é o caso de 100% da operação hoje.
-  if (n.length === 10 || n.length === 11) n = `55${n}`
-  if (!n.startsWith('55')) return n.length >= 11 && n.length <= 15 ? n : null
-
-  const semDDI = n.slice(2)
-  // Com DDD, o número nacional tem 10 (fixo) ou 11 (celular) dígitos.
-  if (semDDI.length !== 10 && semDDI.length !== 11) return null
-
-  const ddd = Number(semDDI.slice(0, 2))
-  if (ddd < 11 || ddd > 99) return null
-
-  // Validar só o DDD não basta, e isso escapou até o teste pegar: "55019804492"
-  // tem 11 dígitos e DDD 55 (Santa Maria), então passava — mas o assinante
-  // "019804492" começa com zero e não existe. O número seria discado e a
-  // mensagem do cliente cairia na caixa de outra pessoa, o que é vazamento de
-  // dado, não engano.
-  const assinante = semDDI.slice(2)
-  if (assinante.length === 9) {
-    // Celular no Brasil sempre começa com 9 desde a migração do nono dígito.
-    if (!assinante.startsWith('9')) return null
-  } else {
-    // Fixo começa em 2 a 5. Prefixo 0, 1, 6, 7, 8 ou 9 não é assinante válido.
-    if (!/^[2-5]/.test(assinante)) return null
-  }
-
-  return n
-}
+export { normalizarNumero } from '@/lib/telefone'

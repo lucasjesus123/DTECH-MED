@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { arquivarCliente } from '@/server/acoes/cadastros'
+import { linkDeWhatsapp } from '@/lib/telefone'
 import Dica from '../dica'
 import estilo from '../painel.module.css'
 
@@ -29,6 +30,13 @@ import estilo from '../painel.module.css'
  * com o cliente do jeito dela, agora, do aparelho que tiver na mão. A
  * integração serve para o sistema avisar sozinho; ela não substitui alguém
  * ligando.
+ *
+ * O ENDEREÇO SAI DE `linkDeWhatsapp`, E NÃO DE UM TEMPLATE AQUI. A versão
+ * anterior escrevia `wa.me/55${whatsapp.replace(/\D/g,'')}` — e prefixar o 55
+ * só está certo quando o número NÃO tem DDI. Cadastro salvo como
+ * "+55 51 98044-9274" virava `555551980449274`, com o país repetido: quatro de
+ * quatro clientes da carteira de demonstração tinham o botão quebrado, e o
+ * erro só aparecia no celular de quem clicou, já fora do sistema.
  *
  * =============================================================================
  * POR QUE VIRARAM DESENHO, E O QUE ISSO CUSTA
@@ -68,6 +76,7 @@ export default function AcoesDoCliente({
   const [pendente, iniciar] = useTransition()
   const [erro, setErro] = useState<string | null>(null)
   const router = useRouter()
+  const zap = linkDeWhatsapp(whatsapp)
 
   function mudar(arquivar: boolean) {
     setErro(null)
@@ -91,10 +100,10 @@ export default function AcoesDoCliente({
           </Link>
         </Dica>
 
-        {whatsapp ? (
+        {zap ? (
           <Dica texto="Chamar no WhatsApp">
             <a
-              href={`https://wa.me/55${whatsapp.replace(/\D/g, '')}`}
+              href={zap}
               target="_blank"
               rel="noreferrer"
               className={estilo.btnIcone}
@@ -107,10 +116,18 @@ export default function AcoesDoCliente({
           /* Sem número, o lugar do botão não fica vazio: um desenho apagado diz
              que a ação existe e por que ela não está disponível aqui. Buraco na
              linha faria parecer que a coluna quebrou. */
-          <Dica texto="Sem WhatsApp no cadastro">
+          /* O apagado cobre DOIS casos, e não um: cadastro sem número, e
+             número que não dá para discar. O segundo não existia — a tela
+             montava o link assim mesmo e oferecia um botão que abria a
+             conversa errada. */
+          <Dica texto={whatsapp ? 'Número não dá para discar' : 'Sem WhatsApp no cadastro'}>
             <span
               className={`${estilo.btnIcone} ${estilo.btnIconeMudo}`}
-              aria-label={`${nome} não tem WhatsApp no cadastro`}
+              aria-label={
+                whatsapp
+                  ? `O WhatsApp de ${nome} está incompleto no cadastro`
+                  : `${nome} não tem WhatsApp no cadastro`
+              }
               role="img"
             >
               <IconeConversaMuda />

@@ -9,6 +9,7 @@ import { fichaDoCliente } from '@/server/consultas/cliente'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import FotoCatalogo from '../../foto-catalogo'
 import EditarCliente from './editar'
+import { linkDeWhatsapp } from '@/lib/telefone'
 import estilo from '../../painel.module.css'
 
 export const metadata: Metadata = { title: 'Cliente', robots: { index: false } }
@@ -90,10 +91,13 @@ export default async function FichaCliente({
           ) : null}
         </div>
         <div className={estilo.acoesForm}>
-          {c.whatsapp ? (
+          {/* O endereço sai de `linkDeWhatsapp`: prefixar o 55 na unha
+              duplicava o país em todo cadastro salvo com DDI. Ver
+              `lib/telefone.ts`. */}
+          {linkDeWhatsapp(c.whatsapp) ? (
             <a
               className={estilo.btn}
-              href={`https://wa.me/55${c.whatsapp.replace(/\D/g, '')}`}
+              href={linkDeWhatsapp(c.whatsapp)!}
               target="_blank"
               rel="noreferrer"
             >

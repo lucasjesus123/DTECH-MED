@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
 import { formatarBRL } from '@/lib/dinheiro'
+import { linkDeWhatsapp } from '@/lib/telefone'
 import { avancar, editarOrdem } from '@/server/acoes/ordem'
 import {
   declararSemPeca,
@@ -2305,10 +2306,14 @@ function AAbaDoCliente({ painel }: { painel: PainelDaOrdem }) {
 
         <CartaoOS titulo="Como falar">
           {c.contatoNome ? <p className={estilo.osCartaoForte}>{c.contatoNome}</p> : null}
-          {c.whatsapp ? (
+          {/* Esta tela fazia o OPOSTO das outras três: não punha DDI nenhum.
+              A mesma clínica abria uma conversa diferente conforme o botão
+              clicado, e uma das duas estava sempre errada. As quatro agora
+              passam por `linkDeWhatsapp`. */}
+          {linkDeWhatsapp(c.whatsapp) ? (
             <a
               className={estilo.btnSec}
-              href={`https://wa.me/${c.whatsapp.replace(/\D/g, '')}`}
+              href={linkDeWhatsapp(c.whatsapp)!}
               target="_blank"
               rel="noreferrer"
             >
