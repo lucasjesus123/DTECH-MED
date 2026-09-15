@@ -106,7 +106,34 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   })
   if (!dados) throw new Error('Ordem não encontrada para gerar o documento.')
 
-  const doc = new PDFDocument({ size: 'A4', margin: 48, bufferPages: true })
+  /**
+   * ===========================================================================
+   * A DATA INTERNA DO PDF É A DA ORDEM, E NÃO A DO RELÓGIO
+   * ===========================================================================
+   * O PDFKit carimba um `CreationDate` com `new Date()` quando ninguém diz o
+   * contrário. São catorze dígitos dentro do arquivo, invisíveis na tela — e
+   * eles bastavam para fazer DOIS PDFs de conteúdo idêntico terem hashes
+   * diferentes.
+   *
+   * O efeito não era cosmético. Cada emissão vira uma linha em `documentos`, e
+   * a única maneira de saber que a segunda emissão é a mesma coisa que a
+   * primeira é comparar o hash. Com o relógio lá dentro, nunca batia: recarregar
+   * a página do PDF criava um documento novo, e o cliente passava a ver "Ordem
+   * de serviço nº 6" repetida na página dele, com a mesma data. Medido: três
+   * buscas seguidas, três documentos, três hashes.
+   *
+   * `atualizadoEm` da ordem é a data honesta para este carimbo: ele diz de que
+   * momento da ordem este papel fala. Duas emissões sem nada ter mudado no meio
+   * descrevem o mesmo momento e produzem o mesmo arquivo; qualquer mudança real
+   * na ordem move a data, muda os bytes e faz nascer um documento novo — que é
+   * exatamente o histórico que se quer guardar.
+   */
+  const doc = new PDFDocument({
+    size: 'A4',
+    margin: 48,
+    bufferPages: true,
+    info: { CreationDate: dados.atualizadoEm },
+  })
   const pedacos: Buffer[] = []
   doc.on('data', (c: Buffer) => pedacos.push(c))
   const pronto = new Promise<Buffer>((res) => doc.on('end', () => res(Buffer.concat(pedacos))))
@@ -737,8 +764,50 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   await mkdir(path.dirname(destino), { recursive: true })
   await writeFile(destino, buffer)
 
-  const criado = await comEscopo(ctx, async (tx) =>
-    tx.documento.create({
+  /**
+   * ===========================================================================
+   * CONTEÚDO IGUAL NÃO É EMISSÃO NOVA — e era
+   * ===========================================================================
+   * Esta rota gera o PDF a cada pedido, de propósito: a O.S. muda enquanto a
+   * ordem anda, e quem pede "o PDF" quer a de agora. Cada emissão virava uma
+   * linha em `documentos`, com hora e hash, e o comentário lá em cima defende
+   * isso com razão — apagar o de terça para deixar só o de hoje seria reescrever
+   * o histórico da ordem.
+   *
+   * Só que RECARREGAR A PÁGINA também virava linha. Três aberturas do mesmo PDF,
+   * no mesmo minuto, com os mesmos bytes, viravam três "emissões". Medido: três
+   * buscas, três documentos, hash idêntico nos três.
+   *
+   * Isso não é histórico, é contador de cliques — e ele sai em dois lugares que
+   * não podem mentir:
+   *
+   *   · a página do CLIENTE, que passa a listar "Ordem de serviço nº 6" quatro
+   *     vezes, com a mesma data, e ninguém sabe qual abrir;
+   *   · a FOLHA DE RASTREABILIDADE, que conta quantas provas existem e de que
+   *     dia são. Ela responde ao cliente, ao fabricante e à vigilância — e
+   *     inflar essa contagem com recarga de página é dizer que houve prova onde
+   *     houve F5.
+   *
+   * O hash já estava sendo calculado e o arquivo em disco já era o mesmo (o nome
+   * dele contém o hash). Faltava a pergunta: se o último documento deste tipo,
+   * nesta ordem, tem este hash, ele É este documento. Devolvemos o que existe.
+   *
+   * O TOKEN DE ACESSO TAMBÉM É O MESMO, e isso é parte do conserto: emitir um
+   * token novo para conteúdo idêntico deixaria dois links vivos apontando para
+   * o mesmo arquivo, e o que o cliente tem no WhatsApp deixaria de ser "o" link.
+   *
+   * Conteúdo DIFERENTE continua nascendo linha nova, com hora e hash próprios —
+   * que é exatamente o caso que o comentário de cima protege.
+   */
+  const criado = await comEscopo(ctx, async (tx) => {
+    const igual = await tx.documento.findFirst({
+      where: { ordemId: dados.id, tipo: pedido.documento, hash },
+      orderBy: { geradoEm: 'desc' },
+      select: { id: true, tokenAcesso: true },
+    })
+    if (igual) return igual
+
+    return tx.documento.create({
       data: {
         tenantId,
         ordemId: dados.id,
@@ -752,8 +821,8 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         tokenAcesso: novoToken(),
       },
       select: { id: true, tokenAcesso: true },
-    }),
-  )
+    })
+  })
 
   // O TOKEN VOLTA porque quem chamou pode precisar mandar o link ao cliente, e
   // procurá-lo depois por "o último documento desta ordem" acertaria o
