@@ -205,6 +205,22 @@ enum TipoDocumento {
   /// é um título, e o que o torna título é a assinatura do emitente sobre o
   /// valor por extenso.
   NOTA_PROMISSORIA
+
+  /// A O.S. que o CLIENTE devolveu assinada, e que entrou por fora da esteira.
+  ///
+  /// Todos os tipos acima nascem aqui dentro: o sistema desenha o PDF e guarda
+  /// o hash do que desenhou. Este é o único que chega de fora — o cliente que
+  /// não quis rubricar na tela do celular baixa a O.S., assina no gov.br (ou
+  /// imprime, assina e fotografa) e devolve o arquivo. Alguém do escritório
+  /// anexa.
+  ///
+  /// Ele é tipo PRÓPRIO, e não `ORDEM_SERVICO`, por uma razão que é toda a
+  /// razão de existir deste sistema: numa auditoria, "este PDF saiu do nosso
+  /// gerador" e "este PDF veio de fora e nós não sabemos o que tem dentro" não
+  /// são a mesma afirmação. Misturar os dois num tipo só apagaria a diferença
+  /// exatamente onde ela importa. O hash continua sendo gravado — ele prova
+  /// que o arquivo não mudou DEPOIS de anexado, que é o que ele pode provar.
+  OS_ASSINADA_CLIENTE
 }
 
 /// Para onde foi a peça que saiu do aparelho.
@@ -1588,6 +1604,16 @@ model Documento {
   caminho      String
   hash         String
   tamanhoBytes Int?
+
+  /// Quem anexou, quando o documento VEIO DE FORA. Nulo nos que o sistema
+  /// gerou — neles o autor é o próprio sistema, e quem apertou o botão já está
+  /// na linha do tempo da ordem.
+  anexadoPorNome String?
+
+  /// O nome do arquivo como ele chegou. Serve à conferência humana ("é este
+  /// mesmo que o cliente mandou?") e não é usado para montar caminho nenhum:
+  /// o caminho no acervo sai do hash, calculado aqui dentro.
+  nomeOriginal String?
 
   /// Token para o link do WhatsApp funcionar sem login. Pelo mesmo motivo do
   /// `tokenPublico` da Ordem, vem de `novoToken()` e não de `cuid()`.

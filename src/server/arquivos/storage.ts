@@ -435,6 +435,83 @@ export async function apagarFotoDoSite(slot: string): Promise<void> {
  * de propósito: no dia em que alguém passar um valor de formulário aqui por
  * engano, o pior que acontece é uma pasta com nome esquisito.
  */
+/* ==========================================================================
+   O PDF QUE VEM DE FORA
+   --------------------------------------------------------------------------
+   Todo o resto deste arquivo trata de coisa que NÓS produzimos: a foto é
+   reescrita pelo sharp, a assinatura é redesenhada como PNG, o PDF é desenhado
+   pelo PDFKit. Em todos eles, o que sai do arquivo original é o conteúdo, e
+   tudo o mais é descartado no caminho.
+
+   Com um PDF assinado no gov.br isso é impossível, e a impossibilidade é o
+   ponto: reescrever o arquivo QUEBRARIA a assinatura digital, que é a única
+   razão de ele existir. O arquivo tem de ser guardado byte a byte, exatamente
+   como chegou.
+
+   Então a defesa muda de lugar. Não dá para sanear o conteúdo, e por isso:
+
+     · os BYTES decidem se é PDF (`%PDF-` nos primeiros cinco), e não o
+       `Content-Type` que o navegador declarou nem a extensão do nome — os dois
+       são texto livre;
+     · o caminho no acervo sai do HASH, nunca do nome enviado. O nome original
+       é guardado como texto para uma pessoa conferir, e não toca o disco;
+     · e a rota que o devolve manda BAIXAR em vez de abrir na nossa origem.
+       Ver `api/documento/[token]`: um PDF de terceiro renderizado inline num
+       endereço nosso é conteúdo de outra pessoa rodando na nossa casa, e o
+       token do documento é compartilhável.
+   ========================================================================== */
+
+/** 20 MB. Uma O.S. de três páginas assinada no gov.br não passa de 2. */
+const LIMITE_PDF_BYTES = 20 * 1024 * 1024
+
+export type ResultadoPdf =
+  | { ok: true; caminho: string; hash: string; bytes: number }
+  | { ok: false; motivo: string }
+
+/**
+ * Guarda um PDF recebido de fora, sem tocar nos bytes.
+ *
+ * Devolve o caminho relativo e o hash. O hash não prova que o arquivo é
+ * legítimo — nada aqui pode provar isso — mas prova que ele não mudou DEPOIS
+ * de anexado, que é exatamente o que uma prova de prontuário precisa dizer.
+ */
+export async function guardarPdfRecebido(entrada: {
+  tenantId: string
+  ordemId: string
+  arquivo: File
+}): Promise<ResultadoPdf> {
+  const { arquivo } = entrada
+  if (arquivo.size === 0) return { ok: false, motivo: 'O arquivo chegou vazio.' }
+  if (arquivo.size > LIMITE_PDF_BYTES) {
+    return { ok: false, motivo: 'O arquivo passa de 20 MB. Reduza e tente de novo.' }
+  }
+
+  const bytes = Buffer.from(await arquivo.arrayBuffer())
+
+  /**
+   * `%PDF-` nos cinco primeiros bytes. É o que a especificação manda, e é o
+   * que todo leitor procura.
+   *
+   * Isto não é uma validação de conteúdo e não finge ser: um PDF de verdade
+   * pode carregar JavaScript, anexo e formulário. O que este teste impede é o
+   * caso simples e comum — o `.exe` ou o `.html` renomeado para `.pdf` —, e a
+   * defesa contra o resto é não renderizar o arquivo na nossa origem.
+   */
+  if (bytes.subarray(0, 5).toString('latin1') !== '%PDF-') {
+    return { ok: false, motivo: 'Isto não é um PDF. Anexe o arquivo assinado, em PDF.' }
+  }
+
+  const hash = hashArquivo(bytes)
+  const caminho = path.join(
+    sanitizarPedaco(entrada.tenantId),
+    sanitizarPedaco(entrada.ordemId),
+    'recebidos',
+    `${hash.slice(0, 32)}.pdf`,
+  )
+  await gravar(caminho, bytes)
+  return { ok: true, caminho, hash, bytes: bytes.length }
+}
+
 function sanitizarPedaco(bruto: string): string {
   const limpo = bruto.replace(/[^a-zA-Z0-9_-]/g, '')
   if (!limpo) throw new Error('Escopo de arquivo vazio depois da limpeza.')

@@ -676,6 +676,8 @@ export const DocumentoScalarFieldEnum = {
   caminho: 'caminho',
   hash: 'hash',
   tamanhoBytes: 'tamanhoBytes',
+  anexadoPorNome: 'anexadoPorNome',
+  nomeOriginal: 'nomeOriginal',
   tokenAcesso: 'tokenAcesso',
   geradoEm: 'geradoEm'
 } as const

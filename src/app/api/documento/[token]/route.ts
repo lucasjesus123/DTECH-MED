@@ -44,12 +44,38 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
   const bytes = await lerArquivo(doc.caminho)
   if (!bytes) return new NextResponse('Documento indisponível', { status: 404 })
 
+  /**
+   * O ÚNICO TIPO QUE VEIO DE FORA BAIXA, EM VEZ DE ABRIR.
+   *
+   * Todos os outros documentos desta rota foram desenhados pelo nosso gerador:
+   * nós escolhemos cada byte, e abrir inline é o que a pessoa espera ao tocar
+   * num anexo do WhatsApp.
+   *
+   * `OS_ASSINADA_CLIENTE` é o contrário — é o PDF que o cliente assinou no
+   * gov.br e devolveu, guardado byte a byte porque reescrevê-lo quebraria a
+   * assinatura (ver `guardarPdfRecebido`). Renderizar inline um PDF de
+   * terceiro é rodar conteúdo de outra pessoa dentro do nosso endereço, e o
+   * token desta rota é compartilhável e dispensa login: seria um jeito de
+   * hospedar qualquer coisa no domínio da DTECH MED.
+   *
+   * `attachment` tira o arquivo da nossa origem e o entrega ao leitor de PDF
+   * do aparelho, que é onde ele deve ser aberto.
+   *
+   * NÃO adianta mandar `Content-Security-Policy: sandbox` daqui — foi a
+   * primeira tentativa, e ela não faz nada: o middleware monta a CSP do site
+   * e a escreve por cima da resposta de TODA rota que casa com o matcher,
+   * esta inclusive. Medido no navegador, o cabeçalho que chega é o global.
+   * A defesa de verdade é o `attachment` acima; deixar aqui um cabeçalho
+   * sobrescrito só daria a impressão de duas camadas onde há uma.
+   */
+  const veioDeFora = doc.tipo === 'OS_ASSINADA_CLIENTE'
+
   return new NextResponse(new Uint8Array(bytes), {
     headers: {
       'Content-Type': 'application/pdf',
       // `inline` abre no visualizador do celular em vez de baixar — é o que a
       // pessoa espera ao tocar num anexo do WhatsApp.
-      'Content-Disposition': `inline; filename="${doc.numero}.pdf"`,
+      'Content-Disposition': `${veioDeFora ? 'attachment' : 'inline'}; filename="${doc.numero}.pdf"`,
       // Documento de cliente não entra em cache compartilhado.
       'Cache-Control': 'private, no-store',
       'X-Content-Type-Options': 'nosniff',

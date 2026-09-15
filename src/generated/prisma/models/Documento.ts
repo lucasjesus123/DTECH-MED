@@ -44,6 +44,8 @@ export type DocumentoMinAggregateOutputType = {
   caminho: string | null
   hash: string | null
   tamanhoBytes: number | null
+  anexadoPorNome: string | null
+  nomeOriginal: string | null
   tokenAcesso: string | null
   geradoEm: Date | null
 }
@@ -57,6 +59,8 @@ export type DocumentoMaxAggregateOutputType = {
   caminho: string | null
   hash: string | null
   tamanhoBytes: number | null
+  anexadoPorNome: string | null
+  nomeOriginal: string | null
   tokenAcesso: string | null
   geradoEm: Date | null
 }
@@ -70,6 +74,8 @@ export type DocumentoCountAggregateOutputType = {
   caminho: number
   hash: number
   tamanhoBytes: number
+  anexadoPorNome: number
+  nomeOriginal: number
   tokenAcesso: number
   geradoEm: number
   _all: number
@@ -93,6 +99,8 @@ export type DocumentoMinAggregateInputType = {
   caminho?: true
   hash?: true
   tamanhoBytes?: true
+  anexadoPorNome?: true
+  nomeOriginal?: true
   tokenAcesso?: true
   geradoEm?: true
 }
@@ -106,6 +114,8 @@ export type DocumentoMaxAggregateInputType = {
   caminho?: true
   hash?: true
   tamanhoBytes?: true
+  anexadoPorNome?: true
+  nomeOriginal?: true
   tokenAcesso?: true
   geradoEm?: true
 }
@@ -119,6 +129,8 @@ export type DocumentoCountAggregateInputType = {
   caminho?: true
   hash?: true
   tamanhoBytes?: true
+  anexadoPorNome?: true
+  nomeOriginal?: true
   tokenAcesso?: true
   geradoEm?: true
   _all?: true
@@ -219,6 +231,8 @@ export type DocumentoGroupByOutputType = {
   caminho: string
   hash: string
   tamanhoBytes: number | null
+  anexadoPorNome: string | null
+  nomeOriginal: string | null
   tokenAcesso: string
   geradoEm: Date
   _count: DocumentoCountAggregateOutputType | null
@@ -255,6 +269,8 @@ export type DocumentoWhereInput = {
   caminho?: Prisma.StringFilter<"Documento"> | string
   hash?: Prisma.StringFilter<"Documento"> | string
   tamanhoBytes?: Prisma.IntNullableFilter<"Documento"> | number | null
+  anexadoPorNome?: Prisma.StringNullableFilter<"Documento"> | string | null
+  nomeOriginal?: Prisma.StringNullableFilter<"Documento"> | string | null
   tokenAcesso?: Prisma.StringFilter<"Documento"> | string
   geradoEm?: Prisma.DateTimeFilter<"Documento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -271,6 +287,8 @@ export type DocumentoOrderByWithRelationInput = {
   caminho?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   tamanhoBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  anexadoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  nomeOriginal?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenAcesso?: Prisma.SortOrder
   geradoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -291,6 +309,8 @@ export type DocumentoWhereUniqueInput = Prisma.AtLeast<{
   caminho?: Prisma.StringFilter<"Documento"> | string
   hash?: Prisma.StringFilter<"Documento"> | string
   tamanhoBytes?: Prisma.IntNullableFilter<"Documento"> | number | null
+  anexadoPorNome?: Prisma.StringNullableFilter<"Documento"> | string | null
+  nomeOriginal?: Prisma.StringNullableFilter<"Documento"> | string | null
   geradoEm?: Prisma.DateTimeFilter<"Documento"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   ordem?: Prisma.XOR<Prisma.OrdemScalarRelationFilter, Prisma.OrdemWhereInput>
@@ -306,6 +326,8 @@ export type DocumentoOrderByWithAggregationInput = {
   caminho?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   tamanhoBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  anexadoPorNome?: Prisma.SortOrderInput | Prisma.SortOrder
+  nomeOriginal?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenAcesso?: Prisma.SortOrder
   geradoEm?: Prisma.SortOrder
   _count?: Prisma.DocumentoCountOrderByAggregateInput
@@ -327,6 +349,8 @@ export type DocumentoScalarWhereWithAggregatesInput = {
   caminho?: Prisma.StringWithAggregatesFilter<"Documento"> | string
   hash?: Prisma.StringWithAggregatesFilter<"Documento"> | string
   tamanhoBytes?: Prisma.IntNullableWithAggregatesFilter<"Documento"> | number | null
+  anexadoPorNome?: Prisma.StringNullableWithAggregatesFilter<"Documento"> | string | null
+  nomeOriginal?: Prisma.StringNullableWithAggregatesFilter<"Documento"> | string | null
   tokenAcesso?: Prisma.StringWithAggregatesFilter<"Documento"> | string
   geradoEm?: Prisma.DateTimeWithAggregatesFilter<"Documento"> | Date | string
 }
@@ -338,6 +362,8 @@ export type DocumentoCreateInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
@@ -354,6 +380,8 @@ export type DocumentoUncheckedCreateInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
@@ -366,6 +394,8 @@ export type DocumentoUpdateInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
@@ -382,6 +412,8 @@ export type DocumentoUncheckedUpdateInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
@@ -396,6 +428,8 @@ export type DocumentoCreateManyInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
 }
@@ -407,6 +441,8 @@ export type DocumentoUpdateManyMutationInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -420,6 +456,8 @@ export type DocumentoUncheckedUpdateManyInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -443,6 +481,8 @@ export type DocumentoCountOrderByAggregateInput = {
   caminho?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   tamanhoBytes?: Prisma.SortOrder
+  anexadoPorNome?: Prisma.SortOrder
+  nomeOriginal?: Prisma.SortOrder
   tokenAcesso?: Prisma.SortOrder
   geradoEm?: Prisma.SortOrder
 }
@@ -460,6 +500,8 @@ export type DocumentoMaxOrderByAggregateInput = {
   caminho?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   tamanhoBytes?: Prisma.SortOrder
+  anexadoPorNome?: Prisma.SortOrder
+  nomeOriginal?: Prisma.SortOrder
   tokenAcesso?: Prisma.SortOrder
   geradoEm?: Prisma.SortOrder
 }
@@ -473,6 +515,8 @@ export type DocumentoMinOrderByAggregateInput = {
   caminho?: Prisma.SortOrder
   hash?: Prisma.SortOrder
   tamanhoBytes?: Prisma.SortOrder
+  anexadoPorNome?: Prisma.SortOrder
+  nomeOriginal?: Prisma.SortOrder
   tokenAcesso?: Prisma.SortOrder
   geradoEm?: Prisma.SortOrder
 }
@@ -597,6 +641,8 @@ export type DocumentoCreateWithoutTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   ordem: Prisma.OrdemCreateNestedOneWithoutDocumentosInput
@@ -611,6 +657,8 @@ export type DocumentoUncheckedCreateWithoutTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
@@ -654,6 +702,8 @@ export type DocumentoScalarWhereInput = {
   caminho?: Prisma.StringFilter<"Documento"> | string
   hash?: Prisma.StringFilter<"Documento"> | string
   tamanhoBytes?: Prisma.IntNullableFilter<"Documento"> | number | null
+  anexadoPorNome?: Prisma.StringNullableFilter<"Documento"> | string | null
+  nomeOriginal?: Prisma.StringNullableFilter<"Documento"> | string | null
   tokenAcesso?: Prisma.StringFilter<"Documento"> | string
   geradoEm?: Prisma.DateTimeFilter<"Documento"> | Date | string
 }
@@ -665,6 +715,8 @@ export type DocumentoCreateWithoutOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
@@ -679,6 +731,8 @@ export type DocumentoUncheckedCreateWithoutOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedCreateNestedManyWithoutDocumentoInput
@@ -717,6 +771,8 @@ export type DocumentoCreateWithoutMensagensInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutDocumentosInput
@@ -732,6 +788,8 @@ export type DocumentoUncheckedCreateWithoutMensagensInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
 }
@@ -759,6 +817,8 @@ export type DocumentoUpdateWithoutMensagensInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
@@ -774,6 +834,8 @@ export type DocumentoUncheckedUpdateWithoutMensagensInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -786,6 +848,8 @@ export type DocumentoCreateManyTenantInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
 }
@@ -797,6 +861,8 @@ export type DocumentoUpdateWithoutTenantInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ordem?: Prisma.OrdemUpdateOneRequiredWithoutDocumentosNestedInput
@@ -811,6 +877,8 @@ export type DocumentoUncheckedUpdateWithoutTenantInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
@@ -824,6 +892,8 @@ export type DocumentoUncheckedUpdateManyWithoutTenantInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -836,6 +906,8 @@ export type DocumentoCreateManyOrdemInput = {
   caminho: string
   hash: string
   tamanhoBytes?: number | null
+  anexadoPorNome?: string | null
+  nomeOriginal?: string | null
   tokenAcesso: string
   geradoEm?: Date | string
 }
@@ -847,6 +919,8 @@ export type DocumentoUpdateWithoutOrdemInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutDocumentosNestedInput
@@ -861,6 +935,8 @@ export type DocumentoUncheckedUpdateWithoutOrdemInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   mensagens?: Prisma.MensagemWhatsappUncheckedUpdateManyWithoutDocumentoNestedInput
@@ -874,6 +950,8 @@ export type DocumentoUncheckedUpdateManyWithoutOrdemInput = {
   caminho?: Prisma.StringFieldUpdateOperationsInput | string
   hash?: Prisma.StringFieldUpdateOperationsInput | string
   tamanhoBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  anexadoPorNome?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nomeOriginal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tokenAcesso?: Prisma.StringFieldUpdateOperationsInput | string
   geradoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -918,6 +996,8 @@ export type DocumentoSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   caminho?: boolean
   hash?: boolean
   tamanhoBytes?: boolean
+  anexadoPorNome?: boolean
+  nomeOriginal?: boolean
   tokenAcesso?: boolean
   geradoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -935,6 +1015,8 @@ export type DocumentoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   caminho?: boolean
   hash?: boolean
   tamanhoBytes?: boolean
+  anexadoPorNome?: boolean
+  nomeOriginal?: boolean
   tokenAcesso?: boolean
   geradoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -950,6 +1032,8 @@ export type DocumentoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   caminho?: boolean
   hash?: boolean
   tamanhoBytes?: boolean
+  anexadoPorNome?: boolean
+  nomeOriginal?: boolean
   tokenAcesso?: boolean
   geradoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -965,11 +1049,13 @@ export type DocumentoSelectScalar = {
   caminho?: boolean
   hash?: boolean
   tamanhoBytes?: boolean
+  anexadoPorNome?: boolean
+  nomeOriginal?: boolean
   tokenAcesso?: boolean
   geradoEm?: boolean
 }
 
-export type DocumentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "tipo" | "numero" | "caminho" | "hash" | "tamanhoBytes" | "tokenAcesso" | "geradoEm", ExtArgs["result"]["documento"]>
+export type DocumentoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "ordemId" | "tipo" | "numero" | "caminho" | "hash" | "tamanhoBytes" | "anexadoPorNome" | "nomeOriginal" | "tokenAcesso" | "geradoEm", ExtArgs["result"]["documento"]>
 export type DocumentoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   ordem?: boolean | Prisma.OrdemDefaultArgs<ExtArgs>
@@ -1005,6 +1091,18 @@ export type $DocumentoPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     caminho: string
     hash: string
     tamanhoBytes: number | null
+    /**
+     * Quem anexou, quando o documento VEIO DE FORA. Nulo nos que o sistema
+     * gerou — neles o autor é o próprio sistema, e quem apertou o botão já está
+     * na linha do tempo da ordem.
+     */
+    anexadoPorNome: string | null
+    /**
+     * O nome do arquivo como ele chegou. Serve à conferência humana ("é este
+     * mesmo que o cliente mandou?") e não é usado para montar caminho nenhum:
+     * o caminho no acervo sai do hash, calculado aqui dentro.
+     */
+    nomeOriginal: string | null
     /**
      * Token para o link do WhatsApp funcionar sem login. Pelo mesmo motivo do
      * `tokenPublico` da Ordem, vem de `novoToken()` e não de `cuid()`.
@@ -1445,6 +1543,8 @@ export interface DocumentoFieldRefs {
   readonly caminho: Prisma.FieldRef<"Documento", 'String'>
   readonly hash: Prisma.FieldRef<"Documento", 'String'>
   readonly tamanhoBytes: Prisma.FieldRef<"Documento", 'Int'>
+  readonly anexadoPorNome: Prisma.FieldRef<"Documento", 'String'>
+  readonly nomeOriginal: Prisma.FieldRef<"Documento", 'String'>
   readonly tokenAcesso: Prisma.FieldRef<"Documento", 'String'>
   readonly geradoEm: Prisma.FieldRef<"Documento", 'DateTime'>
 }

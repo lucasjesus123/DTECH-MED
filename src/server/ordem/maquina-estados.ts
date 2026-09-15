@@ -520,6 +520,7 @@ export const ROTULO_DOCUMENTO: Record<string, string> = {
   ORDEM_SERVICO: 'Ordem de serviço',
   RECIBO_PAGAMENTO: 'Recibo de pagamento',
   COMPROVANTE_ENTREGA: 'Comprovante de entrega',
+  OS_ASSINADA_CLIENTE: 'O.S. assinada pelo cliente',
 }
 
 /** Etapas que o cliente enxerga no portal público. */

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ROTULO_DOCUMENTO } from '@/server/ordem/maquina-estados'
 import EmitirDocumentos from './emitir'
+import AnexarAssinada from './anexar-assinada'
 import estilo from '../../painel.module.css'
 
 export type DocumentoNaOrdem = {
@@ -70,8 +71,12 @@ export default function DocumentosDaOrdem({
   // Os dois que se pedem, separados dos que a esteira gerou. A comparação é
   // pelo TIPO gravado, e não pelo rótulo — rótulo é palavra de tela e muda.
   const PEDIDOS = new Set(['CONTRATO_PRESTACAO', 'NOTA_PROMISSORIA'])
+  /* O terceiro grupo: o que CHEGOU de fora. Ver o bloco lá embaixo. */
+  const recebidos = documentos.filter((d) => d.tipo === 'OS_ASSINADA_CLIENTE')
   const emitidos = documentos.filter((d) => PEDIDOS.has(d.tipo))
-  const daEsteira = documentos.filter((d) => !PEDIDOS.has(d.tipo))
+  const daEsteira = documentos.filter(
+    (d) => !PEDIDOS.has(d.tipo) && d.tipo !== 'OS_ASSINADA_CLIENTE',
+  )
 
   return (
     <>
@@ -135,9 +140,31 @@ export default function DocumentosDaOrdem({
         </div>
       </div>
 
+      {/* ===== O TERCEIRO GRUPO: o que veio de fora =====================
+          Os dois blocos acima são documentos NOSSOS — nascem da esteira ou de
+          um botão. Este é o único que entra: a O.S. que o cliente baixou,
+          assinou no gov.br e devolveu.
+
+          Ele existe porque hospital e órgão público muitas vezes não podem
+          rubricar com o dedo numa tela — o jurídico exige certificado. Sem
+          este caminho, essas ordens ficavam com a aprovação combinada por
+          telefone e nada no prontuário. */}
+      <div className={estilo.bloco}>
+        <p className={estilo.blocoTitulo}>A O.S. assinada que o cliente devolveu</p>
+        <p className={estilo.fraco}>
+          Para quando o cliente não assina na tela do celular e manda o arquivo assinado no
+          gov.br. Anexar junta a prova ao prontuário — <strong>não aprova o orçamento</strong>:
+          quem confere a assinatura é gente, e a aprovação continua no caminho normal.
+        </p>
+        <AnexarAssinada ordemId={ordemId} />
+        {recebidos.length > 0 ? <Lista documentos={recebidos} /> : null}
+      </div>
+
       <p className={estilo.dica} style={{ marginTop: 'var(--s4)' }}>
         Todo documento gerado guarda um resumo criptográfico do conteúdo. É o que permite provar,
-        meses depois, que o PDF que o cliente tem em mãos é o mesmo que saiu daqui.
+        meses depois, que o PDF que o cliente tem em mãos é o mesmo que saiu daqui. O que chega de
+        fora ganha o mesmo resumo — ele não diz que o arquivo é legítimo, diz que ele não mudou
+        depois de anexado.
       </p>
     </>
   )
