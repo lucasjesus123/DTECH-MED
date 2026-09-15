@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Papel as P, Periodicidade, StatusVisita } from '@/generated/prisma/enums'
 import { hashDocumento, novoToken } from '@/lib/cripto'
 import { comEscopo, prisma, type ContextoAcesso } from '@/lib/db'
-import { agendaDeCampo } from './campo'
+import { agendaDeCampo, DIAS_DA_AGENDA } from './campo'
 
 /**
  * A AGENDA DE CAMPO, CONTRA O BANCO DE VERDADE.
@@ -46,6 +46,14 @@ function emDias(dias: number): Date {
   const d = new Date()
   d.setDate(d.getDate() + dias)
   d.setHours(12, 0, 0, 0)
+  return d
+}
+
+/** O último dia que a agenda promete cobrir, às 23h no fuso da casa. */
+function noUltimoDia(): Date {
+  const d = new Date()
+  d.setDate(d.getDate() + DIAS_DA_AGENDA)
+  d.setHours(23, 0, 0, 0)
   return d
 }
 
@@ -144,6 +152,28 @@ beforeAll(async () => {
         contratoId: contrato.id,
         previstaPara: emDias(5),
         status: StatusVisita.PREVISTA,
+      },
+    })
+
+    /**
+     * A DO ÚLTIMO DIA DA JANELA, às 23h.
+     *
+     * A janela ia de hoje 00:00 até o 14º dia 00:00, então o 14º dia caía
+     * fora INTEIRO: a tela prometia "próximos 14 dias" e a visita marcada
+     * para o 14º não aparecia. O técnico só descobriria na véspera.
+     *
+     * Às 23h de propósito: é o horário que uma janela fechada no início do
+     * dia deixaria de fora mesmo depois de corrigida pela metade.
+     */
+    await tx.visitaPreventiva.create({
+      data: {
+        tenantId: t.id,
+        contratoId: contrato.id,
+        previstaPara: noUltimoDia(),
+        agendadaPara: noUltimoDia(),
+        hora: '23:00',
+        status: StatusVisita.AGENDADA,
+        responsavelId: tecnico.id,
       },
     })
 
@@ -256,13 +286,21 @@ describe('agendaDeCampo · o técnico e a visita preventiva', () => {
 
   it('não mostra a visita PREVISTA — ela não tem dia combinado nem dono', async () => {
     const itens = await agendaDeCampo(ctx, P.TECNICO, tecnicoId)
-    expect(itens.filter((i) => i.tipo === 'PREVENTIVA')).toHaveLength(1)
+    // Duas AGENDADAS deste técnico: a de daqui a 3 dias e a do último dia.
+    expect(itens.filter((i) => i.tipo === 'PREVENTIVA')).toHaveLength(2)
+  })
+
+  it('mostra a visita marcada para o ÚLTIMO dia da janela, às 23h', async () => {
+    const itens = await agendaDeCampo(ctx, P.TECNICO, tecnicoId)
+    const ultima = itens.filter((i) => i.tipo === 'PREVENTIVA').find((i) => i.hora === '23:00')
+    // A janela fechava à meia-noite do 14º dia e engolia o dia inteiro.
+    expect(ultima, 'o último dia prometido pela tela tem de caber na janela').toBeDefined()
   })
 
   it('não mostra a visita marcada para OUTRO técnico', async () => {
     const itens = await agendaDeCampo(ctx, P.TECNICO, tecnicoId)
     expect(itens.every((i) => i.cliente === 'Odonto do Teste')).toBe(true)
-    expect(itens.filter((i) => i.tipo === 'PREVENTIVA')).toHaveLength(1)
+    expect(itens.filter((i) => i.tipo === 'PREVENTIVA')).toHaveLength(2)
 
     // E o outro vê a dele, e só a dele.
     const doOutro = await agendaDeCampo(
@@ -279,7 +317,7 @@ describe('agendaDeCampo · o técnico e a visita preventiva', () => {
     const itens = await agendaDeCampo(ctx, P.TECNICO, tecnicoId)
 
     expect(itens.some((i) => i.tipo === 'PRAZO')).toBe(true)
-    expect(itens).toHaveLength(2)
+    expect(itens).toHaveLength(3)
 
     // O prazo é daqui a 1 dia e a visita daqui a 3: misturar as duas fontes sem
     // ordenar deixaria a tela agrupando por dia na ordem errada.

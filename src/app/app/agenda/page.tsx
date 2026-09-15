@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Papel } from '@/generated/prisma/enums'
 import { NIVEL, exigirSessao } from '@/server/auth/guarda'
-import { agendaDeCampo, type ItemDaAgenda } from '@/server/consultas/campo'
+import { agendaDeCampo, DIAS_DA_AGENDA, type ItemDaAgenda } from '@/server/consultas/campo'
 import { FUSO } from '@/lib/datas'
 import estilo from '../app.module.css'
 
@@ -45,7 +45,7 @@ export default async function AgendaDeCampo() {
             {itens.length} {itens.length === 1 ? 'compromisso' : 'compromissos'}
             {atrasados.length > 0 ? ` · ${atrasados.length} atrasado(s)` : ''}
           </span>
-          <span className={estilo.mono}>PRÓXIMOS 14 DIAS</span>
+          <span className={estilo.mono}>PRÓXIMOS {DIAS_DA_AGENDA} DIAS</span>
         </div>
       </header>
 
@@ -56,7 +56,8 @@ export default async function AgendaDeCampo() {
             responder: o que a rua tem pela frente, e com quem está. */}
         {gerencia ? (
           <p className={estilo.modoGestao}>
-            <strong>Modo gestão.</strong> As paradas de todos os motoristas, pelos próximos 14 dias.
+            <strong>Modo gestão.</strong> As paradas de todos os motoristas, pelos próximos{' '}
+            {DIAS_DA_AGENDA} dias.
             A parada sem motorista aparece marcada — é a que precisa de decisão. Para a agenda da
             empresa inteira, com visitas e vencimentos, veja o{' '}
             <Link href="/painel/calendario">Calendário</Link>.
@@ -66,7 +67,7 @@ export default async function AgendaDeCampo() {
         {itens.length === 0 ? (
           <p className={estilo.vazio}>
             {gerencia
-              ? 'Nenhuma parada marcada para os próximos 14 dias — de nenhum motorista.'
+              ? `Nenhuma parada marcada para os próximos ${DIAS_DA_AGENDA} dias — de nenhum motorista.`
               : sessao.papel === Papel.MOTORISTA
                 ? 'Nenhuma parada marcada para você nos próximos dias. O que a central agendar aparece aqui.'
                 : 'Nenhuma ordem sua com prazo nos próximos dias.'}

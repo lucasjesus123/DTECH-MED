@@ -319,14 +319,36 @@ export type ItemDaAgenda = {
   motorista: string | null
 }
 
+/**
+ * QUANTOS DIAS A AGENDA DE CAMPO OLHA PARA A FRENTE.
+ *
+ * Exportado porque a TELA escreve este número por extenso ("próximos 14 dias"),
+ * em três lugares. Enquanto ele vivia só aqui, mudar a janela deixava a tela
+ * prometendo um prazo e a consulta devolvendo outro — e ninguém veria, porque
+ * as duas continuariam "funcionando".
+ */
+export const DIAS_DA_AGENDA = 14
+
 export async function agendaDeCampo(
   ctx: ContextoAcesso,
   papel: Papel,
   userId: string,
-  dias = 14,
+  dias = DIAS_DA_AGENDA,
 ): Promise<ItemDaAgenda[]> {
   const { inicio } = janelaDoDia()
-  const fim = new Date(inicio.getTime() + dias * 86_400_000)
+  /**
+   * O ÚLTIMO DIA ENTRA INTEIRO.
+   *
+   * `inicio + dias` termina à MEIA-NOITE do 14º dia, e isso deixava o dia 14
+   * de fora por completo: no dia 15, uma visita marcada para o dia 29 às 8h30
+   * não aparecia, e a tela dizia "0 compromissos" prometendo "próximos 14
+   * dias". Um dia de diferença é pouco no calendário e é tudo para quem tem uma
+   * visita marcada: o técnico só descobriria na véspera.
+   *
+   * Com `+ 1` a janela vai até a meia-noite SEGUINTE, então o 14º dia cabe
+   * inteiro — inclusive um compromisso às 23h.
+   */
+  const fim = new Date(inicio.getTime() + (dias + 1) * 86_400_000)
   const agora = new Date()
 
   /**
