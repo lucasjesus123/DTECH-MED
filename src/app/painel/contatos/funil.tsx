@@ -57,7 +57,15 @@ export default function Funil({
   return (
     <>
       <form method="get" className={estilo.filtros}>
-        <input type="hidden" name="aba" value="orcamentos" />
+        {/* A ABA VIAJA COM O FILTRO, E ELA É `laudo`.
+            Estava escrito `orcamentos`: o funil vive na aba "Depois do laudo",
+            e filtrar por período jogava a pessoa na aba "Orçamentos" — outra
+            lista, sem o filtro que ela acabou de escolher. O formulário é GET,
+            então tudo que não estiver aqui some da URL; sem este campo a aba
+            voltaria para "Contatos do site", que é o padrão.
+            Medido no navegador antes da correção: em `?aba=laudo`, clicar em
+            Filtrar levava a `?aba=orcamentos&busca=&fase=&dias=30`. */}
+        <input type="hidden" name="aba" value="laudo" />
         <div className={estilo.busca}>
           <input
             className={estilo.campo}
@@ -158,9 +166,18 @@ export default function Funil({
                     Cobrar resposta
                   </Link>
                 ) : null}
-                {l.status === 'RECUSADO' ? (
-                  // Recusado não é fim: a versão nova nasce do mesmo lugar, e
-                  // é o caso em que a pessoa mais precisa voltar rápido.
+                {l.status === 'REPROVADO' ? (
+                  /* Recusado não é fim: a versão nova nasce do mesmo lugar, e
+                     é o caso em que a pessoa mais precisa voltar rápido.
+
+                     ESTAVA ESCRITO 'RECUSADO', E O ENUM NÃO TEM ESSE VALOR.
+                     `StatusOrcamento` é RASCUNHO, EM_REVISAO, ENVIADO,
+                     APROVADO, REPROVADO, EXPIRADO, CANCELADO — a palavra
+                     "recusado" é só o RÓTULO que esta tela mostra ao usuário
+                     (ver `rotulo()` logo abaixo, que traduz REPROVADO para
+                     "recusado"). Comparar contra o rótulo em vez do valor
+                     fazia o atalho nunca aparecer: uma busca no repositório
+                     inteiro encontrou 'RECUSADO' uma única vez, nesta linha. */
                   <Link href={`/painel/ordens/${l.ordemId}#orcamento`} className={estilo.linkAcao}>
                     Refazer com outro valor
                   </Link>

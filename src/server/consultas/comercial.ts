@@ -66,8 +66,30 @@ export type FiltroFunil = {
  * todas as versões e descartar a maioria, e a conta do topo (quanto está
  * esperando um sim) sairia errada no primeiro orçamento revisado.
  */
+/**
+ * QUANTOS DIAS A JANELA OLHA PARA TRÁS — entre 1 e 730, sempre.
+ *
+ * O valor vem da URL (`?dias=`) e entra em `make_interval(days => …)` de três
+ * consultas. O recorte estava escrito à mão nas três, sempre igual:
+ *
+ *     Math.max(1, Math.min(730, dias))
+ *
+ * E esse recorte DEIXA `NaN` PASSAR: `Math.min(730, NaN)` é NaN, e
+ * `Math.max(1, NaN)` é NaN. Medido. Hoje nenhum caminho chega lá — a tela
+ * filtra com `Number(dias) > 0` antes —, mas a trava fica a três arquivos de
+ * distância de onde o valor é usado, e essas três consultas são exportadas:
+ * a próxima tela que as chamar não vai saber que precisa filtrar antes.
+ *
+ * `Number.isFinite` primeiro, e a trava mora junto do uso.
+ */
+function diasDaJanela(bruto: number | null | undefined): number {
+  const n = Number(bruto)
+  if (!Number.isFinite(n)) return 90
+  return Math.max(1, Math.min(730, Math.trunc(n)))
+}
+
 export async function listarFunil(ctx: ContextoAcesso, f: FiltroFunil) {
-  const dias = Math.max(1, Math.min(730, f.dias ?? 90))
+  const dias = diasDaJanela(f.dias)
   const busca = f.busca?.trim() ?? ''
   const fase = FASES.some((x) => x.chave === f.fase) ? f.fase : null
 
@@ -171,7 +193,7 @@ export type ResumoFunil = {
  * a mediana continua dizendo o que acontece com metade deles.
  */
 export async function resumoDoFunil(ctx: ContextoAcesso, dias = 90): Promise<ResumoFunil> {
-  const d = Math.max(1, Math.min(730, dias))
+  const d = diasDaJanela(dias)
   return comEscopo(ctx, async (tx) => {
     const [r] = await tx.$queryRaw<
       Array<{
@@ -237,7 +259,7 @@ export async function resumoDoFunil(ctx: ContextoAcesso, dias = 90): Promise<Res
  * recado sobre a oficina.
  */
 export async function motivosDeRecusa(ctx: ContextoAcesso, dias = 90) {
-  const d = Math.max(1, Math.min(730, dias))
+  const d = diasDaJanela(dias)
   return comEscopo(ctx, async (tx) => {
     const linhas = await tx.$queryRaw<Array<{ motivo: string; n: bigint; total: bigint }>>`
       SELECT coalesce(nullif(btrim("motivoReprovacao"), ''), 'Sem motivo registrado') AS motivo,

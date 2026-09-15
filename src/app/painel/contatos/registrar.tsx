@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { registrarContato } from '@/server/acoes/contatos'
 import estilo from '../painel.module.css'
@@ -33,6 +33,28 @@ export default function RegistrarContato() {
   })
   const router = useRouter()
 
+  /**
+   * A LISTA RECARREGA QUANDO O CONTATO ENTROU, e não 1,2 segundo depois.
+   *
+   * Estava `onSubmit={() => setTimeout(() => router.refresh(), 1200)}`. Um
+   * cronômetro no lugar de uma transição de estado erra dos dois lados: numa
+   * consulta lenta ou num 4G ruim o recarregamento acontece ANTES de o
+   * contato existir, e a pessoa vê "Anotado" com a lista igual — conclui que
+   * não salvou e anota de novo. Num dia rápido ele acontece tarde, e a tela
+   * pisca por nada.
+   *
+   * Pior: o cronômetro disparava também quando a ação FALHAVA, recarregando a
+   * tela por cima da mensagem de erro que ela acabou de escrever.
+   *
+   * `estado.mensagem` e não só `estado.ok`: o estado inicial já nasce com
+   * `ok: true` e mensagem vazia, então testar só o `ok` recarregaria a lista
+   * na primeira pintura do formulário. É a mesma condição que a tela usa
+   * logo abaixo para decidir se mostra o aviso de sucesso.
+   */
+  useEffect(() => {
+    if (estado.ok && estado.mensagem) router.refresh()
+  }, [estado, router])
+
   if (!aberto) {
     return (
       <div className={estilo.acoesForm} style={{ marginBottom: 'var(--s4)' }}>
@@ -51,7 +73,6 @@ export default function RegistrarContato() {
       action={acao}
       className={`${estilo.bloco} ${estilo.form}`}
       style={{ marginBottom: 'var(--s4)' }}
-      onSubmit={() => setTimeout(() => router.refresh(), 1200)}
     >
       <p className={estilo.blocoTitulo}>Anotar contato</p>
 
