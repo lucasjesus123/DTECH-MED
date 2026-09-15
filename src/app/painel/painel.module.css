@@ -9551,3 +9551,110 @@ a.osListaItem:hover { background: var(--sup-1); }
 }
 .prevGerar strong { font-size: var(--t-sm); color: var(--txt); }
 .prevGerar p { margin: 3px 0 0; max-width: 42ch; }
+
+/* =========================================================================
+   O TOPO DO CAIXA — o desenho à esquerda, os números à direita
+   -------------------------------------------------------------------------
+   Eram três blocos de texto corrido lado a lado: "Entrou R$ 23.335,00, saiu
+   R$ 0,00, sobrou R$ 23.335,00." Texto corrido se LÊ, não se olha — e quem
+   abre o Financeiro de manhã com o telefone tocando procura um número e uma
+   direção, não três parágrafos.
+
+   Agora a esquerda responde de relance ("estou entrando mais do que sai?") e
+   a direita empilha os três números com o rótulo em cima e a frase embaixo,
+   em letra miúda, para quem precisar dela.
+   ========================================================================= */
+.caixaTopo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--s4);
+  margin-bottom: var(--s5);
+  align-items: stretch;
+}
+@media (max-width: 1020px) {
+  .caixaTopo { grid-template-columns: 1fr; }
+}
+.caixaGrafico {
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: var(--s4);
+  min-width: 0;
+  /* As duas colunas têm a mesma altura (`stretch`), e a da direita é a mais
+     alta. Sem isto o gráfico ficava colado no topo com um palmo de branco
+     embaixo — e branco sobrando dentro de uma caixa parece dado faltando. */
+  display: flex;
+  flex-direction: column;
+}
+.caixaGrafico > .grafico {
+  flex: 1;
+  display: grid;
+  align-content: center;
+}
+/* Os três números, separados por fio e não por caixa: são leituras do MESMO
+   caixa a três distâncias, e três cartões soltos fariam parecer três assuntos.
+   */
+.caixaNumeros {
+  background: var(--sup);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: var(--s2) var(--s4);
+  display: grid;
+  align-content: center;
+  gap: 1px;
+}
+/* RÓTULO À ESQUERDA, NÚMERO À DIREITA, na mesma linha — e a conta e a nota
+   embaixo, atravessando as duas colunas. É a forma clássica de linha de
+   extrato, e a única que não quebra no celular: empilhado, o rótulo "O CAIXA
+   DE SETEMBRO DE 2026" tomava três linhas e o número ficava pendurado à
+   direita, longe do que ele nomeia. */
+.fechoLinha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--s3);
+  row-gap: 2px;
+  align-items: baseline;
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--borda);
+}
+.fechoLinha > .fechoConta,
+.fechoLinha > .fechoNota { grid-column: 1 / -1; }
+.fechoLinha:last-child { border-bottom: 0; }
+/* O NÚMERO QUE SOBRA — o único grande da linha. Os dois que o formam vêm
+   logo abaixo, em corpo de texto: a conta fica à vista sem competir com o
+   resultado dela. */
+/* O nome é `fecho`, e não `caixa`, porque `.caixaValor` JÁ EXISTE desde antes
+   — é o par rótulo/valor das linhas de cliente, funil, recorrência e relatório,
+   com `display: flex` e `text-align: right` próprios. Reusar o nome não dava
+   erro nenhum: dava um `strong` herdando flex de um componente que não tem
+   nada a ver com este, e o defeito só aparecia no celular. */
+.fechoValor {
+  display: block;
+  text-align: right;
+  font-family: var(--f-display);
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.fechoConta {
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  font-variant-numeric: tabular-nums;
+}
+.fechoNota {
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.4;
+}
+
+/* A regra dos quatro cartões, em uma linha. Ela é nota de rodapé dos cartões
+   acima — não um parágrafo entre eles e o caixa. */
+.cartoesRegra {
+  margin: var(--s2) 0 0;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.5;
+}
+.cartoesRegra strong { color: var(--txt-2); font-weight: 600; }

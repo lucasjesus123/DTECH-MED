@@ -138,13 +138,25 @@ export default async function Financeiro({
    */
   const tipoFoco: 'PAGAR' | 'RECEBER' = aba === 'pagar' ? 'PAGAR' : 'RECEBER'
 
-  const [panorama, aFaturar, esperando, resumo, leitura, aGerar, categorias, clientes] =
+  const [panorama, aFaturar, esperando, resumo, leitura, fluxo, aGerar, categorias, clientes] =
     await Promise.all([
       panoramaDoMes(ctx, mes),
       aguardandoFatura(ctx),
       quantasEsperandoAprovacao(ctx),
       resumoDoMes(ctx, mes, tipoFoco),
       leituraDoMes(ctx, mes),
+      /**
+       * O FLUXO SOBE PARA O TOPO.
+       *
+       * Ele já era buscado, mas só dentro do ramo de Relatórios — a sétima
+       * aba. É o desenho que responde, sem ler nenhum número, a única pergunta
+       * que todo dono faz sobre o próprio caixa: está entrando mais do que sai?
+       *
+       * Aqui ele custa uma consulta a mais na abertura da tela, e é uma consulta
+       * de seis linhas agregadas por mês, não uma varredura. O preço é barato
+       * pelo que ele responde.
+       */
+      fluxoDosMeses(ctx, 6),
       pendentesDeGeracao(ctx, mes),
       categoriasUsadas(ctx, tipoFoco),
       clientesParaEscolher(ctx),
@@ -176,6 +188,7 @@ export default async function Financeiro({
       <Leitura
         panorama={panorama}
         leitura={leitura}
+        fluxo={fluxo}
         mesExtenso={mesExtenso}
         mesAnteriorExtenso={mesPorExtenso(mesVizinho(mes, -1))}
       />

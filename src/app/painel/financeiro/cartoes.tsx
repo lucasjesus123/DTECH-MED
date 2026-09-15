@@ -127,11 +127,18 @@ export default function QuatroCartoes({
         />
       </div>
 
-      <p className={estilo.dica}>
-        Os quatro fecham: total = pago + pendente + atrasado. O recorte é o{' '}
-        <strong>vencimento</strong> — pago e pendente são de {mesExtenso.toLowerCase()}, e atrasado é
-        tudo que já venceu e continua em aberto, de qualquer mês. Quanto de fato passou pela conta
-        bancária está logo abaixo, em &ldquo;entrou&rdquo; e &ldquo;saiu&rdquo;.
+      {/* A REGRA DOS QUATRO VIROU UMA LINHA, E NÃO UM PARÁGRAFO.
+          Eram quatro linhas de texto entre os cartões e o caixa, e elas
+          empurravam o gráfico para baixo da dobra num notebook. O que elas
+          explicam — que os quatro fecham, e que o recorte é o vencimento e não
+          o pagamento — continua inteiro: só desceu para uma linha só, no
+          tamanho de nota de rodapé, que é onde regra de leitura deve estar.
+          Quem nunca leu não vai sentir falta; quem leu uma vez não precisa
+          reler todo dia. */}
+      <p className={estilo.cartoesRegra}>
+        Os quatro fecham: <strong>total = pago + pendente + atrasado</strong>, pelo{' '}
+        <strong>vencimento</strong> — e atrasado é de qualquer mês, não só de{' '}
+        {mesExtenso.toLowerCase()}. O que passou pela conta bancária está logo abaixo.
       </p>
     </section>
   )

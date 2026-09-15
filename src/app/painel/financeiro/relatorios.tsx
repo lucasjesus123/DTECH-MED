@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
+import { formatarBRL } from '@/lib/dinheiro'
 import type { FaixaDeIdade, FatiaCategoria, MesDoFluxo } from '@/server/consultas/caixa'
+import GraficoFluxo from './grafico-fluxo'
 import estilo from '../painel.module.css'
 
 /**
@@ -60,10 +61,20 @@ export default function Relatorios({
 
   return (
     <>
+      {/* AS BARRAS SUBIRAM PARA O TOPO DA TELA, e aqui ficou a tabela.
+          O gráfico agora abre o Financeiro, acima da barra de abas — ou seja,
+          ele já está desenhado nesta mesma página, algumas linhas acima.
+          Repeti-lo aqui não acrescentaria leitura nenhuma e faria duvidar de
+          que são os mesmos dados.
+          O que esta aba ainda tem de exclusivo é o NÚMERO EXATO de cada mês, e
+          é ele que fica. */}
       <div className={estilo.bloco}>
-        <p className={estilo.blocoTitulo}>Entrou e saiu, mês a mês</p>
+        <p className={estilo.blocoTitulo}>
+          <span>Entrou e saiu, mês a mês</span>
+          <span className={estilo.fraco}>o gráfico está no alto da tela</span>
+        </p>
         {temFluxo ? (
-          <GraficoFluxo fluxo={fluxo} />
+          <GraficoFluxo fluxo={fluxo} modo="tabela" />
         ) : (
           <p className={estilo.vazio}>
             Ainda não há caixa realizado para desenhar. O gráfico aparece assim que a primeira
@@ -169,135 +180,6 @@ export default function Relatorios({
         previsto está nos números do topo e nas abas A receber e A pagar. Somar os dois num número
         só produziria um faturamento que não bate nem com o banco nem com a previsão.
       </p>
-    </>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// O gráfico de barras dos meses
-// ---------------------------------------------------------------------------
-
-function GraficoFluxo({ fluxo }: { fluxo: MesDoFluxo[] }) {
-  const L = 760
-  const A = 250
-  const EIXO = 62 // gutter da esquerda, onde ficam os valores da escala
-  const PE = 26 // faixa dos meses, embaixo
-  const TOPO = 10
-  const alturaUtil = A - PE - TOPO
-  const pista = L - EIXO
-
-  /**
-   * A escala sobe até um número REDONDO acima do maior valor.
-   *
-   * Encostar o topo no maior valor faz a barra mais alta tocar a borda, e uma
-   * barra que toca a borda parece cortada — parece que o gráfico não coube.
-   * Arredondar para cima também dá rótulos que se leem ("R$ 30.000,00" em vez
-   * de "R$ 23.335,00"), e rótulo redondo é o que permite estimar as barras do
-   * meio sem medir nenhuma.
-   */
-  const maior = Math.max(...fluxo.flatMap((m) => [m.entrouCentavos, m.saiuCentavos]), 1)
-  const teto = arredondarParaCima(maior)
-
-  const largura = pista / fluxo.length
-  const barra = Math.min(30, (largura - 20) / 2)
-  const linhas = [0, 0.5, 1]
-
-  return (
-    <>
-      <div className={estilo.grafico}>
-        <svg
-          viewBox={`0 0 ${L} ${A}`}
-          className={estilo.grafSvg}
-          role="img"
-          aria-label="Barras do que entrou e do que saiu em cada um dos últimos meses"
-        >
-          <title>Entrou e saiu, mês a mês</title>
-
-          {/* Três linhas só. Mais que isso vira gaiola e compete com as barras,
-              que são o dado. A de baixo é a linha de base: sem ela, um mês sem
-              movimento nenhum fica idêntico a um mês que não existe. */}
-          {linhas.map((f) => {
-            const y = TOPO + alturaUtil * (1 - f)
-            return (
-              <g key={f}>
-                <line x1={EIXO} x2={L} y1={y} y2={y} className={estilo.grafGrade} />
-                <text x={EIXO - 8} y={y + 4} textAnchor="end" className={estilo.grafEscala}>
-                  {formatarBRLCurto(teto * f)}
-                </text>
-              </g>
-            )
-          })}
-
-          {fluxo.map((m, i) => {
-            const meio = EIXO + i * largura + largura / 2
-            const hE = Math.round((m.entrouCentavos / teto) * alturaUtil)
-            const hS = Math.round((m.saiuCentavos / teto) * alturaUtil)
-            return (
-              <g key={m.mes}>
-                <rect
-                  x={meio - barra - 2}
-                  y={TOPO + alturaUtil - hE}
-                  width={barra}
-                  height={Math.max(hE, m.entrouCentavos > 0 ? 2 : 0)}
-                  rx={3}
-                  className={estilo.grafEntra}
-                />
-                <rect
-                  x={meio + 2}
-                  y={TOPO + alturaUtil - hS}
-                  width={barra}
-                  height={Math.max(hS, m.saiuCentavos > 0 ? 2 : 0)}
-                  rx={3}
-                  className={estilo.grafSai}
-                />
-                <text x={meio} y={A - 8} textAnchor="middle" className={estilo.grafRotulo}>
-                  {rotuloMes(m.mes)}
-                </text>
-              </g>
-            )
-          })}
-        </svg>
-      </div>
-
-      <p className={estilo.grafLegenda}>
-        <span>
-          <i className={`${estilo.grafPonto} ${estilo.grafPontoEntra}`} aria-hidden="true" /> entrou
-        </span>
-        <span>
-          <i className={`${estilo.grafPonto} ${estilo.grafPontoSai}`} aria-hidden="true" /> saiu
-        </span>
-      </p>
-
-      {/* A tabela não é redundância: é a única forma de ler o número exato, e a
-          única que um leitor de tela consegue percorrer. */}
-      <div className={estilo.rolaX}>
-        <table className={estilo.tabela}>
-          <caption className={estilo.grav}>Os mesmos números do gráfico</caption>
-          <thead>
-            <tr>
-              <th scope="col">Mês</th>
-              <th scope="col">Entrou</th>
-              <th scope="col">Saiu</th>
-              <th scope="col">Sobrou</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fluxo.map((m) => {
-              const sobrou = m.entrouCentavos - m.saiuCentavos
-              return (
-                <tr key={m.mes}>
-                  <th scope="row">{rotuloMes(m.mes)}</th>
-                  <td className={estilo.num}>{formatarBRL(m.entrouCentavos)}</td>
-                  <td className={estilo.num}>{formatarBRL(m.saiuCentavos)}</td>
-                  <td className={sobrou < 0 ? `${estilo.num} ${estilo.indAlerta}` : estilo.num}>
-                    {formatarBRL(sobrou)}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
     </>
   )
 }
@@ -410,19 +292,7 @@ function IdadeDaDivida({ faixas }: { faixas: FaixaDeIdade[] }) {
  * "R$ 23.335,00" obriga a fazer conta para estimar a barra do meio; um topo de
  * "R$ 30 mil" faz a metade ser quinze mil sem esforço nenhum.
  */
-function arredondarParaCima(centavos: number): number {
-  const ordem = 10 ** Math.floor(Math.log10(centavos))
-  for (const passo of [1, 2, 2.5, 5, 10]) {
-    if (centavos <= ordem * passo) return ordem * passo
-  }
-  return ordem * 10
-}
 
-function rotuloMes(mes: string): string {
-  const [ano, m] = mes.split('-')
-  const nomes = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
-  return `${nomes[Number(m) - 1]}/${ano!.slice(2)}`
-}
 
 function rotuloForma(f: string): string {
   const m: Record<string, string> = {
