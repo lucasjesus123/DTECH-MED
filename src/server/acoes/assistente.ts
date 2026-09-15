@@ -171,11 +171,15 @@ export type PainelDaOrdem = {
   /** O que saiu da prateleira nesta ordem, já lançado. */
   pecasLancadas: Array<{
     id: string
+    /** O id da PEÇA (não o do movimento) — é ele que busca a foto do catálogo. */
+    pecaId: string
     nome: string
     sku: string
     quantidade: number
     quem: string | null
     quando: string
+    /** Só pede a imagem quando ela existe: `<img>` quebrado é pior que nenhuma. */
+    temFoto: boolean
   }>
   /** Quando alguém afirmou que este serviço não usou peça, e quem. */
   semPecaDeclaradoEm: string | null
@@ -432,7 +436,11 @@ export async function painelDaOrdem(
               quantidade: true,
               autorNome: true,
               criadoEm: true,
-              peca: { select: { nome: true, sku: true } },
+              // A FOTO DA PEÇA entra aqui porque é na O.S. que ela é
+              // conferida: quem lê "Fonte chaveada 24V" na lista não sabe se é
+              // a peça que está na mão. A imagem do catálogo responde isso de
+              // relance, que é exatamente para o que ela existe.
+              peca: { select: { id: true, nome: true, sku: true, fotoCaminho: true } },
             },
           },
         },
@@ -717,11 +725,13 @@ export async function painelDaOrdem(
       podeCombinar: CENTRAL.includes(sessao.papel),
       pecasLancadas: extra.movimentos.map((m) => ({
         id: m.id,
+        pecaId: m.peca.id,
         nome: m.peca.nome,
         sku: m.peca.sku,
         quantidade: Number(m.quantidade),
         quem: m.autorNome,
         quando: m.criadoEm.toISOString(),
+        temFoto: Boolean(m.peca.fotoCaminho),
       })),
       semPecaDeclaradoEm: extra.semPecaDeclaradoEm?.toISOString() ?? null,
       semPecaDeclaradoPorNome: extra.semPecaDeclaradoPorNome,

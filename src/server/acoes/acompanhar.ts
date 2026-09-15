@@ -40,7 +40,21 @@ export type Dossie = {
   atrasada: boolean
   emGarantia: boolean
   cliente: { nome: string; whatsapp: string | null; cidade: string | null; uf: string | null; endereco: string | null }
-  equipamento: { id: string; marca: string; modelo: string; numeroSerie: string | null }
+  equipamento: {
+    id: string
+    marca: string
+    modelo: string
+    numeroSerie: string | null
+    /**
+     * Tem foto de catálogo? Só isto, e não o caminho.
+     *
+     * A imagem é servida por `/api/catalogo/equipamento/<id>`, que já confere
+     * a empresa. Mandar o caminho do disco para o navegador seria expor a
+     * organização do acervo sem necessidade — e um `<img>` apontando para foto
+     * que não existe é pior que nenhuma foto: vira o ícone quebrado.
+     */
+    temFoto: boolean
+  }
   tecnico: string | null
   trilha: Trilha
   orcamento: {
@@ -103,7 +117,9 @@ export async function dossieDaOrdem(
         cliente: {
           select: { nome: true, whatsapp: true, cidade: true, uf: true, logradouro: true },
         },
-        equipamento: { select: { id: true, marca: true, modelo: true, numeroSerie: true } },
+        equipamento: {
+          select: { id: true, marca: true, modelo: true, numeroSerie: true, fotoCaminho: true },
+        },
         tecnico: { select: { nome: true } },
         eventos: {
           orderBy: { sequencia: 'asc' },
@@ -210,7 +226,13 @@ export async function dossieDaOrdem(
         uf: o.cliente.uf,
         endereco: o.cliente.logradouro,
       },
-      equipamento: o.equipamento,
+      equipamento: {
+        id: o.equipamento.id,
+        marca: o.equipamento.marca,
+        modelo: o.equipamento.modelo,
+        numeroSerie: o.equipamento.numeroSerie,
+        temFoto: Boolean(o.equipamento.fotoCaminho),
+      },
       tecnico: o.tecnico?.nome ?? null,
       trilha: montarTrilha(
         o.etapa,

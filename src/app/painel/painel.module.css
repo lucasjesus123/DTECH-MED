@@ -8798,3 +8798,46 @@ a.osListaItem:hover { background: var(--sup-1); }
 }
 .catalogoTopo .catalogoNome { min-width: 0; }
 .catalogoTopo > .comDica { flex: none; }
+
+/* ==========================================================================
+   AS FOTOS DE CATÁLOGO DENTRO DA O.S.
+   --------------------------------------------------------------------------
+   Duas imagens que já existiam no cadastro e nunca chegavam na ordem: a do
+   APARELHO, que responde "é este?" para quem está com o cliente no telefone, e
+   a da PEÇA, que responde "é esta que está na minha mão?" para quem está com o
+   equipamento aberto na bancada.
+
+   São fotos de IDENTIFICAÇÃO, e não de prova — por isso são pequenas e ficam
+   ao lado do texto, sem disputar com as fotos de recebimento, que são as que
+   provam o estado do aparelho e têm galeria própria mais abaixo.
+   ========================================================================== */
+.equipFoto {
+  display: block;
+  width: 100%;
+  max-width: 190px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r);
+  border: 1px solid var(--borda);
+  background: var(--sup-2);
+  margin-bottom: var(--s3);
+}
+
+/* A linha da peça vira foto + texto. O quadrado vazio existe para as peças sem
+   foto: sem ele a lista perde o alinhamento e cada linha começa num lugar. */
+.osPecas li {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.pecaFoto, .pecaSemFoto {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r);
+  border: 1px solid var(--borda);
+  background: var(--sup-2);
+  object-fit: cover;
+}
+.pecaSemFoto { border-style: dashed; }
+.pecaTexto { display: grid; gap: 2px; min-width: 0; }

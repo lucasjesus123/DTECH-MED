@@ -1151,11 +1151,35 @@ function OQueSaiuDoEstoque({
         <ul className={estilo.osPecas}>
           {painel.pecasLancadas.map((x) => (
             <li key={x.id}>
-              <strong>
-                {x.quantidade}× {x.nome}
-              </strong>
-              <span className={estilo.fraco}>
-                {x.sku} · {x.quem ?? 'sem autor'} · {quando(x.quando)}
+              {/* A FOTO DA PEÇA, do catálogo do estoque.
+                  "Fonte chaveada 24V" não diz se é a peça que está na mão do
+                  técnico — e a hora de descobrir que saiu a errada não pode ser
+                  com o aparelho montado. A imagem já existia no cadastro do
+                  estoque e nunca tinha chegado até aqui.
+
+                  Só aparece quando existe: `<img>` apontando para foto que não
+                  está lá vira ícone quebrado, que é pior que espaço vazio. */}
+              {/* A rota do catálogo já devolve a imagem no tamanho certo e
+                  confere a empresa; otimizar de novo pelo next/image só
+                  acrescentaria um salto de servidor. */}
+              {x.temFoto ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  className={estilo.pecaFoto}
+                  src={`/api/catalogo/peca/${x.pecaId}`}
+                  alt={`Foto de ${x.nome}`}
+                  loading="lazy"
+                />
+              ) : (
+                <span className={estilo.pecaSemFoto} aria-hidden />
+              )}
+              <span className={estilo.pecaTexto}>
+                <strong>
+                  {x.quantidade}× {x.nome}
+                </strong>
+                <span className={estilo.fraco}>
+                  {x.sku} · {x.quem ?? 'sem autor'} · {quando(x.quando)}
+                </span>
               </span>
             </li>
           ))}
@@ -2002,6 +2026,22 @@ function AAbaDaOrdem({
     <>
       <div className={estilo.osCartoes}>
         <CartaoOS titulo="O aparelho">
+          {/* A FOTO DO APARELHO.
+              Marca e modelo não bastam para reconhecer: o mesmo modelo muda de
+              cara entre gerações, e quem abre a O.S. com o cliente no telefone
+              está tentando responder "é este?". A foto já existia no cadastro
+              do equipamento e não chegava na ordem. */}
+          {/* A rota do catálogo já entrega no tamanho certo e confere a
+              empresa. */}
+          {d.equipamento.temFoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              className={estilo.equipFoto}
+              src={`/api/catalogo/equipamento/${d.equipamento.id}`}
+              alt={`Foto de ${d.equipamento.marca} ${d.equipamento.modelo}`}
+              loading="lazy"
+            />
+          ) : null}
           <p className={estilo.osCartaoForte}>
             {d.equipamento.marca} {d.equipamento.modelo}
           </p>
