@@ -314,13 +314,51 @@ export default function JanelaOS({
                   AGORA, a ORDEM inteira, o CLIENTE por trás dela, e o que já
                   ACONTECEU. A primeira é a que abre — trabalhar continua sendo o
                   motivo de a janela existir. */}
+              {/* =========================================================
+                  O CONTRATO DE `role="tab"` É COMPLETO, OU NÃO SE DECLARA
+                  =========================================================
+                  Estes botões diziam `role="tab"` dentro de `role="tablist"`
+                  e paravam aí: sem `aria-controls`, sem `role="tabpanel"` no
+                  conteúdo, sem setas e com os quatro no caminho do Tab.
+
+                  Declarar o papel e não cumprir o contrato é PIOR que usar
+                  botão comum: o leitor de tela anuncia "aba, selecionada, 1 de
+                  4" e promete à pessoa um modelo de teclado — setas para
+                  trocar, Tab para entrar no painel — que a tela não tem. Ela
+                  aperta a seta, nada acontece, e conclui que o sistema está
+                  quebrado.
+
+                  As outras telas da casa não caem nisso porque não prometem:
+                  estoque, financeiro, comercial e calendário usam `<Link>` com
+                  `aria-current="page"`, que é navegação de verdade. Esta
+                  janela é o único lugar que troca conteúdo no lugar — e agora
+                  cumpre o que anuncia: id em cada aba, `aria-controls`
+                  apontando o painel, roving tabindex (só a selecionada no Tab)
+                  e as setas andando entre elas.
+
+                  É o mesmo desenho do seletor de tema do aplicativo de campo,
+                  que já fazia isso certo para um `radiogroup`. */}
               <div className={estilo.osAbas} role="tablist" aria-label="Seções da O.S.">
                 {ABAS.map((a) => (
                   <button
                     key={a.chave}
+                    id={`osaba-${a.chave}`}
                     type="button"
                     role="tab"
                     aria-selected={aba === a.chave}
+                    aria-controls={`ospainel-${a.chave}`}
+                    tabIndex={aba === a.chave ? 0 : -1}
+                    onKeyDown={(e) => {
+                      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+                      e.preventDefault()
+                      const i = ABAS.findIndex((x) => x.chave === aba)
+                      const passo = e.key === 'ArrowRight' ? 1 : -1
+                      const proxima = ABAS[(i + passo + ABAS.length) % ABAS.length]!
+                      setAba(proxima.chave)
+                      // O foco acompanha a seleção: num tablist, a seta MOVE o
+                      // foco. Sem isto, a próxima seta partiria da aba antiga.
+                      document.getElementById(`osaba-${proxima.chave}`)?.focus()
+                    }}
                     className={aba === a.chave ? `${estilo.osAba} ${estilo.osAbaAtiva}` : estilo.osAba}
                     onClick={() => setAba(a.chave)}
                   >
@@ -340,6 +378,12 @@ export default function JanelaOS({
                 ))}
               </div>
 
+              <div
+                role="tabpanel"
+                id="ospainel-agora"
+                aria-labelledby="osaba-agora"
+                hidden={aba !== 'agora'}
+              >
               {aba === 'agora' ? (
                 <>
                   {/* -------------------------------------------------------
@@ -436,10 +480,21 @@ export default function JanelaOS({
                   <AParadaDaRota painel={p} aoMudar={recarregar} />
                 </>
               ) : null}
+              </div>
 
-              {aba === 'ordem' ? <AAbaDaOrdem painel={p} aoSalvar={recarregar} /> : null}
-              {aba === 'cliente' ? <AAbaDoCliente painel={p} /> : null}
-              {aba === 'historia' ? <AAbaDaHistoria painel={p} /> : null}
+              {/* Os três painéis só MONTAM quando abertos — o `hidden` é para
+                  o leitor de tela e para o contrato do `aria-controls`, que
+                  exige o elemento existir. Montar os quatro de uma vez faria a
+                  janela buscar e desenhar três seções que ninguém pediu. */}
+              <div role="tabpanel" id="ospainel-ordem" aria-labelledby="osaba-ordem" hidden={aba !== 'ordem'}>
+                {aba === 'ordem' ? <AAbaDaOrdem painel={p} aoSalvar={recarregar} /> : null}
+              </div>
+              <div role="tabpanel" id="ospainel-cliente" aria-labelledby="osaba-cliente" hidden={aba !== 'cliente'}>
+                {aba === 'cliente' ? <AAbaDoCliente painel={p} /> : null}
+              </div>
+              <div role="tabpanel" id="ospainel-historia" aria-labelledby="osaba-historia" hidden={aba !== 'historia'}>
+                {aba === 'historia' ? <AAbaDaHistoria painel={p} /> : null}
+              </div>
 
               <div className={estilo.osJanRodape}>
                 <a
@@ -508,9 +563,25 @@ function Fases({
       {painel.roteiro.fases.map((f) => (
         <button
           key={f.n}
+          id={`osfase-${f.n}`}
           type="button"
           role="tab"
           aria-selected={aberta === f.n}
+          /* O painel destas abas é a régua com os passos da fase, logo abaixo.
+             Ver a nota do contrato de `role="tab"` no corpo da janela: o papel
+             prometia um modelo de teclado que não existia. */
+          aria-controls="osfase-painel"
+          tabIndex={aberta === f.n ? 0 : -1}
+          onKeyDown={(e) => {
+            if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+            e.preventDefault()
+            const fases = painel.roteiro.fases
+            const i = fases.findIndex((x) => x.n === aberta)
+            const passo = e.key === 'ArrowRight' ? 1 : -1
+            const proxima = fases[(i + passo + fases.length) % fases.length]!
+            aoAbrir(proxima.n)
+            document.getElementById(`osfase-${proxima.n}`)?.focus()
+          }}
           className={[
             estilo.osFase,
             f.estado === 'concluida'
@@ -593,7 +664,12 @@ function Regua({
   const visitando = fase !== r.faseAtual
 
   return (
-    <div className={estilo.osReguaCaixa}>
+    <div
+      className={estilo.osReguaCaixa}
+      role="tabpanel"
+      id="osfase-painel"
+      aria-labelledby={`osfase-${fase}`}
+    >
       <div className={estilo.osReguaTopo}>
         <span className={estilo.osReguaAgora}>
           {visitando
