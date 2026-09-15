@@ -46,11 +46,52 @@ export type DadosMensagem = {
   viaCorreio?: boolean | null
   /** O código de rastreio do envio, quando ele foi informado. */
   rastreio?: string | null
+  /**
+   * A REVISÃO PREVENTIVA, quando a mensagem é sobre ela.
+   *
+   * `numeroOrdem` continua obrigatório no tipo e recebe o número do CONTRATO
+   * nessas mensagens — é o identificador que o cliente tem à mão, e é o que a
+   * saudação e o rodapé precisam. As duas linhas abaixo são o que só a
+   * preventiva tem: de quanto em quanto tempo, e quem vai.
+   */
+  periodicidade?: string | null
+  responsavel?: string | null
 }
 
-/** Monta o corpo juntando só as linhas que têm conteúdo. */
+/**
+ * Monta o corpo juntando as linhas que têm conteúdo — e AS PAUSAS.
+ *
+ * =============================================================================
+ * O DEFEITO QUE ISTO CORRIGE ESTAVA EM TODA MENSAGEM QUE A CASA JÁ MANDOU
+ * =============================================================================
+ * Era `linhas.filter(Boolean)`. Todo template desta casa escreve `''` entre os
+ * blocos, de propósito, para separar a saudação do assunto e o assunto do
+ * link — e `''` é falso em JavaScript. As pausas eram apagadas todas, sempre,
+ * desde a primeira mensagem.
+ *
+ * O cliente recebia isto:
+ *
+ *     Oi, Mariana!
+ *     Ficou pronto o orçamento de Autoclave 📋
+ *     Total: *R$ 1.200,00*
+ *     Prazo: 5 dias úteis
+ *     ...
+ *
+ * Nove linhas coladas, sem respiro, num aplicativo que se lê com o polegar. O
+ * `.replace(/\n{3,}/g, '\n\n')` logo abaixo nunca teve o que fazer: não havia
+ * como existirem três quebras seguidas se nem duas existiam.
+ *
+ * Agora só `null`, `undefined` e `false` somem — que é o que os templates usam
+ * para dizer "esta linha não se aplica" (`d.motorista && \`Vai ${d.motorista}\``
+ * dá `null` quando não há motorista). O `''` fica, porque ele nunca quis dizer
+ * "vazio": queria dizer "pula uma linha aqui".
+ */
 function montar(linhas: Array<string | null | false | undefined>): string {
-  return linhas.filter(Boolean).join('\n').replace(/\n{3,}/g, '\n\n').trim()
+  return linhas
+    .filter((l) => l !== null && l !== undefined && l !== false)
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 function saudacao(d: DadosMensagem): string {
@@ -383,6 +424,43 @@ export const TEMPLATES: Record<string, Construtor> = {
    * está lá dentro faria a mensagem competir com o documento que ela veio
    * entregar.
    */
+  /**
+   * A REVISÃO MARCADA — a única mensagem da casa que não fala de conserto.
+   *
+   * =========================================================================
+   * POR QUE ELA É DIFERENTE DE TODAS AS OUTRAS
+   * =========================================================================
+   * As outras avisam sobre um aparelho que QUEBROU: o cliente já sabe que tem
+   * um problema e está esperando notícia. Esta chega sem que nada tenha
+   * acontecido, e por isso precisa dizer, na primeira linha, POR QUE ela
+   * existe — senão lê-se como cobrança ou como propaganda.
+   *
+   * Por isso a frase abre pelo contrato e pelo aparelho, não pela data. "Sua
+   * revisão de autoclave está marcada" se entende sozinha; "dia 16 às 14h" não.
+   *
+   * =========================================================================
+   * NÃO HÁ LINK DE ACOMPANHAMENTO AQUI, E É DE PROPÓSITO
+   * =========================================================================
+   * Ainda não existe ordem: o portal do cliente não teria o que mostrar, e
+   * mandar alguém para uma tela vazia é pior que não mandar. Quando a visita
+   * virar O.S., o link sai com a mensagem da retirada, como sempre.
+   */
+  'preventiva.agendada': (d) =>
+    montar([
+      saudacao(d),
+      '',
+      `A revisão preventiva de ${equipamento(d)} está marcada 🗓️`,
+      '',
+      d.quando && `📅 ${d.quando}`,
+      d.responsavel && `👤 Vai ${d.responsavel}`,
+      d.periodicidade && `🔁 Contrato nº ${d.numeroOrdem} · ${d.periodicidade}`,
+      '',
+      'É a revisão de rotina do contrato — nada quebrou. Ela serve justamente para o aparelho não parar no meio de um atendimento.',
+      '',
+      'Se o dia não der, é só responder aqui que remarcamos.',
+      `— ${d.empresa}`,
+    ]),
+
   'documento.modelo': (d) =>
     montar([
       saudacao(d),

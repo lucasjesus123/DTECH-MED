@@ -151,12 +151,36 @@ export async function visitasAVencer(ctx: ContextoAcesso, dias = 30) {
   const ate = new Date(Date.now() + dias * 86_400_000)
   return comEscopo(ctx, (tx) =>
     tx.visitaPreventiva.findMany({
-      where: { status: StatusVisita.PREVISTA, previstaPara: { lte: ate } },
+      /**
+       * AS DUAS PRECISAM APARECER: a que ninguém marcou ainda e a que já está
+       * marcada para esta janela.
+       *
+       * Filtrar só por `PREVISTA` fazia a visita sumir da tela no instante em
+       * que alguém a marcava — e sumir é o oposto do que marcar significa. Quem
+       * abre esta lista de manhã quer ver o que a equipe tem pela frente,
+       * marcado e por marcar.
+       *
+       * A marcada é filtrada pela data COMBINADA, a por marcar pela prevista.
+       * Cada uma pelo dia que de fato vale para ela.
+       */
+      where: {
+        OR: [
+          { status: StatusVisita.PREVISTA, previstaPara: { lte: ate } },
+          { status: StatusVisita.AGENDADA, agendadaPara: { lte: ate } },
+        ],
+      },
       orderBy: { previstaPara: 'asc' },
       take: 50,
       select: {
         id: true,
         previstaPara: true,
+        agendadaPara: true,
+        hora: true,
+        status: true,
+        observacao: true,
+        avisadoEm: true,
+        avisoErro: true,
+        responsavel: { select: { id: true, nome: true } },
         contrato: {
           select: {
             id: true,
@@ -165,6 +189,47 @@ export async function visitasAVencer(ctx: ContextoAcesso, dias = 30) {
             periodicidade: true,
             cliente: { select: { id: true, nome: true, whatsapp: true } },
             equipamento: { select: { id: true, marca: true, modelo: true, numeroSerie: true } },
+          },
+        },
+      },
+    }),
+  )
+}
+
+/**
+ * AS VISITAS DE UM MÊS INTEIRO — o que o calendarinho da tela desenha.
+ *
+ * Por que uma consulta própria em vez de reaproveitar `visitasAVencer`: aquela
+ * responde "o que vem pela frente" e é limitada a 50 linhas a partir de HOJE.
+ * O calendarinho anda para trás e para a frente, e o mês de março precisa
+ * mostrar março inteiro — inclusive o que já passou, que é o que responde "a
+ * de março aconteceu mesmo?".
+ */
+export async function visitasDoMes(ctx: ContextoAcesso, inicio: Date, fim: Date) {
+  return comEscopo(ctx, (tx) =>
+    tx.visitaPreventiva.findMany({
+      where: {
+        status: { notIn: [StatusVisita.CANCELADA] },
+        OR: [
+          { agendadaPara: { gte: inicio, lt: fim } },
+          { agendadaPara: null, previstaPara: { gte: inicio, lt: fim } },
+        ],
+      },
+      orderBy: [{ agendadaPara: 'asc' }, { previstaPara: 'asc' }],
+      take: 300,
+      select: {
+        id: true,
+        previstaPara: true,
+        agendadaPara: true,
+        hora: true,
+        status: true,
+        ordemId: true,
+        responsavel: { select: { nome: true } },
+        contrato: {
+          select: {
+            numero: true,
+            cliente: { select: { nome: true } },
+            equipamento: { select: { marca: true, modelo: true } },
           },
         },
       },

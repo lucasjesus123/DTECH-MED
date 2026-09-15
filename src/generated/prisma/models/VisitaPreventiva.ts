@@ -30,6 +30,11 @@ export type VisitaPreventivaMinAggregateOutputType = {
   contratoId: string | null
   previstaPara: Date | null
   status: $Enums.StatusVisita | null
+  agendadaPara: Date | null
+  hora: string | null
+  responsavelId: string | null
+  avisadoEm: Date | null
+  avisoErro: string | null
   ordemId: string | null
   observacao: string | null
   criadoEm: Date | null
@@ -41,6 +46,11 @@ export type VisitaPreventivaMaxAggregateOutputType = {
   contratoId: string | null
   previstaPara: Date | null
   status: $Enums.StatusVisita | null
+  agendadaPara: Date | null
+  hora: string | null
+  responsavelId: string | null
+  avisadoEm: Date | null
+  avisoErro: string | null
   ordemId: string | null
   observacao: string | null
   criadoEm: Date | null
@@ -52,6 +62,11 @@ export type VisitaPreventivaCountAggregateOutputType = {
   contratoId: number
   previstaPara: number
   status: number
+  agendadaPara: number
+  hora: number
+  responsavelId: number
+  avisadoEm: number
+  avisoErro: number
   ordemId: number
   observacao: number
   criadoEm: number
@@ -65,6 +80,11 @@ export type VisitaPreventivaMinAggregateInputType = {
   contratoId?: true
   previstaPara?: true
   status?: true
+  agendadaPara?: true
+  hora?: true
+  responsavelId?: true
+  avisadoEm?: true
+  avisoErro?: true
   ordemId?: true
   observacao?: true
   criadoEm?: true
@@ -76,6 +96,11 @@ export type VisitaPreventivaMaxAggregateInputType = {
   contratoId?: true
   previstaPara?: true
   status?: true
+  agendadaPara?: true
+  hora?: true
+  responsavelId?: true
+  avisadoEm?: true
+  avisoErro?: true
   ordemId?: true
   observacao?: true
   criadoEm?: true
@@ -87,6 +112,11 @@ export type VisitaPreventivaCountAggregateInputType = {
   contratoId?: true
   previstaPara?: true
   status?: true
+  agendadaPara?: true
+  hora?: true
+  responsavelId?: true
+  avisadoEm?: true
+  avisoErro?: true
   ordemId?: true
   observacao?: true
   criadoEm?: true
@@ -171,6 +201,11 @@ export type VisitaPreventivaGroupByOutputType = {
   contratoId: string
   previstaPara: Date
   status: $Enums.StatusVisita
+  agendadaPara: Date | null
+  hora: string | null
+  responsavelId: string | null
+  avisadoEm: Date | null
+  avisoErro: string | null
   ordemId: string | null
   observacao: string | null
   criadoEm: Date
@@ -203,11 +238,17 @@ export type VisitaPreventivaWhereInput = {
   contratoId?: Prisma.StringFilter<"VisitaPreventiva"> | string
   previstaPara?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
   status?: Prisma.EnumStatusVisitaFilter<"VisitaPreventiva"> | $Enums.StatusVisita
+  agendadaPara?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  hora?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  responsavelId?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  avisadoEm?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  avisoErro?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   ordemId?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   observacao?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   contrato?: Prisma.XOR<Prisma.ContratoManutencaoScalarRelationFilter, Prisma.ContratoManutencaoWhereInput>
+  responsavel?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ordem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
 }
 
@@ -217,11 +258,17 @@ export type VisitaPreventivaOrderByWithRelationInput = {
   contratoId?: Prisma.SortOrder
   previstaPara?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  agendadaPara?: Prisma.SortOrderInput | Prisma.SortOrder
+  hora?: Prisma.SortOrderInput | Prisma.SortOrder
+  responsavelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  avisadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  avisoErro?: Prisma.SortOrderInput | Prisma.SortOrder
   ordemId?: Prisma.SortOrderInput | Prisma.SortOrder
   observacao?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   contrato?: Prisma.ContratoManutencaoOrderByWithRelationInput
+  responsavel?: Prisma.UserOrderByWithRelationInput
   ordem?: Prisma.OrdemOrderByWithRelationInput
 }
 
@@ -235,10 +282,16 @@ export type VisitaPreventivaWhereUniqueInput = Prisma.AtLeast<{
   contratoId?: Prisma.StringFilter<"VisitaPreventiva"> | string
   previstaPara?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
   status?: Prisma.EnumStatusVisitaFilter<"VisitaPreventiva"> | $Enums.StatusVisita
+  agendadaPara?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  hora?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  responsavelId?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  avisadoEm?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  avisoErro?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   observacao?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   contrato?: Prisma.XOR<Prisma.ContratoManutencaoScalarRelationFilter, Prisma.ContratoManutencaoWhereInput>
+  responsavel?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   ordem?: Prisma.XOR<Prisma.OrdemNullableScalarRelationFilter, Prisma.OrdemWhereInput> | null
 }, "id" | "ordemId">
 
@@ -248,6 +301,11 @@ export type VisitaPreventivaOrderByWithAggregationInput = {
   contratoId?: Prisma.SortOrder
   previstaPara?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  agendadaPara?: Prisma.SortOrderInput | Prisma.SortOrder
+  hora?: Prisma.SortOrderInput | Prisma.SortOrder
+  responsavelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  avisadoEm?: Prisma.SortOrderInput | Prisma.SortOrder
+  avisoErro?: Prisma.SortOrderInput | Prisma.SortOrder
   ordemId?: Prisma.SortOrderInput | Prisma.SortOrder
   observacao?: Prisma.SortOrderInput | Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -265,6 +323,11 @@ export type VisitaPreventivaScalarWhereWithAggregatesInput = {
   contratoId?: Prisma.StringWithAggregatesFilter<"VisitaPreventiva"> | string
   previstaPara?: Prisma.DateTimeWithAggregatesFilter<"VisitaPreventiva"> | Date | string
   status?: Prisma.EnumStatusVisitaWithAggregatesFilter<"VisitaPreventiva"> | $Enums.StatusVisita
+  agendadaPara?: Prisma.DateTimeNullableWithAggregatesFilter<"VisitaPreventiva"> | Date | string | null
+  hora?: Prisma.StringNullableWithAggregatesFilter<"VisitaPreventiva"> | string | null
+  responsavelId?: Prisma.StringNullableWithAggregatesFilter<"VisitaPreventiva"> | string | null
+  avisadoEm?: Prisma.DateTimeNullableWithAggregatesFilter<"VisitaPreventiva"> | Date | string | null
+  avisoErro?: Prisma.StringNullableWithAggregatesFilter<"VisitaPreventiva"> | string | null
   ordemId?: Prisma.StringNullableWithAggregatesFilter<"VisitaPreventiva"> | string | null
   observacao?: Prisma.StringNullableWithAggregatesFilter<"VisitaPreventiva"> | string | null
   criadoEm?: Prisma.DateTimeWithAggregatesFilter<"VisitaPreventiva"> | Date | string
@@ -274,10 +337,15 @@ export type VisitaPreventivaCreateInput = {
   id?: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   observacao?: string | null
   criadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutVisitasPreventivasInput
   contrato: Prisma.ContratoManutencaoCreateNestedOneWithoutVisitasInput
+  responsavel?: Prisma.UserCreateNestedOneWithoutVisitasPreventivasInput
   ordem?: Prisma.OrdemCreateNestedOneWithoutVisitaPreventivaInput
 }
 
@@ -287,6 +355,11 @@ export type VisitaPreventivaUncheckedCreateInput = {
   contratoId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -296,10 +369,15 @@ export type VisitaPreventivaUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutVisitasPreventivasNestedInput
   contrato?: Prisma.ContratoManutencaoUpdateOneRequiredWithoutVisitasNestedInput
+  responsavel?: Prisma.UserUpdateOneWithoutVisitasPreventivasNestedInput
   ordem?: Prisma.OrdemUpdateOneWithoutVisitaPreventivaNestedInput
 }
 
@@ -309,6 +387,11 @@ export type VisitaPreventivaUncheckedUpdateInput = {
   contratoId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -320,6 +403,11 @@ export type VisitaPreventivaCreateManyInput = {
   contratoId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -329,6 +417,10 @@ export type VisitaPreventivaUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +431,11 @@ export type VisitaPreventivaUncheckedUpdateManyInput = {
   contratoId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -365,6 +462,11 @@ export type VisitaPreventivaCountOrderByAggregateInput = {
   contratoId?: Prisma.SortOrder
   previstaPara?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  agendadaPara?: Prisma.SortOrder
+  hora?: Prisma.SortOrder
+  responsavelId?: Prisma.SortOrder
+  avisadoEm?: Prisma.SortOrder
+  avisoErro?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
   observacao?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -376,6 +478,11 @@ export type VisitaPreventivaMaxOrderByAggregateInput = {
   contratoId?: Prisma.SortOrder
   previstaPara?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  agendadaPara?: Prisma.SortOrder
+  hora?: Prisma.SortOrder
+  responsavelId?: Prisma.SortOrder
+  avisadoEm?: Prisma.SortOrder
+  avisoErro?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
   observacao?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -387,6 +494,11 @@ export type VisitaPreventivaMinOrderByAggregateInput = {
   contratoId?: Prisma.SortOrder
   previstaPara?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  agendadaPara?: Prisma.SortOrder
+  hora?: Prisma.SortOrder
+  responsavelId?: Prisma.SortOrder
+  avisadoEm?: Prisma.SortOrder
+  avisoErro?: Prisma.SortOrder
   ordemId?: Prisma.SortOrder
   observacao?: Prisma.SortOrder
   criadoEm?: Prisma.SortOrder
@@ -431,6 +543,48 @@ export type VisitaPreventivaUncheckedUpdateManyWithoutTenantNestedInput = {
   connect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
   update?: Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutTenantInput | Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutTenantInput[]
   updateMany?: Prisma.VisitaPreventivaUpdateManyWithWhereWithoutTenantInput | Prisma.VisitaPreventivaUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.VisitaPreventivaScalarWhereInput | Prisma.VisitaPreventivaScalarWhereInput[]
+}
+
+export type VisitaPreventivaCreateNestedManyWithoutResponsavelInput = {
+  create?: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput> | Prisma.VisitaPreventivaCreateWithoutResponsavelInput[] | Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput[]
+  connectOrCreate?: Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput | Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput[]
+  createMany?: Prisma.VisitaPreventivaCreateManyResponsavelInputEnvelope
+  connect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+}
+
+export type VisitaPreventivaUncheckedCreateNestedManyWithoutResponsavelInput = {
+  create?: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput> | Prisma.VisitaPreventivaCreateWithoutResponsavelInput[] | Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput[]
+  connectOrCreate?: Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput | Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput[]
+  createMany?: Prisma.VisitaPreventivaCreateManyResponsavelInputEnvelope
+  connect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+}
+
+export type VisitaPreventivaUpdateManyWithoutResponsavelNestedInput = {
+  create?: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput> | Prisma.VisitaPreventivaCreateWithoutResponsavelInput[] | Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput[]
+  connectOrCreate?: Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput | Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput[]
+  upsert?: Prisma.VisitaPreventivaUpsertWithWhereUniqueWithoutResponsavelInput | Prisma.VisitaPreventivaUpsertWithWhereUniqueWithoutResponsavelInput[]
+  createMany?: Prisma.VisitaPreventivaCreateManyResponsavelInputEnvelope
+  set?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  disconnect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  delete?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  connect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  update?: Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutResponsavelInput | Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutResponsavelInput[]
+  updateMany?: Prisma.VisitaPreventivaUpdateManyWithWhereWithoutResponsavelInput | Prisma.VisitaPreventivaUpdateManyWithWhereWithoutResponsavelInput[]
+  deleteMany?: Prisma.VisitaPreventivaScalarWhereInput | Prisma.VisitaPreventivaScalarWhereInput[]
+}
+
+export type VisitaPreventivaUncheckedUpdateManyWithoutResponsavelNestedInput = {
+  create?: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput> | Prisma.VisitaPreventivaCreateWithoutResponsavelInput[] | Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput[]
+  connectOrCreate?: Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput | Prisma.VisitaPreventivaCreateOrConnectWithoutResponsavelInput[]
+  upsert?: Prisma.VisitaPreventivaUpsertWithWhereUniqueWithoutResponsavelInput | Prisma.VisitaPreventivaUpsertWithWhereUniqueWithoutResponsavelInput[]
+  createMany?: Prisma.VisitaPreventivaCreateManyResponsavelInputEnvelope
+  set?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  disconnect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  delete?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  connect?: Prisma.VisitaPreventivaWhereUniqueInput | Prisma.VisitaPreventivaWhereUniqueInput[]
+  update?: Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutResponsavelInput | Prisma.VisitaPreventivaUpdateWithWhereUniqueWithoutResponsavelInput[]
+  updateMany?: Prisma.VisitaPreventivaUpdateManyWithWhereWithoutResponsavelInput | Prisma.VisitaPreventivaUpdateManyWithWhereWithoutResponsavelInput[]
   deleteMany?: Prisma.VisitaPreventivaScalarWhereInput | Prisma.VisitaPreventivaScalarWhereInput[]
 }
 
@@ -516,9 +670,14 @@ export type VisitaPreventivaCreateWithoutTenantInput = {
   id?: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   observacao?: string | null
   criadoEm?: Date | string
   contrato: Prisma.ContratoManutencaoCreateNestedOneWithoutVisitasInput
+  responsavel?: Prisma.UserCreateNestedOneWithoutVisitasPreventivasInput
   ordem?: Prisma.OrdemCreateNestedOneWithoutVisitaPreventivaInput
 }
 
@@ -527,6 +686,11 @@ export type VisitaPreventivaUncheckedCreateWithoutTenantInput = {
   contratoId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -567,19 +731,85 @@ export type VisitaPreventivaScalarWhereInput = {
   contratoId?: Prisma.StringFilter<"VisitaPreventiva"> | string
   previstaPara?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
   status?: Prisma.EnumStatusVisitaFilter<"VisitaPreventiva"> | $Enums.StatusVisita
+  agendadaPara?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  hora?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  responsavelId?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
+  avisadoEm?: Prisma.DateTimeNullableFilter<"VisitaPreventiva"> | Date | string | null
+  avisoErro?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   ordemId?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   observacao?: Prisma.StringNullableFilter<"VisitaPreventiva"> | string | null
   criadoEm?: Prisma.DateTimeFilter<"VisitaPreventiva"> | Date | string
+}
+
+export type VisitaPreventivaCreateWithoutResponsavelInput = {
+  id?: string
+  previstaPara: Date | string
+  status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
+  observacao?: string | null
+  criadoEm?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutVisitasPreventivasInput
+  contrato: Prisma.ContratoManutencaoCreateNestedOneWithoutVisitasInput
+  ordem?: Prisma.OrdemCreateNestedOneWithoutVisitaPreventivaInput
+}
+
+export type VisitaPreventivaUncheckedCreateWithoutResponsavelInput = {
+  id?: string
+  tenantId: string
+  contratoId: string
+  previstaPara: Date | string
+  status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
+  ordemId?: string | null
+  observacao?: string | null
+  criadoEm?: Date | string
+}
+
+export type VisitaPreventivaCreateOrConnectWithoutResponsavelInput = {
+  where: Prisma.VisitaPreventivaWhereUniqueInput
+  create: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput>
+}
+
+export type VisitaPreventivaCreateManyResponsavelInputEnvelope = {
+  data: Prisma.VisitaPreventivaCreateManyResponsavelInput | Prisma.VisitaPreventivaCreateManyResponsavelInput[]
+  skipDuplicates?: boolean
+}
+
+export type VisitaPreventivaUpsertWithWhereUniqueWithoutResponsavelInput = {
+  where: Prisma.VisitaPreventivaWhereUniqueInput
+  update: Prisma.XOR<Prisma.VisitaPreventivaUpdateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedUpdateWithoutResponsavelInput>
+  create: Prisma.XOR<Prisma.VisitaPreventivaCreateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedCreateWithoutResponsavelInput>
+}
+
+export type VisitaPreventivaUpdateWithWhereUniqueWithoutResponsavelInput = {
+  where: Prisma.VisitaPreventivaWhereUniqueInput
+  data: Prisma.XOR<Prisma.VisitaPreventivaUpdateWithoutResponsavelInput, Prisma.VisitaPreventivaUncheckedUpdateWithoutResponsavelInput>
+}
+
+export type VisitaPreventivaUpdateManyWithWhereWithoutResponsavelInput = {
+  where: Prisma.VisitaPreventivaScalarWhereInput
+  data: Prisma.XOR<Prisma.VisitaPreventivaUpdateManyMutationInput, Prisma.VisitaPreventivaUncheckedUpdateManyWithoutResponsavelInput>
 }
 
 export type VisitaPreventivaCreateWithoutOrdemInput = {
   id?: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   observacao?: string | null
   criadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutVisitasPreventivasInput
   contrato: Prisma.ContratoManutencaoCreateNestedOneWithoutVisitasInput
+  responsavel?: Prisma.UserCreateNestedOneWithoutVisitasPreventivasInput
 }
 
 export type VisitaPreventivaUncheckedCreateWithoutOrdemInput = {
@@ -588,6 +818,11 @@ export type VisitaPreventivaUncheckedCreateWithoutOrdemInput = {
   contratoId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   observacao?: string | null
   criadoEm?: Date | string
 }
@@ -612,10 +847,15 @@ export type VisitaPreventivaUpdateWithoutOrdemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutVisitasPreventivasNestedInput
   contrato?: Prisma.ContratoManutencaoUpdateOneRequiredWithoutVisitasNestedInput
+  responsavel?: Prisma.UserUpdateOneWithoutVisitasPreventivasNestedInput
 }
 
 export type VisitaPreventivaUncheckedUpdateWithoutOrdemInput = {
@@ -624,6 +864,11 @@ export type VisitaPreventivaUncheckedUpdateWithoutOrdemInput = {
   contratoId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -632,9 +877,14 @@ export type VisitaPreventivaCreateWithoutContratoInput = {
   id?: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   observacao?: string | null
   criadoEm?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutVisitasPreventivasInput
+  responsavel?: Prisma.UserCreateNestedOneWithoutVisitasPreventivasInput
   ordem?: Prisma.OrdemCreateNestedOneWithoutVisitaPreventivaInput
 }
 
@@ -643,6 +893,11 @@ export type VisitaPreventivaUncheckedCreateWithoutContratoInput = {
   tenantId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -679,6 +934,11 @@ export type VisitaPreventivaCreateManyTenantInput = {
   contratoId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -688,9 +948,14 @@ export type VisitaPreventivaUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   contrato?: Prisma.ContratoManutencaoUpdateOneRequiredWithoutVisitasNestedInput
+  responsavel?: Prisma.UserUpdateOneWithoutVisitasPreventivasNestedInput
   ordem?: Prisma.OrdemUpdateOneWithoutVisitaPreventivaNestedInput
 }
 
@@ -699,6 +964,11 @@ export type VisitaPreventivaUncheckedUpdateWithoutTenantInput = {
   contratoId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -709,6 +979,71 @@ export type VisitaPreventivaUncheckedUpdateManyWithoutTenantInput = {
   contratoId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type VisitaPreventivaCreateManyResponsavelInput = {
+  id?: string
+  tenantId: string
+  contratoId: string
+  previstaPara: Date | string
+  status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
+  ordemId?: string | null
+  observacao?: string | null
+  criadoEm?: Date | string
+}
+
+export type VisitaPreventivaUpdateWithoutResponsavelInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutVisitasPreventivasNestedInput
+  contrato?: Prisma.ContratoManutencaoUpdateOneRequiredWithoutVisitasNestedInput
+  ordem?: Prisma.OrdemUpdateOneWithoutVisitaPreventivaNestedInput
+}
+
+export type VisitaPreventivaUncheckedUpdateWithoutResponsavelInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  contratoId?: Prisma.StringFieldUpdateOperationsInput | string
+  previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type VisitaPreventivaUncheckedUpdateManyWithoutResponsavelInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  contratoId?: Prisma.StringFieldUpdateOperationsInput | string
+  previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -719,6 +1054,11 @@ export type VisitaPreventivaCreateManyContratoInput = {
   tenantId: string
   previstaPara: Date | string
   status?: $Enums.StatusVisita
+  agendadaPara?: Date | string | null
+  hora?: string | null
+  responsavelId?: string | null
+  avisadoEm?: Date | string | null
+  avisoErro?: string | null
   ordemId?: string | null
   observacao?: string | null
   criadoEm?: Date | string
@@ -728,9 +1068,14 @@ export type VisitaPreventivaUpdateWithoutContratoInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutVisitasPreventivasNestedInput
+  responsavel?: Prisma.UserUpdateOneWithoutVisitasPreventivasNestedInput
   ordem?: Prisma.OrdemUpdateOneWithoutVisitaPreventivaNestedInput
 }
 
@@ -739,6 +1084,11 @@ export type VisitaPreventivaUncheckedUpdateWithoutContratoInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -749,6 +1099,11 @@ export type VisitaPreventivaUncheckedUpdateManyWithoutContratoInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   previstaPara?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumStatusVisitaFieldUpdateOperationsInput | $Enums.StatusVisita
+  agendadaPara?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  hora?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  responsavelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avisadoEm?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  avisoErro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ordemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observacao?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   criadoEm?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,11 +1117,17 @@ export type VisitaPreventivaSelect<ExtArgs extends runtime.Types.Extensions.Inte
   contratoId?: boolean
   previstaPara?: boolean
   status?: boolean
+  agendadaPara?: boolean
+  hora?: boolean
+  responsavelId?: boolean
+  avisadoEm?: boolean
+  avisoErro?: boolean
   ordemId?: boolean
   observacao?: boolean
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }, ExtArgs["result"]["visitaPreventiva"]>
 
@@ -776,11 +1137,17 @@ export type VisitaPreventivaSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   contratoId?: boolean
   previstaPara?: boolean
   status?: boolean
+  agendadaPara?: boolean
+  hora?: boolean
+  responsavelId?: boolean
+  avisadoEm?: boolean
+  avisoErro?: boolean
   ordemId?: boolean
   observacao?: boolean
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }, ExtArgs["result"]["visitaPreventiva"]>
 
@@ -790,11 +1157,17 @@ export type VisitaPreventivaSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   contratoId?: boolean
   previstaPara?: boolean
   status?: boolean
+  agendadaPara?: boolean
+  hora?: boolean
+  responsavelId?: boolean
+  avisadoEm?: boolean
+  avisoErro?: boolean
   ordemId?: boolean
   observacao?: boolean
   criadoEm?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }, ExtArgs["result"]["visitaPreventiva"]>
 
@@ -804,25 +1177,33 @@ export type VisitaPreventivaSelectScalar = {
   contratoId?: boolean
   previstaPara?: boolean
   status?: boolean
+  agendadaPara?: boolean
+  hora?: boolean
+  responsavelId?: boolean
+  avisadoEm?: boolean
+  avisoErro?: boolean
   ordemId?: boolean
   observacao?: boolean
   criadoEm?: boolean
 }
 
-export type VisitaPreventivaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "contratoId" | "previstaPara" | "status" | "ordemId" | "observacao" | "criadoEm", ExtArgs["result"]["visitaPreventiva"]>
+export type VisitaPreventivaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "contratoId" | "previstaPara" | "status" | "agendadaPara" | "hora" | "responsavelId" | "avisadoEm" | "avisoErro" | "ordemId" | "observacao" | "criadoEm", ExtArgs["result"]["visitaPreventiva"]>
 export type VisitaPreventivaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }
 export type VisitaPreventivaIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }
 export type VisitaPreventivaIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   contrato?: boolean | Prisma.ContratoManutencaoDefaultArgs<ExtArgs>
+  responsavel?: boolean | Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>
   ordem?: boolean | Prisma.VisitaPreventiva$ordemArgs<ExtArgs>
 }
 
@@ -831,6 +1212,7 @@ export type $VisitaPreventivaPayload<ExtArgs extends runtime.Types.Extensions.In
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     contrato: Prisma.$ContratoManutencaoPayload<ExtArgs>
+    responsavel: Prisma.$UserPayload<ExtArgs> | null
     ordem: Prisma.$OrdemPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -843,6 +1225,34 @@ export type $VisitaPreventivaPayload<ExtArgs extends runtime.Types.Extensions.In
      */
     previstaPara: Date
     status: $Enums.StatusVisita
+    /**
+     * O DIA COMBINADO com a clínica, quando alguém combinou.
+     * 
+     * Não sobrescreve `previstaPara` de propósito: sobrescrever apagaria o
+     * atraso da própria história do contrato. A tela mostra a combinada e diz
+     * quantos dias ela saiu da prevista.
+     */
+    agendadaPara: Date | null
+    /**
+     * 'HH:MM' ou nulo — "quinta de manhã" é um combinado legítimo e não tem
+     * hora. Texto pelo mesmo motivo do compromisso: só é exibido e ordenado, e
+     * 'HH:MM' ordena igual em texto e em relógio. Conferido por CHECK no banco.
+     */
+    hora: string | null
+    /**
+     * Quem vai. Opcional: marcar o dia com a clínica e decidir o técnico depois
+     * é a ordem normal das coisas numa casa pequena.
+     */
+    responsavelId: string | null
+    /**
+     * Quando o cliente foi avisado, e o que deu errado se não foi.
+     * 
+     * Sem a segunda, "avisar o cliente" seria promessa sem prova: a clínica
+     * diria que não recebeu nada e não haveria como saber se a mensagem saiu,
+     * se o número estava errado, ou se o WhatsApp da casa estava fora do ar.
+     */
+    avisadoEm: Date | null
+    avisoErro: string | null
     /**
      * A ordem que a visita virou. É por ela que a preventiva entra na esteira
      * normal, com assinatura, foto e laudo.
@@ -1246,6 +1656,7 @@ export interface Prisma__VisitaPreventivaClient<T, Null = never, ExtArgs extends
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   contrato<T extends Prisma.ContratoManutencaoDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContratoManutencaoDefaultArgs<ExtArgs>>): Prisma.Prisma__ContratoManutencaoClient<runtime.Types.Result.GetResult<Prisma.$ContratoManutencaoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  responsavel<T extends Prisma.VisitaPreventiva$responsavelArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VisitaPreventiva$responsavelArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ordem<T extends Prisma.VisitaPreventiva$ordemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VisitaPreventiva$ordemArgs<ExtArgs>>): Prisma.Prisma__OrdemClient<runtime.Types.Result.GetResult<Prisma.$OrdemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1281,6 +1692,11 @@ export interface VisitaPreventivaFieldRefs {
   readonly contratoId: Prisma.FieldRef<"VisitaPreventiva", 'String'>
   readonly previstaPara: Prisma.FieldRef<"VisitaPreventiva", 'DateTime'>
   readonly status: Prisma.FieldRef<"VisitaPreventiva", 'StatusVisita'>
+  readonly agendadaPara: Prisma.FieldRef<"VisitaPreventiva", 'DateTime'>
+  readonly hora: Prisma.FieldRef<"VisitaPreventiva", 'String'>
+  readonly responsavelId: Prisma.FieldRef<"VisitaPreventiva", 'String'>
+  readonly avisadoEm: Prisma.FieldRef<"VisitaPreventiva", 'DateTime'>
+  readonly avisoErro: Prisma.FieldRef<"VisitaPreventiva", 'String'>
   readonly ordemId: Prisma.FieldRef<"VisitaPreventiva", 'String'>
   readonly observacao: Prisma.FieldRef<"VisitaPreventiva", 'String'>
   readonly criadoEm: Prisma.FieldRef<"VisitaPreventiva", 'DateTime'>
@@ -1682,6 +2098,25 @@ export type VisitaPreventivaDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many VisitaPreventivas to delete.
    */
   limit?: number
+}
+
+/**
+ * VisitaPreventiva.responsavel
+ */
+export type VisitaPreventiva$responsavelArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

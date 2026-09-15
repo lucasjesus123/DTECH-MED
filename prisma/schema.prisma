@@ -442,6 +442,7 @@ model User {
   movimentos            MovimentoEstoque[]
   pagamentos            Pagamento[]
   compromissos          Compromisso[]      @relation("ResponsavelCompromisso")
+  visitasPreventivas    VisitaPreventiva[] @relation("ResponsavelVisita")
   lancamentosAprovados  Lancamento[]       @relation("AprovadorLancamento")
   auditoria             AuditLog[]
   recuperacoes          RecuperacaoSenha[]
@@ -1218,6 +1219,31 @@ model VisitaPreventiva {
   previstaPara DateTime
   status       StatusVisita @default(PREVISTA)
 
+  /// O DIA COMBINADO com a clínica, quando alguém combinou.
+  ///
+  /// Não sobrescreve `previstaPara` de propósito: sobrescrever apagaria o
+  /// atraso da própria história do contrato. A tela mostra a combinada e diz
+  /// quantos dias ela saiu da prevista.
+  agendadaPara DateTime?
+
+  /// 'HH:MM' ou nulo — "quinta de manhã" é um combinado legítimo e não tem
+  /// hora. Texto pelo mesmo motivo do compromisso: só é exibido e ordenado, e
+  /// 'HH:MM' ordena igual em texto e em relógio. Conferido por CHECK no banco.
+  hora String?
+
+  /// Quem vai. Opcional: marcar o dia com a clínica e decidir o técnico depois
+  /// é a ordem normal das coisas numa casa pequena.
+  responsavelId String?
+  responsavel   User?   @relation("ResponsavelVisita", fields: [responsavelId], references: [id], onDelete: SetNull)
+
+  /// Quando o cliente foi avisado, e o que deu errado se não foi.
+  ///
+  /// Sem a segunda, "avisar o cliente" seria promessa sem prova: a clínica
+  /// diria que não recebeu nada e não haveria como saber se a mensagem saiu,
+  /// se o número estava errado, ou se o WhatsApp da casa estava fora do ar.
+  avisadoEm DateTime?
+  avisoErro String?
+
   /// A ordem que a visita virou. É por ela que a preventiva entra na esteira
   /// normal, com assinatura, foto e laudo.
   ordemId String? @unique
@@ -1227,6 +1253,7 @@ model VisitaPreventiva {
   criadoEm   DateTime @default(now())
 
   @@index([tenantId, status, previstaPara])
+  @@index([tenantId, agendadaPara])
   @@index([contratoId, previstaPara])
   @@map("visitas_preventivas")
 }

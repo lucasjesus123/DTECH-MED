@@ -12,6 +12,7 @@ import {
   tokenDaEmpresaNaTx,
 } from '@/server/whatsapp/uazapi'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
+import { ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
 import { enfileirar } from '@/server/ordem/motor'
 import { formatarBRL } from '@/lib/dinheiro'
 import { aparelhosDe, enviarAviso, ligado } from '@/server/push/avisos'
@@ -244,6 +245,7 @@ async function enviarOuEsperar<T>(
 
 const PROCESSADORES: Record<string, (job: Job) => Promise<void>> = {
   'whatsapp.enviar': enviarAvisoDaEtapa,
+  'whatsapp.preventiva': avisarRevisaoMarcada,
   'proposta.whatsapp': enviarPropostaAoCliente,
   'push.enviar': enviarAvisoNoCelular,
   'pdf.gerar': gerarDocumento,
@@ -623,6 +625,133 @@ async function registrarMensagem(
       },
     })
   })
+}
+
+/**
+ * O AVISO DA REVISÃO MARCADA.
+ *
+ * =============================================================================
+ * POR QUE ELE É UM TRABALHO PRÓPRIO, E NÃO UM `template` DO AVISO DE ETAPA
+ * =============================================================================
+ * `enviarAvisoDaEtapa` começa buscando a ORDEM: cliente, equipamento, técnico,
+ * orçamento, fatura, agendamento. Uma visita marcada não tem ordem nenhuma —
+ * ela existe justamente ANTES de a ordem existir. Passar por lá exigiria um
+ * `ordemId` inventado, e um caminho que trata `null` em cada um daqueles
+ * `include`.
+ *
+ * Aqui a consulta é do tamanho do assunto: o contrato, o cliente, o aparelho.
+ *
+ * =============================================================================
+ * O QUE ELE GRAVA, E POR QUE ISSO IMPORTA
+ * =============================================================================
+ * Duas coisas, sempre: a linha em `mensagens_whatsapp` (o registro de tudo que
+ * saiu da casa) e o carimbo `avisadoEm` na própria visita. A segunda é a que a
+ * tela lê para dizer "cliente avisado" — sem ela, quem marcou não saberia se a
+ * mensagem chegou a sair, e a única forma de conferir seria abrir a lista de
+ * mensagens e procurar pelo número.
+ *
+ * O ERRO TAMBÉM É GRAVADO NA VISITA. Cliente sem WhatsApp no cadastro não é
+ * falha de sistema e repetir não resolve: o trabalho ENCERRA, com o motivo
+ * escrito onde quem marcou a visita vai olhar.
+ */
+async function avisarRevisaoMarcada(job: Job) {
+  const { visitaId } = (job.payload ?? {}) as { visitaId?: string }
+  if (!visitaId) throw new Error('Aviso de preventiva sem visita.')
+  if (!job.tenantId) throw new Error('Aviso de preventiva sem empresa definida.')
+
+  const empresa = job.tenantId
+  const ctx = { tenantId: empresa, userId: null, ehSuperAdmin: false }
+
+  const dados = await comEscopo(ctx, async (tx) => {
+    const v = await tx.visitaPreventiva.findUnique({
+      where: { id: visitaId },
+      select: {
+        status: true,
+        agendadaPara: true,
+        hora: true,
+        responsavel: { select: { nome: true } },
+        contrato: {
+          select: {
+            numero: true,
+            periodicidade: true,
+            cliente: {
+              select: { nome: true, contatoNome: true, whatsapp: true, telefone: true },
+            },
+            equipamento: { select: { marca: true, modelo: true } },
+          },
+        },
+        tenant: { select: { nome: true } },
+      },
+    })
+    if (!v) return null
+    // Desmarcada entre a fila e o envio: avisar agora mandaria a clínica se
+    // preparar para um dia que já não existe.
+    if (v.status !== 'AGENDADA' || !v.agendadaPara) return 'desmarcada' as const
+    return v
+  })
+
+  if (!dados) throw new Error('Visita não encontrada ao montar o aviso da preventiva.')
+  if (dados === 'desmarcada') return
+
+  const c = dados.contrato
+  const quando = dados.agendadaPara!.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'America/Sao_Paulo',
+  })
+
+  const d: DadosMensagem = {
+    contato: c.cliente.contatoNome ?? null,
+    cliente: c.cliente.nome,
+    equipamento: `${c.equipamento.marca} ${c.equipamento.modelo}`.trim(),
+    // O número do CONTRATO, e não de uma ordem: é o identificador que o cliente
+    // tem à mão, e ordem ainda não existe.
+    numeroOrdem: String(c.numero).padStart(4, '0'),
+    empresa: dados.tenant.nome,
+    quando: dados.hora ? `${quando} às ${dados.hora}` : quando,
+    responsavel: dados.responsavel?.nome ?? null,
+    periodicidade: ROTULO_PERIODICIDADE[c.periodicidade] ?? null,
+  }
+
+  const numero = normalizarNumero(c.cliente.whatsapp ?? c.cliente.telefone)
+  if (!numero) {
+    const motivo = 'Cliente sem WhatsApp válido no cadastro.'
+    await registrarMensagem(empresa, null, {
+      numero: c.cliente.whatsapp ?? c.cliente.telefone ?? '',
+      corpo: '',
+      status: 'FALHOU',
+      erro: motivo,
+      template: 'preventiva.agendada',
+    })
+    await comEscopo(ctx, (tx) =>
+      tx.visitaPreventiva.update({ where: { id: visitaId }, data: { avisoErro: motivo } }),
+    )
+    return
+  }
+
+  const corpo = montarMensagem('preventiva.agendada', d)
+  if (!corpo) {
+    console.warn('[fila] sem template para "preventiva.agendada" — nada foi enviado.')
+    return
+  }
+
+  const token = await tokenParaEnviar(empresa)
+  const r = await enviarTexto({ token, numero, texto: corpo })
+
+  await registrarMensagem(empresa, null, {
+    numero,
+    corpo,
+    status: 'ENVIADA',
+    providerId: r.providerId,
+    template: 'preventiva.agendada',
+  })
+  await comEscopo(ctx, (tx) =>
+    tx.visitaPreventiva.update({
+      where: { id: visitaId },
+      data: { avisadoEm: new Date(), avisoErro: null },
+    }),
+  )
 }
 
 /** Marcador do gerador de PDF, implementado em src/server/documentos. */

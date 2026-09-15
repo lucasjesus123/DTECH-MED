@@ -4,10 +4,13 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirPapel, exigirAba } from '@/server/auth/guarda'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
-import { visitasAVencer, ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
+import { visitasAVencer, visitasDoMes, ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
+import { hojeEmLajeado } from '@/server/consultas/periodo'
+import { pessoasDaEmpresa } from '@/server/consultas/listas'
 import { ordensTravadasPorPeca } from '@/server/estoque/pendencia'
 import NovoContrato, { type EquipamentoOpcao } from './novo-contrato'
-import { EncerrarContrato, GerarOrdem } from './acoes'
+import { EncerrarContrato } from './acoes'
+import AgendaPreventiva, { type VisitaDaAgenda } from './agenda-preventiva'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Preventiva', robots: { index: false } }
@@ -39,8 +42,26 @@ export default async function Preventiva() {
   // A aba também: o papel diz o que ela pode fazer, a marcação diz o que ela vê.
   await exigirAba('preventiva')
 
-  const [visitas, travadas, contratos, equipamentos] = await Promise.all([
+  /**
+   * A JANELA DO CALENDARINHO: dois meses para trás, quatro para a frente.
+   *
+   * Para trás porque a pergunta "a revisão de março aconteceu?" é feita em
+   * abril. Para a frente porque contrato trimestral encaixa a próxima daqui a
+   * três meses, e quem está marcando quer ver onde ela cai.
+   *
+   * Fora dessa faixa o calendarinho não mente: ele diz que o mês está fora do
+   * carregado e manda para o Calendário da casa, que busca qualquer período.
+   */
+  const hoje = hojeEmLajeado()
+  const de = new Date(`${hoje.slice(0, 7)}-01T00:00:00`)
+  de.setMonth(de.getMonth() - 2)
+  const ate = new Date(`${hoje.slice(0, 7)}-01T00:00:00`)
+  ate.setMonth(ate.getMonth() + 5)
+
+  const [visitas, doMes, pessoas, travadas, contratos, equipamentos] = await Promise.all([
     visitasAVencer(ctx, 45),
+    visitasDoMes(ctx, de, ate),
+    pessoasDaEmpresa(ctx),
     ordensTravadasPorPeca(ctx),
     comEscopo(ctx, (tx) =>
       tx.contratoManutencao.findMany({
@@ -91,7 +112,72 @@ export default async function Preventiva() {
     }))
 
   const agora = new Date()
-  const atrasadas = visitas.filter((v) => v.previstaPara < agora)
+  const atrasadas = visitas.filter(
+    (v) => v.status === 'PREVISTA' && v.previstaPara < agora,
+  )
+  const marcadas = visitas.filter((v) => v.status === 'AGENDADA').length
+
+  /**
+   * AS VISITAS COMO A TELA PRECISA DELAS — dia em texto, valor formatado.
+   *
+   * A conversão acontece AQUI, no servidor, e não no navegador: o fuso de
+   * Lajeado é conhecido de um lado só. Mandar `Date` para o componente faria
+   * cada navegador desenhar a grade no fuso do próprio aparelho — e a visita
+   * do dia 1º às 21h em Lajeado apareceria no dia 2 para quem estivesse em
+   * outro fuso, ou com o relógio do celular errado.
+   */
+  const paraAgenda: VisitaDaAgenda[] = doMes.map((v) => ({
+    id: v.id,
+    dia: diaEmLajeado(v.agendadaPara ?? v.previstaPara),
+    previstaPara: diaEmLajeado(v.previstaPara),
+    hora: v.hora,
+    status: v.status as 'PREVISTA' | 'AGENDADA' | 'REALIZADA',
+    cliente: v.contrato.cliente.nome,
+    equipamento: `${v.contrato.equipamento.marca} ${v.contrato.equipamento.modelo}`,
+    responsavel: v.responsavel?.nome ?? null,
+    responsavelId: null,
+    contrato: v.contrato.numero,
+    ordemId: v.ordemId,
+    valor: '',
+    periodicidade: '',
+    clienteTemZap: false,
+    serie: null,
+    observacao: null,
+    avisadoEm: null,
+    avisoErro: null,
+  }))
+
+  /**
+   * As visitas a vencer trazem o que o formulário precisa e a grade não:
+   * valor, periodicidade, número de série, se o cliente tem WhatsApp. Elas
+   * SUBSTITUEM a versão magra vinda do calendário, pelo id.
+   *
+   * Duas consultas em vez de uma porque as perguntas são diferentes: a grade
+   * quer sete meses e só o suficiente para desenhar um selo; o formulário quer
+   * os próximos 45 dias e tudo sobre eles. Uma consulta só pagaria o preço da
+   * segunda multiplicado pelo alcance da primeira.
+   */
+  const detalhe = new Map(visitas.map((v) => [v.id, v]))
+  for (const linha of paraAgenda) {
+    const v = detalhe.get(linha.id)
+    if (!v) continue
+    linha.valor = formatarBRL(v.contrato.valorVisitaCentavos)
+    linha.periodicidade = ROTULO_PERIODICIDADE[v.contrato.periodicidade]
+    linha.clienteTemZap = Boolean(v.contrato.cliente.whatsapp)
+    linha.serie = v.contrato.equipamento.numeroSerie
+    linha.observacao = v.observacao
+    linha.responsavelId = v.responsavel?.id ?? null
+    linha.avisadoEm = v.avisadoEm
+      ? v.avisadoEm.toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'America/Sao_Paulo',
+        })
+      : null
+    linha.avisoErro = v.avisoErro
+  }
   const receitaMes = contratos.reduce((s, c) => s + c.valorVisitaCentavos * fatorMensal(c.periodicidade), 0)
 
   return (
@@ -113,13 +199,21 @@ export default async function Preventiva() {
           <span className={estilo.indValor}>{contratos.length}</span>
           <span className={estilo.indNota}>equipamentos com revisão marcada</span>
         </div>
+        {/* O CARTÃO MUDOU DE PERGUNTA: não é mais "quantas atrasaram", é
+            "quantas ainda não foram combinadas com o cliente". Uma visita
+            marcada para daqui a duas semanas não é problema; uma prevista
+            para ontem que ninguém ligou é. */}
         <div className={estilo.indicador}>
-          <span className={estilo.indNota}>Visitas atrasadas</span>
+          <span className={estilo.indNota}>Falta combinar</span>
           <span className={atrasadas.length > 0 ? `${estilo.indValor} ${estilo.indAlerta}` : estilo.indValor}>
             {atrasadas.length}
           </span>
           <span className={estilo.indNota}>
-            {atrasadas.length > 0 ? 'já passaram da data' : 'nenhuma atrasada'}
+            {atrasadas.length > 0
+              ? 'venceram sem data marcada'
+              : marcadas > 0
+                ? `${marcadas} já marcada${marcadas === 1 ? '' : 's'} com o cliente`
+                : 'nada vencido'}
           </span>
         </div>
         <div className={estilo.indicador}>
@@ -136,75 +230,26 @@ export default async function Preventiva() {
         </div>
       </div>
 
-      <div className={estilo.duasColunas}>
+      {/* =====================================================================
+          A AGENDA — calendário à esquerda, o que fazer à direita
+          =====================================================================
+          Era uma tabela de cinco colunas com um botão "Gerar ordem" no fim.
+          Ela respondia "o que vence primeiro" e não respondia a pergunta que
+          se faz ANTES de qualquer coisa: onde cabe? Marcar o horário com a
+          clínica acontecia por WhatsApp, fora do sistema — e o calendário da
+          casa mostrava a data do CONTRATO, não a combinada.
+
+          Ver `agenda-preventiva.tsx` para os três passos do fluxo. */}
+      <AgendaPreventiva
+        visitas={paraAgenda}
+        pessoas={pessoas}
+        hoje={hoje}
+        mesInicial={hoje.slice(0, 7)}
+        janela={[mesDe(de), mesDe(ate)]}
+      />
+
+      <div className={estilo.duasColunas} style={{ marginTop: 'var(--s6)' }}>
         <div>
-          <div className={estilo.bloco}>
-            <p className={estilo.blocoTitulo}>
-              <span>Visitas a vencer</span>
-              <span className={estilo.fraco}>próximos 45 dias</span>
-            </p>
-
-            {visitas.length === 0 ? (
-              <p className={estilo.texto}>
-                Nenhuma visita prevista para os próximos 45 dias. Se há contratos ativos, as visitas
-                seguintes ainda estão longe.
-              </p>
-            ) : (
-              <div className={estilo.rolaX}>
-                <table className={estilo.tabela}>
-                  <thead>
-                    <tr>
-                      <th>Quando</th>
-                      <th>Cliente</th>
-                      <th>Equipamento</th>
-                      <th className={estilo.dir}>Valor</th>
-                      <th className={estilo.dir}>Ação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visitas.map((v) => {
-                      const atrasada = v.previstaPara < agora
-                      const dias = Math.round((v.previstaPara.getTime() - agora.getTime()) / 86_400_000)
-                      return (
-                        <tr key={v.id}>
-                          <td className={estilo.num}>
-                            <span className={atrasada ? estilo.atrasado : undefined}>
-                              {v.previstaPara.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
-                            </span>
-                            <div className={estilo.fraco}>
-                              {atrasada ? `${Math.abs(dias)} dias atrás` : `em ${dias} dias`}
-                            </div>
-                          </td>
-                          <td>
-                            <span className={estilo.forte}>{v.contrato.cliente.nome}</span>
-                            <div className={estilo.fraco}>
-                              contrato #{String(v.contrato.numero).padStart(4, '0')} ·{' '}
-                              {ROTULO_PERIODICIDADE[v.contrato.periodicidade]}
-                            </div>
-                          </td>
-                          <td>
-                            <Link href={`/painel/equipamentos/${v.contrato.equipamento.id}`}>
-                              {v.contrato.equipamento.marca} {v.contrato.equipamento.modelo}
-                            </Link>
-                            {v.contrato.equipamento.numeroSerie ? (
-                              <div className={estilo.fraco}>{v.contrato.equipamento.numeroSerie}</div>
-                            ) : null}
-                          </td>
-                          <td className={`${estilo.num} ${estilo.dir}`}>
-                            {formatarBRL(v.contrato.valorVisitaCentavos)}
-                          </td>
-                          <td className={estilo.dir}>
-                            <GerarOrdem visitaId={v.id} />
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
           <div className={estilo.bloco}>
             <p className={estilo.blocoTitulo}>
               <span>Travadas esperando peça</span>
@@ -301,3 +346,22 @@ function fatorMensal(p: string): number {
   }
   return m[p] ?? 0
 }
+
+/**
+ * O DIA de um instante, no fuso de Lajeado.
+ *
+ * A conversão acontece no servidor, onde o fuso é conhecido de um lado só.
+ * Mandar `Date` para o navegador faria cada aparelho desenhar a grade no
+ * próprio fuso — e a visita do dia 1º às 21h em Lajeado apareceria no dia 2
+ * para quem estivesse com o relógio do celular em outro lugar.
+ */
+const FMT_DIA = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Sao_Paulo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+const diaEmLajeado = (d: Date) => FMT_DIA.format(d)
+
+/** 'AAAA-MM' de uma data — os limites da janela que o calendarinho recebeu. */
+const mesDe = (d: Date) => diaEmLajeado(d).slice(0, 7)

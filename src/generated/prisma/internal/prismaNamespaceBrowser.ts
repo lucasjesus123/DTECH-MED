@@ -507,6 +507,11 @@ export const VisitaPreventivaScalarFieldEnum = {
   contratoId: 'contratoId',
   previstaPara: 'previstaPara',
   status: 'status',
+  agendadaPara: 'agendadaPara',
+  hora: 'hora',
+  responsavelId: 'responsavelId',
+  avisadoEm: 'avisadoEm',
+  avisoErro: 'avisoErro',
   ordemId: 'ordemId',
   observacao: 'observacao',
   criadoEm: 'criadoEm'

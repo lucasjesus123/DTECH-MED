@@ -26,6 +26,51 @@ const minimo: DadosMensagem = {
   empresa: 'DTECH MED',
 }
 
+/**
+ * A PAUSA ENTRE OS BLOCOS — o defeito que ninguém via porque nada quebrava.
+ *
+ * Todo template escreve `''` entre a saudação e o assunto, e entre o assunto e
+ * o link. O `montar` fazia `filter(Boolean)`, e `''` é falso em JavaScript: as
+ * pausas eram apagadas todas, sempre, desde a primeira mensagem que a casa
+ * mandou. O cliente recebia nove linhas coladas num aplicativo que se lê com o
+ * polegar.
+ *
+ * Nada falhava: o texto saía, o teste de "sobrevive ao mínimo" passava, e a
+ * única forma de perceber era ler a mensagem no celular.
+ */
+describe('as mensagens respiram', () => {
+  it('a saudação fica separada do assunto', () => {
+    const t = montarMensagem('orcamento.enviado', completo)!
+    expect(t.startsWith('Oi, Mariana!\n\n')).toBe(true)
+  })
+
+  it('todo template com mais de quatro linhas tem ao menos uma pausa', () => {
+    for (const tipo of Object.keys(TEMPLATES)) {
+      const t = montarMensagem(tipo, completo)
+      if (!t || t.split('\n').length <= 4) continue
+      expect(t, `"${tipo}" saiu como um bloco só`).toContain('\n\n')
+    }
+  })
+
+  it('não sobra pausa dupla, nem no começo, nem no fim', () => {
+    for (const tipo of Object.keys(TEMPLATES)) {
+      const t = montarMensagem(tipo, minimo)
+      if (!t) continue
+      expect(t, tipo).not.toMatch(/\n{3}/)
+      expect(t, tipo).toBe(t.trim())
+    }
+  })
+
+  it('a linha que não se aplica some, em vez de virar pausa', () => {
+    // Sem motorista e sem hora, o aviso da retirada não pode sair com dois
+    // buracos no lugar onde eles iriam.
+    const t = montarMensagem('retirada.agendada', minimo)!
+    expect(t).not.toMatch(/\n{3}/)
+    expect(t).not.toContain('undefined')
+    expect(t).not.toContain('null')
+  })
+})
+
 describe('todo template sobrevive ao mínimo de dados', () => {
   for (const tipo of Object.keys(TEMPLATES)) {
     it(`${tipo} não vaza undefined nem null`, () => {

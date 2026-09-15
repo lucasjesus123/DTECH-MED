@@ -11,7 +11,7 @@ import { env } from '@/lib/env'
 import { auditar, ipDaRequisicao } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { proximoNumero } from '@/server/financeiro/servico'
-import { avancarOrdem } from '@/server/ordem/motor'
+import { avancarOrdem, enfileirar } from '@/server/ordem/motor'
 import { criarContrato, gerarVisitas, ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
 
 /**
@@ -138,6 +138,231 @@ export async function abrirContratoPreventiva(
   revalidatePath('/painel/preventiva')
   revalidatePath(`/painel/equipamentos/${v.equipamentoId}`)
   return { ok: true, dados: { id: r.id, numero: r.numero, visitas: r.visitas } }
+}
+
+// ---------------------------------------------------------------------------
+// A VISITA MARCADA — o estado que o enum prometia e ninguém sabia produzir
+// ---------------------------------------------------------------------------
+
+/**
+ * MARCAR A VISITA COM A CLÍNICA.
+ *
+ * =============================================================================
+ * O QUE FALTAVA, E COMO DAVA PARA SABER
+ * =============================================================================
+ * `StatusVisita` já trazia `AGENDADA`, com o comentário "Marcada na agenda, com
+ * técnico". Nenhum caminho do sistema produzia esse estado — não havia onde
+ * guardar a data combinada nem quem vai. Um valor de enum que nada escreve é um
+ * recurso que quem lê o código conclui que existe.
+ *
+ * Na prática: o contrato dizia "a cada 6 meses, dia 16", a tela mostrava "em 1
+ * dia", e combinar o horário com a clínica acontecia por WhatsApp, fora do
+ * sistema. O calendário mostrava a data do CONTRATO — e as duas são a mesma
+ * coisa só até a primeira clínica pedir para passar de quinta para sexta.
+ *
+ * =============================================================================
+ * DUAS DATAS, E NENHUMA APAGA A OUTRA
+ * =============================================================================
+ *   previstaPara   o que o contrato calculou. NUNCA muda.
+ *   agendadaPara   o que foi combinado com quem paga.
+ *
+ * Sobrescrever a primeira apagaria o atraso da própria história do contrato —
+ * e "a visita de março aconteceu em abril" é exatamente o que o cliente e a
+ * vigilância perguntam depois.
+ *
+ * =============================================================================
+ * AVISAR O CLIENTE É ESCOLHA DE QUEM MARCA
+ * =============================================================================
+ * Marcar e avisar são dois atos. Quem já combinou por telefone não quer mandar
+ * a mesma coisa de novo; quem marcou sozinho precisa avisar. O aviso sai pela
+ * FILA, e não dentro do clique: enviar é rede, e a clínica não pode ficar sem
+ * horário marcado porque o WhatsApp da casa caiu naquele minuto.
+ */
+const schemaAgendar = z.object({
+  visitaId: z.string().min(1, 'Visita não informada.'),
+  dia: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Escolha o dia da visita.'),
+  hora: z
+    .string()
+    .trim()
+    .regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/, 'A hora precisa ser como 14:30.')
+    .optional()
+    .or(z.literal('')),
+  responsavelId: z.string().trim().optional(),
+  observacao: z.string().trim().max(400).optional(),
+  avisar: z.union([z.literal('on'), z.literal('true'), z.literal('')]).optional(),
+})
+
+export async function agendarVisitaPreventiva(
+  _anterior: Resposta,
+  form: FormData,
+): Promise<Resposta<{ avisou: boolean }>> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_CONTRATAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não marca visita de preventiva.' }
+  }
+
+  const d = schemaAgendar.safeParse(Object.fromEntries(form))
+  if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
+  const v = d.data
+  const avisar = v.avisar === 'on' || v.avisar === 'true'
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const visita = await tx.visitaPreventiva.findUnique({
+      where: { id: v.visitaId },
+      select: {
+        id: true,
+        status: true,
+        previstaPara: true,
+        contrato: {
+          select: {
+            numero: true,
+            ativo: true,
+            cliente: { select: { nome: true, whatsapp: true, telefone: true } },
+            equipamento: { select: { marca: true, modelo: true } },
+          },
+        },
+      },
+    })
+    if (!visita) return { ok: false as const, motivo: 'Visita não encontrada nesta empresa.' }
+    // A visita que já virou ordem não se remarca por aqui: ela está na esteira,
+    // e quem manda na data de uma ordem é a rota.
+    if (visita.status === StatusVisita.REALIZADA) {
+      return { ok: false as const, motivo: 'Esta visita já virou ordem de serviço — remarque pela rota.' }
+    }
+    if (visita.status === StatusVisita.CANCELADA) {
+      return { ok: false as const, motivo: 'Esta visita foi cancelada com o contrato.' }
+    }
+    if (!visita.contrato.ativo) {
+      return { ok: false as const, motivo: 'O contrato desta visita está encerrado.' }
+    }
+
+    // O responsável tem de ser gente DESTA empresa e que esteja ativa. O
+    // `comEscopo` já limita à franquia; o `ativo` evita marcar a visita no nome
+    // de quem saiu da casa semana passada.
+    let responsavelId: string | null = null
+    if (v.responsavelId) {
+      const p = await tx.user.findFirst({
+        where: { id: v.responsavelId, ativo: true },
+        select: { id: true },
+      })
+      if (!p) return { ok: false as const, motivo: 'A pessoa escolhida não está ativa nesta empresa.' }
+      responsavelId = p.id
+    }
+
+    await tx.visitaPreventiva.update({
+      where: { id: v.visitaId },
+      data: {
+        agendadaPara: dataLocal(v.dia),
+        hora: v.hora || null,
+        responsavelId,
+        observacao: v.observacao || null,
+        status: StatusVisita.AGENDADA,
+        // Remarcar zera o aviso: a clínica foi avisada da data ANTERIOR, e
+        // deixar o carimbo de pé faria a tela dizer "avisado" sobre um dia que
+        // não vale mais.
+        avisadoEm: null,
+        avisoErro: null,
+      },
+    })
+
+    if (avisar) {
+      await enfileirar(tx, exigirEmpresa(a.ctx), {
+        tipo: 'whatsapp.preventiva',
+        prioridade: 2,
+        // A chave carrega o DIA e a HORA: remarcar tem de avisar de novo, e
+        // clicar duas vezes no mesmo agendamento não pode mandar duas.
+        dedupeKey: `zap:prev:${v.visitaId}:${v.dia}:${v.hora || 'sem-hora'}`,
+        payload: { visitaId: v.visitaId },
+      })
+    }
+
+    return {
+      ok: true as const,
+      contrato: visita.contrato.numero,
+      cliente: visita.contrato.cliente.nome,
+      temZap: Boolean(visita.contrato.cliente.whatsapp ?? visita.contrato.cliente.telefone),
+    }
+  })
+
+  if (!r.ok) return { ok: false, motivo: r.motivo }
+
+  // O aviso pedido para um cliente sem número não é erro de sistema: é cadastro
+  // incompleto, e quem marcou precisa saber AGORA — não descobrir depois que a
+  // clínica não apareceu.
+  if (avisar && !r.temZap) {
+    await auditar(a.ctx, a.sessao, {
+      acao: 'preventiva.visita.agendada',
+      entidade: 'visita_preventiva',
+      entidadeId: v.visitaId,
+      detalhes: { dia: v.dia, hora: v.hora || null, avisoPedido: true, semNumero: true },
+      ip: await ipAtual(),
+    })
+    revalidatePath('/painel/preventiva')
+    revalidatePath('/painel/calendario')
+    return {
+      ok: false,
+      motivo: `Visita marcada para ${v.dia.split('-').reverse().join('/')}, mas ${r.cliente} não tem WhatsApp no cadastro — ninguém foi avisado.`,
+    }
+  }
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'preventiva.visita.agendada',
+    entidade: 'visita_preventiva',
+    entidadeId: v.visitaId,
+    detalhes: { dia: v.dia, hora: v.hora || null, responsavel: v.responsavelId || null, avisou: avisar },
+    ip: await ipAtual(),
+  })
+  revalidatePath('/painel/preventiva')
+  revalidatePath('/painel/calendario')
+  return { ok: true, dados: { avisou: avisar } }
+}
+
+/**
+ * DESMARCAR — a visita volta a ser só prevista pelo contrato.
+ *
+ * Não cancela nada: o contrato continua devendo aquela revisão, e ela volta
+ * para a lista do que vence. Cancelar visita é coisa de encerrar contrato.
+ */
+export async function desmarcarVisitaPreventiva(visitaId: string): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!PODE_CONTRATAR.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não marca visita de preventiva.' }
+  }
+
+  const feito = await comEscopo(a.ctx, async (tx) => {
+    const v = await tx.visitaPreventiva.findUnique({
+      where: { id: visitaId },
+      select: { status: true },
+    })
+    if (!v) return null
+    if (v.status !== StatusVisita.AGENDADA) return 'nao-agendada' as const
+    await tx.visitaPreventiva.update({
+      where: { id: visitaId },
+      data: {
+        status: StatusVisita.PREVISTA,
+        agendadaPara: null,
+        hora: null,
+        responsavelId: null,
+        avisadoEm: null,
+        avisoErro: null,
+      },
+    })
+    return true
+  })
+  if (feito === null) return { ok: false, motivo: 'Visita não encontrada nesta empresa.' }
+  if (feito === 'nao-agendada') return { ok: false, motivo: 'Esta visita não está marcada.' }
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'preventiva.visita.desmarcada',
+    entidade: 'visita_preventiva',
+    entidadeId: visitaId,
+    ip: await ipAtual(),
+  })
+  revalidatePath('/painel/preventiva')
+  revalidatePath('/painel/calendario')
+  return { ok: true }
 }
 
 /**

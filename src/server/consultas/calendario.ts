@@ -138,15 +138,38 @@ export async function eventosNoPeriodo(
         },
       }),
 
+      /**
+       * A VISITA CAI NO DIA COMBINADO, E NÃO NO DIA DO CONTRATO.
+       *
+       * Agora que a preventiva se agenda, cada visita tem duas datas: a que o
+       * contrato calculou (`previstaPara`, que nunca muda) e a que foi
+       * combinada com a clínica (`agendadaPara`). Buscar só pela primeira fazia
+       * a visita de quinta remarcada para sexta continuar desenhada na quinta —
+       * a grade mostraria uma coisa e o cliente estaria esperando outra.
+       *
+       * O `OR` traz as duas pontas da janela: a marcada PARA dentro dela (mesmo
+       * que prevista fora) e a prevista dentro dela e ainda não marcada. Sem a
+       * segunda condição, marcar a visita a tiraria da grade do mês previsto
+       * antes de aparecer no mês combinado.
+       */
       tx.visitaPreventiva.findMany({
-        where: { previstaPara: { gte: inicio, lt: fim }, status: { notIn: ['CANCELADA'] } },
+        where: {
+          status: { notIn: ['CANCELADA'] },
+          OR: [
+            { agendadaPara: { gte: inicio, lt: fim } },
+            { agendadaPara: null, previstaPara: { gte: inicio, lt: fim } },
+          ],
+        },
         orderBy: { previstaPara: 'asc' },
         take: 300,
         select: {
           id: true,
           previstaPara: true,
+          agendadaPara: true,
+          hora: true,
           status: true,
           ordemId: true,
+          responsavel: { select: { nome: true } },
           contrato: {
             select: {
               id: true,
@@ -217,14 +240,34 @@ export async function eventosNoPeriodo(
     }
 
     for (const v of preventivas) {
+      // O dia que vale é o COMBINADO, quando existe. A prevista continua sendo
+      // a referência do contrato, mas quem olha a grade quer saber onde a
+      // equipe estará — e isso é o que foi combinado com quem paga.
+      const quando = v.agendadaPara ?? v.previstaPara
       eventos.push({
         id: `pv-${v.id}`,
         tipo: 'preventiva',
-        dia: diaDe(v.previstaPara),
+        dia: diaDe(quando),
         titulo: `Preventiva · ${v.contrato.cliente.nome}`,
-        detalhe: `${v.contrato.equipamento.marca} ${v.contrato.equipamento.modelo}`,
+        detalhe: [
+          v.hora,
+          `${v.contrato.equipamento.marca} ${v.contrato.equipamento.modelo}`,
+          v.responsavel?.nome,
+          // A remarcação aparece escrita. Sem isto, a visita que saiu do dia do
+          // contrato some silenciosamente dele — e quem cobra o contrato
+          // depois não entende por que a de março está em abril.
+          v.agendadaPara && diaDe(v.agendadaPara) !== diaDe(v.previstaPara)
+            ? `prevista para ${v.previstaPara.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'America/Sao_Paulo' })}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · '),
         href: v.ordemId ? `/painel/ordens/${v.ordemId}` : '/painel/preventiva',
-        atrasado: v.status === 'PREVISTA' && v.previstaPara < agora,
+        // Só a NÃO MARCADA atrasa por conta do contrato. A marcada atrasa pelo
+        // dia que foi combinado — é esse que alguém prometeu ao cliente.
+        atrasado:
+          (v.status === 'PREVISTA' && v.previstaPara < agora) ||
+          (v.status === 'AGENDADA' && quando < agora),
       })
     }
 
