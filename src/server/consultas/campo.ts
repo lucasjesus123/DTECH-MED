@@ -194,6 +194,52 @@ export async function paradaDoMotorista(ctx: ContextoAcesso, motoristaId: string
   })
 }
 
+/**
+ * A MESMA PARADA, PELOS OLHOS DE QUEM ADMINISTRA.
+ *
+ * =============================================================================
+ * O DEFEITO QUE ELA CONSERTA
+ * =============================================================================
+ * A queixa do dono, com print da agenda do aplicativo aberta:
+ *
+ *     "quando clica aqui joga pro sistema (não poderia, esse é o APP)"
+ *
+ * Ele está certo, e o caminho até ali tinha sido construído pela metade. A
+ * agenda do aplicativo passou a ter MODO GESTÃO: quem administra abre e vê a
+ * rua inteira, todas as paradas de todos os motoristas. Foi decisão tomada e
+ * escrita — "a resposta certa não era mandar embora, era responder".
+ *
+ * Só que o cartão dessa agenda leva à página da parada, e ELA continuava
+ * fechada: `if (papel !== MOTORISTA && papel !== SUPER_ADMIN) redirect('/painel')`.
+ * Um toque no cartão e o administrador era cuspido do aplicativo para dentro do
+ * painel — no meio do celular, sem aviso.
+ *
+ * `paradaDoMotorista` filtra por `motoristaId` de propósito: é o que faz um
+ * motorista não alcançar a parada de outro pelo id. Essa trava fica de pé. O
+ * que muda é que existe uma segunda porta, para quem administra, SEM esse
+ * filtro — porque para a gestão ver a rua inteira é justamente o trabalho.
+ *
+ * O RLS continua sendo o chão de tudo: fora da empresa não há linha nenhuma.
+ */
+export async function paradaDaGestao(ctx: ContextoAcesso, ordemId: string) {
+  return comEscopo(ctx, (tx) =>
+    tx.agendamento.findFirst({
+      where: { ordemId, status: { in: ['ATRIBUIDO', 'EM_ROTA'] } },
+      include: {
+        motorista: { select: { nome: true } },
+        ordem: {
+          include: {
+            cliente: true,
+            equipamento: true,
+            assinaturas: { select: { tipo: true } },
+            fotos: { select: { categoria: true } },
+          },
+        },
+      },
+    }),
+  )
+}
+
 export type NaBancada = {
   ordemId: string
   numero: number

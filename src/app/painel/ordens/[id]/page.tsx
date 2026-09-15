@@ -25,8 +25,8 @@ import Orcamento from './orcamento'
 import PecasRetiradas from './pecas-retiradas'
 import estilo from '../../painel.module.css'
 import { diaLocal } from '@/lib/datas'
-import { montarTrilha } from '@/server/ordem/trilha'
-import { TrilhaDoEquipamento } from './trilha'
+import { montarRoteiro } from '@/server/ordem/roteiro'
+import PassoAPasso from './passo-a-passo'
 import { coberturaDe, frasedaCobertura } from '@/server/ordem/garantia'
 import { pendenciaDe } from '@/server/estoque/pendencia'
 import DocumentosDaOrdem from './documentos'
@@ -214,9 +214,15 @@ export default async function Prontuario({
 
   const pendencia = await pendenciaDe(ctx, o.id)
 
-  const trilha = montarTrilha(
+  /* O MESMO ROTEIRO DA JANELA, e não mais a régua de 18 pontos.
+     "Agora deixa a ficha completa no mesmo padrão." Duas telas da mesma O.S.
+     desenhavam a mesma história de jeitos diferentes — a janela em três
+     pílulas e lista vertical, a ficha em dezoito pontos numa fileira. Agora é
+     a mesma função que monta as duas. */
+  const roteiro = montarRoteiro(
     o.etapa,
     o.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
+    { viaCorreio: o.viaCorreio },
   )
 
   return (
@@ -266,7 +272,7 @@ export default async function Prontuario({
           A primeira pergunta de quem abre uma ficha é sempre a mesma: onde
           está o aparelho. Ela vem antes das ações porque responder é mais
           rápido que decidir. */}
-      <TrilhaDoEquipamento trilha={trilha} />
+      <PassoAPasso roteiro={roteiro} />
 
       {/* A O.S. EM PDF, ANTES DAS ABAS.
           "Ao abrir a ficha completa eu preciso de um PDF já pronto, que é o
@@ -352,28 +358,37 @@ export default async function Prontuario({
               )}
             </p>
 
-            {passos.length === 0 ? (
-              <p className={estilo.texto}>
-                {o.etapa === 'ORCAMENTO_ENVIADO'
+            {/* OS BOTÕES DE PASSO SAÍRAM DAQUI e foram para o rodapé fixo da
+                página. "Agora deixa a ficha completa no mesmo padrão": na
+                janela da O.S. a ação principal mora numa quina só, e é sempre
+                a mesma quina. Aqui eles ficavam no meio da ficha, a uma altura
+                diferente em cada etapa — o mesmo defeito que a janela tinha.
+
+                O que fica neste bloco é o que ele sabe dizer: o que dá para
+                fazer agora, ou por que não dá. */}
+            <p className={estilo.texto}>
+              {passos.length === 0
+                ? o.etapa === 'ORCAMENTO_ENVIADO'
                   ? 'A bola está com o cliente. Ele responde pelo link que recebeu no WhatsApp — ninguém aqui dentro aprova no lugar dele.'
-                  : 'Nenhum passo disponível para o seu perfil nesta etapa.'}
-              </p>
-            ) : (
+                  : 'Nenhum passo disponível para o seu perfil nesta etapa.'
+                : `O próximo passo é ${passos[0]!.titulo.toLowerCase()} — o botão está no pé da página.`}
+            </p>
+
+            {/* OS OUTROS CAMINHOS, quando existem, ficam AQUI e não no rodapé.
+                Lá embaixo mora uma ação só, a principal; a alternativa mora
+                junto do texto que a explica. Ver a nota em `botoes-etapa.tsx`:
+                com ela no rodapé, a barra quebrava em duas linhas. */}
+            {passos.length > 1 ? (
               <BotoesEtapa
                 ordemId={o.id}
-                passos={passos.map((p) => ({
+                passos={passos.slice(1).map((p) => ({
                   para: p.para,
                   titulo: p.titulo,
                   avisaCliente: p.avisaCliente,
                 }))}
                 parada={paradaParaMarcar}
-                /* Vindo do assistente de abertura (`?despachar=1`), a janela do
-                   despacho abre sozinha: emitir a O.S. e marcar quem vai buscar
-                   são o mesmo movimento, e separá-los em duas telas era o que
-                   fazia a pessoa emitir e ir embora sem despachar. */
-                abrirDireto={despachar === '1'}
               />
-            )}
+            ) : null}
 
             {/* CANCELAR E EXCLUIR SAÍRAM DAQUI, e a razão está na foto da tela.
                 Dentro deste bloco havia seis controles, e só os dois primeiros
@@ -615,22 +630,6 @@ export default async function Prontuario({
             </div>
           ) : null}
 
-          {/* --- O que não tem volta, no fim de tudo ---------------------
-              Ver a nota no bloco dos passos: estas duas moravam ao lado do
-              próximo passo da esteira, e é o único lugar da ficha onde um
-              clique errado não se desfaz. */}
-          {podeCancelar || podeGestao ? (
-            <div className={estilo.bloco}>
-              <p className={estilo.blocoTitulo}>Encerrar esta ordem</p>
-              <p className={estilo.fraco}>
-                Cancelar interrompe a ordem e deixa o histórico inteiro de pé. Excluir só
-                existe enquanto nada de valor foi registrado — o próprio sistema recusa
-                quando já há prova.
-              </p>
-              {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
-              {podeGestao ? <Excluir ordemId={o.id} /> : null}
-            </div>
-          ) : null}
         </div>
 
         {/* ===== Coluna lateral ============================================ */}
@@ -821,6 +820,49 @@ export default async function Prontuario({
               atribuída.
             </p>
           ) : null}
+        </div>
+      </div>
+
+      {/* ===== O RODAPÉ FIXO DA FICHA ==================================
+          O mesmo desenho da janela da O.S., pelo mesmo motivo: a mão vai
+          sempre ao mesmo canto. Editar e excluir na esquerda, a ação do
+          passo na direita, e a distância entre as duas é de propósito. */}
+      <div className={estilo.osRodape}>
+        <div className={estilo.osRodapeEsq}>
+          <Link href={`/painel/ordens/${o.id}/editar`} className={estilo.osRodapeLink}>
+            Editar
+          </Link>
+          {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
+          {podeGestao ? <Excluir ordemId={o.id} /> : null}
+        </div>
+        <div className={estilo.osRodapeDir}>
+          <a href={linkPortal} target="_blank" rel="noreferrer" className={estilo.osRodapeLink}>
+            O que o cliente vê
+          </a>
+          {passos.length > 0 ? (
+            <BotoesEtapa
+              ordemId={o.id}
+              passos={passos.map((p) => ({
+                para: p.para,
+                titulo: p.titulo,
+                avisaCliente: p.avisaCliente,
+              }))}
+              parada={paradaParaMarcar}
+              /* Vindo do assistente de abertura (`?despachar=1`), a janela do
+                 despacho abre sozinha: emitir a O.S. e marcar quem vai buscar
+                 são o mesmo movimento, e separá-los em duas telas era o que
+                 fazia a pessoa emitir e ir embora sem despachar. */
+              abrirDireto={despachar === '1'}
+              noRodape
+            />
+          ) : (
+            <span className={estilo.osEsperandoVez}>
+              Esperando{' '}
+              <strong>
+                {o.etapa === 'ORCAMENTO_ENVIADO' ? 'o cliente responder' : 'outra pessoa da equipe'}
+              </strong>
+            </span>
+          )}
         </div>
       </div>
       </>

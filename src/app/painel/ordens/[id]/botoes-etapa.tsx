@@ -33,6 +33,7 @@ export default function BotoesEtapa({
   passos,
   parada,
   abrirDireto = false,
+  noRodape = false,
 }: {
   ordemId: string
   passos: Passo[]
@@ -43,6 +44,19 @@ export default function BotoesEtapa({
   parada?: { exigidaPor: EtapaOrdem[]; dados: DadosDaParada } | null
   /** Chegou do assistente de abertura: a janela do despacho já abre. */
   abrirDireto?: boolean
+  /**
+   * DESENHA O PRIMEIRO PASSO COMO O BOTÃO GRANDE DO RODAPÉ.
+   *
+   * "Agora deixa a ficha completa no mesmo padrão." Na janela da O.S. a ação
+   * principal mora numa quina só, e é sempre a mesma quina — o pedido veio com
+   * print do outro sistema do dono: "PERCEBA QUE TUDO TEM O AVANCAR".
+   *
+   * Aqui os botões eram uma fila de iguais no meio da ficha, a uma altura
+   * diferente em cada etapa. Com `noRodape`, o primeiro passo sai como pílula
+   * sólida e os outros ficam secundários ao lado; o campo de observação
+   * continua no bloco de cima, que é onde se escreve.
+   */
+  noRodape?: boolean
 }) {
   const [erro, setErro] = useState<string | null>(null)
   const [observacao, setObservacao] = useState('')
@@ -88,6 +102,75 @@ export default function BotoesEtapa({
     executar(p)
   }
 
+  /**
+   * O RÓTULO DO BOTÃO DE RODAPÉ — sem o "· avisa o cliente" dentro dele.
+   *
+   * A regra de sempre continua valendo: quem clica precisa saber que o
+   * WhatsApp sai na hora. O que mudou é ONDE isso está escrito.
+   *
+   * Dentro de uma pílula, "Motorista saiu para a retirada · avisa o cliente"
+   * tem 47 caracteres e, medido na tela de 1440, empurrava o rodapé inteiro
+   * para uma segunda linha — com "Editar / Cancelar / Excluir" em cima e o
+   * botão grande embaixo, que é justamente o oposto de "sempre no mesmo
+   * canto".
+   *
+   * O aviso vira uma marca ao lado do botão. Fica na mesma altura do olho, e
+   * o rótulo cabe.
+   */
+  function rotulo(p: Passo, abreJanela: boolean) {
+    // "Despachar" é a palavra do dono para o passo que manda a parada ao
+    // motorista, e cabe onde o título inteiro não cabe.
+    return abreJanela ? 'Despachar ›' : p.titulo
+  }
+
+  const janelaDaParada =
+    marcando && parada ? (
+      <AgendarParada
+        dados={parada.dados}
+        titulo={marcando.titulo}
+        aoFechar={() => setMarcando(null)}
+      />
+    ) : null
+
+  if (noRodape) {
+    const [primeiro] = passos
+    return (
+      <>
+        {erro ? (
+          <p className={estilo.erro} role="alert" style={{ flexBasis: '100%', margin: 0 }}>
+            {erro}
+          </p>
+        ) : null}
+        {/* OS CAMINHOS ALTERNATIVOS NÃO CABEM AQUI, e a medida é literal:
+            com "Equipamento despachado pelo correio" ao lado, o rodapé media
+            129px na tela de 1440 — duas linhas, com "Editar / Cancelar /
+            Excluir" em cima e o botão grande embaixo. Isso é o oposto de
+            "sempre no mesmo canto".
+
+            Eles voltam para o bloco "o que dá para fazer agora", que é onde a
+            explicação deles está. O rodapé carrega UMA ação: a principal. */}
+        {primeiro ? (
+          <>
+            {primeiro.avisaCliente && !(parada && parada.exigidaPor.includes(primeiro.para)) ? (
+              <span className={estilo.avisaCliente}>avisa o cliente</span>
+            ) : null}
+            <button
+              type="button"
+              className={estilo.osAvancar}
+              disabled={pendente}
+              onClick={() => aoClicar(primeiro)}
+            >
+              {pendente
+                ? 'Um instante…'
+                : rotulo(primeiro, Boolean(parada && parada.exigidaPor.includes(primeiro.para)))}
+            </button>
+          </>
+        ) : null}
+        {janelaDaParada}
+      </>
+    )
+  }
+
   return (
     <div className={estilo.form}>
       {erro ? <p className={estilo.erro} role="alert">{erro}</p> : null}
@@ -126,13 +209,7 @@ export default function BotoesEtapa({
         />
       </label>
 
-      {marcando && parada ? (
-        <AgendarParada
-          dados={parada.dados}
-          titulo={marcando.titulo}
-          aoFechar={() => setMarcando(null)}
-        />
-      ) : null}
+      {janelaDaParada}
     </div>
   )
 }

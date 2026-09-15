@@ -9874,3 +9874,58 @@ a.osListaItem:hover { background: var(--sup-1); }
   font-weight: 700;
   color: var(--sinal);
 }
+
+/* ==========================================================================
+   O PASSO A PASSO DA FICHA — a moldura; o miolo é o mesmo da janela
+   --------------------------------------------------------------------------
+   Ver a nota em `[id]/passo-a-passo.tsx`. As pílulas e os pontos reusam
+   `osFase*` e `osLinha2*` para as duas telas mudarem juntas. O que é só daqui
+   é a caixa em volta e o fato de as pílulas serem `<span>`, e não botão.
+   ========================================================================== */
+.fichaPasso {
+  margin-bottom: var(--s5);
+  padding: var(--s4) var(--s5);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+}
+.fichaPassoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+.fichaPassoAgora {
+  margin: 2px 0 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  color: var(--txt);
+}
+/* Sem cursor de mão e sem realce no passar do mouse: aqui a peça informa. */
+.fichaFase { cursor: default; }
+.fichaFase:hover { border-color: inherit; }
+.fichaPassoNo { cursor: default; }
+.fichaPassoNo:hover { background: transparent; }
+
+/* A marca de "o WhatsApp sai agora", ao lado do botão grande em vez de dentro
+   dele. Ver a nota em `botoes-etapa.tsx`: o rótulo inteiro não cabia na pílula
+   e quebrava o rodapé em duas linhas. */
+.avisaCliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--txt-3);
+  white-space: nowrap;
+}
+.avisaCliente::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--espera);
+}
