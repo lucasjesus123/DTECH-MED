@@ -17,6 +17,7 @@ import { ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { valoresDeExemplo, variaveisPorGrupo } from '@/lib/variaveis-documento'
 import { comEscopo } from '@/lib/db'
 import ListaDeModelos from './lista'
+import PapelTimbrado from './papel-timbrado'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Modelos de documento', robots: { index: false } }
@@ -71,9 +72,34 @@ export default async function Documentos({
   const aba: TipoModelavel = ehTipoModelavel(q.aba ?? '') ? (q.aba as TipoModelavel) : 'CONTRATO_PRESTACAO'
   const podeMexer = podeVer(sessao.papel, Papel.GESTOR)
 
-  const [modelos, contagem, emitidos] = await Promise.all([
+  const [modelos, contagem, empresa, emitidos] = await Promise.all([
     listarModelos(ctx, aba),
     contarPorTipo(ctx),
+    /**
+     * A EMPRESA, para o papel timbrado.
+     *
+     * `findFirst` sem `where`: o escopo da sessão já limita a consulta à
+     * franquia de quem está olhando, e é o Postgres que garante isso, não um
+     * filtro escrito aqui. Pedir pelo id da sessão seria repetir a regra num
+     * segundo lugar — e o segundo lugar é o que fica para trás.
+     */
+    comEscopo(ctx, (tx) =>
+      tx.tenant.findFirst({
+        select: {
+          nome: true,
+          razaoSocial: true,
+          cnpj: true,
+          telefone: true,
+          corPrimaria: true,
+          marca: { select: { logoCaminho: true, corPrimaria: true } },
+          logradouro: true,
+          numero: true,
+          bairro: true,
+          cidade: true,
+          uf: true,
+        },
+      }),
+    ),
     // Os documentos JÁ EMITIDOS, para a tela não ser só configuração: quem abre
     // aqui muitas vezes quer conferir o que saiu, não mudar o molde.
     comEscopo(ctx, (tx) =>
@@ -128,6 +154,43 @@ export default async function Documentos({
           </p>
         </div>
       </div>
+
+      {/* O TIMBRE VEM ANTES DAS ABAS, e não depois.
+          Ele vale para os três tipos — é o alto da folha de todos —, então
+          pendurá-lo dentro de uma aba faria parecer que a marca muda conforme
+          o documento. E quem chega aqui pela primeira vez precisa ver a marca
+          da casa antes de escolher texto: é a pergunta mais barata de
+          responder e a que mais muda o papel. */}
+      {empresa ? (
+        <PapelTimbrado
+          podeMexer={podeMexer}
+          temLogo={Boolean(empresa.marca?.logoCaminho)}
+          /* O nome do arquivo já É o hash do conteúdo — `logo-<hash>.png`.
+             Ele serve de carimbo de versão sem inventar um segundo número
+             para manter sincronizado. */
+          versaoLogo={empresa.marca?.logoCaminho?.split('/').pop() ?? 'sem'}
+          empresa={{
+            nome: empresa.nome,
+            razaoSocial: empresa.razaoSocial,
+            cnpj: empresa.cnpj ? formatarDocumento(empresa.cnpj) : null,
+            endereco:
+              [
+                [empresa.logradouro, empresa.numero].filter(Boolean).join(', '),
+                empresa.bairro,
+                [empresa.cidade, empresa.uf].filter(Boolean).join('/'),
+              ]
+                .filter(Boolean)
+                .join(' · ') || null,
+            telefone: empresa.telefone,
+            // A mesma conferência do gerador: o valor vem de um campo de texto
+            // e acaba num atributo de estilo. Fora do formato, cai no padrão.
+            // A MESMA precedência do gerador de PDF: a cor do timbre, depois
+            // a do cadastro da franquia, depois o roxo de origem. Duas ordens
+            // diferentes fariam a prévia mentir sobre o papel.
+            cor: hex(empresa.marca?.corPrimaria) ?? hex(empresa.corPrimaria) ?? '#4A0D8F',
+          }}
+        />
+      ) : null}
 
       <div className={estilo.rotaBarra}>
         <nav className={estilo.abas} aria-label="Tipos de documento">
@@ -270,4 +333,18 @@ export default async function Documentos({
       </div>
     </>
   )
+}
+
+/** CNPJ com a pontuação, como ele aparece no papel. */
+function formatarDocumento(d: string): string {
+  const n = d.replace(/\D/g, '')
+  if (n.length === 14) return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+  if (n.length === 11) return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  return d
+}
+
+/** A cor que pode entrar num atributo de estilo — e no PDF. */
+function hex(valor: string | null | undefined): string | null {
+  if (!valor) return null
+  return /^#[0-9a-fA-F]{6}$/.test(valor.trim()) ? valor.trim() : null
 }

@@ -359,6 +359,7 @@ model Tenant {
   recorrencias        Recorrencia[]
   compromissos        Compromisso[]
   modelosDocumento    ModeloDocumento[]
+  marca               MarcaEmpresa?
 
   @@index([ativo])
   @@map("tenants")
@@ -1962,6 +1963,50 @@ model Compromisso {
 /// desenho: ele NÃO é apagado, sai impresso — um documento com
 /// `{{cliente_nomee}}` na folha é notado; um com um buraco no lugar do nome é
 /// assinado.
+/// A IDENTIDADE VISUAL DA FRANQUIA NOS DOCUMENTOS — o papel timbrado.
+///
+/// POR QUE NÃO É UMA COLUNA EM `Tenant`, onde `logoUrl` já espera desde o
+/// primeiro dia: aquela linha guarda `plano`, `ativo` e `bloqueado`, e por isso
+/// a política dela só aceita escrita do dono da plataforma. RLS é por LINHA, e
+/// não por coluna — abrir UPDATE lá para o administrador da franquia daria a
+/// ele o poder de se desbloquear e de trocar o próprio plano.
+///
+/// Aqui o franqueado manda na marca dele sem encostar no contrato comercial
+/// dele. Ver `20260915120000_papel_timbrado_da_franquia`.
+model MarcaEmpresa {
+  id       String @id @default(cuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  /// Caminho no acervo, relativo. PNG, com a transparência preservada: uma logo
+  /// achatada em JPEG ganha retângulo preto por trás no papel.
+  logoCaminho String?
+  /// SHA-256 do arquivo gravado. É ele que dá o nome do arquivo, e é por isso
+  /// que trocar a logo muda o endereço e o navegador nunca entrega a antiga.
+  logoHash    String?
+  logoLargura Int?
+  logoAltura  Int?
+
+  /// A cor da régua e dos rótulos do documento, em `#rrggbb`.
+  ///
+  /// Nula cai em `tenant.corPrimaria`, que cai no roxo de origem — quem nunca
+  /// escolher cor nenhuma não vê diferença. Existe aqui, e não lá, pelo mesmo
+  /// motivo da logo: aquela linha só aceita escrita do dono da plataforma.
+  ///
+  /// O formato é conferido por CHECK no banco, e não só na tela: este valor
+  /// entra direto no PDFKit, e o que ele não entende não vira "cor errada" —
+  /// vira o documento que não foi emitido.
+  corPrimaria String?
+
+  atualizadoEm DateTime @updatedAt
+  autorId      String?
+  /// Copiado, e não pendurado: quem trocou a marca continua respondido depois
+  /// de a pessoa sair da empresa.
+  autorNome    String?
+
+  @@map("marca_empresa")
+}
+
 model ModeloDocumento {
   id       String @id @default(cuid())
   tenantId String

@@ -429,6 +429,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
   Compromisso: 'Compromisso',
+  MarcaEmpresa: 'MarcaEmpresa',
   ModeloDocumento: 'ModeloDocumento',
   Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
@@ -453,7 +454,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "proposta" | "propostaItem" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "pushInscricao" | "lead" | "auditLog" | "lancamento" | "compromisso" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
+    modelProps: "tenant" | "user" | "sessao" | "cliente" | "equipamento" | "ordem" | "eventoOrdem" | "foto" | "assinatura" | "proposta" | "propostaItem" | "orcamento" | "orcamentoItem" | "pecaRetirada" | "contratoManutencao" | "visitaPreventiva" | "peca" | "emprestimoFerramenta" | "movimentoEstoque" | "fatura" | "pagamento" | "agendamento" | "documento" | "outboxJob" | "mensagemWhatsapp" | "templateMensagem" | "whatsappInstance" | "pushInscricao" | "lead" | "auditLog" | "lancamento" | "compromisso" | "marcaEmpresa" | "modeloDocumento" | "recorrencia" | "recuperacaoSenha" | "contador" | "conteudoSite" | "conteudoSiteVersao" | "posicaoRota" | "configPlataforma" | "colunaQuadro"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2825,6 +2826,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MarcaEmpresa: {
+      payload: Prisma.$MarcaEmpresaPayload<ExtArgs>
+      fields: Prisma.MarcaEmpresaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MarcaEmpresaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MarcaEmpresaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        findFirst: {
+          args: Prisma.MarcaEmpresaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MarcaEmpresaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        findMany: {
+          args: Prisma.MarcaEmpresaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>[]
+        }
+        create: {
+          args: Prisma.MarcaEmpresaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        createMany: {
+          args: Prisma.MarcaEmpresaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MarcaEmpresaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>[]
+        }
+        delete: {
+          args: Prisma.MarcaEmpresaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        update: {
+          args: Prisma.MarcaEmpresaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        deleteMany: {
+          args: Prisma.MarcaEmpresaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MarcaEmpresaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MarcaEmpresaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>[]
+        }
+        upsert: {
+          args: Prisma.MarcaEmpresaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MarcaEmpresaPayload>
+        }
+        aggregate: {
+          args: Prisma.MarcaEmpresaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMarcaEmpresa>
+        }
+        groupBy: {
+          args: Prisma.MarcaEmpresaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarcaEmpresaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MarcaEmpresaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MarcaEmpresaCountAggregateOutputType> | number
+        }
+      }
+    }
     ModeloDocumento: {
       payload: Prisma.$ModeloDocumentoPayload<ExtArgs>
       fields: Prisma.ModeloDocumentoFieldRefs
@@ -4273,6 +4348,22 @@ export const CompromissoScalarFieldEnum = {
 export type CompromissoScalarFieldEnum = (typeof CompromissoScalarFieldEnum)[keyof typeof CompromissoScalarFieldEnum]
 
 
+export const MarcaEmpresaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  logoCaminho: 'logoCaminho',
+  logoHash: 'logoHash',
+  logoLargura: 'logoLargura',
+  logoAltura: 'logoAltura',
+  corPrimaria: 'corPrimaria',
+  atualizadoEm: 'atualizadoEm',
+  autorId: 'autorId',
+  autorNome: 'autorNome'
+} as const
+
+export type MarcaEmpresaScalarFieldEnum = (typeof MarcaEmpresaScalarFieldEnum)[keyof typeof MarcaEmpresaScalarFieldEnum]
+
+
 export const ModeloDocumentoScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -5052,6 +5143,7 @@ export type GlobalOmitConfig = {
   auditLog?: Prisma.AuditLogOmit
   lancamento?: Prisma.LancamentoOmit
   compromisso?: Prisma.CompromissoOmit
+  marcaEmpresa?: Prisma.MarcaEmpresaOmit
   modeloDocumento?: Prisma.ModeloDocumentoOmit
   recorrencia?: Prisma.RecorrenciaOmit
   recuperacaoSenha?: Prisma.RecuperacaoSenhaOmit

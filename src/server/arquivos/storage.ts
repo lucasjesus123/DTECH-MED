@@ -157,6 +157,93 @@ export async function guardarFoto(entrada: {
 }
 
 /**
+ * GUARDA A LOGO DA EMPRESA — a marca que vira papel timbrado.
+ *
+ * =============================================================================
+ * POR QUE NÃO PASSA POR `guardarFoto`
+ * =============================================================================
+ * Aquela reescreve tudo em JPEG, e JPEG não tem transparência. Uma logo em PNG
+ * com fundo transparente, convertida em JPEG, ganha um retângulo PRETO por trás
+ * — e o papel timbrado da empresa sairia com um bloco preto no alto da folha,
+ * em todo contrato e em toda O.S.
+ *
+ * Aqui a saída é PNG, com o canal alfa preservado. O PDFKit desenha PNG com
+ * transparência sem reclamar, e a logo pousa sobre o branco da folha como
+ * pousaria sobre o papel.
+ *
+ * =============================================================================
+ * O QUE CONTINUA IGUAL, E POR QUÊ
+ * =============================================================================
+ * A conferência dos BYTES antes de qualquer biblioteca de imagem tocar no
+ * arquivo (`formatoReal`), e a REESCRITA da imagem. A reescrita é o que
+ * descarta metadado e conteúdo enxertado no fim do arquivo — vale para a logo
+ * exatamente como vale para a foto do aparelho, e aqui vale mais: este arquivo
+ * vai ser embutido em todo documento que a empresa emitir.
+ *
+ * O limite é menor, 3 MB. Logo é vetor rasterizado, não fotografia; um arquivo
+ * maior que isso é quase sempre um print de tela que alguém arrastou, e ele
+ * ficaria borrado no papel de qualquer jeito.
+ */
+export type ResultadoLogo =
+  | { ok: true; caminho: string; hash: string; largura: number; altura: number; bytes: number }
+  | { ok: false; motivo: string }
+
+const LIMITE_LOGO_BYTES = 3 * 1024 * 1024
+
+export async function guardarLogo(entrada: { tenantId: string; arquivo: File }): Promise<ResultadoLogo> {
+  const { arquivo } = entrada
+
+  if (arquivo.size === 0) return { ok: false, motivo: 'O arquivo chegou vazio.' }
+  if (arquivo.size > LIMITE_LOGO_BYTES) {
+    return {
+      ok: false,
+      motivo: `Arquivo muito pesado (${(arquivo.size / 1024 / 1024).toFixed(1)} MB). O limite da logo é 3 MB.`,
+    }
+  }
+  if (!TIPOS.has(arquivo.type)) {
+    return { ok: false, motivo: 'Formato não aceito. Envie PNG, JPG ou WebP — PNG com fundo transparente fica melhor.' }
+  }
+
+  const bruto = Buffer.from(await arquivo.arrayBuffer())
+  if (formatoReal(bruto) === null) return { ok: false, motivo: RECUSA_DE_FORMATO }
+
+  let saida: { data: Buffer; info: { width: number; height: number } }
+  try {
+    saida = await sharp(bruto)
+      .rotate()
+      /**
+       * 900 × 300 é o teto, e ele nasce do papel.
+       *
+       * No cabeçalho do PDF a logo ocupa no máximo 150 × 46 pontos. A 300 dpi
+       * — a resolução em que uma impressora comum imprime sem serrilhar — isso
+       * dá cerca de 625 × 190 pixels. O teto acima tem folga sobre esse número
+       * e para por aí: acima disso o arquivo pesa em todo documento emitido
+       * sem que nada apareça melhor no papel.
+       */
+      .resize(900, 300, { fit: 'inside', withoutEnlargement: true })
+      .png({ compressionLevel: 9 })
+      .toBuffer({ resolveWithObject: true })
+  } catch {
+    return { ok: false, motivo: 'A imagem chegou incompleta ou corrompida. Envie o arquivo de novo.' }
+  }
+
+  const hash = hashArquivo(saida.data)
+  // O nome sai do HASH DO CONTEÚDO: trocar a logo muda o endereço, e o
+  // navegador nunca entrega a marca velha de um cache antigo.
+  const caminho = path.join(entrada.tenantId, 'marca', `logo-${hash.slice(0, 16)}.png`)
+  await gravar(caminho, saida.data)
+
+  return {
+    ok: true,
+    caminho,
+    hash,
+    largura: saida.info.width,
+    altura: saida.info.height,
+    bytes: saida.data.length,
+  }
+}
+
+/**
  * Grava a assinatura desenhada no visor.
  *
  * Chega como data URL do canvas. A validação é estrita de propósito: este é um

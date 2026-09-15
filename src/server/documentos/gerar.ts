@@ -63,7 +63,10 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     const o = await tx.ordem.findUnique({
       where: { id: pedido.ordemId },
       include: {
-        tenant: true,
+        // `marca` junto do tenant: é o papel timbrado, e ele é lido em TODO
+        // documento. Uma segunda consulta por fora custaria uma ida ao banco
+        // por PDF emitido para buscar um caminho de arquivo.
+        tenant: { include: { marca: true } },
         cliente: true,
         equipamento: true,
         tecnico: { select: { nome: true } },
@@ -108,25 +111,83 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   doc.on('data', (c: Buffer) => pedacos.push(c))
   const pronto = new Promise<Buffer>((res) => doc.on('end', () => res(Buffer.concat(pedacos))))
 
-  const VIO = '#4A0D8F'
+  /**
+   * A COR É DA EMPRESA, e não do código.
+   *
+   * A ordem de precedência é: a cor que o FRANQUEADO escolheu no papel
+   * timbrado, depois a que está no cadastro da franquia (escrita pelo dono da
+   * plataforma), depois o roxo de origem — que é exatamente o que estava
+   * escrito aqui à mão. Quem nunca mexeu em cor nenhuma não vê diferença.
+   *
+   * A conferência do formato não é paranoia: este texto vai direto para o
+   * PDFKit, e um valor estranho ali derruba a geração do documento inteiro —
+   * o contrato não sai, e ninguém liga a falha à cor que alguém digitou.
+   */
+  const VIO =
+    corSegura(dados.tenant.marca?.corPrimaria) ?? corSegura(dados.tenant.corPrimaria) ?? '#4A0D8F'
   const TINTA = '#14071F'
   const CINZA = '#6C6079'
 
-  // ---- cabeçalho ----------------------------------------------------------
-  doc.fillColor(VIO).fontSize(20).font('Helvetica-Bold').text(dados.tenant.nome, { continued: false })
+  /* =========================================================================
+     O CABEÇALHO — PAPEL TIMBRADO DE VERDADE
+     =========================================================================
+     `tenant.logoUrl` existia no banco desde o primeiro dia, com o comentário
+     "identidade visual da franquia nos documentos". Nada no sistema escrevia
+     nela, e este gerador nunca a procurou: toda franquia emitia sob o mesmo
+     cabeçalho de texto puro.
+
+     Agora a logo entra à ESQUERDA e os dados da empresa à direita dela, como
+     num timbre impresso. Sem logo, o nome volta para a margem e o cabeçalho é
+     exatamente o que era — quem nunca enviou marca nenhuma não vê diferença.
+
+     Dentro de `try`, como a assinatura e as fotos: um arquivo que sumiu do
+     disco não pode impedir a emissão de um contrato. Sem a imagem o documento
+     continua válido, com o nome, o CNPJ e o endereço no lugar.
+     ========================================================================= */
+  const ALTURA_LOGO = 46
+  const LARGURA_LOGO = 150
+  let recuo = 48
+
+  const logo = dados.tenant.marca?.logoCaminho ?? null
+  if (logo) {
+    try {
+      doc.image(path.join(RAIZ(), logo), 48, doc.y, {
+        // Só `fit`: `align: 'left'` e `valign: 'top'` são o padrão do PDFKit
+        // e os tipos dele nem os aceitam — a assinatura só admite os desvios.
+        fit: [LARGURA_LOGO, ALTURA_LOGO],
+      })
+      recuo = 48 + LARGURA_LOGO + 16
+    } catch {
+      recuo = 48
+    }
+  }
+
+  const topoDoTimbre = doc.y
+  const larguraDoTexto = 547 - recuo
+
+  doc
+    .fillColor(VIO)
+    .fontSize(20)
+    .font('Helvetica-Bold')
+    .text(dados.tenant.nome, recuo, topoDoTimbre, { width: larguraDoTexto })
   doc.moveDown(0.15)
   doc.fillColor(CINZA).fontSize(8).font('Helvetica')
   const linhaEmpresa = [
     dados.tenant.razaoSocial,
-    dados.tenant.cnpj && `CNPJ ${dados.tenant.cnpj}`,
+    dados.tenant.cnpj && `CNPJ ${formatarDoc(dados.tenant.cnpj)}`,
     [dados.tenant.logradouro, dados.tenant.numero].filter(Boolean).join(', '),
     [dados.tenant.cidade, dados.tenant.uf].filter(Boolean).join('/'),
     dados.tenant.telefone,
   ]
     .filter(Boolean)
     .join('  ·  ')
-  if (linhaEmpresa) doc.text(linhaEmpresa)
+  if (linhaEmpresa) doc.text(linhaEmpresa, recuo, doc.y, { width: larguraDoTexto })
 
+  // A régua desce abaixo do MAIS BAIXO dos dois — a logo ou o texto. Sem esta
+  // conta, uma logo mais alta que as duas linhas de texto atravessava a régua.
+  const fundoDoTimbre = Math.max(doc.y, logo ? topoDoTimbre + ALTURA_LOGO : 0)
+  doc.x = 48
+  doc.y = fundoDoTimbre
   doc.moveDown(0.8)
   doc.moveTo(48, doc.y).lineTo(547, doc.y).strokeColor(VIO).lineWidth(2).stroke()
   doc.moveDown(0.9)
@@ -157,7 +218,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
         .filter(Boolean)
         .join(', ') || '—',
     ],
-  ])
+  ], VIO)
 
   bloco(doc, 'EQUIPAMENTO', [
     ['Marca / modelo', `${dados.equipamento.marca} ${dados.equipamento.modelo}`],
@@ -166,14 +227,14 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     ['Voltagem', dados.equipamento.voltagem ?? '—'],
     ['Acessórios', dados.equipamento.acessorios ?? '—'],
     ['Defeito relatado', dados.defeitoRelatado],
-  ])
+  ], VIO)
 
   // ---- corpo específico ---------------------------------------------------
   const orc = dados.orcamentos[0]
 
   if ((pedido.documento === 'ORCAMENTO' || pedido.documento === 'CONTRATO_MANUTENCAO') && orc) {
     doc.moveDown(0.4)
-    rotulo(doc, 'ITENS')
+    rotulo(doc, 'ITENS', VIO)
     const larguras = [246, 48, 88, 88]
     linhaTabela(doc, ['Descrição', 'Qtd', 'Unitário', 'Total'], larguras, true)
     for (const i of orc.itens) {
@@ -207,7 +268,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
 
     if (pedido.documento === 'CONTRATO_MANUTENCAO') {
       doc.moveDown(1)
-      rotulo(doc, 'CONDIÇÕES')
+      rotulo(doc, 'CONDIÇÕES', VIO)
       doc.fillColor(TINTA).fontSize(8).font('Helvetica').text(
         `Ao aprovar este orçamento, o CONTRATANTE autoriza a execução dos serviços e a aplicação das peças ` +
           `descritas acima, pelo valor total de ${formatarBRL(orc.totalCentavos)}. A CONTRATADA garante o serviço ` +
@@ -294,7 +355,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   if (pedido.documento === 'CONTRATO_PRESTACAO' && !usouModelo) {
     const valor = dados.fatura?.valorTotalCentavos ?? orc?.totalCentavos ?? 0
 
-    rotulo(doc, 'AS PARTES')
+    rotulo(doc, 'AS PARTES', VIO)
     doc.fillColor(TINTA).fontSize(8.5).font('Helvetica').text(
       `CONTRATADA: ${dados.tenant.razaoSocial ?? dados.tenant.nome}, inscrita no CNPJ sob o nº ` +
         `${dados.tenant.cnpj ? formatarDoc(dados.tenant.cnpj) : '—'}, com sede em ` +
@@ -312,7 +373,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     )
 
     doc.moveDown(1)
-    rotulo(doc, 'OBJETO')
+    rotulo(doc, 'OBJETO', VIO)
     doc.fillColor(TINTA).fontSize(8.5).font('Helvetica').text(
       `Prestação de serviço técnico especializado no equipamento ${dados.equipamento.marca} ` +
         `${dados.equipamento.modelo}${dados.equipamento.numeroSerie ? `, série ${dados.equipamento.numeroSerie}` : ''}, ` +
@@ -322,7 +383,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     )
 
     doc.moveDown(1)
-    rotulo(doc, 'CLÁUSULAS')
+    rotulo(doc, 'CLÁUSULAS', VIO)
     doc.fillColor(TINTA).fontSize(8).font('Helvetica').text(
       `1. PRAZO. A CONTRATADA executará o serviço em até ${orc?.prazoExecucaoDias ?? 7} dias úteis, ` +
         `contados da aprovação do orçamento, salvo atraso de fornecedor de peça, comunicado ao CONTRATANTE.\n\n` +
@@ -423,11 +484,11 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   if (pedido.documento === 'ORDEM_SERVICO' && !usouModelo) {
     for (const secao of corpoDaOrdemDeServico(dados)) {
       if (secao.tipo === 'bloco') {
-        bloco(doc, secao.titulo, secao.linhas)
+        bloco(doc, secao.titulo, secao.linhas, VIO)
         continue
       }
       doc.moveDown(0.4)
-      rotulo(doc, 'VALORES')
+      rotulo(doc, 'VALORES', VIO)
       const larguras = [246, 48, 88, 88]
       linhaTabela(doc, ['Descrição', 'Qtd', 'Unitário', 'Total'], larguras, true)
       for (const i of secao.itens) {
@@ -459,11 +520,11 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
       ['Técnico', dados.tecnico?.nome ?? '—'],
       ['Constatação', dados.diagnostico ?? '—'],
       ['Parecer', dados.parecerTecnico ?? '—'],
-    ])
+    ], VIO)
   }
 
   if (pedido.documento === 'RECIBO_PAGAMENTO' && dados.fatura) {
-    rotulo(doc, 'RECEBIMENTOS')
+    rotulo(doc, 'RECEBIMENTOS', VIO)
     const larguras = [200, 130, 140]
     linhaTabela(doc, ['Forma', 'Data', 'Valor'], larguras, true)
     for (const p of dados.fatura.pagamentos) {
@@ -496,7 +557,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
 
   if (assin) {
     doc.moveDown(1.4)
-    rotulo(doc, 'ASSINATURA')
+    rotulo(doc, 'ASSINATURA', VIO)
     doc.moveDown(0.4)
 
     /**
@@ -567,7 +628,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   const FOTOS_NA_FOLHA = 8
   if (dados.fotos.length > 0) {
     doc.moveDown(1.4)
-    rotulo(doc, `FOTOS DO APARELHO (${dados.fotos.length})`)
+    rotulo(doc, `FOTOS DO APARELHO (${dados.fotos.length})`, VIO)
     doc.moveDown(0.5)
 
     const LARG = 118
@@ -710,13 +771,30 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
 
 type Doc = InstanceType<typeof PDFDocument>
 
-function rotulo(doc: Doc, texto: string) {
-  doc.fillColor('#4A0D8F').fontSize(8).font('Helvetica-Bold').text(texto)
+function rotulo(doc: Doc, texto: string, cor = '#4A0D8F') {
+  doc.fillColor(cor).fontSize(8).font('Helvetica-Bold').text(texto)
   doc.moveDown(0.25)
 }
 
-function bloco(doc: Doc, titulo: string, linhas: Array<[string, string]>) {
-  rotulo(doc, titulo)
+/**
+ * A COR QUE PODE ENTRAR NO PDF, e nada mais.
+ *
+ * O valor vem do cadastro da franquia, ou seja, de um campo de texto que
+ * alguém digita. O PDFKit aceita `fillColor` e estoura com o que não entende —
+ * e o estouro não aparece como "cor inválida": aparece como o contrato que não
+ * foi emitido, na etapa em que o cliente estava esperando o documento.
+ *
+ * Seis dígitos com a cerquilha, ou nada. Três dígitos (`#abc`) ficam de fora
+ * de propósito: aceitar duas gramáticas para o mesmo campo é convidar a
+ * terceira.
+ */
+function corSegura(valor: string | null | undefined): string | null {
+  if (!valor) return null
+  return /^#[0-9a-fA-F]{6}$/.test(valor.trim()) ? valor.trim() : null
+}
+
+function bloco(doc: Doc, titulo: string, linhas: Array<[string, string]>, cor = '#4A0D8F') {
+  rotulo(doc, titulo, cor)
   for (const [k, v] of linhas) {
     doc.fillColor('#6C6079').fontSize(8).font('Helvetica').text(`${k}: `, { continued: true })
     doc.fillColor('#14071F').font('Helvetica-Bold').text(v || '—')

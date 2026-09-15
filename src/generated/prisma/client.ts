@@ -296,7 +296,7 @@ export type Lancamento = Prisma.LancamentoModel
  */
 export type Compromisso = Prisma.CompromissoModel
 /**
- * Model ModeloDocumento
+ * Model MarcaEmpresa
  * O MOLDE DE UM DOCUMENTO — escrito pela empresa, não pelo programador.
  * 
  * Contrato de prestação e nota promissória nasceram com o texto dentro do
@@ -313,6 +313,21 @@ export type Compromisso = Prisma.CompromissoModel
  * desenho: ele NÃO é apagado, sai impresso — um documento com
  * `{{cliente_nomee}}` na folha é notado; um com um buraco no lugar do nome é
  * assinado.
+ * A IDENTIDADE VISUAL DA FRANQUIA NOS DOCUMENTOS — o papel timbrado.
+ * 
+ * POR QUE NÃO É UMA COLUNA EM `Tenant`, onde `logoUrl` já espera desde o
+ * primeiro dia: aquela linha guarda `plano`, `ativo` e `bloqueado`, e por isso
+ * a política dela só aceita escrita do dono da plataforma. RLS é por LINHA, e
+ * não por coluna — abrir UPDATE lá para o administrador da franquia daria a
+ * ele o poder de se desbloquear e de trocar o próprio plano.
+ * 
+ * Aqui o franqueado manda na marca dele sem encostar no contrato comercial
+ * dele. Ver `20260915120000_papel_timbrado_da_franquia`.
+ */
+export type MarcaEmpresa = Prisma.MarcaEmpresaModel
+/**
+ * Model ModeloDocumento
+ * 
  */
 export type ModeloDocumento = Prisma.ModeloDocumentoModel
 /**

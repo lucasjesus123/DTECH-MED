@@ -83,6 +83,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Lancamento: 'Lancamento',
   Compromisso: 'Compromisso',
+  MarcaEmpresa: 'MarcaEmpresa',
   ModeloDocumento: 'ModeloDocumento',
   Recorrencia: 'Recorrencia',
   RecuperacaoSenha: 'RecuperacaoSenha',
@@ -851,6 +852,22 @@ export const CompromissoScalarFieldEnum = {
 } as const
 
 export type CompromissoScalarFieldEnum = (typeof CompromissoScalarFieldEnum)[keyof typeof CompromissoScalarFieldEnum]
+
+
+export const MarcaEmpresaScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  logoCaminho: 'logoCaminho',
+  logoHash: 'logoHash',
+  logoLargura: 'logoLargura',
+  logoAltura: 'logoAltura',
+  corPrimaria: 'corPrimaria',
+  atualizadoEm: 'atualizadoEm',
+  autorId: 'autorId',
+  autorNome: 'autorNome'
+} as const
+
+export type MarcaEmpresaScalarFieldEnum = (typeof MarcaEmpresaScalarFieldEnum)[keyof typeof MarcaEmpresaScalarFieldEnum]
 
 
 export const ModeloDocumentoScalarFieldEnum = {

@@ -9153,3 +9153,123 @@ a.osListaItem:hover { background: var(--sup-1); }
 .tabelaEquipe .comDica::after { left: 0; transform: translateY(3px); }
 .tabelaEquipe .comDica:hover::after,
 .tabelaEquipe .comDica:focus-within::after { transform: translateY(0); }
+
+/* =========================================================================
+   O PAPEL TIMBRADO
+   -------------------------------------------------------------------------
+   A prévia à esquerda é o cabeçalho do PDF desenhado em HTML: mesma ordem,
+   mesma hierarquia, mesma régua na cor da empresa. Ela existe porque a única
+   alternativa era emitir um documento de verdade para ver como ficou — e
+   ninguém emite contrato para testar logo.
+   ========================================================================= */
+.timbreGrade {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--s5);
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .timbreGrade { grid-template-columns: 1fr; }
+}
+
+/* A folha. Branca sempre, inclusive no tema escuro: o papel é branco, e uma
+   prévia que muda de cor com o tema estaria mentindo sobre o que vai imprimir. */
+.timbrePrevia {
+  background: #FFFFFF;
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  padding: var(--s4) var(--s5) var(--s5);
+  overflow: hidden;
+}
+.timbreTopo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s4);
+  min-height: 46px;
+}
+.timbreLogo {
+  max-width: 150px;
+  max-height: 46px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.timbreTexto {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.timbreTexto strong {
+  font-family: var(--f-display);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.timbreTexto span {
+  font-size: 11px;
+  line-height: 1.45;
+  /* Cinza fixo, e não `--txt-3`: esta caixa é papel branco em qualquer tema, e
+     o token do texto fraco vira quase branco no escuro — ilegível aqui. */
+  color: #6C6079;
+}
+.timbreRegua {
+  height: 2px;
+  margin: var(--s3) 0 var(--s3);
+  border-radius: 1px;
+}
+.timbreCorpo { display: grid; gap: 3px; }
+.timbreCorpo strong {
+  font-family: var(--f-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: #14071F;
+}
+.timbreCorpo span {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: #6C6079;
+}
+
+.timbreLado { display: grid; gap: var(--s3); align-content: start; }
+.timbreAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s3);
+}
+/* O rótulo É o botão de arquivo, e precisa mostrar o foco: o `input` que o
+   recebe está escondido atrás dele. */
+.timbreAcoes label { cursor: pointer; }
+.timbreAcoes label:focus-within {
+  outline: 2px solid var(--vio);
+  outline-offset: 2px;
+}
+
+/* O seletor de cor do timbre. O poço nativo vem com moldura de sistema em
+   todo navegador; aqui ele ganha a mesma borda dos outros controles para não
+   ser a única peça da tela com cara de outro lugar. */
+.timbreCor { display: grid; gap: var(--s2); }
+.timbreCorLinha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+.timbreCorPoco {
+  width: 46px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--campo-borda);
+  border-radius: var(--r);
+  background: var(--campo);
+  cursor: pointer;
+}
+.timbreCorPoco::-webkit-color-swatch-wrapper { padding: 0; }
+.timbreCorPoco::-webkit-color-swatch { border: 0; border-radius: 3px; }
+.timbreCorHex {
+  font-family: var(--f-mono);
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  text-transform: lowercase;
+}
