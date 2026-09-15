@@ -115,11 +115,19 @@ function Cartao({
   /** No modo gestão a linha precisa dizer DE QUEM é — senão vira uma pilha sem dono. */
   mostrarQuem?: boolean
 }) {
-  return (
-    <Link
-      href={`/app/${item.tipo === 'PRAZO' ? 'tecnico' : 'motorista'}/${item.ordemId}`}
-      className={item.atrasado ? `${estilo.agItem} ${estilo.agItemAtrasado}` : estilo.agItem}
-    >
+  const classe = item.atrasado ? `${estilo.agItem} ${estilo.agItemAtrasado}` : estilo.agItem
+
+  /**
+   * A VISITA PREVENTIVA AINDA NÃO MARCADA COMO O.S. NÃO TEM PARA ONDE LEVAR.
+   *
+   * Ela existe entre "a central marcou" e "alguém gerou a ordem", e nesse
+   * intervalo não há O.S. para abrir. Um link para `/app/tecnico/null` seria um
+   * toque que dá em erro — e numa tela usada com uma mão, na rua, um alvo que
+   * não leva a lugar nenhum é pior que alvo nenhum. Assim que a visita vira
+   * ordem, `ordemId` deixa de ser nulo e a linha volta a ser tocável.
+   */
+  const conteudo = (
+    <>
       <div className={estilo.agTopo}>
         <span className={estilo.mono}>
           {item.tipo === 'PRAZO' ? 'PRAZO' : item.tipo}
@@ -134,11 +142,22 @@ function Cartao({
       <p className={estilo.agEtapa}>{item.etapaRotulo}</p>
       {/* A SEM MOTORISTA é a informação mais acionável desta tela para quem
           coordena: é a parada que existe, tem hora, e ninguém foi buscar. */}
-      {mostrarQuem && item.tipo !== 'PRAZO' ? (
+      {mostrarQuem && item.tipo !== 'PRAZO' && item.tipo !== 'PREVENTIVA' ? (
         <p className={item.motorista ? estilo.agQuem : estilo.agSemDono}>
           {item.motorista ?? 'sem motorista'}
         </p>
       ) : null}
+    </>
+  )
+
+  if (!item.ordemId) return <div className={classe}>{conteudo}</div>
+
+  return (
+    <Link
+      href={`/app/${item.tipo === 'PRAZO' || item.tipo === 'PREVENTIVA' ? 'tecnico' : 'motorista'}/${item.ordemId}`}
+      className={classe}
+    >
+      {conteudo}
     </Link>
   )
 }

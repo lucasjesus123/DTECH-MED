@@ -286,12 +286,22 @@ export async function bancada(ctx: ContextoAcesso, tecnicoId: string): Promise<N
  */
 export type ItemDaAgenda = {
   id: string
-  ordemId: string
+  /**
+   * A ordem a que este compromisso leva — NULO na visita preventiva que ainda
+   * não virou O.S.
+   *
+   * A visita nasce do contrato e só ganha ordem quando alguém aperta "gerar a
+   * ordem". Entre marcar e gerar existe um intervalo real, e é justamente nele
+   * que o técnico precisa saber que tem visita na quarta. Forçar um id aqui
+   * obrigaria a inventar uma O.S. que ninguém abriu.
+   */
+  ordemId: string | null
   /** 'AAAA-MM-DD' em Lajeado — a chave que agrupa a tela. */
   dia: string
   /** 'HH:MM' quando existe hora marcada; o prazo do técnico não tem. */
   hora: string | null
-  tipo: 'RETIRADA' | 'ENTREGA' | 'PRAZO'
+  tipo: 'RETIRADA' | 'ENTREGA' | 'PRAZO' | 'PREVENTIVA'
+  /** Nº da O.S. na parada e no prazo; nº do CONTRATO na visita preventiva. */
   numero: number
   cliente: string
   equipamento: string
@@ -423,28 +433,71 @@ export async function agendaDeCampo(
     }))
   }
 
-  // TÉCNICO — o que ele tem para entregar, e quando.
-  const ordens = await comEscopo(ctx, (tx) =>
-    tx.ordem.findMany({
+  /**
+   * TÉCNICO — o que ele tem para entregar, e quando.
+   *
+   * ===========================================================================
+   * A VISITA PREVENTIVA ENTRA AQUI, e antes não entrava
+   * ===========================================================================
+   * Esta consulta perguntava só por ORDEM com `tecnicoId` e prazo. A visita
+   * preventiva tem responsável, dia e hora — e não é ordem nenhuma até alguém
+   * apertar "gerar a ordem". Resultado: a central marcava a revisão da autoclave
+   * para a quarta, escolhia o técnico, avisava o cliente no WhatsApp — e o
+   * aplicativo do técnico escolhido dizia "0 compromissos".
+   *
+   * O erro não era da preventiva: ela gravava tudo certo, e o calendário do
+   * painel mostrava. Era desta consulta, que nunca perguntou. Quem descobriria
+   * o buraco é o cliente, na quarta, ligando para saber por que ninguém foi.
+   *
+   * Só as AGENDADAS: a PREVISTA é projeção do contrato, não tem dia combinado
+   * nem dono, e encher a agenda de alguém com datas que ninguém marcou é pior
+   * que a agenda vazia.
+   */
+  const [ordens, visitas] = await comEscopo(ctx, (tx) =>
+    Promise.all([
+      tx.ordem.findMany({
       where: {
         tecnicoId: userId,
         etapa: { notIn: TERMINAIS },
         prazoPrometido: { not: null, lt: fim },
       },
-      orderBy: [{ prazoPrometido: 'asc' }],
-      take: 200,
-      select: {
-        id: true,
-        numero: true,
-        etapa: true,
-        prazoPrometido: true,
-        cliente: { select: { nome: true } },
-        equipamento: { select: { marca: true, modelo: true } },
-      },
-    }),
+        orderBy: [{ prazoPrometido: 'asc' }],
+        take: 200,
+        select: {
+          id: true,
+          numero: true,
+          etapa: true,
+          prazoPrometido: true,
+          cliente: { select: { nome: true } },
+          equipamento: { select: { marca: true, modelo: true } },
+        },
+      }),
+      tx.visitaPreventiva.findMany({
+        where: {
+          responsavelId: userId,
+          status: 'AGENDADA',
+          agendadaPara: { not: null, lt: fim },
+        },
+        orderBy: [{ agendadaPara: 'asc' }],
+        take: 200,
+        select: {
+          id: true,
+          agendadaPara: true,
+          hora: true,
+          ordemId: true,
+          contrato: {
+            select: {
+              numero: true,
+              cliente: { select: { nome: true, logradouro: true, cidade: true, uf: true } },
+              equipamento: { select: { marca: true, modelo: true } },
+            },
+          },
+        },
+      }),
+    ]),
   )
 
-  return ordens.map((o) => ({
+  const prazos: ItemDaAgenda[] = ordens.map((o) => ({
     id: o.id,
     ordemId: o.id,
     dia: diaLocal(o.prazoPrometido!),
@@ -459,6 +512,46 @@ export async function agendaDeCampo(
     // Prazo de bancada não tem motorista: é trabalho parado, não deslocamento.
     motorista: null,
   }))
+
+  const preventivas: ItemDaAgenda[] = visitas.map((v) => ({
+    id: v.id,
+    /**
+     * Nulo enquanto a visita não virou O.S. — a linha existe para avisar, e a
+     * tela não oferece um toque que levaria a lugar nenhum.
+     */
+    ordemId: v.ordemId,
+    dia: diaLocal(v.agendadaPara!),
+    /**
+     * A hora combinada é o campo de texto que a central preenche; `agendadaPara`
+     * guarda o meio-dia do fuso da casa para o dia não escorregar. Ler a hora de
+     * lá mostraria 12:00 em toda visita — igual para todas, e errado em todas.
+     */
+    hora: v.hora,
+    tipo: 'PREVENTIVA' as const,
+    numero: v.contrato.numero,
+    cliente: v.contrato.cliente.nome,
+    equipamento: `${v.contrato.equipamento.marca} ${v.contrato.equipamento.modelo}`.trim(),
+    endereco: enderecoDoCliente(v.contrato.cliente),
+    etapaRotulo: 'Revisão preventiva',
+    atrasado: v.agendadaPara! < agora,
+    motorista: null,
+  }))
+
+  // Uma agenda só, em ordem cronológica: a tela agrupa por dia e contaria a
+  // história errada se os prazos viessem todos antes das visitas.
+  return [...prazos, ...preventivas].sort((a, b) =>
+    a.dia === b.dia ? (a.hora ?? '').localeCompare(b.hora ?? '') : a.dia.localeCompare(b.dia),
+  )
+}
+
+/** O endereço da visita é o do cliente — é para lá que o técnico vai. */
+function enderecoDoCliente(c: {
+  logradouro: string | null
+  cidade: string | null
+  uf: string | null
+}): string | null {
+  const partes = [c.logradouro, c.cidade, c.uf].filter((p): p is string => Boolean(p?.trim()))
+  return partes.length ? partes.join(', ') : null
 }
 
 export { Papel }
