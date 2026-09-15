@@ -109,6 +109,16 @@ export default function JanelaOS({
    * fazer aqui.
    */
   const [aba, setAba] = useState<ChaveDeAba>('agora')
+
+  /* O estado da AÇÃO. Ver a nota nas props de `Agora`: ele mora aqui para o
+     botão grande poder morar no rodapé, sempre no mesmo canto. */
+  const [observacao, setObservacao] = useState('')
+  const [erroAcao, setErroAcao] = useState<string | null>(null)
+  const [pendente, iniciar] = useTransition()
+  /* Depois de despachar, a janela mostra o que aconteceu antes de sair para a
+     rota ao vivo — "depois de despachar vem para essa tela". Sair na hora, sem
+     dizer nada, faria a janela fechar sozinha e parecer um engano. */
+  const [despachou, setDespachou] = useState<string | null>(null)
   const caixa = useRef<HTMLDivElement>(null)
   /**
    * O ELEMENTO QUE ROLA É O CORPO, NÃO A JANELA.
@@ -237,6 +247,70 @@ export default function JanelaOS({
    * dentro e o painel de baixo precisam concordar sobre qual fase é essa.
    */
   const faseVendo = faseAberta ?? p?.roteiro.faseAtual ?? 1
+
+  const executar = useCallback(
+    (para: PainelDaOrdem['passos'][number]['para']) => {
+      if (!d) return
+      setErroAcao(null)
+      iniciar(async () => {
+        const r = await avancar({ ordemId: d.id, para, observacao: observacao.trim() || undefined })
+        if (!r.ok) {
+          setErroAcao(r.motivo)
+          return
+        }
+        setObservacao('')
+        await recarregar()
+        router.refresh()
+      })
+    },
+    [d, observacao, recarregar, router],
+  )
+
+  /* =====================================================================
+     A AÇÃO PRINCIPAL DESTE MOMENTO — uma só, e sempre no mesmo canto
+     =====================================================================
+     O dono mandou o print do outro sistema dele: rodapé igual em todo passo,
+     "‹ Voltar" na esquerda e o botão grande na direita.
+
+     Aqui há uma diferença de natureza que o botão precisa respeitar, e é a
+     razão de ele não ser só um "Avançar" fixo: naquele fluxo a pessoa preenche
+     os três passos numa sentada, então o próximo passo é sempre DELA. Na O.S.
+     o passo 5 é do MOTORISTA, no aplicativo dele — e um botão que promete
+     avançar o que não é seu só sabe dar erro.
+
+     Então o botão tem três feitios:
+
+       DESPACHAR   quando o passo pede parada de rota. É a palavra do dono:
+                   "despachar (que será enviar para o motorista)".
+       o VERBO     quando o passo é de quem está olhando. Sai o título do
+                   próprio passo, que já é escrito em voz de comando.
+       QUEM ESPERA quando não é dele. Desligado, dizendo de quem é a vez —
+                   que é informação, e botão cinza sem explicação não é.
+     ===================================================================== */
+  const escolhendoComoVem =
+    d?.etapa === 'ORDEM_RETIRADA_GERADA' && (p?.passos.some((x) => x.pedeParada === 'RETIRADA') ?? false)
+  const primeiro = p?.passos[0] ?? null
+  const acaoPrincipal: {
+    rotulo: string
+    aoTocar?: () => void
+    desligado?: boolean
+    nota?: string
+  } | null = !p
+    ? null
+    : escolhendoComoVem
+      ? { rotulo: 'Despachar ›', aoTocar: () => setModo({ tela: 'parada' }) }
+      : primeiro
+        ? primeiro.pedeParada
+          ? { rotulo: 'Despachar ›', aoTocar: () => setModo({ tela: 'parada' }) }
+          : { rotulo: primeiro.titulo, aoTocar: () => executar(primeiro.para) }
+        : {
+            rotulo: 'Esperando',
+            desligado: true,
+            nota:
+              d?.etapa === 'ORCAMENTO_ENVIADO'
+                ? 'o cliente responder'
+                : (p.roteiro.passos.find((x) => x.n === p.roteiro.atual)?.quem ?? 'outra pessoa da equipe'),
+          }
 
   return (
     <div className={estilo.janelaFundo}>
@@ -430,6 +504,32 @@ export default function JanelaOS({
                       no telefone. O que mudou é que a localização deixou de ser
                       pedágio e virou o que sempre foi — uma consulta. */}
 
+                  {despachou ? (
+                    <div className={estilo.osDespachado} role="status">
+                      <p className={estilo.osDespachadoTitulo}>{despachou}</p>
+                      <p className={estilo.texto}>
+                        Daqui para frente quem anda a ordem é ele: aceita a corrida, sai, tira as
+                        fotos e colhe a assinatura no celular. Esta tela acompanha sozinha.
+                      </p>
+                      <div className={estilo.acoesForm}>
+                        <button
+                          type="button"
+                          className={estilo.btn}
+                          onClick={() => router.push('/painel/rota/ao-vivo')}
+                        >
+                          Ver na rota ao vivo ›
+                        </button>
+                        <button
+                          type="button"
+                          className={estilo.btnSec}
+                          onClick={() => setDespachou(null)}
+                        >
+                          Continuar nesta O.S.
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
                   {/* O corpo troca conforme o que a pessoa está fazendo. Um passo de
                       cada vez é a regra desta janela inteira. */}
                   {modo.tela === 'parada' && p.parada ? (
@@ -452,7 +552,21 @@ export default function JanelaOS({
                           p.passos.find((x) => x.pedeParada !== null)?.titulo ?? 'o próximo passo'
                         }
                         aoFechar={() => setModo({ tela: 'agora' })}
-                        aoMarcar={andou}
+                        /* ===== DEPOIS DE DESPACHAR, A ROTA AO VIVO =========
+                           Pedido do dono, com print: "depois de despachar vem
+                           para essa tela" — a dele se chama "Entregas e
+                           Retiradas"; a nossa é `/painel/rota/ao-vivo`, e já
+                           existia.
+
+                           Ela NÃO é aberta na hora. Primeiro a janela diz o
+                           que aconteceu e para quem foi; sair no mesmo
+                           instante faria a janela fechar sozinha logo depois
+                           de um clique, que é indistinguível de um engano.
+                           Dito isso, o botão grande passa a ser o caminho. */
+                        aoMarcar={async () => {
+                          await andou()
+                          setDespachou('Despachado. A parada já está no aplicativo do motorista.')
+                        }}
                       />
                     </Voltando>
                   ) : modo.tela === 'envio' ? (
@@ -486,6 +600,11 @@ export default function JanelaOS({
                       aoMarcarParada={() => setModo({ tela: 'parada' })}
                       aoEscolherEnvio={() => setModo({ tela: 'envio' })}
                       aoCombinar={() => setModo({ tela: 'combinado' })}
+                      observacao={observacao}
+                      setObservacao={setObservacao}
+                      erro={erroAcao}
+                      pendente={pendente}
+                      executar={executar}
                     />
                   )}
 
@@ -611,6 +730,34 @@ export default function JanelaOS({
                   <Link href={`/painel/ordens/${d!.id}`} className={estilo.osRodapeLink}>
                     Ficha completa
                   </Link>
+
+                  {/* ===== O BOTÃO GRANDE, sempre no mesmo canto =========
+                      Ver a nota de `acaoPrincipal` lá em cima. Ele só não
+                      aparece quando a pessoa está DENTRO de outra tela da
+                      janela (marcando a parada, corrigindo, espiando um
+                      passo) — ali quem manda é o formulário aberto, e dois
+                      botões grandes disputando a mesma quina é pior que
+                      nenhum. */}
+                  {modo.tela === 'agora' &&
+                  espiando === null &&
+                  faseVendo === p.roteiro.faseAtual &&
+                  aba === 'agora' &&
+                  acaoPrincipal ? (
+                    acaoPrincipal.desligado ? (
+                      <span className={estilo.osEsperandoVez}>
+                        Esperando <strong>{acaoPrincipal.nota}</strong>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        className={estilo.osAvancar}
+                        disabled={pendente}
+                        onClick={acaoPrincipal.aoTocar}
+                      >
+                        {pendente ? 'Um instante…' : acaoPrincipal.rotulo}
+                      </button>
+                    )
+                  ) : null}
                 </div>
               </div>
             </>
@@ -942,35 +1089,38 @@ function Agora({
   aoMarcarParada,
   aoEscolherEnvio,
   aoCombinar,
+  observacao,
+  setObservacao,
+  erro,
+  pendente,
+  executar,
 }: {
   painel: PainelDaOrdem
   aoAndar: () => void
   aoMarcarParada: () => void
   aoEscolherEnvio: () => void
   aoCombinar: () => void
+  /* ---------------------------------------------------------------------
+     O ESTADO DA AÇÃO SUBIU PARA A JANELA, e não é arrumação: é o que permite
+     o botão grande morar no rodapé.
+
+     Antes, `observacao`, `pendente`, `erro` e `executar` viviam aqui dentro,
+     e por isso o botão que os usa tinha de viver aqui também — a uma altura
+     diferente em cada passo, porque o texto acima dele muda de tamanho. O
+     pedido do dono, com print do outro sistema: "PERCEBA QUE TUDO TEM O
+     AVANCAR... TELA POR TELA E SEM SAIR DESSE POP UP".
+
+     Para o botão ficar sempre no mesmo canto, quem o desenha é a janela. Este
+     painel continua dono do TEXTO e dos CAMPOS do passo; a ação é de fora.
+     --------------------------------------------------------------------- */
+  observacao: string
+  setObservacao: (v: string) => void
+  erro: string | null
+  pendente: boolean
+  executar: (para: PainelDaOrdem['passos'][number]['para']) => void
 }) {
-  const [erro, setErro] = useState<string | null>(null)
-  const [observacao, setObservacao] = useState('')
-  const [pendente, iniciar] = useTransition()
   const passoAtual = painel.roteiro.passos.find((x) => x.n === painel.roteiro.atual)
   const d = painel.dossie
-
-  function executar(para: PainelDaOrdem['passos'][number]['para']) {
-    setErro(null)
-    iniciar(async () => {
-      const r = await avancar({
-        ordemId: d.id,
-        para,
-        observacao: observacao.trim() || undefined,
-      })
-      if (!r.ok) {
-        setErro(r.motivo)
-        return
-      }
-      setObservacao('')
-      aoAndar()
-    })
-  }
 
   /**
    * A ESCOLHA DO PASSO 3 tem tela própria, e não é um botão a mais na fila.
@@ -1117,21 +1267,25 @@ function Agora({
         </div>
       ) : (
         <>
-          <div className={estilo.acoesForm}>
-            {painel.passos.map((x) => (
-              <button
-                key={x.para}
-                type="button"
-                className={estilo.btn}
-                disabled={pendente}
-                onClick={() => (x.pedeParada ? aoMarcarParada() : executar(x.para))}
-              >
-                {x.titulo}
-                {x.pedeParada ? ' · escolher dia e motorista' : ''}
-                {x.avisaCliente && !x.pedeParada ? ' · avisa o cliente' : ''}
-              </button>
-            ))}
-          </div>
+          {/* A FILA DE BOTÕES SAIU DAQUI. O primeiro passo virou o botão
+              grande do rodapé; os outros, quando existem, ficam como escolha
+              secundária logo abaixo — nunca com o mesmo peso do principal. */}
+          {painel.passos.length > 1 ? (
+            <div className={estilo.acoesForm}>
+              {painel.passos.slice(1).map((x) => (
+                <button
+                  key={x.para}
+                  type="button"
+                  className={estilo.btnSec}
+                  disabled={pendente}
+                  onClick={() => (x.pedeParada ? aoMarcarParada() : executar(x.para))}
+                >
+                  {x.titulo}
+                  {x.avisaCliente && !x.pedeParada ? ' · avisa o cliente' : ''}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
           <label className={estilo.rotulo}>
             Observação (opcional)

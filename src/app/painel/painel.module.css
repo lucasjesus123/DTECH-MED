@@ -9816,3 +9816,61 @@ a.osListaItem:hover { background: var(--sup-1); }
   cursor: pointer;
 }
 .osVoltarGrande:hover { border-color: var(--vio); }
+
+/* ==========================================================================
+   O BOTÃO GRANDE DO RODAPÉ — "Avançar", "Despachar", o verbo do passo
+   --------------------------------------------------------------------------
+   Ver a nota de `acaoPrincipal` em `janela-os.tsx`. Ele é o único botão sólido
+   da janela quando está na tela: se dois botões brilham na mesma quina, nenhum
+   é o próximo passo.
+   ========================================================================== */
+.osAvancar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--vio);
+  font-family: inherit;
+  font-size: var(--t-base);
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 6px 18px -8px var(--neon-veu);
+  transition: filter 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.osAvancar:hover:not(:disabled) { filter: brightness(1.08); box-shadow: 0 8px 22px -8px var(--neon-veu); }
+.osAvancar:disabled { opacity: .6; cursor: progress; }
+.osAvancar:focus-visible { outline: 2px solid var(--vio-claro); outline-offset: 3px; }
+
+/* Quando a vez não é de quem está olhando: NÃO um botão cinza, que só sabe dar
+   erro, mas a frase dizendo de quem é. Ela ocupa o mesmo canto, para o olho não
+   procurar um botão que não vai existir naquele passo. */
+.osEsperandoVez {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border: 1px dashed var(--borda-viva);
+  border-radius: 999px;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+.osEsperandoVez strong { color: var(--txt); }
+
+/* ----- O aviso de despacho, no topo do corpo ---------------------------- */
+.osDespachado {
+  margin-bottom: var(--s4);
+  padding: var(--s4);
+  border: 1px solid var(--sinal-borda);
+  border-radius: var(--r-lg);
+  background: var(--sinal-veu);
+}
+.osDespachadoTitulo {
+  margin: 0 0 var(--s2);
+  font-family: var(--f-display);
+  font-size: var(--t-base);
+  font-weight: 700;
+  color: var(--sinal);
+}
