@@ -8722,3 +8722,68 @@ a.osListaItem:hover { background: var(--sup-1); }
   border: 1px solid rgba(251, 191, 36, .3);
 }
 .osPasso7 .bloco { border: 0; background: none; padding: 0; }
+
+/* ==========================================================================
+   A DICA QUE DEVOLVE A PALAVRA AO DESENHO
+   --------------------------------------------------------------------------
+   Um ícone sozinho economiza largura e perde o NOME. O `title` do navegador
+   devolveria o nome, mas com um segundo de espera, sem estilo e — o que pesa
+   mais — sem aparecer para quem chega pelo teclado.
+
+   Por isso `:focus-within` anda junto de `:hover`: quem atravessa a tabela com
+   Tab nunca passa mouse em lugar nenhum, e sem essa linha os ícones ficariam
+   mudos justamente para quem mais depende do rótulo.
+
+   E onde não há mouse — celular, tablet — a dica não existe. Ali quem carrega
+   o significado é o `aria-label`, que é obrigatório em cada botão.
+   ========================================================================== */
+.comDica { position: relative; display: inline-flex; }
+.comDica::after {
+  content: attr(data-dica);
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--sup);
+  font-family: var(--f-texto);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms var(--ease), transform 140ms var(--ease);
+  z-index: 40;
+}
+.comDica:hover::after,
+.comDica:focus-within::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+/* Sem mouse não há hover, e uma dica que nunca fecha vira sujeira na tela. */
+@media (hover: none) {
+  .comDica::after { content: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .comDica::after { transition: opacity 140ms linear; transform: translateX(-50%); }
+  .comDica:hover::after, .comDica:focus-within::after { transform: translateX(-50%); }
+}
+
+/* O botão de desenho que RECUSA, e o que está apagado porque a ação não cabe
+   naquela linha. Os dois herdam a forma de `.btnIcone`; só a cor muda. */
+.btnIconePerigo:hover:not(:disabled) {
+  border-color: var(--alerta);
+  color: var(--alerta);
+  background: color-mix(in srgb, var(--alerta) 8%, transparent);
+}
+.btnIcone:disabled { opacity: .45; cursor: not-allowed; }
+.btnIconeMudo {
+  opacity: .42;
+  cursor: default;
+  background: transparent;
+}
+.btnIconeMudo:hover { border-color: var(--borda-viva); color: var(--txt-2); background: transparent; }
+.btnIcone:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }

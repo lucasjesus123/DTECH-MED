@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirSessao } from '@/server/auth/guarda'
+import { NIVEL, exigirSessao } from '@/server/auth/guarda'
 import { agendaDeCampo, type ItemDaAgenda } from '@/server/consultas/campo'
 import { FUSO } from '@/lib/datas'
 import estilo from '../app.module.css'
@@ -22,7 +22,7 @@ export default async function AgendaDeCampo() {
   const { sessao, ctx } = await exigirSessao()
   const itens = await agendaDeCampo(ctx, sessao.papel, sessao.userId)
 
-  const deCampo = sessao.papel === Papel.MOTORISTA || sessao.papel === Papel.TECNICO
+  const gerencia = NIVEL[sessao.papel] >= NIVEL[Papel.GESTOR]
   const atrasados = itens.filter((i) => i.atrasado)
   const emDia = itens.filter((i) => !i.atrasado)
 
@@ -38,8 +38,8 @@ export default async function AgendaDeCampo() {
   return (
     <>
       <header className={estilo.cabecalho}>
-        <span className={estilo.grav}>Minha agenda</span>
-        <h1>{sessao.nome}</h1>
+        <span className={estilo.grav}>{gerencia ? 'Agenda da rua' : 'Minha agenda'}</span>
+        <h1>{gerencia ? (sessao.tenantNome ?? 'A rua da empresa') : sessao.nome}</h1>
         <div className={estilo.cabLinha}>
           <span>
             {itens.length} {itens.length === 1 ? 'compromisso' : 'compromissos'}
@@ -50,21 +50,26 @@ export default async function AgendaDeCampo() {
       </header>
 
       <main className={estilo.corpo}>
-        {/* Quem administra não tem agenda de campo, e mostrar uma lista vazia
-            faria parecer defeito. A dele existe — noutro lugar. */}
-        {!deCampo ? (
+        {/* Quem administra vê a rua INTEIRA, com o nome de quem vai em cada
+            linha. Antes esta tela abria vazia para ele e mandava ir ao
+            Calendário — e a resposta certa não era mandar embora, era
+            responder: o que a rua tem pela frente, e com quem está. */}
+        {gerencia ? (
           <p className={estilo.modoGestao}>
-            <strong>Modo gestão.</strong> Esta é a agenda de quem trabalha em campo — as paradas do
-            motorista e os prazos do técnico. A agenda da empresa inteira está no{' '}
+            <strong>Modo gestão.</strong> As paradas de todos os motoristas, pelos próximos 14 dias.
+            A parada sem motorista aparece marcada — é a que precisa de decisão. Para a agenda da
+            empresa inteira, com visitas e vencimentos, veja o{' '}
             <Link href="/painel/calendario">Calendário</Link>.
           </p>
         ) : null}
 
         {itens.length === 0 ? (
           <p className={estilo.vazio}>
-            {sessao.papel === Papel.MOTORISTA
-              ? 'Nenhuma parada marcada para você nos próximos dias. O que a central agendar aparece aqui.'
-              : 'Nenhuma ordem sua com prazo nos próximos dias.'}
+            {gerencia
+              ? 'Nenhuma parada marcada para os próximos 14 dias — de nenhum motorista.'
+              : sessao.papel === Papel.MOTORISTA
+                ? 'Nenhuma parada marcada para você nos próximos dias. O que a central agendar aparece aqui.'
+                : 'Nenhuma ordem sua com prazo nos próximos dias.'}
           </p>
         ) : null}
 
@@ -76,7 +81,7 @@ export default async function AgendaDeCampo() {
             </p>
             <div className={estilo.agLista}>
               {atrasados.map((i) => (
-                <Cartao key={i.id} item={i} mostrarDia />
+                <Cartao key={i.id} item={i} mostrarDia mostrarQuem={gerencia} />
               ))}
             </div>
           </section>
@@ -90,7 +95,7 @@ export default async function AgendaDeCampo() {
             </p>
             <div className={estilo.agLista}>
               {doDia.map((i) => (
-                <Cartao key={i.id} item={i} />
+                <Cartao key={i.id} item={i} mostrarQuem={gerencia} />
               ))}
             </div>
           </section>
@@ -100,7 +105,16 @@ export default async function AgendaDeCampo() {
   )
 }
 
-function Cartao({ item, mostrarDia = false }: { item: ItemDaAgenda; mostrarDia?: boolean }) {
+function Cartao({
+  item,
+  mostrarDia = false,
+  mostrarQuem = false,
+}: {
+  item: ItemDaAgenda
+  mostrarDia?: boolean
+  /** No modo gestão a linha precisa dizer DE QUEM é — senão vira uma pilha sem dono. */
+  mostrarQuem?: boolean
+}) {
   return (
     <Link
       href={`/app/${item.tipo === 'PRAZO' ? 'tecnico' : 'motorista'}/${item.ordemId}`}
@@ -118,6 +132,13 @@ function Cartao({ item, mostrarDia = false }: { item: ItemDaAgenda; mostrarDia?:
       <p className={estilo.agDetalhe}>{item.equipamento}</p>
       {item.endereco ? <p className={estilo.agDetalhe}>{item.endereco}</p> : null}
       <p className={estilo.agEtapa}>{item.etapaRotulo}</p>
+      {/* A SEM MOTORISTA é a informação mais acionável desta tela para quem
+          coordena: é a parada que existe, tem hora, e ninguém foi buscar. */}
+      {mostrarQuem && item.tipo !== 'PRAZO' ? (
+        <p className={item.motorista ? estilo.agQuem : estilo.agSemDono}>
+          {item.motorista ?? 'sem motorista'}
+        </p>
+      ) : null}
     </Link>
   )
 }

@@ -2,6 +2,7 @@ import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { diaLocal, horaLocal, janelaDoDia } from '@/lib/datas'
 import { ROTULO_ETAPA, TERMINAIS } from '@/server/ordem/maquina-estados'
+import { NIVEL } from '@/server/auth/guarda'
 
 /**
  * Consultas dos apps de campo.
@@ -299,6 +300,13 @@ export type ItemDaAgenda = {
   etapaRotulo: string
   /** Passou da data e continua em aberto. */
   atrasado: boolean
+  /**
+   * De quem é o compromisso. Só o modo gestão desenha.
+   *
+   * Nulo numa parada é a PARADA SEM DONO — que para quem gerencia não é um
+   * campo vazio, é a linha que precisa de decisão hoje.
+   */
+  motorista: string | null
 }
 
 export async function agendaDeCampo(
@@ -311,11 +319,42 @@ export async function agendaDeCampo(
   const fim = new Date(inicio.getTime() + dias * 86_400_000)
   const agora = new Date()
 
-  if (papel === Papel.MOTORISTA) {
+  /**
+   * O MODO GESTÃO DA AGENDA — que não existia, e era o buraco.
+   *
+   * ===========================================================================
+   * O QUE ACONTECIA
+   * ===========================================================================
+   * Quem administra não é MOTORISTA, então caía no ramo do TÉCNICO e a consulta
+   * perguntava por `tecnicoId: <ele>` — que é vazio, porque ele não conserta.
+   * A Agenda abria sem nada e um aviso mandava ir ao Calendário do painel.
+   *
+   * O efeito, na voz de quem usa: *"eu abri uma O.S., vinculei um motorista, e
+   * ela não aparece aqui"*. A parada existia, tinha dono e tinha data. O
+   * aplicativo simplesmente nunca perguntou por ela.
+   *
+   * ===========================================================================
+   * POR QUE MANDAR PARA O CALENDÁRIO NÃO RESOLVIA
+   * ===========================================================================
+   * O calendário do painel mostra a empresa inteira — visita, compromisso,
+   * vencimento. Quem abre o aplicativo de campo em modo gestão está fazendo
+   * OUTRA pergunta: *o que a minha rua tem pela frente, e com quem está?* É a
+   * pergunta do motorista, feita por quem coordena os motoristas, e a resposta
+   * é a agenda deles — não uma terceira tela com outro recorte.
+   *
+   * Então gestão vê a agenda de TODOS, com o nome de quem vai em cada linha e
+   * a parada sem dono aparecendo como tal. É leitura: agir na parada continua
+   * sendo de quem está na rua, porque a máquina de estados confere o dono na
+   * hora da assinatura.
+   */
+  const gerencia = NIVEL[papel] >= NIVEL[Papel.GESTOR]
+
+  if (papel === Papel.MOTORISTA || gerencia) {
     const paradas = await comEscopo(ctx, (tx) =>
       tx.agendamento.findMany({
         where: {
-          motoristaId: userId,
+          // Gestão não filtra por dono: vem a rua inteira.
+          ...(gerencia ? {} : { motoristaId: userId }),
           /**
            * A AGENDA É O QUE VEM PELA FRENTE — e a concluída saiu dela.
            *
@@ -345,6 +384,7 @@ export async function agendaDeCampo(
           previstoPara: true,
           janelaInicio: true,
           enderecoSnapshot: true,
+          motorista: { select: { nome: true } },
           ordem: {
             select: {
               id: true,
@@ -379,6 +419,7 @@ export async function agendaDeCampo(
       endereco: a.enderecoSnapshot,
       etapaRotulo: ROTULO_ETAPA[a.ordem.etapa] ?? a.ordem.etapa,
       atrasado: a.status !== 'CONCLUIDO' && a.previstoPara < agora,
+      motorista: a.motorista?.nome ?? null,
     }))
   }
 
@@ -415,6 +456,8 @@ export async function agendaDeCampo(
     endereco: null,
     etapaRotulo: ROTULO_ETAPA[o.etapa] ?? o.etapa,
     atrasado: o.prazoPrometido! < agora,
+    // Prazo de bancada não tem motorista: é trabalho parado, não deslocamento.
+    motorista: null,
   }))
 }
 
