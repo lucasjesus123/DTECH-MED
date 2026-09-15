@@ -15,6 +15,7 @@ import FotoCatalogo from '../foto-catalogo'
 import Painel from './painel-estoque'
 import AbasEstoque, { type AbaEstoque } from './abas'
 import Ferramentas from './ferramentas'
+import AcoesDoItem from './acoes-item'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Estoque', robots: { index: false } }
@@ -178,48 +179,65 @@ function AbaItens({
 }) {
   return (
     <>
-      <Painel
-        pecas={itens.map((p) => ({
-          id: p.id,
-          sku: p.sku,
-          nome: p.nome,
-          saldo: p.saldo,
-          unidade: p.unidade,
-        }))}
-        podeMexer={podeMexer}
-      />
+      {/* ===================================================================
+          UMA BARRA SÓ: PROCURAR E LANÇAR
+          ===================================================================
+          Eram duas faixas empilhadas — dois botões grandes numa, a busca na
+          outra — e juntas empurravam a tabela quase para fora da primeira
+          dobra num notebook. Quem chega ao estoque faz uma de duas coisas:
+          procura um item, ou lança um. As duas na mesma altura da tela é o
+          que faz a página parecer uma só, e devolve a lista para cima.
 
-      <form method="get" className={estilo.filtros}>
-        <div className={estilo.busca}>
-          <input
-            className={estilo.campo}
-            type="search"
-            name="busca"
-            defaultValue={busca}
-            placeholder="Código, nome, categoria, aplicação ou patrimônio"
-            aria-label="Buscar no estoque"
-          />
-        </div>
-        {/* O filtro de tipo é do BANCO, não da tela: uma casa com quatrocentos
-            itens não pode trazer os quatrocentos para escolher trinta no
-            navegador. */}
-        <label className={estilo.rotulo} style={{ maxWidth: 200 }}>
-          <span className={estilo.soLeitor}>Tipo de item</span>
-          <select className={estilo.selecao} name="tipo" defaultValue={tipo ?? ''}>
-            <option value="">Peças, insumos e ferramentas</option>
-            <option value="PECA">Só peças</option>
-            <option value="INSUMO">Só insumos</option>
-            <option value="FERRAMENTA">Só ferramentas</option>
-          </select>
-        </label>
-        <label className={estilo.rotulo} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <input type="checkbox" name="criticas" value="1" defaultChecked={criticas} />
-          só as críticas
-        </label>
-        <button type="submit" className={estilo.btn}>
-          Filtrar
-        </button>
-      </form>
+          O formulário que abre cai inteiro na linha de baixo — ver o
+          fragmento de `painel-estoque.tsx` e `.estqBarra` no CSS. */}
+      <div className={estilo.estqBarra}>
+        <form method="get" className={estilo.filtros}>
+          <div className={estilo.busca}>
+            <input
+              className={estilo.campo}
+              type="search"
+              name="busca"
+              defaultValue={busca}
+              placeholder="Código, nome, categoria, aplicação ou patrimônio"
+              aria-label="Buscar no estoque"
+            />
+          </div>
+          {/* O filtro de tipo é do BANCO, não da tela: uma casa com
+              quatrocentos itens não pode trazer os quatrocentos para escolher
+              trinta no navegador. */}
+          <label className={`${estilo.rotulo} ${estilo.filtroTipo}`}>
+            <span className={estilo.soLeitor}>Tipo de item</span>
+            <select className={estilo.selecao} name="tipo" defaultValue={tipo ?? ''}>
+              <option value="">Peças, insumos e ferramentas</option>
+              <option value="PECA">Só peças</option>
+              <option value="INSUMO">Só insumos</option>
+              <option value="FERRAMENTA">Só ferramentas</option>
+            </select>
+          </label>
+          {/* A caixa de marcar tem rótulo AO LADO, e em caixa baixa: o
+              `.rotulo` comum é um cabeçalho de campo — versalete, empilhado —
+              e uma caixinha sob uma palavra em maiúsculas lê-se como título
+              solto, não como opção que se marca. */}
+          <label className={estilo.filtroCaixa}>
+            <input type="checkbox" name="criticas" value="1" defaultChecked={criticas} />
+            só as críticas
+          </label>
+          <button type="submit" className={estilo.btnSec}>
+            Filtrar
+          </button>
+        </form>
+
+        <Painel
+          pecas={itens.map((p) => ({
+            id: p.id,
+            sku: p.sku,
+            nome: p.nome,
+            saldo: p.saldo,
+            unidade: p.unidade,
+          }))}
+          podeMexer={podeMexer}
+        />
+      </div>
 
       {itens.length === 0 ? (
         <p className={estilo.vazio}>
@@ -228,7 +246,7 @@ function AbaItens({
         </p>
       ) : (
         <div className={`${estilo.quadro} ${estilo.rolaX}`}>
-          <table className={estilo.tabela}>
+          <table className={`${estilo.tabela} ${estilo.tabelaEstoque}`}>
             <thead>
               <tr>
                 {/* A foto abre a linha porque é por ela que o olho encontra:
@@ -237,14 +255,8 @@ function AbaItens({
                 <th>
                   <span className={estilo.soLeitor}>Foto</span>
                 </th>
-                <th>Código</th>
                 <th>Item</th>
-                <th>Onde está</th>
-                <th className={estilo.dir}>Saldo</th>
-                <th className={estilo.dir}>Reservado</th>
-                <th className={estilo.dir}>Em campo</th>
                 <th className={estilo.dir}>Disponível</th>
-                <th className={estilo.dir}>Mínimo</th>
                 <th className={estilo.dir}>Venda</th>
                 <th>
                   <span className={estilo.soLeitor}>Ações</span>
@@ -255,34 +267,68 @@ function AbaItens({
               {itens.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <FotoCatalogo tipo="peca" id={p.id} nome={p.nome} tem={p.temFoto} podeMexer={podeMexer} />
+                    {/* A miniatura LEVA À FICHA e não traz "trocar · tirar"
+                        embaixo. Numa lista de duzentas linhas aquilo eram
+                        quatrocentos comandos de cadastro competindo com a
+                        informação que a pessoa veio ver — e trocar foto é
+                        coisa que se faz uma vez, na ficha, onde a imagem
+                        aparece grande o bastante para conferir se é a certa. */}
+                    {/* O link da foto é ESCONDIDO do leitor de tela e sai do
+                        caminho do Tab, de propósito: ele leva ao mesmo lugar
+                        que o nome ao lado, e um segundo link idêntico só faz
+                        quem navega por som ouvir duas vezes a mesma frase
+                        antes de chegar ao que muda. Para o mouse ele
+                        continua lá, porque clicar na imagem é natural. */}
+                    <Link
+                      href={`/painel/estoque/${p.id}`}
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    >
+                      <FotoCatalogo tipo="peca" id={p.id} nome={p.nome} tem={p.temFoto} podeMexer={false} />
+                    </Link>
                   </td>
-                  <td className={estilo.num}>{p.sku}</td>
+
                   <td>
                     <Link href={`/painel/estoque/${p.id}`} className={estilo.forte}>
                       {p.nome}
                     </Link>
-                    <div className={estilo.fraco}>
-                      {/* O tipo aparece na linha porque ele muda o que os
+                    <div className={estilo.estqSub}>
+                      {/* O tipo continua na linha porque ele muda o que os
                           números querem dizer: "em campo" só existe para
                           ferramenta, e ferramenta não tem preço de venda. */}
                       <span className={`${estilo.tag} ${corDoTipo(p.tipo)}`}>
                         {NOME_DO_TIPO[p.tipo as TipoItem] ?? p.tipo}
                       </span>
-                      {p.categoria ? ` ${p.categoria}` : ''}
-                      {p.patrimonio ? ` · patr. ${p.patrimonio}` : ''}
+                      <span className={estilo.num}>{p.sku}</span>
+                      {p.categoria ? <span>{p.categoria}</span> : null}
+                      {p.patrimonio ? <span>patr. {p.patrimonio}</span> : null}
+                      {p.localizacao ? <span>na {p.localizacao}</span> : null}
                     </div>
                   </td>
-                  <td>{p.localizacao ?? <span className={estilo.fraco}>—</span>}</td>
-                  <td className={`${estilo.num} ${estilo.dir}`}>
-                    {p.saldo} {p.unidade}
+
+                  {/* ===================================================
+                      SEIS COLUNAS DE NÚMERO VIRARAM UMA
+                      ===================================================
+                      Saldo, reservado, em campo, disponível, mínimo e venda
+                      ocupavam metade da tabela, e cinco delas eram contexto
+                      de uma só: o DISPONÍVEL é o número que decide se a O.S.
+                      anda. As outras não sumiram — desceram para a linha de
+                      baixo, onde respondem "por que este número é este"
+                      para quem perguntar, sem cobrar largura de quem não
+                      está perguntando.
+
+                      A conta que ninguém vê: disponível = saldo − reservado
+                      − emprestado. */}
+                  <td className={estilo.dir}>
+                    <strong
+                      className={`${estilo.estqValor} ${p.critica ? estilo.estqValorBaixo : ''}`}
+                    >
+                      {p.livre}
+                      <span className={estilo.estqUnidade}>{p.unidade}</span>
+                    </strong>
+                    <div className={estilo.estqSub}>{detalheDoSaldo(p)}</div>
                   </td>
-                  <td className={`${estilo.num} ${estilo.dir}`}>{p.reservado || '—'}</td>
-                  <td className={`${estilo.num} ${estilo.dir}`}>{p.emprestado || '—'}</td>
-                  <td className={`${estilo.num} ${estilo.dir} ${estilo.forte}`}>
-                    <span className={p.critica ? estilo.atrasado : undefined}>{p.livre}</span>
-                  </td>
-                  <td className={`${estilo.num} ${estilo.dir}`}>{p.minimo}</td>
+
                   <td className={`${estilo.num} ${estilo.dir}`}>
                     {p.tipo === 'FERRAMENTA' ? (
                       <span className={estilo.fraco}>—</span>
@@ -290,17 +336,9 @@ function AbaItens({
                       formatarBRL(p.precoVendaCentavos)
                     )}
                   </td>
+
                   <td>
-                    {/* Duas portas para a mesma tela: "ficha" para conferir,
-                        "editar" para quem já sabe o que vai corrigir e não
-                        quer rolar até o formulário. */}
-                    <Link href={`/painel/estoque/${p.id}`} className={estilo.fraco}>
-                      ficha
-                    </Link>{' '}
-                    ·{' '}
-                    <Link href={`/painel/estoque/${p.id}?editar=1`} className={estilo.fraco}>
-                      editar
-                    </Link>
+                    <AcoesDoItem id={p.id} nome={p.nome} />
                   </td>
                 </tr>
               ))}
@@ -310,6 +348,25 @@ function AbaItens({
       )}
     </>
   )
+}
+
+/**
+ * A LINHA QUE EXPLICA O NÚMERO GRANDE.
+ *
+ * Ela só diz o que é verdade daquele item. "de 8 un · 0 reservados · 0 em campo
+ * · mín. 0" em toda linha seria ruído com aparência de informação — e numa
+ * tabela de duzentas linhas o ruído repetido é o que faz ninguém ler nenhuma.
+ *
+ * O saldo cheio só aparece quando DIFERE do disponível: quando são iguais,
+ * repeti-lo faria parecer que são dois fatos, e não o mesmo.
+ */
+function detalheDoSaldo(p: Item): string {
+  const partes: string[] = []
+  if (p.saldo !== p.livre) partes.push(`de ${p.saldo} ${p.unidade}`)
+  if (p.reservado > 0) partes.push(`${p.reservado} reservado${p.reservado === 1 ? '' : 's'}`)
+  if (p.emprestado > 0) partes.push(`${p.emprestado} em campo`)
+  if (p.minimo > 0) partes.push(`mín. ${p.minimo}`)
+  return partes.length > 0 ? partes.join(' · ') : p.unidade
 }
 
 // ---------------------------------------------------------------------------

@@ -28,9 +28,21 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
   const [tipo, setTipo] = useState('ENTRADA')
   if (!podeMexer) return null
 
+  /**
+   * A raiz é um FRAGMENTO, e não uma caixa.
+   *
+   * Os botões precisam ficar na mesma linha da busca — quem chega aqui ou vem
+   * procurar um item ou vem lançar um, e as duas portas na mesma altura da tela
+   * é o que faz a página parecer uma só. O formulário que abre, porém, tem de
+   * cair INTEIRO na linha de baixo, ocupando a largura toda.
+   *
+   * Envolto numa `div`, ele seria um item de flex só: ou os botões desciam
+   * junto, ou o formulário nascia espremido ao lado da busca. Solto, cada parte
+   * é um item da barra e o CSS decide onde cada uma quebra.
+   */
   return (
-    <div style={{ marginBottom: 'var(--s5)' }}>
-      <div className={estilo.acoesForm}>
+    <>
+      <div className={estilo.estqAcoes}>
         <button
           type="button"
           className={aba === 'peca' ? estilo.btn : estilo.btnSec}
@@ -43,7 +55,7 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
           className={aba === 'movimento' ? estilo.btn : estilo.btnSec}
           onClick={() => setAba(aba === 'movimento' ? 'nenhuma' : 'movimento')}
         >
-          Lançar entrada, baixa ou inventário
+          Lançar movimento
         </button>
       </div>
 
@@ -124,6 +136,6 @@ export default function Painel({ pecas, podeMexer }: { pecas: Peca[]; podeMexer:
           </div>
         </form>
       ) : null}
-    </div>
+    </>
   )
 }

@@ -4516,7 +4516,7 @@
   width: 30px;
   height: 30px;
   border: 1px solid var(--borda);
-  border-radius: var(--r-md);
+  border-radius: var(--r-md, 8px);
   background: var(--sup);
   color: var(--txt-2);
   font-size: 17px;
@@ -4868,7 +4868,7 @@
 .fotoCatImg {
   width: 52px;
   height: 52px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-md, 8px);
   /* `cover` porque foto de oficina vem em qualquer proporção, e esticar
      deforma justamente o que se está tentando reconhecer. */
   object-fit: cover;
@@ -4882,15 +4882,17 @@
 .fotoCatVazia {
   width: 52px;
   height: 52px;
-  border-radius: var(--r-md);
-  border: 1px dashed var(--borda-viva);
+  border-radius: var(--r-md, 8px);
+  /* Contorno LISO e fraco, não tracejado. O tracejado é a convenção de "solte
+     um arquivo aqui" — ele pede uma ação, e repetido em duzentas linhas pede
+     duzentas vezes uma coisa que ninguém veio fazer. Aqui o quadro só guarda
+     o lugar da imagem. */
+  border: 1px solid var(--borda);
   background: var(--sup-2);
   display: grid;
   place-items: center;
-  font-size: 9px;
-  line-height: 1.1;
-  text-align: center;
   color: var(--txt-3);
+  opacity: .5;
 }
 .fotoCatAcoes {
   display: flex;
@@ -4954,7 +4956,7 @@
   padding: 5px;
   background: var(--sup);
   border: 1px solid var(--borda);
-  border-radius: var(--r-md);
+  border-radius: var(--r-md, 8px);
 }
 /* Os dias vizinhos que completam a semana. Apagados, e não escondidos: sem
    eles a grade fica com buracos nas pontas e o olho perde a coluna do dia da
@@ -5047,7 +5049,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: var(--r-md);
+  border-radius: var(--r-md, 8px);
 }
 .calDia .calEvento,
 .calDia .calMais {
@@ -8841,3 +8843,196 @@ a.osListaItem:hover { background: var(--sup-1); }
 }
 .pecaSemFoto { border-style: dashed; }
 .pecaTexto { display: grid; gap: 2px; min-width: 0; }
+
+/* =========================================================================
+   A LINHA DO ESTOQUE
+   -------------------------------------------------------------------------
+   A tabela tinha ONZE colunas: foto, código, item, onde está, saldo,
+   reservado, em campo, disponível, mínimo, venda e ações. Nenhuma era
+   inventada — e juntas faziam a tela precisar de rolagem lateral em qualquer
+   monitor, o que é o mesmo que esconder as últimas.
+
+   Ficaram cinco. Nada foi jogado fora: o que era coluna de contexto desceu
+   para a linha de baixo da célula a que pertence. Código, categoria,
+   patrimônio e prateleira explicam O ITEM, então moram sob o nome dele;
+   saldo, reservado, em campo e mínimo explicam O NÚMERO, então moram sob o
+   número.
+   ========================================================================= */
+
+/* A coluna do número não pode encolher a ponto de "12 un" quebrar em duas
+   linhas — e a do item pode e deve tomar toda a sobra. */
+.tabelaEstoque td:nth-child(3) { white-space: nowrap; }
+
+/* A miniatura vira link para a ficha. Sem isto ela herdaria o sublinhado e o
+   peso 600 que `.tabela a` dá a todo link de tabela — numa imagem, os dois não
+   fazem sentido nenhum. */
+.tabelaEstoque td:first-child a {
+  display: inline-block;
+  line-height: 0;
+  border-radius: var(--r-md, 8px);
+}
+.tabelaEstoque td:first-child a:focus-visible {
+  outline: 2px solid var(--vio);
+  outline-offset: 2px;
+}
+
+/* A LINHA DE CONTEXTO.
+   Ela é uma frase de itens separados, não uma lista: por isso o separador é
+   desenhado entre irmãos, e não grudado no texto de cada um — assim a última
+   parte nunca sai com um "·" órfão pendurado, qualquer que seja o item que
+   sobrou. */
+.estqSub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 3px;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.35;
+}
+.estqSub > span + span::before {
+  content: '·';
+  margin-right: 6px;
+  color: var(--borda-viva);
+}
+/* O selo do tipo não entra na cadeia de pontos: ele é um selo, não uma
+   palavra da frase. */
+.estqSub > .tag + span::before { content: none; margin-right: 0; }
+.estqSub > .tag {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+/* O NÚMERO QUE DECIDE.
+   Grande porque é o único da linha que responde "dá para prometer?". Os
+   outros quatro estão logo abaixo em `.estqSub`, no tamanho de quem responde
+   só quando perguntado. */
+.estqValor {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--txt);
+  line-height: 1.15;
+}
+.estqUnidade {
+  font-family: var(--f-texto);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--txt-3);
+}
+/* No mínimo ou abaixo. A cor é o aviso inteiro: escrever "crítico" ao lado
+   custaria uma coluna, e o número já está vermelho onde o olho vai parar. */
+.estqValorBaixo { color: var(--alerta); }
+.estqValorBaixo .estqUnidade { color: var(--alerta); opacity: .75; }
+
+/* No celular a tabela rola de lado, e a coluna do item é a que aguenta
+   encolher — as outras carregam número, que não quebra bem. */
+@media (max-width: 720px) {
+  .tabelaEstoque { min-width: 620px; }
+}
+
+/* A BARRA ÚNICA DO ESTOQUE — procurar à esquerda, lançar à direita.
+   -------------------------------------------------------------------------
+   Eram duas faixas empilhadas, e juntas comiam 130px antes da primeira linha
+   da tabela. Numa tela de notebook isso é a diferença entre ver seis itens e
+   ver dois.
+
+   O formulário que abre é o terceiro item da barra e quebra sozinho para a
+   linha de baixo, em largura cheia: `flex: 1 0 100%`. Sem isso ele nasceria
+   espremido ao lado da busca. */
+.estqBarra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s5);
+}
+.estqBarra > .filtros {
+  flex: 1 1 340px;
+  /* A margem de baixo era do tempo em que ele era uma faixa sozinha. Dentro da
+     barra, quem espaça é o `gap`. */
+  margin-bottom: 0;
+}
+.estqAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2);
+}
+/* O formulário que abre — cadastro de item ou movimento — toma a linha toda. */
+.estqBarra > .bloco { flex: 1 0 100%; }
+
+.filtroTipo { max-width: 210px; }
+
+/* A caixa de marcar com o rótulo AO LADO, em caixa baixa.
+   O `.rotulo` comum é um cabeçalho de campo: versalete, empilhado, 11px. Uma
+   caixinha sob uma palavra em maiúsculas lê-se como título solto, e não como
+   a opção que ela é. */
+.filtroCaixa {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.filtroCaixa input { cursor: pointer; }
+
+/* AS LARGURAS DA TABELA DE ITENS.
+   Sem isto o `width: 100%` reparte a sobra igualmente entre as cinco colunas,
+   e abre um vão de duzentos pixels entre o número e o preço — vão que o olho
+   tem de atravessar toda linha para ligar uma coisa à outra. Aqui a sobra vai
+   TODA para a coluna do nome, que é a única que sabe o que fazer com ela. */
+.tabelaEstoque th:nth-child(2),
+.tabelaEstoque td:nth-child(2) { width: 100%; }
+.tabelaEstoque th:nth-child(1),
+.tabelaEstoque td:nth-child(1),
+.tabelaEstoque th:nth-child(3),
+.tabelaEstoque td:nth-child(3),
+.tabelaEstoque th:nth-child(4),
+.tabelaEstoque td:nth-child(4),
+.tabelaEstoque th:nth-child(5),
+.tabelaEstoque td:nth-child(5) { width: 1%; white-space: nowrap; }
+
+/* A linha de contexto do número acompanha o número: alinhada à direita, sob
+   ele. Alinhada à esquerda numa célula à direita, ela desenhava um zigue-zague
+   descendo a tabela. */
+.tabelaEstoque td:nth-child(3) .estqSub { justify-content: flex-end; }
+
+/* A DICA DA ÚLTIMA COLUNA ABRE PARA A ESQUERDA.
+   -------------------------------------------------------------------------
+   Centrada, ela nasce ~60px além da borda direita da tabela. Como está
+   `opacity: 0` e não `display: none`, ela continua ocupando lugar no cálculo
+   de largura — e o `.rolaX` em volta, que é `overflow-x: auto`, respondia
+   abrindo uma barra de rolagem lateral numa tabela que cabia inteira na tela.
+
+   Uma tabela que rola de lado sem precisar faz a pessoa procurar a coluna que
+   está faltando. Não faltava nenhuma: faltava esta regra. */
+.tabela td:last-child .comDica::after {
+  left: auto;
+  right: 0;
+  transform: translateY(3px);
+}
+.tabela td:last-child .comDica:hover::after,
+.tabela td:last-child .comDica:focus-within::after {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabela td:last-child .comDica::after,
+  .tabela td:last-child .comDica:hover::after,
+  .tabela td:last-child .comDica:focus-within::after { transform: none; }
+}
+
+/* OS ÍCONES DA ÚLTIMA COLUNA NÃO QUEBRAM LINHA.
+   A coluna é dimensionada por `width: 1%`, que pede ao navegador a menor
+   largura possível. Texto obedece com `white-space: nowrap`; um contêiner
+   flex, não — ele simplesmente empilha. O resultado eram dois ícones um sobre
+   o outro e uma linha de 120px de altura numa lista feita para ser corrida. */
+.tabelaEstoque td:last-child .acoesLinha { flex-wrap: nowrap; }

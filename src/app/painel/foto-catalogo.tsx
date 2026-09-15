@@ -91,8 +91,30 @@ export default function FotoCatalogo({
            já está no tamanho certo, numa rota autenticada. */
         <img className={estilo.fotoCatImg} src={src} alt={`Foto de ${nome}`} loading="lazy" />
       ) : (
+        /* O VAZIO NÃO É UM AVISO.
+           Ele era um quadro tracejado com "sem foto" escrito dentro, repetido
+           em toda linha de uma lista de duzentos itens — duzentos avisos de
+           uma coisa que não é problema. Virou um quadro liso com o contorno
+           de uma caixa: o olho entende "aqui ia uma imagem" e segue, em vez
+           de parar para ler que ela não existe.
+
+           `aria-hidden` porque não há nada a anunciar: quem não vê a foto
+           também não precisa saber que ela falta. */
         <span className={estilo.fotoCatVazia} aria-hidden="true">
-          sem foto
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m21 16-9 5-9-5V8l9-5 9 5Z" />
+            <path d="M3 8l9 5 9-5" />
+            <path d="M12 13v8" />
+          </svg>
         </span>
       )}
 

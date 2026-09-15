@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { arquivarCliente } from '@/server/acoes/cadastros'
+import Dica from '../dica'
 import estilo from '../painel.module.css'
 
 /**
@@ -160,24 +161,6 @@ export default function AcoesDoCliente({
         </span>
       ) : null}
     </>
-  )
-}
-
-/**
- * A DICA QUE DEVOLVE A PALAVRA AO DESENHO.
- *
- * `focus-within` e não só `hover`: quem atravessa a tabela com Tab nunca passa
- * o mouse, e sem isso o teclado ficaria com os ícones mudos.
- *
- * `aria-hidden` porque o nome acessível já vem do `aria-label` de quem está
- * dentro. Sem isto o leitor de tela leria duas vezes — "Editar, Editar o
- * cadastro de Lucas" — e a repetição atrapalha quem depende dela.
- */
-function Dica({ texto, children }: { texto: string; children: React.ReactNode }) {
-  return (
-    <span className={estilo.comDica} data-dica={texto} aria-hidden={false}>
-      {children}
-    </span>
   )
 }
 
