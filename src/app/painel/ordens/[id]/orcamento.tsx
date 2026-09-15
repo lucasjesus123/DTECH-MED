@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { formatarBRL } from '@/lib/dinheiro'
+import { formatarBRL, lerValorBR } from '@/lib/dinheiro'
 import { Papel } from '@/generated/prisma/enums'
 import { enviarOrcamento, salvarOrcamento } from '@/server/acoes/orcamento'
+import CampoValor from '../../campo-valor'
 import estilo from '../../painel.module.css'
 
 /**
@@ -19,13 +20,41 @@ import estilo from '../../painel.module.css'
  * voltaria a ser um módulo paralelo que alguém precisa lembrar de atualizar.
  */
 
+/**
+ * =============================================================================
+ * QUANTIDADE E VALOR SÃO TEXTO AQUI DENTRO, E VIRAM NÚMERO NA HORA DE SALVAR
+ * =============================================================================
+ * Eram `number`, presos ao campo com `Number(e.target.value)`. Isso torna o
+ * campo impossível de usar, de três jeitos que se somam:
+ *
+ *   · APAGAR NÃO APAGA. `Number('')` é 0, então no instante em que você limpa o
+ *     campo para digitar, o "0" volta escrito por cima. É o que trava a pessoa:
+ *     ela apaga, aparece 0, ela digita, e sai "0380".
+ *   · VÍRGULA QUEBRA. `Number('380,50')` é NaN — e vírgula é como se escreve
+ *     dinheiro aqui. O total virava NaN, ou R$ 0,00.
+ *   · PONTO DE MILHAR MENTE. `Number('1.200')` é 1,2. Mil e duzentos viram um e
+ *     vinte, sem aviso nenhum, num campo de dinheiro.
+ *
+ * Guardando o que foi DIGITADO, o campo aceita "38," no meio da digitação sem
+ * que a tela reescreva nada. A conversão acontece em dois lugares só: na soma
+ * que aparece na linha e no envio — e usa `lerValorBR`, que o resto do sistema
+ * já usa e que sabe que "1.200" é mil e duzentos.
+ */
 type Item = {
   tipo: 'PECA' | 'SERVICO' | 'DESLOCAMENTO' | 'TAXA'
   pecaId: string | null
   descricao: string
-  quantidade: number
-  valorUnit: number
+  /** O que a pessoa digitou. Vazio é vazio, e não zero. */
+  quantidade: string
+  valorUnit: string
 }
+
+/** O que foi digitado, em número. Campo vazio ou pela metade vale zero. */
+const emNumero = (texto: string): number => lerValorBR(texto) ?? 0
+
+/** Número em texto brasileiro, para nascer no campo já legível. */
+const emTexto = (n: number, casas = 2): string =>
+  n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
 
 type OrcamentoView = {
   id: string
@@ -105,20 +134,33 @@ export default function Orcamento({
           tipo: i.tipo as Item['tipo'],
           pecaId: null,
           descricao: i.descricao,
-          quantidade: i.quantidade,
-          valorUnit: i.valorUnitCentavos / 100,
+          // Quantidade inteira sai sem as casas decimais: "2", e não "2,00".
+          quantidade: emTexto(i.quantidade, Number.isInteger(i.quantidade) ? 0 : 3),
+          valorUnit: emTexto(i.valorUnitCentavos / 100),
         }))
-      : [{ tipo: 'SERVICO', pecaId: null, descricao: '', quantidade: 1, valorUnit: 0 }],
+      : [{ tipo: 'SERVICO', pecaId: null, descricao: '', quantidade: '1', valorUnit: '' }],
   )
-  const [desconto, setDesconto] = useState((atual?.descontoCentavos ?? 0) / 100)
-  const [acrescimo, setAcrescimo] = useState((atual?.acrescimoCentavos ?? 0) / 100)
+  // Texto, pelo mesmo motivo dos itens: nasce VAZIO quando é zero, para a
+  // pessoa digitar num campo limpo em vez de brigar com um "0" que não sai.
+  const [desconto, setDesconto] = useState(
+    atual?.descontoCentavos ? emTexto(atual.descontoCentavos / 100) : '',
+  )
+  const [acrescimo, setAcrescimo] = useState(
+    atual?.acrescimoCentavos ? emTexto(atual.acrescimoCentavos / 100) : '',
+  )
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
   const previa = useMemo(() => {
-    const soma = itens.reduce((s, i) => s + Math.round(i.valorUnit * 100) * i.quantidade, 0)
-    return Math.max(0, soma - Math.round(desconto * 100) + Math.round(acrescimo * 100))
+    const soma = itens.reduce(
+      (s, i) => s + Math.round(emNumero(i.valorUnit) * 100) * emNumero(i.quantidade),
+      0,
+    )
+    return Math.max(
+      0,
+      soma - Math.round(emNumero(desconto) * 100) + Math.round(emNumero(acrescimo) * 100),
+    )
   }, [itens, desconto, acrescimo])
 
   function alterar(idx: number, patch: Partial<Item>) {
@@ -134,13 +176,41 @@ export default function Orcamento({
     alterar(idx, {
       pecaId: p.id,
       descricao: p.nome,
-      valorUnit: p.precoVendaCentavos / 100,
+      // O preço do catálogo entra PREENCHIDO e continua editável: é a base, não
+      // uma trava. Peça vendida com desconto, ou com o frete embutido, é coisa
+      // de todo dia — e quem monta o orçamento é quem sabe.
+      valorUnit: emTexto(p.precoVendaCentavos / 100),
     })
   }
 
   function salvar(form: FormData) {
     setMsg(null)
-    form.set('itensJson', JSON.stringify(itens.filter((i) => i.descricao.trim())))
+    /**
+     * A BORDA ONDE O TEXTO VIRA NÚMERO.
+     *
+     * Dentro da tela os campos guardam o que foi digitado — é o que permite o
+     * "38," existir no meio da digitação. O servidor espera número, e é aqui
+     * que `lerValorBR` traduz: ele sabe que "1.200" é mil e duzentos e que
+     * "380,50" é trezentos e oitenta e cinquenta.
+     */
+    form.set(
+      'itensJson',
+      JSON.stringify(
+        itens
+          .filter((i) => i.descricao.trim())
+          .map((i) => ({
+            tipo: i.tipo,
+            pecaId: i.pecaId,
+            descricao: i.descricao,
+            quantidade: emNumero(i.quantidade),
+            valorUnit: emNumero(i.valorUnit),
+          })),
+      ),
+    )
+    // Os dois campos viajam no FormData com o texto digitado; o servidor lê
+    // número. Reescrevemos com o valor já traduzido.
+    form.set('desconto', String(emNumero(desconto)))
+    form.set('acrescimo', String(emNumero(acrescimo)))
     iniciar(async () => {
       const r = await salvarOrcamento({ ok: false, motivo: '' }, form)
       if (!r.ok) {
@@ -348,29 +418,22 @@ export default function Orcamento({
                       )}
                     </td>
                     <td>
-                      <input
-                        className={`${estilo.campo} ${estilo.dir}`}
-                        type="number"
-                        min="0.001"
-                        step="0.001"
-                        value={i.quantidade}
-                        onChange={(e) => alterar(idx, { quantidade: Number(e.target.value) })}
-                        aria-label="Quantidade"
+                      <CampoValor
+                        valor={i.quantidade}
+                        aoMudar={(t) => alterar(idx, { quantidade: t })}
+                        rotulo="Quantidade"
+                        placeholder="1"
                       />
                     </td>
                     <td>
-                      <input
-                        className={`${estilo.campo} ${estilo.dir}`}
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={i.valorUnit}
-                        onChange={(e) => alterar(idx, { valorUnit: Number(e.target.value) })}
-                        aria-label="Valor unitário"
+                      <CampoValor
+                        valor={i.valorUnit}
+                        aoMudar={(t) => alterar(idx, { valorUnit: t })}
+                        rotulo="Valor unitário"
                       />
                     </td>
                     <td className={`${estilo.num} ${estilo.dir} ${estilo.forte}`}>
-                      {formatarBRL(Math.round(i.valorUnit * 100) * i.quantidade)}
+                      {formatarBRL(Math.round(emNumero(i.valorUnit) * 100) * emNumero(i.quantidade))}
                     </td>
                     <td>
                       <button
@@ -394,7 +457,10 @@ export default function Orcamento({
             type="button"
             className={estilo.btnSec}
             onClick={() =>
-              setItens((a) => [...a, { tipo: 'SERVICO', pecaId: null, descricao: '', quantidade: 1, valorUnit: 0 }])
+              setItens((a) => [
+                ...a,
+                { tipo: 'SERVICO', pecaId: null, descricao: '', quantidade: '1', valorUnit: '' },
+              ])
             }
             style={{ justifySelf: 'start' }}
           >
@@ -404,26 +470,22 @@ export default function Orcamento({
           <div className={estilo.grade}>
             <label className={estilo.rotulo}>
               Desconto (R$)
-              <input
-                className={estilo.campo}
-                type="number"
-                name="desconto"
-                min="0"
-                step="0.01"
-                value={desconto}
-                onChange={(e) => setDesconto(Number(e.target.value))}
+              <CampoValor
+                valor={desconto}
+                aoMudar={setDesconto}
+                rotulo="Desconto em reais"
+                nome="desconto"
+                alinharDireita={false}
               />
             </label>
             <label className={estilo.rotulo}>
               Acréscimo (R$)
-              <input
-                className={estilo.campo}
-                type="number"
-                name="acrescimo"
-                min="0"
-                step="0.01"
-                value={acrescimo}
-                onChange={(e) => setAcrescimo(Number(e.target.value))}
+              <CampoValor
+                valor={acrescimo}
+                aoMudar={setAcrescimo}
+                rotulo="Acréscimo em reais"
+                nome="acrescimo"
+                alinharDireita={false}
               />
             </label>
             <label className={estilo.rotulo}>

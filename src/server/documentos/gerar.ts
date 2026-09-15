@@ -1,10 +1,12 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import PDFDocument from 'pdfkit'
+import sharp from 'sharp'
 import type { TipoDocumento } from '@/generated/prisma/enums'
 import { hashArquivo, novoToken } from '@/lib/cripto'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
+import { formatarTelefone } from '@/lib/documentos'
 import { renderizarModelo } from '@/lib/variaveis-documento'
 import { valoresDaOrdem } from './valores'
 import { reaisPorExtenso } from '@/lib/extenso'
@@ -42,6 +44,57 @@ type PedidoPdf = {
 }
 
 const RAIZ = () => path.resolve(env.STORAGE_LOCAL_PATH)
+
+/**
+ * A COR IMPRESSA DA MARCA — #34005E, e não um roxo parecido.
+ *
+ * Vem do PDF oficial (CMYK 87/96/11/58), e está escrita no
+ * `public/marca/LEIA-ME.md` com a advertência de não confundir com o violeta da
+ * interface: aquele é cor de tela, este é o do cartão e o da van.
+ */
+const MARCA_IMPRESSA = '#34005E'
+
+/** O arquivo vetorial da marca, o mesmo que o site usa no topo. */
+const ARQUIVO_DA_MARCA = path.join(process.cwd(), 'public', 'marca', 'dtechmed.svg')
+
+/**
+ * A MARCA DA CASA, RASTERIZADA NA COR DO TIMBRE.
+ *
+ * O PDFKit desenha PNG e JPG; SVG não. E o arquivo da marca usa
+ * `fill="currentColor"` de propósito — ele não tem cor própria, herda a de quem
+ * o usa (ver o LEIA-ME). Então aqui a cor entra antes da rasterização, e a logo
+ * sai exatamente na cor da régua e dos títulos do documento.
+ *
+ * O cache é POR COR, e não global: numa rede de franquias cada empresa pode ter
+ * escolhido a sua, e um cache de uma posição só devolveria a logo da franquia
+ * anterior para a seguinte. São alguns kilobytes por cor, contra uma
+ * rasterização por documento emitido.
+ *
+ * `null` quando o arquivo não está lá. Quem chama trata isso como "sem logo" e
+ * emite o documento com o nome, o CNPJ e o endereço — que é o que sempre houve.
+ */
+const cacheDaMarca = new Map<string, Buffer | null>()
+
+async function logoDaCasa(cor: string): Promise<Buffer | null> {
+  const guardado = cacheDaMarca.get(cor)
+  if (guardado !== undefined) return guardado
+
+  let png: Buffer | null = null
+  try {
+    const svg = await readFile(ARQUIVO_DA_MARCA, 'utf8')
+    // 900px de largura para a logo impressa a 150pt não sair serrilhada: o PDF
+    // é vetorial, mas a imagem dentro dele não — ela vai com os pixels que tiver.
+    png = await sharp(Buffer.from(svg.replaceAll('currentColor', cor)))
+      .resize({ width: 900 })
+      .png()
+      .toBuffer()
+  } catch {
+    png = null
+  }
+
+  cacheDaMarca.set(cor, png)
+  return png
+}
 
 const TITULO: Record<string, string> = {
   ORDEM_RETIRADA: 'ORDEM DE RETIRADA',
@@ -150,8 +203,18 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
    * PDFKit, e um valor estranho ali derruba a geração do documento inteiro —
    * o contrato não sai, e ninguém liga a falha à cor que alguém digitou.
    */
+  /**
+   * O PADRÃO É A COR IMPRESSA DA MARCA, e não um roxo aproximado.
+   *
+   * Era `#4A0D8F`, escrito à mão aqui. O `public/marca/LEIA-ME.md` diz qual é a
+   * cor de verdade e por que ela importa: **#34005E**, que no PDF oficial é
+   * CMYK 87/96/11/58 — "a cor impressa, a que está no cartão e na van". O outro
+   * violeta do sistema é cor de instrumento, calibrado para brilhar em tela.
+   *
+   * Documento é papel. Sai na cor do cartão.
+   */
   const VIO =
-    corSegura(dados.tenant.marca?.corPrimaria) ?? corSegura(dados.tenant.corPrimaria) ?? '#4A0D8F'
+    corSegura(dados.tenant.marca?.corPrimaria) ?? corSegura(dados.tenant.corPrimaria) ?? MARCA_IMPRESSA
   const TINTA = '#14071F'
   const CINZA = '#6C6079'
 
@@ -175,19 +238,62 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   const LARGURA_LOGO = 150
   let recuo = 48
 
-  const logo = dados.tenant.marca?.logoCaminho ?? null
-  if (logo) {
+  /**
+   * =========================================================================
+   * A LOGO DA CASA ENTRA QUANDO A EMPRESA NÃO ENVIOU A DELA
+   * =========================================================================
+   * O cabeçalho só desenhava imagem se alguém tivesse subido um arquivo pelo
+   * painel. Ninguém subiu, e o timbrado saía como texto: "DTECH MED" escrito
+   * com a fonte do PDF, sem marca nenhuma. Não era o papel timbrado que foi
+   * pedido — era o nome da empresa em negrito.
+   *
+   * E a marca estava aqui o tempo todo. O `public/marca/LEIA-ME.md` descreve os
+   * três arquivos, extraídos do PDF oficial, e a tabela diz onde cada um vai:
+   * `dtechmed.svg`, proporção 6,02:1, **"topo do site, rodapé, cabeçalho de
+   * PDF"**. O cabeçalho de PDF era o único dos três que nunca recebeu.
+   *
+   * A ordem de precedência é a mesma da cor: o que o FRANQUEADO enviou primeiro,
+   * a marca da rede depois. Quem sobe a própria logo continua emitindo com ela.
+   *
+   * POR QUE RASTERIZAR, e por que isso não congela nada: o PDFKit desenha PNG e
+   * JPG, não SVG. E o arquivo da marca usa `fill="currentColor"` — ele não tem
+   * cor própria, herda a de quem o usa. Então a cor do timbre é injetada antes
+   * de virar imagem, e a logo sai na mesma cor da régua e dos títulos. Trocar o
+   * SVG continua bastando, como o LEIA-ME promete: nada aqui aponta para um PNG
+   * gravado em disco.
+   * ========================================================================= */
+  const enviada = dados.tenant.marca?.logoCaminho ?? null
+  let desenhou = false
+
+  if (enviada) {
     try {
-      doc.image(path.join(RAIZ(), logo), 48, doc.y, {
+      doc.image(path.join(RAIZ(), enviada), 48, doc.y, {
         // Só `fit`: `align: 'left'` e `valign: 'top'` são o padrão do PDFKit
         // e os tipos dele nem os aceitam — a assinatura só admite os desvios.
         fit: [LARGURA_LOGO, ALTURA_LOGO],
       })
-      recuo = 48 + LARGURA_LOGO + 16
+      desenhou = true
     } catch {
-      recuo = 48
+      desenhou = false
     }
   }
+
+  if (!desenhou) {
+    try {
+      const png = await logoDaCasa(VIO)
+      if (png) {
+        doc.image(png, 48, doc.y, { fit: [LARGURA_LOGO, ALTURA_LOGO] })
+        desenhou = true
+      }
+    } catch {
+      // Marca que não desenha não impede a emissão de um contrato. O nome, o
+      // CNPJ e o endereço seguem no cabeçalho, como sempre seguiram.
+      desenhou = false
+    }
+  }
+
+  const logo = desenhou
+  if (desenhou) recuo = 48 + LARGURA_LOGO + 16
 
   const topoDoTimbre = doc.y
   const larguraDoTexto = 547 - recuo
@@ -204,7 +310,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     dados.tenant.cnpj && `CNPJ ${formatarDoc(dados.tenant.cnpj)}`,
     [dados.tenant.logradouro, dados.tenant.numero].filter(Boolean).join(', '),
     [dados.tenant.cidade, dados.tenant.uf].filter(Boolean).join('/'),
-    dados.tenant.telefone,
+    dados.tenant.telefone && formatarTelefone(dados.tenant.telefone),
   ]
     .filter(Boolean)
     .join('  ·  ')

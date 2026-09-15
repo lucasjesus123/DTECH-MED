@@ -495,6 +495,19 @@
 }
 .paContato { margin-top: 10px; font-size: 13.5px; color: var(--c-tinta-2); }
 
+/* A frase do modo gestão, DENTRO do cartão — onde o botão faria falta.
+   Traço na lateral em vez de caixa: ela informa, não pede ação. */
+.paSoDele {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--c-linha-2);
+  background: var(--c-sup-2);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-tinta-2);
+}
+
 .paHora, .paHoraAtrasada {
   font-family: var(--f-mono);
   font-size: 12px;

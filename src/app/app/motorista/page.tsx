@@ -303,7 +303,29 @@ function CartaoDeParada({
            e o telefone junto convidaria a sair sem aceitar — e o servidor
            recusaria depois, com a pessoa já no carro. Ver `aceite.tsx`. */
         <Aceite agendamentoId={p.id} />
-      ) : gerencia ? null : (
+      ) : gerencia ? (
+        /**
+         * NO MODO GESTÃO, O CARTÃO DIZ POR QUE NÃO TEM BOTÃO.
+         *
+         * A explicação existia — uma frase no alto da página, sobre o modo
+         * gestão. Só que ela fica a uma rolagem de distância do cartão, e quem
+         * desce até a parada encontra um cartão de trabalho sem nenhuma ação e
+         * sem nada por perto que explique.
+         *
+         * O efeito, relatado por quem usa: *"o motorista não tem como aceitar a
+         * corrida"* — a conclusão certa a partir do que a tela mostrava, e
+         * errada sobre o sistema. O motorista tem; quem estava olhando é que
+         * não era ele.
+         *
+         * A frase nomeia QUEM pode agir, porque é isso que resolve: com o nome
+         * na frente, quem coordena sabe para quem ligar.
+         */
+        <p className={estilo.paSoDele}>
+          {p.motorista
+            ? `Só ${p.motorista} aceita e registra esta parada, no aplicativo dele.`
+            : 'Parada sem motorista: designe alguém para ela poder ser aceita.'}
+        </p>
+      ) : (
         <>
           {/* Aceita, e a hora fica à vista: é o recibo de quem combinou o quê,
               para os dois lados. */}

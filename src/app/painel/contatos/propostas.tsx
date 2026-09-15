@@ -3,13 +3,14 @@
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { formatarBRL } from '@/lib/dinheiro'
+import { formatarBRL, lerValorBR } from '@/lib/dinheiro'
 import {
   cancelarProposta,
   enviarProposta,
   salvarProposta,
 } from '@/server/acoes/proposta'
 import type { PropostaNaLista, ResumoPropostas } from '@/server/consultas/propostas'
+import CampoValor from '../campo-valor'
 import estilo from '../painel.module.css'
 
 /**
@@ -43,16 +44,30 @@ type Item = {
   tipo: 'PECA' | 'SERVICO' | 'DESLOCAMENTO' | 'TAXA'
   pecaId: string | null
   descricao: string
-  quantidade: number
-  valorUnit: number
+  /**
+   * TEXTO, e não número — o mesmo motivo do editor da O.S.
+   *
+   * Com `Number(e.target.value)` o campo é impossível de usar: apagar devolve
+   * "0" escrito por cima, vírgula vira NaN e "1.200" vira 1,2. Aqui guardamos o
+   * que foi digitado e traduzimos na hora de enviar.
+   */
+  quantidade: string
+  valorUnit: string
 }
+
+/** O que foi digitado, em número. Vazio ou pela metade vale zero. */
+const emNumero = (texto: string): number => lerValorBR(texto) ?? 0
+
+/** Número em texto brasileiro, para nascer no campo já legível. */
+const emTexto = (n: number, casas = 2): string =>
+  n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })
 
 const ITEM_VAZIO: Item = {
   tipo: 'SERVICO',
   pecaId: null,
   descricao: '',
-  quantidade: 1,
-  valorUnit: 0,
+  quantidade: '1',
+  valorUnit: '',
 }
 
 const ROTULO_STATUS: Record<string, string> = {
@@ -313,17 +328,28 @@ function Editor({
           tipo: i.tipo as Item['tipo'],
           pecaId: i.pecaId,
           descricao: i.descricao,
-          quantidade: i.quantidade,
-          valorUnit: i.valorUnitCentavos / 100,
+          quantidade: emTexto(i.quantidade, Number.isInteger(i.quantidade) ? 0 : 3),
+          valorUnit: emTexto(i.valorUnitCentavos / 100),
         }))
       : [{ ...ITEM_VAZIO }],
   )
-  const [desconto, setDesconto] = useState((proposta?.descontoCentavos ?? 0) / 100)
-  const [acrescimo, setAcrescimo] = useState((proposta?.acrescimoCentavos ?? 0) / 100)
+  // Vazio quando é zero: campo limpo para digitar, sem "0" para contornar.
+  const [desconto, setDesconto] = useState(
+    proposta?.descontoCentavos ? emTexto(proposta.descontoCentavos / 100) : '',
+  )
+  const [acrescimo, setAcrescimo] = useState(
+    proposta?.acrescimoCentavos ? emTexto(proposta.acrescimoCentavos / 100) : '',
+  )
 
   const previa = useMemo(() => {
-    const soma = itens.reduce((s, i) => s + Math.round(i.valorUnit * 100) * i.quantidade, 0)
-    return Math.max(0, soma - Math.round(desconto * 100) + Math.round(acrescimo * 100))
+    const soma = itens.reduce(
+      (s, i) => s + Math.round(emNumero(i.valorUnit) * 100) * emNumero(i.quantidade),
+      0,
+    )
+    return Math.max(
+      0,
+      soma - Math.round(emNumero(desconto) * 100) + Math.round(emNumero(acrescimo) * 100),
+    )
   }, [itens, desconto, acrescimo])
 
   function alterar(idx: number, patch: Partial<Item>) {
@@ -339,12 +365,34 @@ function Editor({
     // Escolher a peça preenche descrição e preço: quem monta orçamento não quer
     // digitar de novo o que já está no catálogo, e é ali que nasce a divergência
     // entre o preço da prateleira e o preço orçado.
-    alterar(idx, { pecaId: p.id, descricao: p.nome, valorUnit: p.precoVendaCentavos / 100 })
+    // O preço do catálogo entra PREENCHIDO e segue editável: é a base, não uma
+    // trava. Peça com desconto ou com frete embutido é o dia a dia.
+    alterar(idx, {
+      pecaId: p.id,
+      descricao: p.nome,
+      valorUnit: emTexto(p.precoVendaCentavos / 100),
+    })
   }
 
   function salvar(form: FormData) {
     setMsg(null)
-    form.set('itensJson', JSON.stringify(itens.filter((i) => i.descricao.trim())))
+    // A borda onde o texto digitado vira número, com `lerValorBR`.
+    form.set(
+      'itensJson',
+      JSON.stringify(
+        itens
+          .filter((i) => i.descricao.trim())
+          .map((i) => ({
+            tipo: i.tipo,
+            pecaId: i.pecaId,
+            descricao: i.descricao,
+            quantidade: emNumero(i.quantidade),
+            valorUnit: emNumero(i.valorUnit),
+          })),
+      ),
+    )
+    form.set('desconto', String(emNumero(desconto)))
+    form.set('acrescimo', String(emNumero(acrescimo)))
     form.set('desconto', String(desconto))
     form.set('acrescimo', String(acrescimo))
     iniciar(async () => {
@@ -479,29 +527,22 @@ function Editor({
                   )}
                 </td>
                 <td className={estilo.dir}>
-                  <input
-                    className={estilo.campo}
-                    type="number"
-                    min={0.001}
-                    step="any"
-                    value={i.quantidade}
-                    onChange={(e) => alterar(idx, { quantidade: Number(e.target.value) || 1 })}
-                    style={{ width: 80 }}
+                  <CampoValor
+                    valor={i.quantidade}
+                    aoMudar={(t) => alterar(idx, { quantidade: t })}
+                    rotulo="Quantidade"
+                    placeholder="1"
                   />
                 </td>
                 <td className={estilo.dir}>
-                  <input
-                    className={estilo.campo}
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={i.valorUnit}
-                    onChange={(e) => alterar(idx, { valorUnit: Number(e.target.value) || 0 })}
-                    style={{ width: 110 }}
+                  <CampoValor
+                    valor={i.valorUnit}
+                    aoMudar={(t) => alterar(idx, { valorUnit: t })}
+                    rotulo="Valor unitário"
                   />
                 </td>
                 <td className={estilo.dir}>
-                  {formatarBRL(Math.round(i.valorUnit * 100) * i.quantidade)}
+                  {formatarBRL(Math.round(emNumero(i.valorUnit) * 100) * emNumero(i.quantidade))}
                 </td>
                 <td className={estilo.dir}>
                   <button
@@ -535,24 +576,22 @@ function Editor({
       <div className={estilo.formLinha}>
         <label className={estilo.rotulo}>
           Desconto (R$)
-          <input
-            className={estilo.campo}
-            type="number"
-            min={0}
-            step="0.01"
-            value={desconto}
-            onChange={(e) => setDesconto(Number(e.target.value) || 0)}
+          <CampoValor
+            valor={desconto}
+            aoMudar={setDesconto}
+            rotulo="Desconto em reais"
+            nome="desconto"
+            alinharDireita={false}
           />
         </label>
         <label className={estilo.rotulo}>
           Acréscimo (R$)
-          <input
-            className={estilo.campo}
-            type="number"
-            min={0}
-            step="0.01"
-            value={acrescimo}
-            onChange={(e) => setAcrescimo(Number(e.target.value) || 0)}
+          <CampoValor
+            valor={acrescimo}
+            aoMudar={setAcrescimo}
+            rotulo="Acréscimo em reais"
+            nome="acrescimo"
+            alinharDireita={false}
           />
         </label>
         <label className={estilo.rotulo}>
