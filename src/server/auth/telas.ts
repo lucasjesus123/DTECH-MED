@@ -179,6 +179,30 @@ export const TELAS: readonly Tela[] = [
   // aparece sem botão, dizendo de quem é.
   { chave: 'aplicativos',  rotulo: 'Aplicativos',       grupo: 'O trabalho', href: '/painel/aplicativos',  icone: 'rota',        piso: Papel.MOTORISTA },
 
+  // ---------------------------------------------------------------------------
+  // O PAINEL DO CLIENTE — a terceira superfície, e a que ninguém daqui via
+  // ---------------------------------------------------------------------------
+  // O cliente recebe um link e acompanha a ordem dele numa página que existe
+  // desde o começo. Quem trabalha aqui NUNCA tinha visto essa página: o
+  // endereço é um token que só sai no WhatsApp do cliente, e não havia nenhum
+  // lugar no sistema que o mostrasse.
+  //
+  // O efeito é o atendimento às cegas. O cliente liga dizendo "está escrito que
+  // meu aparelho está em análise e ninguém me falou nada", e quem atende olha
+  // uma tela diferente da que ele está lendo, com outras palavras e outros
+  // degraus. Discutir o que o cliente vê sem poder ver é o tipo de conversa que
+  // termina com os dois certos e nenhum entendido.
+  //
+  // Pela regra da casa é item, e não aba: "o que o cliente está vendo agora"
+  // não é recorte de Ordens nem de Clientes — é a pergunta de quem está com o
+  // telefone na mão. E fica ao lado dos aplicativos porque é da mesma família:
+  // as superfícies que NÃO são este painel.
+  //
+  // Piso ATENDENTE: é quem atende o telefone. Abaixo disso não entra — o
+  // técnico e o motorista têm os aplicativos deles, e a página do cliente traz
+  // valor combinado e documentos, que não são assunto de quem está na bancada.
+  { chave: 'portal',       rotulo: 'Painel do cliente', grupo: 'O trabalho', href: '/painel/portal',       icone: 'trilha',      piso: Papel.ATENDENTE },
+
   // A tela virou DUAS abas — contatos do site e o funil de orçamentos — e o
   // rótulo acompanhou. A chave NÃO muda: ela está gravada na marcação de abas
   // de cada pessoa, e renomeá-la tiraria o acesso de quem já tinha marcado.

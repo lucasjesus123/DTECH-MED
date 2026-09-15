@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
 import { env } from '@/lib/env'
@@ -169,6 +170,47 @@ export default async function Aplicativos() {
           </div>
         ))}
       </div>
+
+      {/* =====================================================================
+          A TERCEIRA SUPERFÍCIE — a do cliente
+          =====================================================================
+          Esta tela se chama "Aplicativos de campo" e fala das duas telas que
+          NÃO são o painel. Só que são três: o cliente também tem a dele, e era
+          a única que ninguém daqui conseguia abrir — o endereço é um token que
+          sai uma vez no WhatsApp e some.
+
+          Fica embaixo, e não no meio das outras duas, porque não é a mesma
+          coisa: os dois de cima são para a equipe instalar no próprio celular;
+          este é para CONFERIR o que outra pessoa está lendo. Por isso também
+          não tem "levar para o celular" — o celular que importa não é o nosso.
+          ===================================================================== */}
+      {podeVer(sessao.papel, Papel.ATENDENTE) ? (
+        <div className={estilo.bloco} style={{ marginTop: 'var(--s5)' }}>
+          <p className={estilo.blocoTitulo}>Painel do cliente</p>
+          <p className={estilo.dica} style={{ marginTop: 'calc(var(--s2) * -1)' }}>
+            A página que o cliente recebe no WhatsApp · sem login, sem menu
+          </p>
+
+          <ul className={estilo.listaSimples}>
+            <li>Mostra em que fase o aparelho dele está, com as palavras dele</li>
+            <li>Lista o que já aconteceu, com data e com quem fez</li>
+            <li>Entrega os documentos da ordem em PDF</li>
+            <li>Abre sem senha — quem tem o link tem a página</li>
+          </ul>
+
+          <div className={estilo.modeloCartaoAcoes}>
+            <Link href="/painel/portal" className={estilo.btnPrimario}>
+              Escolher o cliente
+            </Link>
+          </div>
+
+          <p className={estilo.dica}>
+            Ele pergunta <strong>qual cliente</strong> antes de abrir: a página traz valor combinado
+            e documentos, e uma tela que “lembrasse” do último atendido mostraria o cliente errado
+            no meio da próxima ligação.
+          </p>
+        </div>
+      ) : null}
     </>
   )
 }

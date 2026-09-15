@@ -38,10 +38,29 @@ import estilo from '../painel.module.css'
  * e a pessoa escolhe o contato. Funciona sem integração, sem token e sem
  * servidor no meio.
  */
-export default function Copiar({ endereco, quem }: { endereco: string; quem: string }) {
+export default function Copiar({
+  endereco,
+  quem,
+  mensagem,
+}: {
+  endereco: string
+  quem: string
+  /**
+   * O texto do WhatsApp, quando o padrão não serve.
+   *
+   * O padrão manda "entre com o seu login", que é a verdade para os dois
+   * aplicativos de campo e uma MENTIRA para o cliente: a página dele abre pelo
+   * link, sem conta nenhuma. Mandar essa frase a quem não tem login é dar uma
+   * instrução impossível de cumprir — e a pessoa conclui que o link está
+   * quebrado, não que a frase é que estava errada.
+   */
+  mensagem?: string
+}) {
   const [copiou, setCopiou] = useState<'sim' | 'nao' | null>(null)
 
-  const texto = `Oi! Este é o endereço do aplicativo do ${quem.toLowerCase()} da DTECH MED. Entre com o seu login: ${endereco}`
+  const texto =
+    mensagem ??
+    `Oi! Este é o endereço do aplicativo do ${quem.toLowerCase()} da DTECH MED. Entre com o seu login: ${endereco}`
 
   async function copiar() {
     try {
