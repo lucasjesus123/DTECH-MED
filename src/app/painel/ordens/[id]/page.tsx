@@ -375,9 +375,22 @@ export default async function Prontuario({
               />
             )}
 
-            {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
-            {podeGestao ? <Excluir ordemId={o.id} /> : null}
+            {/* CANCELAR E EXCLUIR SAÍRAM DAQUI, e a razão está na foto da tela.
+                Dentro deste bloco havia seis controles, e só os dois primeiros
+                eram o trabalho: os passos da esteira. Embaixo deles, do mesmo
+                tamanho e com MAIS contraste — branco sobre o painel tingido —
+                vinha "Cancelar esta ordem", com "Excluir esta ordem" ao lado.
 
+                Um bloco chamado "o que dá para fazer agora" estava oferecendo,
+                no mesmo peso do próximo passo, as duas únicas ações da tela que
+                não têm volta. Desfazer um clique errado em "avançar" é andar a
+                esteira; desfazer um clique errado em "excluir" não é nada, é
+                telefonar para o cliente.
+
+                Elas continuam existindo e continuam com a mesma permissão — o
+                que mudou é que agora ficam no pé da página, depois de tudo.
+                Quem cancela uma ordem sabe que veio cancelar e rola até lá;
+                ninguém cancela de passagem. */}
             <div className={estilo.passos}>
               <a href={linkPortal} target="_blank" rel="noreferrer" className={estilo.btnSec}>
                 Abrir o portal como o cliente vê
@@ -591,6 +604,23 @@ export default async function Prontuario({
                   </tbody>
                 </table>
               </div>
+            </div>
+          ) : null}
+
+          {/* --- O que não tem volta, no fim de tudo ---------------------
+              Ver a nota no bloco dos passos: estas duas moravam ao lado do
+              próximo passo da esteira, e é o único lugar da ficha onde um
+              clique errado não se desfaz. */}
+          {podeCancelar || podeGestao ? (
+            <div className={estilo.bloco}>
+              <p className={estilo.blocoTitulo}>Encerrar esta ordem</p>
+              <p className={estilo.fraco}>
+                Cancelar interrompe a ordem e deixa o histórico inteiro de pé. Excluir só
+                existe enquanto nada de valor foi registrado — o próprio sistema recusa
+                quando já há prova.
+              </p>
+              {podeCancelar ? <Cancelar ordemId={o.id} /> : null}
+              {podeGestao ? <Excluir ordemId={o.id} /> : null}
             </div>
           ) : null}
         </div>

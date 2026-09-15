@@ -110,6 +110,17 @@ export default function JanelaOS({
    */
   const [aba, setAba] = useState<ChaveDeAba>('agora')
   const caixa = useRef<HTMLDivElement>(null)
+  /**
+   * O ELEMENTO QUE ROLA É O CORPO, NÃO A JANELA.
+   *
+   * `caixa` aponta para `.janela`, que tem `max-height` e `display:flex` e não
+   * rola nada — quem tem `overflow-y:auto` é `.janelaCorpo`. Mandar
+   * `scrollTo` na janela não dá erro, não avisa e não faz nada, que é o pior
+   * dos três. A tira de localização mora no fim do corpo e troca o que está
+   * desenhado no começo dele, então este ref é o que faz o clique lá embaixo
+   * levar o olho até a resposta lá em cima.
+   */
+  const corpo = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   /**
@@ -289,7 +300,7 @@ export default function JanelaOS({
           </button>
         </div>
 
-        <div className={estilo.janelaCorpo}>
+        <div ref={corpo} className={estilo.janelaCorpo}>
           {erro ? (
             <p className={estilo.erro} role="alert">
               {erro}
@@ -387,36 +398,37 @@ export default function JanelaOS({
               {aba === 'agora' ? (
                 <>
                   {/* -------------------------------------------------------
-                      AS TRÊS FASES — a primeira coisa que a janela responde
+                      O TRABALHO VEM PRIMEIRO, E A LOCALIZAÇÃO VEM DEPOIS
                       -------------------------------------------------------
-                      Antes destes três botões, quem abria a O.S. via onze
-                      bolinhas numa fileira e precisava LER para se localizar.
-                      Onze é informação demais para a pergunta que se faz
-                      primeiro, que é sempre a mesma: o aparelho está vindo,
-                      está na bancada, ou está voltando?
+                      Esta ordem era o contrário, e era o defeito que o dono
+                      apontou com todas as letras: *"ainda a O.S. tá cheio de
+                      campos, muito confuso"*.
 
-                      Os onze passos não sumiram — eles moram dentro da fase e
-                      aparecem logo abaixo, só os da fase aberta. */}
-                  <Fases
-                    painel={p}
-                    aberta={faseVendo}
-                    viva={p.roteiro.faseAtual}
-                    aoAbrir={(n) => {
-                      setEspiando(null)
-                      setModo({ tela: 'agora' })
-                      // Clicar na fase que já está aberta volta para a de
-                      // agora: o botão é ida e volta, e não uma armadilha que
-                      // deixa a pessoa presa olhando o futuro.
-                      setFaseAberta(n === faseVendo && n !== p.roteiro.faseAtual ? null : n)
-                    }}
-                  />
+                      Medido na tela de 1440×1100, com a janela aberta na O.S.
+                      #0001: a frase que diz o que está acontecendo começava a
+                      795px do topo da janela — abaixo da dobra num notebook. E
+                      antes dela havia VINTE E TRÊS números para atravessar,
+                      porque a mesma posição estava escrita três vezes seguidas,
+                      em três contagens diferentes:
 
-                  <Regua
-                    painel={p}
-                    fase={faseVendo}
-                    espiando={espiando}
-                    aoEspiar={(n) => setEspiando((atual) => (atual === n ? null : n))}
-                  />
+                          cartões de fase → "3 de 6 passos"
+                          régua           → "Passo 4 de 11 · Dia e motorista" · 30%
+                          painel de agora → "Fase 1 · Buscar o aparelho · passo 4 de 11 · Dia e motorista"
+
+                      Nenhuma das três está errada. O erro é ler as três antes
+                      de chegar no campo que se veio preencher.
+
+                      A pergunta "o que eu faço agora" é feita TODA vez que a
+                      janela abre. A pergunta "em que pé está" é feita de vez em
+                      quando. Quem responde a rara primeiro está cobrando um
+                      pedágio de 795px na pergunta frequente — então o painel de
+                      agora sobe para debaixo das abas, e as fases e a régua
+                      descem para logo abaixo dele.
+
+                      Elas não sumiram, e não deviam: visitar a fase 3 para ver
+                      o que ainda vem é trabalho real da central com o cliente
+                      no telefone. O que mudou é que a localização deixou de ser
+                      pedágio e virou o que sempre foi — uma consulta. */}
 
                   {/* O corpo troca conforme o que a pessoa está fazendo. Um passo de
                       cada vez é a regra desta janela inteira. */}
@@ -478,6 +490,42 @@ export default function JanelaOS({
                   )}
 
                   <AParadaDaRota painel={p} aoMudar={recarregar} />
+
+                  {/* ----- A TIRA DE LOCALIZAÇÃO -------------------------
+                      Daqui para baixo nada é trabalho: é o mapa. As três
+                      fases respondem "o aparelho está vindo, está na bancada
+                      ou está voltando", e a régua abre a fase em passos.
+
+                      Clicar numa fase adiante continua abrindo a leitura dela
+                      — e ela troca o corpo lá em cima, que é onde o olho está
+                      depois do clique. Por isso o corpo rola para o topo
+                      quando a fase muda: sem isso, a pessoa clicaria em "Fase
+                      3" aqui embaixo e a resposta apareceria fora da tela,
+                      atrás dela. */}
+                  <Fases
+                    painel={p}
+                    aberta={faseVendo}
+                    viva={p.roteiro.faseAtual}
+                    aoAbrir={(n) => {
+                      setEspiando(null)
+                      setModo({ tela: 'agora' })
+                      // Clicar na fase que já está aberta volta para a de
+                      // agora: o botão é ida e volta, e não uma armadilha que
+                      // deixa a pessoa presa olhando o futuro.
+                      setFaseAberta(n === faseVendo && n !== p.roteiro.faseAtual ? null : n)
+                      corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  />
+
+                  <Regua
+                    painel={p}
+                    fase={faseVendo}
+                    espiando={espiando}
+                    aoEspiar={(n) => {
+                      setEspiando((atual) => (atual === n ? null : n))
+                      corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  />
                 </>
               ) : null}
               </div>
@@ -862,15 +910,6 @@ function Agora({
   const [observacao, setObservacao] = useState('')
   const [pendente, iniciar] = useTransition()
   const passoAtual = painel.roteiro.passos.find((x) => x.n === painel.roteiro.atual)
-  /**
-   * A fase de agora, escrita no título junto do passo.
-   *
-   * Sem ela o painel dizia "Agora · passo 7" e a pessoa precisava olhar de
-   * volta para os botões de cima para saber de que fase aquele 7 era. Escrever
-   * as duas coisas na mesma linha custa cinco palavras e tira uma ida e volta
-   * do olho a cada abertura de janela.
-   */
-  const faseDeAgora = painel.roteiro.fases.find((f) => f.n === painel.roteiro.faseAtual)
   const d = painel.dossie
 
   function executar(para: PainelDaOrdem['passos'][number]['para']) {
@@ -918,15 +957,21 @@ function Agora({
 
   return (
     <div className={estilo.osPainel}>
+      {/* O TÍTULO É O NOME DO PASSO, E SÓ.
+          Ele dizia "Fase 1 · Buscar o aparelho · passo 4 de 11 · Dia e
+          motorista" — que é, palavra por palavra, a soma do que os cartões de
+          fase e a régua já diziam nas duas faixas acima. Três vezes a mesma
+          posição, e a terceira era a que ficava colada no trabalho.
+
+          Agora a contagem mora num lugar só, na tira lá embaixo, e este painel
+          diz a única coisa que a outra não diz: o que fazer. Com uma exceção —
+          quando a ordem sai do caminho, o desvio VEM no título, porque aí a
+          posição deixa de ser localização e vira o assunto. */}
       <p className={estilo.osPainelTitulo}>
         {painel.roteiro.desvio ? (
           <>Fora do caminho · {painel.roteiro.desvio.rotulo}</>
         ) : (
-          <>
-            {faseDeAgora ? `Fase ${faseDeAgora.n} · ${faseDeAgora.nome} · ` : 'Agora · '}
-            passo {painel.roteiro.atual} de {painel.roteiro.total}
-            {passoAtual ? ` · ${passoAtual.nome}` : ''}
-          </>
+          (passoAtual?.nome ?? 'Agora')
         )}
         {passoAtual ? <span className={estilo.osPainelQuem}>{passoAtual.quem}</span> : null}
       </p>
