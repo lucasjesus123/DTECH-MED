@@ -64,6 +64,26 @@
 
    E nenhum campo herda fonte: todos declaram `var(--f-texto)`. Herança foi
    como o defeito entrou, sem aparecer em revisão nenhuma.
+
+   -----------------------------------------------------------------------
+   A REGRA ESTAVA ESCRITA E A JANELA DA O.S. NÃO A SEGUIA
+   -----------------------------------------------------------------------
+   O dono, olhando o cartão da rota: *"acho essa muito estranha e ruim"*. Ele
+   estava olhando dez etiquetas que a lista acima já proibia — "A CAMINHO",
+   "QUEM VAI", "A PARADA DE ROTA" e as da linha do tempo, todas em mono,
+   maiúscula e com espaçamento aberto. Nenhuma delas alinha com nada; juntas,
+   davam ao cartão o ar de saída de terminal que a regra existe para evitar.
+
+   Saíram da mono: `osRotaTitulo`, `osRotaSituacao`, `osRotaEscolha > span`,
+   `osTextoRot`, `osListaTitulo`, `evTipo`, `evCartaoTitulo`, `evRecadoRot`,
+   `osDobraOk/osDobraFalta`, `rastroSelo`.
+
+   `term` e `exec` FICAM: aquilo é saída de console de verdade, e ali a
+   largura fixa é o que faz as linhas se alinharem umas com as outras.
+
+   `osRotaQuando` também fica — "15/09/2026 · 18:00 às 19:00" é dígito, e a
+   numeração tabular da mono é o que mantém a hora sem dançar quando a data
+   muda de tamanho.
    ========================================================================== */
 
 /* ==========================================================================
@@ -147,6 +167,25 @@
      O site não referencia `--fonte-console` em lugar nenhum. */
   --f-display: var(--fonte-console, system-ui), system-ui, sans-serif;
   --f-texto:   var(--fonte-console, system-ui), system-ui, -apple-system, sans-serif;
+
+  /* -----------------------------------------------------------------------
+     E O PAINEL PRECISA DECLARAR A FONTE, não só redefinir a variável.
+     -----------------------------------------------------------------------
+     Redefinir `--f-texto` aqui em cima muda o valor da variável para tudo
+     que está dentro de `.app` — mas só CHEGA em quem escreve
+     `font-family: var(--f-texto)`. Quem não escreve nada herda a fonte
+     COMPUTADA do ancestral, e o `body` do `globals.css` computa
+     `var(--f-texto)` FORA do `.app`: Manrope, a fonte do site.
+
+     Herança de CSS passa o valor resolvido, não a variável. É por isso que
+     o painel vinha rodando com DUAS fontes misturadas ao acaso: os títulos e
+     os blocos que declaravam fonte numa, e cada parágrafo comum na outra.
+     Medido no navegador, na janela da O.S.: "A parada de rota" saía em
+     Jakarta e "A parada marcada no calendário…" logo abaixo saía em Manrope.
+
+     Isto é provavelmente a maior parte do "estranha" que o dono apontou — e
+     não estava em nenhuma linha de fonte, estava na ausência de uma. */
+  font-family: var(--f-texto);
 
   /* --- SUPERFÍCIES, do fundo para a frente ---------------------------- */
   --bg:         light-dark(#F1F4FA, #060A14);
@@ -7736,7 +7775,7 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .rastroSelo {
   color: var(--alerta);
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: 9px;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -8388,7 +8427,7 @@ i.riscoBaixo { background: var(--txt-3); }
   gap: var(--s3);
 }
 .osRotaTitulo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8416,7 +8455,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .osRotaQuando { font-family: var(--f-mono); font-size: var(--t-sm); color: var(--txt-2); }
 .osRotaSituacao {
   margin-left: auto;
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -8435,7 +8474,7 @@ i.riscoBaixo { background: var(--txt-3); }
   margin-top: var(--s2);
 }
 .osRotaEscolha > span {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8465,7 +8504,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .janelaLarga { max-width: 900px; }
 
 .evTipo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8504,7 +8543,7 @@ i.riscoBaixo { background: var(--txt-3); }
   background: rgba(251, 191, 36, .05);
 }
 .evCartaoTitulo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8526,7 +8565,7 @@ i.riscoBaixo { background: var(--txt-3); }
   line-height: 1.55;
 }
 .evRecadoRot {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8604,7 +8643,7 @@ i.riscoBaixo { background: var(--txt-3); }
   line-height: 1.6;
 }
 .osTextoRot {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8614,7 +8653,7 @@ i.riscoBaixo { background: var(--txt-3); }
 
 .osLista { margin-bottom: var(--s4); }
 .osListaTitulo {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -8709,7 +8748,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .osDobra[open] > .osDobraTitulo::after { content: '▴'; }
 .osDobra > *:not(summary) { padding: 0 var(--s4) var(--s4); }
 .osDobraOk, .osDobraFalta {
-  font-family: var(--f-mono);
+  font-family: var(--f-texto);
   font-size: var(--t-xs);
   letter-spacing: .06em;
   text-transform: uppercase;

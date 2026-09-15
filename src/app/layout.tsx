@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { EMPRESA, enderecoEmUmaLinha } from '@/lib/empresa'
 import { env } from '@/lib/env'
-import { jakarta, jetbrains, manrope, sora } from '@/lib/fontes'
+import { inter, jetbrains, manrope, sora } from '@/lib/fontes'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -137,10 +137,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           '--fonte-texto': manrope.style.fontFamily,
           '--fonte-mono': jetbrains.style.fontFamily,
           // Declarada na raiz porque é ali que o `next/font` gera o
-          // `@font-face`. Quem a USA é só o painel, que reaponta
-          // `--f-display` e `--f-texto` para ela dentro de `.app`. O site não
-          // referencia esta variável em lugar nenhum.
-          '--fonte-console': jakarta.style.fontFamily,
+          // `@font-face`. Quem a USA é o painel (`.app`) e o aplicativo de
+          // campo (`.aparelho`), que reapontam `--f-display` e `--f-texto`
+          // para ela. O site não referencia esta variável em lugar nenhum.
+          '--fonte-console': inter.style.fontFamily,
         } as React.CSSProperties
       }
     >

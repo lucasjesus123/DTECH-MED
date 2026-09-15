@@ -38,6 +38,21 @@
    ============================================================================= */
 
 .aparelho {
+  /* ---- a fonte ------------------------------------------------------------
+     A MESMA DO PAINEL, e aqui ela pesa mais que em qualquer outra tela.
+     O motorista lê isto no sol, de dentro do carro, com o celular na mão e o
+     cliente esperando. `--f-display` e `--f-texto` caíam no fallback do
+     `globals.css` — Sora e Manrope, que são as fontes do SITE. Ver a nota da
+     Inter em `lib/fontes.ts`: altura de x maior lê maior no mesmo tamanho, e
+     o `1` com pé é o que separa `1180` de `ll80` num número de endereço. */
+  --f-display: var(--fonte-console, system-ui), system-ui, sans-serif;
+  --f-texto:   var(--fonte-console, system-ui), system-ui, -apple-system, sans-serif;
+
+  /* Declarada, e não só redefinida: herança de CSS passa o valor resolvido,
+     não a variável, e o `body` resolve `--f-texto` fora daqui. Ver a nota
+     longa em `painel.module.css`. */
+  font-family: var(--f-texto);
+
   /* ---- chão e superfícies ------------------------------------------------ */
   --c-chao:    light-dark(#F2F2F5, #0B0B0F);
   --c-sup:     light-dark(#FFFFFF, #15151B);

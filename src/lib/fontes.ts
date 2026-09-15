@@ -37,40 +37,60 @@ export const manrope = localFont({
 })
 
 /**
- * PLUS JAKARTA SANS — a fonte do CONSOLE, e só dele.
+ * INTER — a fonte de quem trabalha oito horas na tela.
  *
  * =============================================================================
- * POR QUE UMA QUARTA FAMÍLIA, SE JÁ HAVIA TRÊS
+ * POR QUE ELA ENTROU NO LUGAR DA JAKARTA
  * =============================================================================
- * O site e o sistema deixaram de ser a mesma cara de propósito. O site vende:
- * ele é violeta, arejado, e a Sora ali ecoa o desenho do logotipo. O sistema é
- * operado oito horas por dia por quem já foi convencido — ele precisa de
- * densidade, de número grande legível de relance e de contraste extremo entre
- * o número e o rótulo.
+ * O pedido do dono, olhando a janela da O.S.:
  *
- * A Jakarta 800 tem o contraforma fechado e a haste reta que aguentam um
- * número de 60px sem virar mancha, e a 400 lê bem em 13px numa tabela de
- * quarenta linhas. A Sora, no mesmo tamanho pequeno, abre demais.
+ *   "consegue mudar as fonte do meu sistema? eu gostaria de uma fonte mais
+ *    visível, melhor... acho essa muito estranha e ruim"
+ *
+ * A Plus Jakarta Sans não é uma fonte ruim — ela é uma fonte com PERSONALIDADE,
+ * e personalidade é o que se quer numa página que vende, não numa tela que se
+ * encara o dia inteiro. O que dá o ar "estranho" nela é concreto e dá para
+ * apontar: as terminações inclinadas do `t` e do `f`, o `J` que desce abaixo da
+ * linha, o `l` sem qualquer marca que o separe do `I` maiúsculo e do `1`.
+ *
+ * Nesta tela isso não é gosto. "LAUR0 JUNI0R" e "LAURO JUNIOR" precisam ser
+ * diferentes à primeira vista num nome de motorista, e `1180` num endereço não
+ * pode virar `ll80`.
+ *
+ * A Inter foi desenhada exatamente para isto: para texto de interface, em
+ * tamanho pequeno, em tela. Ela tem a altura de x mais alta (a letra minúscula
+ * ocupa mais do corpo, então lê maior no MESMO tamanho — que é literalmente o
+ * "mais visível" que ele pediu), as aberturas mais largas no `c`, `e` e `s`, e
+ * o `1` com pé, que é o que separa um do outro.
+ *
+ * O QUE ELA NÃO FAZ é ter opinião. E é o ponto: numa ferramenta, a fonte que
+ * não se nota é a que está funcionando.
  *
  * =============================================================================
  * ELA É CARREGADA AQUI, MAS SÓ APONTADA DENTRO DE `.app`
  * =============================================================================
  * O `next/font` precisa ser declarado no módulo para gerar o `@font-face` e o
  * `preload`. Quem decide ONDE ela vale é o CSS: `--f-display` e `--f-texto`
- * são reapontados dentro de `.app`, o invólucro do painel. O site continua com
- * Sora e Manrope, e nenhuma linha dele muda.
+ * são reapontados dentro de `.app` (o painel) e de `.aparelho` (o aplicativo
+ * de campo). O site não referencia `--fonte-console` em lugar nenhum.
  *
- * AUTO-HOSPEDADA, como as outras. O documento de direção pedia `<link>` para o
- * Google Fonts; a regra desta casa é mais antiga e vale mais: host externo é
- * ponto de falha, vazamento de referrer e exceção na CSP. Os arquivos vieram
- * do pacote do Fontsource e moram em `public/fonts`.
+ * =============================================================================
+ * O SITE NÃO MUDA
+ * =============================================================================
+ * `dtechmed.com.br` continua na Sora e na Manrope, e é para continuar mesmo: a
+ * Sora ecoa o desenho do logotipo e o site É a página que vende. A regra da
+ * casa segue valendo — mexer no sistema não é mexer no site.
+ *
+ * Auto-hospedada, como todas: os arquivos vieram do pacote do Fontsource e
+ * moram em `public/fonts`. Sem Google Fonts, sem CDN, sem exceção na CSP.
  */
-export const jakarta = localFont({
+export const inter = localFont({
   src: [
-    { path: '../../public/fonts/plus-jakarta-sans-latin-400-normal.woff2', weight: '400', style: 'normal' },
-    { path: '../../public/fonts/plus-jakarta-sans-latin-500-normal.woff2', weight: '500', style: 'normal' },
-    { path: '../../public/fonts/plus-jakarta-sans-latin-700-normal.woff2', weight: '700', style: 'normal' },
-    { path: '../../public/fonts/plus-jakarta-sans-latin-800-normal.woff2', weight: '800', style: 'normal' },
+    { path: '../../public/fonts/inter-latin-400-normal.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/inter-latin-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/inter-latin-600-normal.woff2', weight: '600', style: 'normal' },
+    { path: '../../public/fonts/inter-latin-700-normal.woff2', weight: '700', style: 'normal' },
+    { path: '../../public/fonts/inter-latin-800-normal.woff2', weight: '800', style: 'normal' },
   ],
   variable: '--f-console',
   display: 'swap',
@@ -87,4 +107,4 @@ export const jetbrains = localFont({
   display: 'swap',
 })
 
-export const classesDeFonte = `${sora.variable} ${manrope.variable} ${jetbrains.variable} ${jakarta.variable}`
+export const classesDeFonte = `${sora.variable} ${manrope.variable} ${jetbrains.variable} ${inter.variable}`
