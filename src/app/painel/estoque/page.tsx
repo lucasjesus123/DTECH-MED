@@ -189,8 +189,8 @@ function AbaItens({
           que faz a página parecer uma só, e devolve a lista para cima.
 
           O formulário que abre cai inteiro na linha de baixo — ver o
-          fragmento de `painel-estoque.tsx` e `.estqBarra` no CSS. */}
-      <div className={estilo.estqBarra}>
+          fragmento de `painel-estoque.tsx` e `.barraTela` no CSS. */}
+      <div className={estilo.barraTela}>
         <form method="get" className={estilo.filtros}>
           <div className={estilo.busca}>
             <input

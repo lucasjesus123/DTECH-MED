@@ -8936,7 +8936,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   .tabelaEstoque { min-width: 620px; }
 }
 
-/* A BARRA ÚNICA DO ESTOQUE — procurar à esquerda, lançar à direita.
+/* A BARRA ÚNICA DA TELA — procurar à esquerda, agir à direita.
    -------------------------------------------------------------------------
    Eram duas faixas empilhadas, e juntas comiam 130px antes da primeira linha
    da tabela. Numa tela de notebook isso é a diferença entre ver seis itens e
@@ -8945,7 +8945,7 @@ a.osListaItem:hover { background: var(--sup-1); }
    O formulário que abre é o terceiro item da barra e quebra sozinho para a
    linha de baixo, em largura cheia: `flex: 1 0 100%`. Sem isso ele nasceria
    espremido ao lado da busca. */
-.estqBarra {
+.barraTela {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -8953,7 +8953,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   gap: var(--s3);
   margin-bottom: var(--s5);
 }
-.estqBarra > .filtros {
+.barraTela > .filtros {
   flex: 1 1 340px;
   /* A margem de baixo era do tempo em que ele era uma faixa sozinha. Dentro da
      barra, quem espaça é o `gap`. */
@@ -8966,7 +8966,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   gap: var(--s2);
 }
 /* O formulário que abre — cadastro de item ou movimento — toma a linha toda. */
-.estqBarra > .bloco { flex: 1 0 100%; }
+.barraTela > .bloco { flex: 1 0 100%; }
 
 .filtroTipo { max-width: 210px; }
 
@@ -9036,3 +9036,120 @@ a.osListaItem:hover { background: var(--sup-1); }
    flex, não — ele simplesmente empilha. O resultado eram dois ícones um sobre
    o outro e uma linha de 120px de altura numa lista feita para ser corrida. */
 .tabelaEstoque td:last-child .acoesLinha { flex-wrap: nowrap; }
+
+
+/* =========================================================================
+   A LINHA DA EQUIPE
+   -------------------------------------------------------------------------
+   Eram sete colunas e três botões de texto por linha — "Ficha", "Desativar",
+   "Excluir" — de larguras diferentes, que faziam a última coluna parecer uma
+   gaveta de botões e não uma tabela de gente.
+
+   Nome e e-mail eram duas colunas; juntas são UMA informação (quem é, e por
+   onde entra), e o e-mail é o dado mais largo da tabela sem ser o que alguém
+   procura. Ativo, último acesso e senha provisória eram três; juntos
+   respondem a mesma pergunta — "este acesso está de pé?".
+   ========================================================================= */
+.pessoaLinha {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-width: 0;
+}
+/* O DISCO COM A INICIAL.
+   Numa lista de vinte nomes em preto sobre branco o olho conta linhas; com um
+   disco na frente, ele mira. É o mesmo disco do rodapé da lateral, onde a
+   pessoa já reconhece o próprio. */
+.pessoaInicial {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, var(--vio), var(--vio-forte));
+  color: var(--sobre-vio);
+  font-family: var(--f-texto);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.pessoaTexto {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+/* O nome é BOTÃO, e precisa deixar de parecer botão: ele abre a ficha, como o
+   nome abre o cadastro em toda outra lista da casa. */
+.pessoaNome {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--txt);
+  text-align: left;
+  cursor: pointer;
+}
+.pessoaNome:hover { color: var(--vio-claro); }
+.pessoaNome:focus-visible {
+  outline: 2px solid var(--vio);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.pessoaEmail {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* O que o perfil FAZ, e o estado do acesso: a mesma tinta de contexto. */
+.pessoaEstado {
+  margin-top: 3px;
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+/* A sobra da largura vai para a coluna da pessoa; as outras encolhem ao que
+   carregam. Sem isto o `width: 100%` reparte a folga igualmente e abre vãos
+   que o olho tem de atravessar em toda linha. */
+.tabelaEquipe th:first-child,
+.tabelaEquipe td:first-child { width: 100%; }
+.tabelaEquipe th:not(:first-child),
+.tabelaEquipe td:not(:first-child) { width: 1%; white-space: nowrap; }
+.tabelaEquipe td:last-child .acoesLinha { flex-wrap: nowrap; }
+
+/* A NOTA DE RODAPÉ DA TELA.
+   O texto que explica o que "desativar" e "excluir" realmente fazem é
+   importante — é ele que evita o clique arrependido. Solto em cinza no fim da
+   página, parecia sobra de rodapé. Numa caixa com uma faixa na lateral, ele
+   se lê como o que é: a regra da casa sobre aquela tela. */
+.notaTela {
+  margin-top: var(--s5);
+  padding: var(--s4) var(--s5);
+  border-left: 3px solid var(--vio-borda);
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  background: var(--sup-2);
+  display: grid;
+  gap: var(--s3);
+}
+.notaTela p {
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--txt-2);
+  max-width: 78ch;
+}
+.notaTela strong { color: var(--txt); }
+
+/* A dica do perfil é uma frase inteira. Centrada sobre um selo de 70px ela
+   sairia da tabela pelos dois lados; presa à esquerda do selo, ela abre para
+   dentro. */
+.tabelaEquipe .comDica::after { left: 0; transform: translateY(3px); }
+.tabelaEquipe .comDica:hover::after,
+.tabelaEquipe .comDica:focus-within::after { transform: translateY(0); }

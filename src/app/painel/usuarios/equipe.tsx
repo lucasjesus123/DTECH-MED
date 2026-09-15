@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { alternarUsuario, excluirUsuario, salvarUsuario } from '@/server/acoes/plataforma'
+import Dica from '../dica'
 import Abas from './abas'
 import Ficha, { type Pessoa } from './ficha'
 import estilo from '../painel.module.css'
@@ -114,30 +115,40 @@ export default function Equipe({
         </p>
       ) : null}
 
-      <div className={estilo.acoesForm} style={{ marginBottom: 'var(--s4)' }}>
-        <button type="button" className={estilo.btn} onClick={() => setNovo((v) => !v)}>
+      {/* A BARRA: procurar à esquerda, cadastrar à direita.
+          É o mesmo desenho do estoque, e de propósito. Quem administra usa as
+          duas telas no mesmo dia; ter a busca num lugar numa e noutro na outra
+          é o tipo de diferença que não se nota e se paga em segundos, toda
+          vez. */}
+      <div className={estilo.barraTela}>
+        <div className={estilo.filtros}>
+          <div className={estilo.busca}>
+            <input
+              className={estilo.campo}
+              type="search"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder={
+                mostrarEmpresa
+                  ? 'Buscar por nome, empresa, e-mail ou perfil'
+                  : 'Buscar por nome, e-mail ou perfil'
+              }
+              aria-label="Buscar pessoa"
+            />
+          </div>
+          <span className={estilo.fraco}>
+            {visiveis.length === usuarios.length
+              ? `${usuarios.length} ${usuarios.length === 1 ? 'pessoa' : 'pessoas'}`
+              : `${visiveis.length} de ${usuarios.length}`}
+          </span>
+        </div>
+        <button type="button" className={novo ? estilo.btnSec : estilo.btn} onClick={() => setNovo((v) => !v)}>
           {novo ? 'Fechar' : 'Cadastrar pessoa'}
         </button>
-        <input
-          className={estilo.campo}
-          type="search"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          placeholder={
-            mostrarEmpresa ? 'Buscar por nome, empresa, e-mail ou perfil' : 'Buscar por nome, e-mail ou perfil'
-          }
-          aria-label="Buscar pessoa"
-          style={{ maxWidth: 340 }}
-        />
-        <span className={estilo.fraco}>
-          {visiveis.length === usuarios.length
-            ? `${usuarios.length} ${usuarios.length === 1 ? 'pessoa' : 'pessoas'}`
-            : `${visiveis.length} de ${usuarios.length}`}
-        </span>
       </div>
 
       {novo ? (
-        <form action={acao} className={`${estilo.bloco} ${estilo.form}`}>
+        <form action={acao} className={`${estilo.bloco} ${estilo.form}`} style={{ marginBottom: 'var(--s5)' }}>
           <p className={estilo.blocoTitulo}>Nova pessoa na equipe</p>
           {!estado.ok && estado.motivo ? <p className={estilo.erro} role="alert">{estado.motivo}</p> : null}
           {estado.ok && estado.mensagem ? <p className={estilo.sucesso} role="status">{estado.mensagem}</p> : null}
@@ -229,14 +240,12 @@ export default function Equipe({
       ) : null}
 
       <div className={`${estilo.quadro} ${estilo.rolaX}`}>
-        <table className={estilo.tabela}>
+        <table className={`${estilo.tabela} ${estilo.tabelaEquipe}`}>
           <thead>
             <tr>
-              <th>Nome</th>
+              <th>Pessoa</th>
               {mostrarEmpresa ? <th>Empresa</th> : null}
-              <th>E-mail</th>
               <th>Perfil</th>
-              <th>Último acesso</th>
               <th>Situação</th>
               <th>
                 <span className={estilo.soLeitor}>Ações</span>
@@ -248,89 +257,156 @@ export default function Equipe({
               const acima = !ehDono && (NIVEL[u.papel] ?? 0) >= meuNivel
               const perfil = PERFIS.find((p) => p.valor === u.papel)
               return (
-                <tr key={u.id}>
-                  <td className={estilo.forte}>{u.nome}</td>
+                <tr key={u.id} className={u.ativo ? undefined : estilo.linhaArquivada}>
+                  {/* ===================================================
+                      NOME E E-MAIL NA MESMA CÉLULA, COM A INICIAL NA FRENTE
+                      ===================================================
+                      Eram duas colunas, e a segunda — o e-mail — é a mais
+                      larga da tabela sem ser a que alguém procura. Juntas,
+                      elas são UMA informação: quem é a pessoa e por onde ela
+                      entra.
+
+                      A inicial não é enfeite. Numa lista de vinte nomes em
+                      preto sobre branco, o olho conta linhas; com um disco
+                      colorido na frente, ele mira. É o mesmo disco do rodapé
+                      da lateral, onde a pessoa já reconhece o próprio. */}
+                  <td>
+                    <span className={estilo.pessoaLinha}>
+                      <span className={estilo.pessoaInicial} aria-hidden="true">
+                        {iniciais(u.nome)}
+                      </span>
+                      <span className={estilo.pessoaTexto}>
+                        {/* O NOME É A PORTA DA FICHA.
+                            Em toda outra lista da casa o nome abre o
+                            cadastro; aqui ele era texto morto e a porta era um
+                            botão escrito "Ficha" na última coluna. Agora é
+                            botão de verdade — e por isso o ícone de ficha não
+                            existe: dois controles para a mesma ação na mesma
+                            linha fazem quem usa leitor de tela ouvir a coisa
+                            duas vezes. */}
+                        <button type="button" className={estilo.pessoaNome} onClick={() => setAberta(u)}>
+                          {u.nome}
+                        </button>
+                        <span className={estilo.pessoaEmail}>{u.email}</span>
+                      </span>
+                    </span>
+                  </td>
+
                   {mostrarEmpresa ? (
                     <td>
                       <span className={estilo.tag}>{u.empresa ?? 'plataforma'}</span>
                     </td>
                   ) : null}
-                  <td className={estilo.num}>{u.email}</td>
+
                   <td>
-                    <span className={estilo.tag}>{perfil?.rotulo ?? u.papel.toLowerCase()}</span>
-                  </td>
-                  <td className={estilo.num}>
-                    {u.ultimoLogin ? (
-                      new Date(u.ultimoLogin).toLocaleDateString('pt-BR')
+                    {/* O QUE O PERFIL FAZ FICA NA DICA, e não na linha.
+                        Escrito embaixo do selo, ele ocupava três linhas —
+                        "só o aplicativo de rota: retirada e entrega" — e a
+                        tabela virava uma coluna de parágrafos de 100px de
+                        altura, repetindo a mesma frase em todo técnico e em
+                        todo motorista da lista.
+                        A frase importa na hora de ESCOLHER o perfil, e lá ela
+                        continua: escrita por extenso dentro do seletor do
+                        cadastro e da ficha. Aqui ela responde a quem
+                        perguntar. */}
+                    {perfil ? (
+                      <Dica texto={perfil.faz}>
+                        <span className={`${estilo.tag} ${corDoPerfil(u.papel)}`}>{perfil.rotulo}</span>
+                      </Dica>
                     ) : (
-                      <span className={estilo.fraco}>nunca</span>
+                      <span className={`${estilo.tag} ${corDoPerfil(u.papel)}`}>
+                        {u.papel.toLowerCase()}
+                      </span>
                     )}
                   </td>
+
                   <td>
+                    {/* TRÊS FATOS NUMA COLUNA SÓ: pode entrar, quando entrou
+                        pela última vez, e se a senha ainda é a provisória. Os
+                        três respondem a mesma pergunta — "este acesso está de
+                        pé?" — e separados em colunas obrigavam a varrer a
+                        linha para montar a resposta. */}
                     <span className={`${estilo.tag} ${u.ativo ? estilo.tagOk : estilo.tagNeutra}`}>
                       {u.ativo ? 'ativo' : 'desativado'}
                     </span>
-                    {u.trocarSenha ? (
-                      <div className={estilo.fraco}>troca a senha no acesso</div>
-                    ) : null}
+                    <div className={estilo.pessoaEstado}>
+                      {u.ultimoLogin
+                        ? `entrou em ${new Date(u.ultimoLogin).toLocaleDateString('pt-BR')}`
+                        : 'nunca entrou'}
+                      {u.trocarSenha ? ' · senha provisória' : ''}
+                    </div>
                   </td>
-                  <td className={estilo.dir}>
-                    {/* A ficha abre para QUALQUER pessoa da lista, inclusive
-                        quem está acima — ler o cadastro de alguém não é mexer
-                        nele, e o que não se pode mudar chega desabilitado. */}
-                    <button
-                      type="button"
-                      className={estilo.btnSec}
-                      onClick={() => setAberta(u)}
-                      style={{ marginRight: 'var(--s2)' }}
-                    >
-                      Ficha
-                    </button>
-                    {acima ? (
-                      <span className={estilo.fraco}>—</span>
-                    ) : u.ativo ? (
-                      <button
-                        type="button"
-                        className={estilo.btnSec}
-                        disabled={pendente}
-                        onClick={() => agir(() => alternarUsuario(u.id, false))}
-                      >
-                        Desativar
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className={estilo.btnSec}
-                        disabled={pendente}
-                        onClick={() => agir(() => alternarUsuario(u.id, true))}
-                      >
-                        Reativar
-                      </button>
-                    )}
-                    {/* Excluir só aparece para quem NUNCA entrou. Cadastro com
-                        e-mail errado, criado há dez minutos, é lixo e some. Quem
-                        já trabalhou tem nome na trilha, e apagar o cadastro
-                        apagaria o nome de tudo o que a pessoa fez — o servidor
-                        recusa, e este botão nem se oferece. */}
-                    {!u.ultimoLogin && !acima ? (
-                      <button
-                        type="button"
-                        className={estilo.btnPerigo}
-                        disabled={pendente}
-                        style={{ marginLeft: 'var(--s2)' }}
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              `Excluir o cadastro de ${u.nome}? Esta pessoa nunca entrou no sistema, então nada do histórico é afetado. Não dá para desfazer.`,
-                            )
-                          ) {
-                            agir(() => excluirUsuario(u.id))
-                          }
-                        }}
-                      >
-                        Excluir
-                      </button>
-                    ) : null}
+
+                  <td>
+                    <span className={estilo.acoesLinha}>
+                      {acima ? (
+                        /* Quem está no mesmo nível ou acima não se mexe — e o
+                           lugar do botão não fica vazio: um desenho apagado
+                           diz que a ação existe e por que ela não está aqui.
+                           Buraco na linha faria parecer coluna quebrada. */
+                        <Dica texto="Perfil igual ou acima do seu">
+                          <span
+                            className={`${estilo.btnIcone} ${estilo.btnIconeMudo}`}
+                            role="img"
+                            aria-label={`Você não pode alterar o acesso de ${u.nome}`}
+                          >
+                            <IconeCadeado />
+                          </span>
+                        </Dica>
+                      ) : u.ativo ? (
+                        <Dica texto="Desativar o acesso">
+                          <button
+                            type="button"
+                            className={`${estilo.btnIcone} ${estilo.btnIconePerigo}`}
+                            disabled={pendente}
+                            aria-label={`Desativar o acesso de ${u.nome}`}
+                            onClick={() => agir(() => alternarUsuario(u.id, false))}
+                          >
+                            <IconeDesligar />
+                          </button>
+                        </Dica>
+                      ) : (
+                        <Dica texto="Reativar o acesso">
+                          <button
+                            type="button"
+                            className={estilo.btnIcone}
+                            disabled={pendente}
+                            aria-label={`Reativar o acesso de ${u.nome}`}
+                            onClick={() => agir(() => alternarUsuario(u.id, true))}
+                          >
+                            <IconeLigar />
+                          </button>
+                        </Dica>
+                      )}
+
+                      {/* Excluir só aparece para quem NUNCA entrou. Cadastro
+                          com e-mail errado, criado há dez minutos, é lixo e
+                          some. Quem já trabalhou tem nome na trilha, e apagar
+                          o cadastro apagaria o nome de tudo o que a pessoa
+                          fez — o servidor recusa, e este botão nem se
+                          oferece. */}
+                      {!u.ultimoLogin && !acima ? (
+                        <Dica texto="Excluir o cadastro">
+                          <button
+                            type="button"
+                            className={`${estilo.btnIcone} ${estilo.btnIconePerigo}`}
+                            disabled={pendente}
+                            aria-label={`Excluir o cadastro de ${u.nome}`}
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `Excluir o cadastro de ${u.nome}? Esta pessoa nunca entrou no sistema, então nada do histórico é afetado. Não dá para desfazer.`,
+                                )
+                              ) {
+                                agir(() => excluirUsuario(u.id))
+                              }
+                            }}
+                          >
+                            <IconeLixeira />
+                          </button>
+                        </Dica>
+                      ) : null}
+                    </span>
                   </td>
                 </tr>
               )
@@ -348,16 +424,111 @@ export default function Equipe({
         />
       ) : null}
 
-      <p className={estilo.fraco} style={{ marginTop: 'var(--s4)' }}>
-        Desativar corta o acesso na hora, inclusive as sessões já abertas — é o
-        que serve para o dia em que alguém sai da empresa. Nada é apagado: o que
-        a pessoa fez continua na trilha das ordens, com o nome dela.
-        <br />
-        Excluir só aparece para quem <strong>nunca entrou</strong> — o cadastro
-        com e-mail errado, criado há dez minutos. Depois do primeiro acesso, o
-        nome da pessoa está espalhado pelo histórico, e apagar o cadastro
-        apagaria esse nome de tudo o que ela fez.
-      </p>
+      <div className={estilo.notaTela}>
+        <p>
+          <strong>Desativar</strong> corta o acesso na hora, inclusive as sessões já abertas — é o
+          que serve para o dia em que alguém sai da empresa. Nada é apagado: o que a pessoa fez
+          continua na trilha das ordens, com o nome dela.
+        </p>
+        <p>
+          <strong>Excluir</strong> só aparece para quem nunca entrou — o cadastro com e-mail errado,
+          criado há dez minutos. Depois do primeiro acesso, o nome da pessoa está espalhado pelo
+          histórico, e apagar o cadastro apagaria esse nome de tudo o que ela fez.
+        </p>
+      </div>
+
     </>
+  )
+}
+
+/**
+ * AS DUAS PRIMEIRAS LETRAS DO NOME — a que o olho mira antes de ler.
+ *
+ * Primeiro nome e último, quando há os dois: "Lucas Jesus" vira LJ, e não LU.
+ * Nome de uma palavra só devolve a primeira letra sozinha, porque "LUCAS" em
+ * dois caracteres viraria LU — e LU e LJ lado a lado numa lista se confundem.
+ */
+function iniciais(nome: string): string {
+  const partes = nome.trim().split(/\s+/).filter(Boolean)
+  if (partes.length === 0) return '?'
+  if (partes.length === 1) return partes[0]!.charAt(0).toUpperCase()
+  return (partes[0]!.charAt(0) + partes[partes.length - 1]!.charAt(0)).toUpperCase()
+}
+
+/**
+ * A COR DO PERFIL, e por que são três e não seis.
+ *
+ * Seis cores numa lista de vinte linhas é um arco-íris: o olho para em cada
+ * uma para descobrir o que ela quer dizer, que é o oposto de mirar. Três
+ * respondem a pergunta que alguém realmente faz olhando a coluna — de que LADO
+ * da casa esta pessoa está:
+ *
+ *   QUEM MANDA    administrador e gestor      cobalto, a cor da marca
+ *   O DINHEIRO    financeiro                  verde, a cor do caixa
+ *   QUEM EXECUTA  atendente, técnico, motorista   neutra
+ *
+ * A cor é o agrupamento; o nome exato continua escrito dentro do selo, e o que
+ * o perfil faz vem logo abaixo.
+ */
+function corDoPerfil(papel: string): string {
+  if (papel === 'ADMIN_EMPRESA' || papel === 'GESTOR' || papel === 'SUPER_ADMIN') return ''
+  if (papel === 'FINANCEIRO') return estilo.tagOk!
+  return estilo.tagNeutra!
+}
+
+/* Três desenhos, pelo mesmo motivo de sempre: uma dependência inteira para
+   três traços é peso que o navegador baixa sem precisar. */
+
+const svg = {
+  width: 15,
+  height: 15,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+  'aria-hidden': true,
+}
+
+/** Desativar: o símbolo universal de desligar. */
+function IconeDesligar() {
+  return (
+    <svg {...svg}>
+      <path d="M12 3v9" />
+      <path d="M18.4 6.6a9 9 0 1 1-12.8 0" />
+    </svg>
+  )
+}
+
+/** Reativar: o mesmo desligar, com a seta de volta. */
+function IconeLigar() {
+  return (
+    <svg {...svg}>
+      <path d="M3 12a9 9 0 1 0 3-6.7" />
+      <path d="M3 4v4h4" />
+    </svg>
+  )
+}
+
+function IconeLixeira() {
+  return (
+    <svg {...svg}>
+      <path d="M3 6h18" />
+      <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+      <path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  )
+}
+
+/** O acesso que não se mexe: perfil igual ou acima do de quem está olhando. */
+function IconeCadeado() {
+  return (
+    <svg {...svg}>
+      <rect x="4" y="10" width="16" height="11" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    </svg>
   )
 }
