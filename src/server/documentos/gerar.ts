@@ -264,6 +264,8 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
    * ========================================================================= */
   const enviada = dados.tenant.marca?.logoCaminho ?? null
   let desenhou = false
+  /** A logo desenhada é a da REDE (que já traz a palavra), e não a do franqueado? */
+  let marcaDaCasa = false
 
   if (enviada) {
     try {
@@ -284,6 +286,7 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
       if (png) {
         doc.image(png, 48, doc.y, { fit: [LARGURA_LOGO, ALTURA_LOGO] })
         desenhou = true
+        marcaDaCasa = true
       }
     } catch {
       // Marca que não desenha não impede a emissão de um contrato. O nome, o
@@ -298,12 +301,27 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
   const topoDoTimbre = doc.y
   const larguraDoTexto = 547 - recuo
 
-  doc
-    .fillColor(VIO)
-    .fontSize(20)
-    .font('Helvetica-Bold')
-    .text(dados.tenant.nome, recuo, topoDoTimbre, { width: larguraDoTexto })
-  doc.moveDown(0.15)
+  /**
+   * O NOME SÓ SAI ESCRITO QUANDO A LOGO NÃO O DIZ.
+   *
+   * A logo da casa é a marca INTEIRA — símbolo e palavra, proporção 6,02:1.
+   * Desenhá-la e escrever "DTECH MED" ao lado deixava o cabeçalho gaguejando:
+   * a marca duas vezes, uma desenhada e outra digitada, em tamanhos diferentes.
+   *
+   * Com logo enviada pelo FRANQUEADO é outra conversa: pode ser só um símbolo,
+   * e aí o nome ao lado é o que identifica a empresa. Por isso a regra olha de
+   * ONDE veio a logo, e não apenas se existe uma.
+   */
+  if (!marcaDaCasa) {
+    doc
+      .fillColor(VIO)
+      .fontSize(20)
+      .font('Helvetica-Bold')
+      .text(dados.tenant.nome, recuo, topoDoTimbre, { width: larguraDoTexto })
+    doc.moveDown(0.15)
+  } else {
+    doc.y = topoDoTimbre
+  }
   doc.fillColor(CINZA).fontSize(8).font('Helvetica')
   const linhaEmpresa = [
     dados.tenant.razaoSocial,
@@ -344,7 +362,15 @@ export async function gerarPdfDaOrdem(pedido: PedidoPdf, tenantId: string) {
     ['Nome', dados.cliente.nome],
     ['Documento', formatarDoc(dados.cliente.documento)],
     ['Contato', dados.cliente.contatoNome ?? '—'],
-    ['Telefone', dados.cliente.telefone ?? dados.cliente.whatsapp ?? '—'],
+    [
+      'Telefone',
+      // O do cliente saía cru no bloco CLIENTE — o mesmo descuido do telefone da
+      // empresa, duas linhas acima, e da página pública do orçamento.
+      (() => {
+        const t = dados.cliente.telefone ?? dados.cliente.whatsapp
+        return t ? formatarTelefone(t) : '—'
+      })(),
+    ],
     [
       'Endereço',
       [dados.cliente.logradouro, dados.cliente.numero, dados.cliente.bairro, dados.cliente.cidade]
