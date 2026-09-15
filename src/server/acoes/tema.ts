@@ -29,31 +29,60 @@ import { revalidatePath } from 'next/cache'
  * A retirada não deixa ninguém preso. Quem já tinha "Auto" gravado no cookie
  * cai no padrão pela conferência de `VALIDOS` logo abaixo — não há migração a
  * rodar, nem sessão a derrubar, e a próxima página já vem clara.
+ *
+ * ---------------------------------------------------------------------------
+ * POR QUE DOIS ESCOPOS, COM PADRÕES DIFERENTES
+ * ---------------------------------------------------------------------------
+ * O painel e os aplicativos de campo são lugares diferentes, e a resposta certa
+ * para cada um é diferente:
+ *
+ *   PAINEL   mesa, sala com luz acesa, planilha e número o dia inteiro. Claro.
+ *   CAMPO    rua, celular na mão, e às vezes sol batendo na tela. Hoje é
+ *            escuro, e é assim que quem usa está acostumado.
+ *
+ * Um cookie só faria a escolha de um vazar para o outro — e, pior, mudaria o
+ * aplicativo de todo motorista da noite para o dia, porque o padrão do painel é
+ * claro. Ninguém pediu isso. Cada lugar guarda a sua, e o padrão de cada um é o
+ * que já valia antes desta linha existir.
+ *
+ * O que NÃO foi feito: um segundo módulo. Duplicar cookie, validação e
+ * revalidação criaria dois lugares que precisam lembrar da mesma coisa — e dois
+ * lugares assim é ter um que vai esquecer.
  */
 
 export type Tema = 'claro' | 'escuro'
 
-const NOME = 'dtechmed_tema'
+/** Onde a preferência vale. O padrão é o painel, para quem já chamava sem dizer. */
+export type Onde = 'painel' | 'campo'
+
+const NOME: Record<Onde, string> = {
+  painel: 'dtechmed_tema',
+  campo: 'dtechmed_tema_campo',
+}
+
+/** O padrão de cada lugar é o que ele já fazia antes de haver escolha. */
+const PADRAO: Record<Onde, Tema> = { painel: 'claro', campo: 'escuro' }
+
+/** O que precisa ser remontado quando a escolha muda. */
+const CAMINHO: Record<Onde, string> = { painel: '/painel', campo: '/app' }
+
 const VALIDOS: readonly Tema[] = ['claro', 'escuro']
 
 /** O tema gravado, ou o padrão. Lido no servidor, antes de pintar. */
-export async function lerTema(): Promise<Tema> {
+export async function lerTema(onde: Onde = 'painel'): Promise<Tema> {
   const c = await cookies()
-  const v = c.get(NOME)?.value
+  const v = c.get(NOME[onde])?.value
   // Comparado com a lista, não convertido. O valor vem de um cookie, ou seja,
   // de algo que qualquer pessoa edita no próprio navegador — e ele vai parar
   // num atributo do HTML.
-  // Claro por padrão. A área de trabalho de um sistema de gestão é usada em
-  // sala com luz acesa, olhando planilha e número o dia inteiro — e a lateral
-  // continua escura de qualquer jeito, então a tela nunca fica lavada.
-  return VALIDOS.includes(v as Tema) ? (v as Tema) : 'claro'
+  return VALIDOS.includes(v as Tema) ? (v as Tema) : PADRAO[onde]
 }
 
-export async function definirTema(tema: Tema): Promise<void> {
+export async function definirTema(tema: Tema, onde: Onde = 'painel'): Promise<void> {
   if (!VALIDOS.includes(tema)) return
 
   const c = await cookies()
-  c.set(NOME, tema, {
+  c.set(NOME[onde], tema, {
     // Um ano: preferência de aparência não é sessão. Quem escolheu claro em
     // março quer claro em novembro.
     maxAge: 60 * 60 * 24 * 365,
@@ -66,7 +95,7 @@ export async function definirTema(tema: Tema): Promise<void> {
     secure: process.env.NODE_ENV === 'production',
   })
 
-  // O tema é um atributo do HTML do painel inteiro, então a página precisa ser
-  // remontada — não é uma classe que o navegador troca sozinho.
-  revalidatePath('/painel', 'layout')
+  // O tema é um atributo do HTML daquele lugar inteiro, então a página precisa
+  // ser remontada — não é uma classe que o navegador troca sozinho.
+  revalidatePath(CAMINHO[onde], 'layout')
 }

@@ -1,6 +1,8 @@
 import { exigirSessao } from '@/server/auth/guarda'
 import { comEscopo } from '@/lib/db'
 import { PAPEL_ROTULO } from '@/app/painel/auditoria/rotulos'
+import { lerTema } from '@/server/acoes/tema'
+import TemaDoCampo from '../tema-campo'
 import Formulario from './formulario'
 import estilo from '../app.module.css'
 
@@ -23,6 +25,7 @@ export const dynamic = 'force-dynamic'
  */
 export default async function Perfil() {
   const { sessao, ctx } = await exigirSessao()
+  const tema = await lerTema('campo')
 
   const eu = await comEscopo(ctx, (tx) =>
     tx.user.findUnique({
@@ -49,6 +52,12 @@ export default async function Perfil() {
           documento={eu?.documento ?? ''}
           email={eu?.email ?? ''}
         />
+
+        {/* A ESCOLHA DA TELA vem DEPOIS do cadastro, e não antes: quem abre o
+            perfil vem quase sempre corrigir um telefone. A aparência é o
+            segundo motivo — mas é o motivo que muda no meio do dia, quando o
+            sol bate, e por isso mora aqui e não num menu. */}
+        <TemaDoCampo atual={tema} />
       </main>
     </>
   )

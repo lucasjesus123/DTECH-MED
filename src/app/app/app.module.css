@@ -51,7 +51,14 @@
   --c-tinta-3: light-dark(#6E6E7C, #817E90);
 
   /* ---- os quatro estados ------------------------------------------------- */
-  --c-agora:      light-dark(#8A4B00, #FFB020);
+  /* ÂMBAR TEM DOIS PAPÉIS, e no tema claro eles não podem ser a mesma cor.
+     `--c-agora` é TINTA: precisa ser escuro para ler sobre papel branco.
+     `--c-agora-solido` é PREENCHIMENTO: precisa ser âmbar de verdade, com
+     texto escuro por cima.
+     Usar a tinta como preenchimento saiu o que saiu — uma laje marrom. */
+  --c-agora:        light-dark(#8A4B00, #FFB020);
+  --c-agora-solido: light-dark(#F0A020, #FFB020);
+  --c-agora-tinta:  #1A1204;
   --c-agora-chao: light-dark(#FFF4E0, #2A1D06);
   --c-agora-linha:light-dark(#E09A2B, #6B4A10);
   --c-agora-forte:light-dark(#B26100, #FFC64D);
@@ -554,19 +561,21 @@ details[open] > .paResumo { border-bottom: 1px solid var(--c-linha); }
   filter: brightness(.94);
 }
 
-/* A LAJE ÂMBAR: a ação do agora. Uma por tela. */
+/* A LAJE ÂMBAR: a ação do agora. Uma por tela.
+   Texto escuro nos DOIS temas: sobre âmbar, branco não passa em contraste
+   (2,3:1), e escuro passa folgado (9:1). */
 .btnGrande, .btnConfirmar {
-  background: var(--c-agora);
-  color: light-dark(#FFFFFF, #1A1204);
-  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--c-agora) 70%, transparent);
+  background: var(--c-agora-solido);
+  color: var(--c-agora-tinta);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--c-agora-solido) 70%, transparent);
 }
 /* Aceitar também é âmbar. A regra desta tela é "o que é âmbar é o que você
    faz agora" — e no cartão que pede aceite, aceitar é a única coisa que existe.
    Um botão branco ali abriria uma segunda gramática para a mesma função. */
 .btnAceite {
-  background: var(--c-agora);
-  color: light-dark(#FFFFFF, #1A1204);
-  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--c-agora) 70%, transparent);
+  background: var(--c-agora-solido);
+  color: var(--c-agora-tinta);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--c-agora-solido) 70%, transparent);
 }
 .btnSaida {
   background: transparent;
@@ -1022,3 +1031,60 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   background: var(--c-marca);
 }
 .barraAba:focus-visible { outline: 2px solid var(--c-marca); outline-offset: -3px; }
+
+/* =============================================================================
+   A ESCOLHA DA TELA — claro ou escuro, no perfil
+   =============================================================================
+   Não é preferência de gosto: é condição de trabalho. A tela escura vira
+   espelho no sol, e o motorista acaba lendo o endereço com a mão fazendo
+   sombra. Por isso fica a dois toques, e não num cadastro.
+   ============================================================================= */
+.temaCampo {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  background: var(--c-sup);
+  border: 1px solid var(--c-linha);
+  border-radius: var(--r-md);
+}
+.temaCampoTitulo {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--c-tinta-3);
+}
+.temaCampoNota { font-size: 13px; line-height: 1.5; color: var(--c-tinta-2); }
+
+/* Dois rótulos lado a lado, e não um interruptor: numa tela usada de relance,
+   com uma mão, ler custa menos que lembrar qual lado é qual. */
+.temaCampoOpcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  background: var(--c-chao);
+  border-radius: var(--r-sm);
+}
+.temaCampoOpcao, .temaCampoAtiva {
+  min-height: 46px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--c-tinta-2);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.temaCampoAtiva {
+  background: var(--c-sup);
+  color: var(--c-tinta);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .18);
+}
+.temaCampoOpcao:disabled, .temaCampoAtiva:disabled { opacity: .5; cursor: wait; }
+.temaCampoOpcao:focus-visible, .temaCampoAtiva:focus-visible {
+  outline: 2px solid var(--c-marca);
+  outline-offset: 2px;
+}

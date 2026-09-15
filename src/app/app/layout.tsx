@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { redirect } from 'next/navigation'
 import { Papel } from '@/generated/prisma/enums'
 import { lerSessao } from '@/server/auth/sessao'
+import { lerTema } from '@/server/acoes/tema'
 import estilo from './app.module.css'
 import { Credito } from '../credito'
 import { RegistrarSW } from './registrar-sw'
@@ -14,15 +15,28 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'DTECH MED' },
 }
 
-export const viewport: Viewport = {
+/**
+ * A COR DA MOLDURA DO NAVEGADOR acompanha a escolha da pessoa.
+ *
+ * Era fixa em `#08040F`. Com a tela clara, a barra de status do celular
+ * continuava preta em cima de uma página branca — a emenda mais visível que uma
+ * troca de tema pode deixar, e logo no alto, onde o olho começa.
+ *
+ * `generateViewport` é assíncrono de propósito: ele lê o mesmo cookie que o
+ * layout, então a moldura e a página nunca discordam.
+ */
+export async function generateViewport(): Promise<Viewport> {
+  const tema = await lerTema('campo')
+  return {
   width: 'device-width',
   initialScale: 1,
   // Não trava o zoom: quem tem dificuldade de enxergar precisa poder ampliar,
   // e "evitar o zoom acidental" nunca justificou tirar isso de alguém.
   maximumScale: 5,
-  themeColor: '#08040F',
+  themeColor: tema === 'claro' ? '#FFFFFF' : '#0B0B0F',
   // Usa a área do notch — a barra inferior fica no alcance do polegar.
   viewportFit: 'cover',
+  }
 }
 
 /**
@@ -34,6 +48,18 @@ export const viewport: Viewport = {
 export default async function LayoutApp({ children }: { children: React.ReactNode }) {
   const sessao = await lerSessao()
   if (!sessao) redirect('/entrar?destino=/app')
+
+  /**
+   * O TEMA VIVE NO INVÓLUCRO DO APLICATIVO, e não no `<html>`.
+   *
+   * O mesmo motivo do painel: o `<html>` é compartilhado com o site que o
+   * cliente vê, e amarrar a escolha de quem trabalha ali faria a preferência do
+   * motorista vazar para a home da empresa.
+   *
+   * Escopo `campo`, e não o do painel: são lugares diferentes, com padrões
+   * diferentes. Ver `server/acoes/tema.ts`.
+   */
+  const tema = await lerTema('campo')
 
   /**
    * O PRIMEIRO DESTINO DA BARRA MUDA COM O PAPEL, e o nome dele também.
@@ -51,7 +77,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
       : { href: '/app/motorista', rotulo: 'Rota' }
 
   return (
-    <div className={estilo.aparelho}>
+    <div className={estilo.aparelho} data-tema={tema}>
       <RegistrarSW />
       {children}
       {/* Discreto e no fim da rolagem: quem está na rua com uma mão só não
