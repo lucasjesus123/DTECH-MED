@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { EtapaOrdem } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
+import { formatarTelefone } from '@/lib/documentos'
 import { carregarOrdemPublica } from '@/server/acoes/portal'
 import { ROTULO_DOCUMENTO, ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 import { Aprovacao } from './aprovacao'
@@ -220,11 +221,4 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
       </div>
     </main>
   )
-}
-
-function formatarTelefone(n: string): string {
-  const d = n.replace(/\D/g, '').replace(/^55/, '')
-  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
-  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
-  return n
 }

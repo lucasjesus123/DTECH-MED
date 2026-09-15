@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { formatarBRL } from '@/lib/dinheiro'
+import { formatarTelefone } from '@/lib/documentos'
 import { carregarPropostaPublica } from '@/server/acoes/portal'
 import { Resposta } from './resposta'
 import estilo from '../../os/[token]/portal.module.css'
@@ -192,7 +193,7 @@ export default async function PortalDaProposta({
           <p className={estilo.grav}>Dúvida sobre algum item?</p>
           <p className={estilo.sub}>
             Fale com a {p.tenant.nome}
-            {p.tenant.telefone ? ` pelo ${p.tenant.telefone}` : ''} ou responda a mesma conversa do
+            {p.tenant.telefone ? ` pelo ${formatarTelefone(p.tenant.telefone)}` : ''} ou responda a mesma conversa do
             WhatsApp em que este link chegou.
           </p>
         </div>
