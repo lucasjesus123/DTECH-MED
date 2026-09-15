@@ -45,6 +45,24 @@ export default function EmitirDocumentos({ ordemId }: { ordemId: string }) {
   return (
     <>
       <div className={estilo.acoesForm}>
+        {/* A VIA DA O.S., PRIMEIRO, e em destaque.
+            O pedido foi literal: *"no final, onde está escrito emitir
+            contrato, tenha emitir O.S."*. Ela vem antes dos outros dois porque
+            é a que se pede todo dia — o papel que vai junto com o aparelho, o
+            que o cliente assina na retirada, o que se reimprime quando some.
+
+            Contrato e promissória são de exceção: só saem quando o setor de
+            compras exige instrumento, ou quando o aparelho sai antes do
+            pagamento. Botão de todo dia não fica com o mesmo peso de botão de
+            exceção. */}
+        <button
+          type="button"
+          className={estilo.btn}
+          disabled={pendente}
+          onClick={() => emitir('ORDEM_SERVICO')}
+        >
+          {pendente ? 'Gerando…' : 'Emitir a O.S.'}
+        </button>
         <button
           type="button"
           className={estilo.btnSec}
@@ -70,8 +88,10 @@ export default function EmitirDocumentos({ ordemId }: { ordemId: string }) {
       ) : null}
 
       <p className={estilo.dica}>
-        O valor sai do orçamento aprovado, nunca digitado de novo. A nota promissória é um título:
-        emita só quando o aparelho for entregue antes do pagamento.
+        A O.S. sai com o que já está na ordem e pode ser emitida a qualquer momento — ela é a via
+        do serviço, não cria obrigação. Já o contrato e a promissória saem com o valor do orçamento
+        aprovado, nunca digitado de novo; a promissória é um título, emita só quando o aparelho for
+        entregue antes do pagamento.
       </p>
     </>
   )

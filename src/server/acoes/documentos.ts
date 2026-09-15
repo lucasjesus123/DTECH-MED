@@ -51,22 +51,47 @@ const PODE_EMITIR: Papel[] = [
   Papel.FINANCEIRO,
 ]
 
-/** Só estes dois. Os demais nascem da esteira e não se pedem à mão. */
-const SOB_DEMANDA: TipoDocumento[] = ['CONTRATO_PRESTACAO', 'NOTA_PROMISSORIA']
+/**
+ * Os que se pedem à mão. Os demais nascem da esteira.
+ *
+ * A ORDEM DE SERVIÇO entrou aqui depois, e o pedido foi direto: *"no final,
+ * onde está escrito emitir contrato, tenha emitir O.S."*.
+ *
+ * Ela é diferente dos outros dois, e a diferença importa: contrato e
+ * promissória OBRIGAM o cliente e por isso só saem do Financeiro para cima e
+ * só com valor. A O.S. é a via do serviço — o papel que vai junto com o
+ * aparelho, que o cliente assina no recebimento e que a esteira já gera
+ * sozinha na abertura. Emitir de novo é reimprimir, não é criar obrigação.
+ *
+ * Por isso ela tem regra própria: sai para quem ATENDE, e não exige valor.
+ */
+const SOB_DEMANDA: TipoDocumento[] = ['CONTRATO_PRESTACAO', 'NOTA_PROMISSORIA', 'ORDEM_SERVICO']
+
+/** Os que obrigam o cliente, e por isso exigem valor e perfil de dinheiro. */
+const OBRIGAM_O_CLIENTE: TipoDocumento[] = ['CONTRATO_PRESTACAO', 'NOTA_PROMISSORIA']
 
 const NOME: Record<string, string> = {
   CONTRATO_PRESTACAO: 'Contrato de prestação de serviço',
   NOTA_PROMISSORIA: 'Nota promissória',
+  ORDEM_SERVICO: 'Ordem de serviço',
 }
 
 export async function emitirDocumento(ordemId: string, tipo: string): Promise<Resposta> {
   const sessao = await lerSessao()
   if (!sessao) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
-  if (!PODE_EMITIR.includes(sessao.papel)) {
-    return { ok: false, motivo: 'Seu perfil não emite contrato nem nota promissória.' }
-  }
   if (!SOB_DEMANDA.includes(tipo as TipoDocumento)) {
     return { ok: false, motivo: 'Este documento não é emitido à mão — ele nasce da esteira.' }
+  }
+  /* A via da O.S. é trabalho de balcão: quem atende reimprime. Contrato e
+     promissória continuam do Financeiro para cima, porque obrigam o cliente. */
+  const exigido = OBRIGAM_O_CLIENTE.includes(tipo as TipoDocumento) ? PODE_EMITIR : PODE_ANEXAR
+  if (!exigido.includes(sessao.papel)) {
+    return {
+      ok: false,
+      motivo: OBRIGAM_O_CLIENTE.includes(tipo as TipoDocumento)
+        ? 'Seu perfil não emite contrato nem nota promissória.'
+        : 'Seu perfil não emite documento desta ordem.',
+    }
   }
 
   const ctx = contextoDe(sessao)
@@ -133,7 +158,13 @@ export async function emitirDocumento(ordemId: string, tipo: string): Promise<Re
 
   const valor = tipo === 'NOTA_PROMISSORIA' ? emAberto : total
 
-  if (valor <= 0) {
+  /* A O.S. NÃO PASSA PELA TRAVA DE VALOR, e é o ponto dela: o papel que vai
+     junto com o aparelho existe ANTES de haver orçamento aprovado — é ele que
+     o cliente assina na retirada. Exigir valor aqui recusaria justamente a
+     reimpressão do momento em que ela mais é pedida. */
+  if (!OBRIGAM_O_CLIENTE.includes(tipo as TipoDocumento)) {
+    // segue direto para a geração
+  } else if (valor <= 0) {
     return {
       ok: false,
       motivo:

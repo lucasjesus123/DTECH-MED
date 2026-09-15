@@ -7900,151 +7900,107 @@ i.riscoBaixo { background: var(--txt-3); }
    atrás da borda, não uma cor saturada no fundo: texto branco sobre verde-neon
    chapado cansa a vista de quem olha essa tela oito horas por dia.
    ------------------------------------------------------------------------ */
-.osFases {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s3);
-  margin-bottom: var(--s4);
-}
-@media (max-width: 640px) {
-  /* Três colunas num celular dariam ~100px cada, e o nome da fase quebraria
-     em quatro linhas. Empilhado, cada fase vira uma faixa larga — que é
-     inclusive a leitura mais natural: uma depois da outra. */
-  .osFases { grid-template-columns: 1fr; }
-}
-.osFase {
-  display: grid;
-  gap: 4px;
-  padding: var(--s3);
-  border: 1px solid var(--borda-viva);
-  border-radius: var(--r-lg);
-  background: var(--sup);
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease), background 160ms var(--ease);
-}
-.osFase:hover { border-color: var(--txt-3); }
-.osFase:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+/* ==========================================================================
+   AS TRÊS FASES COMO PÍLULAS — o formato que o dono pediu, com referência
+   ==========================================================================
+   Ele mandou o print do outro sistema dele e disse o que queria:
 
-.osFaseTopo {
+     "PERCEBA QUE TUDO TEM O AVANCAR.... TELA POR TELA E SEM SAIR DESSE POP UP"
+
+   Lá são três pílulas ligadas por um fio: a cumprida fica clara com um ✓, a de
+   agora fica sólida, a de adiante fica só contornada. Nada de barra de
+   progresso dentro de cada uma, nada de "3 de 6 passos" — a pílula diz o nome
+   e o estado, e só.
+
+   Aqui era um cartão com cinco linhas empilhadas: selo, "FASE 1", "você está
+   aqui", nome, nome formal, situação por extenso, barrinha e contagem. Oito
+   informações para responder uma pergunta de três respostas.
+
+   O QUE NÃO MUDA É A LEITURA SEM COR. O ✓ e o ● continuam desenhados, e o
+   `aria-label` continua dizendo o estado por extenso — cerca de um homem em
+   cada doze não separa verde de vermelho, e a cor nunca foi a informação.
+   ========================================================================== */
+.osFases {
   display: flex;
   align-items: center;
-  gap: var(--s2);
+  gap: 0;
+  margin-bottom: var(--s4);
+  padding: 0 2px;
 }
+@media (max-width: 720px) {
+  /* No celular o fio entre as pílulas some e elas empilham: três pílulas numa
+     linha de 360px deixariam cada nome em três linhas. */
+  .osFases { flex-direction: column; align-items: stretch; gap: var(--s2); }
+  .osFaseFio { display: none; }
+}
+.osFase {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  flex: none;
+  padding: 9px 16px 9px 12px;
+  border: 1px solid var(--borda-viva);
+  border-radius: 999px;
+  background: var(--sup);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease);
+}
+.osFase:hover { border-color: var(--vio); color: var(--txt); }
+.osFase:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+
+/* O fio que liga uma pílula à outra. Ele é `<span aria-hidden>` entre elas. */
+.osFaseFio {
+  flex: 1;
+  height: 1px;
+  min-width: 12px;
+  background: var(--borda-viva);
+}
+.osFaseFioFeito { background: var(--sinal); }
+
+/* O sinal dentro da pílula: ✓ cumprida, ● agora, ○ adiante, ! parada. */
 .osFaseSelo {
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex: none;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   line-height: 1;
-}
-.osFaseOrdem {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  color: var(--txt-3);
-}
-.osFaseAqui {
-  margin-left: auto;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--espera-veu);
-  border: 1px solid var(--espera-borda);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  color: var(--espera);
-  white-space: nowrap;
-}
-.osFaseNome {
-  font-family: var(--f-display);
-  font-size: var(--t-base);
-  font-weight: 700;
-  line-height: 1.15;
-  color: var(--txt);
-}
-.osFaseFormal {
-  font-size: 10.5px;
-  line-height: 1.25;
-  color: var(--txt-3);
-}
-.osFaseSituacao {
-  margin-top: 2px;
-  font-size: var(--t-sm);
-  font-weight: 700;
-}
-.osFaseBarra {
-  display: block;
-  height: 4px;
-  margin-top: 4px;
-  border-radius: 999px;
-  background: var(--borda);
-  overflow: hidden;
-}
-.osFaseFio {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  transition: width 240ms var(--ease);
-}
-.osFaseConta {
-  font-size: 10.5px;
-  font-variant-numeric: tabular-nums;
-  color: var(--txt-3);
+  border: 1.5px solid currentColor;
 }
 
-/* ----- concluída: verde ----- */
-.osFaseFeita { border-color: var(--sinal-borda); background: var(--sinal-veu); }
-.osFaseFeita .osFaseSelo { background: var(--sinal); color: var(--sup); }
-.osFaseFeita .osFaseSituacao { color: var(--sinal); }
-.osFaseFeita .osFaseFio { background: var(--sinal); }
+/* ----- cumprida ----- */
+.osFaseFeita {
+  border-color: var(--sinal-borda);
+  background: var(--sinal-veu);
+  color: var(--sinal);
+}
+.osFaseFeita .osFaseSelo { background: var(--sinal); border-color: var(--sinal); color: var(--sup); }
 
-/* ----- em execução: laranja, e é a única que brilha -----
-   O brilho é caro de propósito: se três coisas brilham na mesma tela, nenhuma
-   chama. Só a fase que está acontecendo tem aura. */
+/* ----- a de agora: a única sólida ----- */
 .osFaseAgora {
-  border-color: var(--espera);
-  background: var(--espera-veu);
-  box-shadow: 0 0 0 1px var(--espera-borda), 0 0 22px -8px var(--espera);
+  border-color: var(--vio);
+  background: var(--vio);
+  color: var(--sup);
 }
-.osFaseAgora .osFaseSelo { background: var(--espera); color: var(--sup); }
-.osFaseAgora .osFaseSituacao { color: var(--espera); }
-.osFaseAgora .osFaseFio { background: var(--espera); }
-.osFaseAgora .osFaseNome { color: var(--txt); }
+.osFaseAgora .osFaseSelo { background: transparent; border-color: currentColor; color: inherit; }
+.osFaseAgora:hover { color: var(--sup); }
 
-/* ----- ainda não começou: vermelho, e de boca fechada -----
-   Vermelho aqui não quer dizer erro — quer dizer "não é a sua vez". Por isso
-   ele é só a borda e o selo vazado: um cartão inteiro pintado de vermelho na
-   janela de toda O.S. nova faria a tela gritar sem ter o que dizer. */
-.osFaseAdiante { border-color: var(--alerta-borda); background: var(--sup); }
-.osFaseAdiante .osFaseSelo {
-  background: transparent;
-  border: 2px solid var(--alerta);
-  color: var(--alerta);
-}
-.osFaseAdiante .osFaseSituacao { color: var(--alerta); }
-.osFaseAdiante .osFaseNome { color: var(--txt-2); }
-.osFaseAdiante .osFaseFio { background: var(--alerta); }
+/* ----- adiante: só o contorno ----- */
+.osFaseAdiante { color: var(--txt-3); }
 
-/* ----- parou aqui: a ordem saiu do caminho dentro desta fase ----- */
-.osFaseParada { border-color: var(--alerta); background: var(--alerta-veu); }
-.osFaseParada .osFaseSelo { background: var(--alerta); color: var(--sup); }
-.osFaseParada .osFaseSituacao { color: var(--alerta); }
-.osFaseParada .osFaseFio { background: var(--alerta); }
+/* ----- saiu do caminho ----- */
+.osFaseParada { border-color: var(--alerta); background: var(--alerta-veu); color: var(--alerta); }
 
-/* A fase que está ABERTA na tela ganha um traço embaixo — quem clicou precisa
-   ver o que clicou, e a cor da fase já está ocupada dizendo outra coisa. */
-.osFaseAberta { box-shadow: inset 0 -3px 0 0 var(--vio); }
-.osFaseAgora.osFaseAberta {
-  box-shadow: inset 0 -3px 0 0 var(--vio), 0 0 22px -8px var(--espera);
-}
+/* A que a pessoa ABRIU com o dedo, quando não é a de agora. */
+.osFaseAberta { box-shadow: 0 0 0 2px var(--vio-borda); }
 
 /* ----- A etiqueta da fase na lista --------------------------------------- */
 .osFaseChip {
@@ -9697,3 +9653,166 @@ a.osListaItem:hover { background: var(--sup-1); }
   line-height: 1.5;
 }
 .cartoesRegra strong { color: var(--txt-2); font-weight: 600; }
+
+/* ==========================================================================
+   A LINHA DO TEMPO DA FASE — vertical, etapa por etapa
+   --------------------------------------------------------------------------
+   Ver a nota no componente `Regua` de `janela-os.tsx`. O dono mandou o print
+   do outro sistema dele: lista de cima para baixo, ponto cheio no que já
+   aconteceu com a data embaixo, ponto vazio no que ainda vem.
+
+   O fio que liga um ponto ao outro é `::before` do próprio ponto, e não um
+   elemento à parte: um `<span>` de trilho por linha seria mais um nó no DOM
+   para cada passo e nada que o leitor de tela deva ouvir.
+   ========================================================================== */
+.osLinha2 {
+  padding: var(--s4);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-lg);
+  background: var(--sup-2);
+}
+.osLinha2Titulo {
+  margin: 0 0 var(--s3);
+  font-family: var(--f-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osLinha2Lista { list-style: none; margin: 0; padding: 0; }
+
+.osLinha2No {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  width: 100%;
+  padding: 7px 8px 7px 0;
+  border: 0;
+  border-radius: var(--r);
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.osLinha2No:hover { background: var(--sup); }
+.osLinha2No:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+
+.osLinha2Ponto {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 13px;
+  height: 13px;
+  margin: 4px 0 0 6px;
+  border-radius: 999px;
+  border: 2px solid var(--borda-viva);
+  background: var(--sup);
+}
+/* O trilho: sai do ponto e desce até o próximo. O último não desenha. */
+.osLinha2Lista li:not(:last-child) .osLinha2Ponto::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 2px;
+  height: calc(100% + 20px);
+  transform: translateX(-50%);
+  background: var(--borda-viva);
+}
+
+.osLinha2Texto { display: grid; gap: 1px; min-width: 0; }
+.osLinha2Nome {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt-2);
+  line-height: 1.3;
+}
+.osLinha2Quando {
+  font-size: var(--t-xs);
+  color: var(--txt-3);
+}
+
+/* ----- já cumprido: ponto cheio, trilho aceso ----- */
+.osLinha2Feito .osLinha2Ponto { background: var(--sinal); border-color: var(--sinal); }
+.osLinha2Feito .osLinha2Ponto::before { background: var(--sinal); }
+.osLinha2Feito .osLinha2Nome { color: var(--txt); }
+
+/* ----- onde a ordem está: o único com halo ----- */
+.osLinha2Agora .osLinha2Ponto {
+  background: var(--vio);
+  border-color: var(--vio);
+  box-shadow: 0 0 0 4px var(--vio-veu);
+}
+.osLinha2Agora .osLinha2Nome { color: var(--txt); font-weight: 700; }
+.osLinha2Agora .osLinha2Quando { color: var(--vio-claro); font-weight: 600; }
+
+/* ----- ainda não ----- */
+.osLinha2Adiante .osLinha2Nome { color: var(--txt-3); }
+
+/* O que a pessoa abriu com o dedo. */
+.osLinha2Espiado { background: var(--vio-veu); }
+.osLinha2Espiado:hover { background: var(--vio-veu); }
+
+/* ==========================================================================
+   O RODAPÉ DA JANELA DA O.S. — sempre no mesmo canto
+   --------------------------------------------------------------------------
+   Ver a nota no corpo de `janela-os.tsx`. `sticky` e não `fixed`: ele rola
+   junto com o conteúdo até encostar no pé do corpo da janela e fica ali. Um
+   `fixed` sairia da janela e grudaria na tela inteira — por cima da lista que
+   está atrás do pano escuro.
+
+   O fundo é opaco de propósito: ele fica POR CIMA do conteúdo que rola, e um
+   fundo translúcido deixaria o texto passar por baixo do botão.
+   ========================================================================== */
+.osRodape {
+  position: sticky;
+  bottom: calc(var(--s5) * -1);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin: var(--s5) calc(var(--s5) * -1) calc(var(--s5) * -1);
+  padding: var(--s3) var(--s5);
+  border-top: 1px solid var(--borda);
+  background: var(--sup);
+}
+.osRodapeEsq,
+.osRodapeDir {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+.osRodapeLink {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt-2);
+  text-decoration: none;
+  cursor: pointer;
+}
+.osRodapeLink:hover { color: var(--txt); text-decoration: underline; }
+
+/* O "‹ Voltar" do print: discreto, mas grande o bastante para o polegar. */
+.osVoltarGrande {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--borda-viva);
+  border-radius: 999px;
+  background: var(--sup);
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--txt);
+  cursor: pointer;
+}
+.osVoltarGrande:hover { border-color: var(--vio); }

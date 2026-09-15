@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useActionState } from 'react'
@@ -544,26 +544,75 @@ export default function JanelaOS({
                 {aba === 'historia' ? <AAbaDaHistoria painel={p} /> : null}
               </div>
 
-              <div className={estilo.osJanRodape}>
-                <a
-                  href={p.linkPortal}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={estilo.btnSec}
-                >
-                  O que o cliente vê
-                </a>
-                <Link href={`/painel/ordens/${d!.id}`} className={estilo.btnSec}>
-                  Abrir a ficha completa
-                </Link>
-              </div>
+              {/* ==========================================================
+                  O RODAPÉ FIXO — o "Avançar" mora sempre no mesmo canto
+                  ==========================================================
+                  O pedido veio com print do outro sistema do dono:
 
-              {aba === 'ordem' && (p.podeCancelar || p.podeExcluir) ? (
-                <div className={estilo.acoesLinha}>
-                  {p.podeCancelar ? <Cancelar ordemId={d!.id} /> : null}
-                  {p.podeExcluir ? <Excluir ordemId={d!.id} /> : null}
+                    "PERCEBA QUE TUDO TEM O AVANCAR.... TELA POR TELA E SEM
+                     SAIR DESSE POP UP"
+
+                  Lá o rodapé é sempre igual: "‹ Voltar" na esquerda, o botão
+                  grande da ação na direita. Não importa em que passo se está,
+                  a mão vai ao mesmo lugar.
+
+                  Aqui os botões de ação moravam DENTRO do painel de agora, a
+                  uma altura diferente em cada passo — porque o texto acima
+                  deles muda de tamanho. A cada passo a pessoa procurava o
+                  botão de novo.
+
+                  Agora ele é `position: sticky` no pé do corpo: rola junto até
+                  encostar embaixo e fica. O painel de agora continua com o
+                  texto, os campos e as escolhas; o que subiu para cá é só o
+                  passo à frente.
+
+                  "EDITAR" E "EXCLUIR" TAMBÉM ESTÃO AQUI, e não mais só dentro
+                  da aba "A ordem" — *"preciso ter um lugar para editar e
+                  excluir"*. Eles ficam na esquerda, pequenos, longe do botão
+                  grande da direita: o polegar que vai ao "Avançar" não passa
+                  por cima de "Excluir" no caminho. */}
+              <div className={estilo.osRodape}>
+                <div className={estilo.osRodapeEsq}>
+                  {modo.tela !== 'agora' || espiando !== null || faseVendo !== p.roteiro.faseAtual ? (
+                    <button
+                      type="button"
+                      className={estilo.osVoltarGrande}
+                      onClick={() => {
+                        setModo({ tela: 'agora' })
+                        setEspiando(null)
+                        setFaseAberta(null)
+                        corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                    >
+                      ‹ Voltar
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className={estilo.osRodapeLink}
+                        onClick={() => {
+                          setAba('ordem')
+                          corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                      >
+                        Editar
+                      </button>
+                      {p.podeCancelar ? <Cancelar ordemId={d!.id} /> : null}
+                      {p.podeExcluir ? <Excluir ordemId={d!.id} /> : null}
+                    </>
+                  )}
                 </div>
-              ) : null}
+
+                <div className={estilo.osRodapeDir}>
+                  <a href={p.linkPortal} target="_blank" rel="noreferrer" className={estilo.osRodapeLink}>
+                    O que o cliente vê
+                  </a>
+                  <Link href={`/painel/ordens/${d!.id}`} className={estilo.osRodapeLink}>
+                    Ficha completa
+                  </Link>
+                </div>
+              </div>
             </>
           )}
         </div>
@@ -573,27 +622,29 @@ export default function JanelaOS({
 }
 
 /* ==========================================================================
-   OS TRÊS BOTÕES DAS FASES — o mapa inteiro numa olhada
+   AS TRÊS FASES COMO PÍLULAS
    ==========================================================================
-   O pedido que os criou, depois de a janela ficar pronta:
+   O dono mandou o print do outro sistema dele e disse o que queria:
 
-     "Não quero mais 300 mil telas de O.S. tudo bagunçado, quero algo
-      simplificado que até uma criança de 6 anos possa executar."
+     "PERCEBA QUE TUDO TEM O AVANCAR.... TELA POR TELA E SEM SAIR DESSE POP UP"
 
-   Três botões, e cada um responde sozinho três coisas: QUE FASE é, EM QUE PÉ
-   está, e QUANTO falta. Quem passa o olho de longe lê a cor; quem precisa de
-   certeza lê o selo (✓ ● ○ !) e a palavra escrita ao lado dele.
+   Lá são três pílulas ligadas por um fio — a cumprida clara com um ✓, a de
+   agora sólida, a de adiante só contornada. É o mesmo mapa que estes botões já
+   desenhavam; o que muda é o peso.
 
-   A COR NUNCA ANDA SOZINHA, e isso não é preciosismo: cerca de um homem em
-   cada doze não separa verde de vermelho, e um sistema que só diz "está verde"
-   está mandando essa pessoa adivinhar. Por isso o selo e a palavra existem —
-   eles são a informação, e a cor é o atalho.
+   Eles eram CARTÕES com oito informações cada: selo, "FASE 1", "você está
+   aqui", nome, nome formal, situação por extenso, barrinha de progresso e
+   "3 de 6 passos". Vinte e quatro pedaços de texto para responder uma pergunta
+   de três respostas — o aparelho está vindo, está na bancada, ou está voltando.
 
-   O botão da fase adiante ABRE. O pedido original travava, e travar aqui não
-   protegeria nada: quem impede a fase 2 de começar antes da 1 é a máquina de
-   estados, que não aceita "recebido na empresa" sem "coletado" antes. A trava
-   de verdade está lá e continua lá. O que a fase adiante não tem é botão que
-   ande a esteira — porque a esteira não anda fora de ordem.
+   A COR CONTINUA SEM ANDAR SOZINHA. O ✓ ● ○ ! continua desenhado dentro da
+   pílula e o `aria-label` continua dizendo o estado por extenso: cerca de um
+   homem em cada doze não separa verde de vermelho, e a cor nunca foi a
+   informação — é o atalho.
+
+   O botão da fase adiante ABRE. Travar aqui não protegeria nada: quem impede a
+   fase 2 de começar antes da 1 é a máquina de estados, e ela continua lá. O
+   que a fase adiante não tem é botão que ande a esteira.
    ========================================================================== */
 function Fases({
   painel,
@@ -606,84 +657,94 @@ function Fases({
   viva: number
   aoAbrir: (n: number) => void
 }) {
+  const fases = painel.roteiro.fases
   return (
     <div className={estilo.osFases} role="tablist" aria-label="As três fases da O.S.">
-      {painel.roteiro.fases.map((f) => (
-        <button
-          key={f.n}
-          id={`osfase-${f.n}`}
-          type="button"
-          role="tab"
-          aria-selected={aberta === f.n}
-          /* O painel destas abas é a régua com os passos da fase, logo abaixo.
-             Ver a nota do contrato de `role="tab"` no corpo da janela: o papel
-             prometia um modelo de teclado que não existia. */
-          aria-controls="osfase-painel"
-          tabIndex={aberta === f.n ? 0 : -1}
-          onKeyDown={(e) => {
-            if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
-            e.preventDefault()
-            const fases = painel.roteiro.fases
-            const i = fases.findIndex((x) => x.n === aberta)
-            const passo = e.key === 'ArrowRight' ? 1 : -1
-            const proxima = fases[(i + passo + fases.length) % fases.length]!
-            aoAbrir(proxima.n)
-            document.getElementById(`osfase-${proxima.n}`)?.focus()
-          }}
-          className={[
-            estilo.osFase,
-            f.estado === 'concluida'
-              ? estilo.osFaseFeita
-              : f.estado === 'agora'
-                ? estilo.osFaseAgora
-                : f.estado === 'parada'
-                  ? estilo.osFaseParada
-                  : estilo.osFaseAdiante,
-            aberta === f.n ? estilo.osFaseAberta : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          onClick={() => aoAbrir(f.n)}
-        >
-          <span className={estilo.osFaseTopo}>
+      {fases.map((f, i) => (
+        <Fragment key={f.n}>
+          {/* O fio entre uma pílula e a próxima. Ele acende quando a fase
+              ANTERIOR terminou — é o que dá a leitura de trilho andado. */}
+          {i > 0 ? (
+            <span
+              aria-hidden="true"
+              className={
+                fases[i - 1]!.estado === 'concluida'
+                  ? `${estilo.osFaseFio} ${estilo.osFaseFioFeito}`
+                  : estilo.osFaseFio
+              }
+            />
+          ) : null}
+          <button
+            id={`osfase-${f.n}`}
+            type="button"
+            role="tab"
+            aria-selected={aberta === f.n}
+            aria-controls="osfase-painel"
+            /* O estado por extenso no rótulo do leitor de tela. A pílula mostra
+               o ✓ e a cor; quem não vê nenhum dos dois ouve a frase inteira. */
+            aria-label={`Fase ${f.n}, ${f.nome}: ${f.situacao}${f.n === viva ? ', é onde a ordem está' : ''}`}
+            tabIndex={aberta === f.n ? 0 : -1}
+            onKeyDown={(e) => {
+              if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+              e.preventDefault()
+              const k = fases.findIndex((x) => x.n === aberta)
+              const passo = e.key === 'ArrowRight' ? 1 : -1
+              const proxima = fases[(k + passo + fases.length) % fases.length]!
+              aoAbrir(proxima.n)
+              document.getElementById(`osfase-${proxima.n}`)?.focus()
+            }}
+            className={[
+              estilo.osFase,
+              f.estado === 'concluida'
+                ? estilo.osFaseFeita
+                : f.estado === 'agora'
+                  ? estilo.osFaseAgora
+                  : f.estado === 'parada'
+                    ? estilo.osFaseParada
+                    : estilo.osFaseAdiante,
+              aberta === f.n && f.n !== viva ? estilo.osFaseAberta : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onClick={() => aoAbrir(f.n)}
+          >
             <span className={estilo.osFaseSelo} aria-hidden="true">
-              {f.selo}
+              {f.estado === 'concluida' ? '✓' : f.estado === 'parada' ? '!' : f.estado === 'agora' ? '●' : ''}
             </span>
-            <span className={estilo.osFaseOrdem}>Fase {f.n}</span>
-            {f.n === viva ? <span className={estilo.osFaseAqui}>você está aqui</span> : null}
-          </span>
-
-          <strong className={estilo.osFaseNome}>{f.nome}</strong>
-          <span className={estilo.osFaseFormal}>{f.formal}</span>
-
-          {/* A situação por extenso é a metade da informação que a cor não
-              entrega. Sai do fluxo visual, mas nunca da tela. */}
-          <span className={estilo.osFaseSituacao}>{f.situacao}</span>
-
-          <span className={estilo.osFaseBarra} aria-hidden="true">
-            <span className={estilo.osFaseFio} style={{ width: `${f.porcento}%` }} />
-          </span>
-          <span className={estilo.osFaseConta}>
-            {f.feitos} de {f.total} passos
-          </span>
-        </button>
+            {f.nome}
+          </button>
+        </Fragment>
       ))}
     </div>
   )
 }
 
 /* ==========================================================================
-   A RÉGUA — os passos DA FASE ABERTA, e não os onze de uma vez
+   A LINHA DO TEMPO DA FASE — etapa por etapa, de cima para baixo
    ==========================================================================
-   Ela responde de relance a pergunta que se faz cem vezes por dia: em que pé
-   está. Cada bolinha é clicável — não para ANDAR, que seria pular trava, mas
-   para LER o que aquele passo é e quando ele aconteceu.
+   O dono mandou o print da janela do outro sistema dele e escreveu:
 
-   Ela mostrava os onze passos sempre, e no celular isso dava onze colunas de
-   28px: uma fileira de números ilegíveis. Agora ela é a lupa da fase que está
-   aberta — quatro, dois ou três passos, com nome que cabe. Os onze continuam
-   existindo e continuam contados no topo; o que mudou é que a régua só desenha
-   o pedaço que interessa agora.
+     "QUANDO CLICA NA TELA ABRE ASSIM ISSO QUE EU QUERO INDO ETAPA POR ETAPA"
+
+   O que está no print é uma lista VERTICAL: um ponto cheio para o que já
+   aconteceu, com a data embaixo; um ponto vazio para o que ainda vem. Lê-se de
+   cima para baixo, como se lê qualquer coisa.
+
+   Aqui era uma fileira HORIZONTAL de círculos numerados com o nome embaixo, e
+   ela tinha três defeitos que o print resolve de graça:
+
+     · o nome do passo cabia em duas palavras e quebrava em três linhas;
+     · a data de quando aconteceu não cabia em canto nenhum — ficava só no
+       `title`, que é o balão cinza do navegador, que não existe no celular;
+     · e esse `title` era justamente o que competia com o clique: o dono
+       clicava para ir ao passo e o que aparecia era o balão.
+
+   O balão saiu. A data agora está escrita embaixo do nome, onde se lê.
+
+   CLICAR CONTINUA LEVANDO AO PASSO, que foi o primeiro pedido dele:
+   *"ao clicar em alguma dessas abas possa me jogar para a etapa"*. O clique
+   troca o que está desenhado no corpo e rola para o topo — ver a nota no lugar
+   onde a tira é montada.
    ========================================================================== */
 function Regua({
   painel,
@@ -701,77 +762,59 @@ function Regua({
   const passos = r.passos.filter((p) => daFase?.passos.includes(p.n))
   if (passos.length === 0) return null
 
-  /**
-   * O CABEÇALHO SEGUE O QUE ESTÁ DESENHADO EMBAIXO DELE.
-   *
-   * Visitando a fase 3, ele dizia "Passo 8 de 11 · Manutenção" com as bolinhas
-   * 9, 10 e 11 logo abaixo — a mesma caixa afirmando duas coisas diferentes. Ao
-   * visitar, o título passa a ser a FASE que está na tela, e onde a ordem
-   * realmente está vai para a direita, dito por extenso.
-   */
-  const visitando = fase !== r.faseAtual
-
   return (
     <div
-      className={estilo.osReguaCaixa}
+      className={estilo.osLinha2}
       role="tabpanel"
       id="osfase-painel"
       aria-labelledby={`osfase-${fase}`}
     >
-      <div className={estilo.osReguaTopo}>
-        <span className={estilo.osReguaAgora}>
-          {visitando
-            ? `Fase ${fase} · ${daFase?.nome ?? ''}`
-            : r.desvio
-              ? r.desvio.rotulo
-              : `Passo ${r.atual} de ${r.total} · ${r.passos[r.atual - 1]?.nome ?? ''}`}
-        </span>
-        <span className={estilo.osReguaConta}>
-          {visitando
-            ? r.desvio
-              ? r.desvio.rotulo
-              : `a ordem está no passo ${r.atual} de ${r.total}`
-            : `${Math.round(r.porcento)}%`}
-        </span>
-      </div>
+      <p className={estilo.osLinha2Titulo}>
+        {fase === r.faseAtual ? 'Etapa por etapa' : `O que acontece na fase ${fase}`}
+      </p>
 
-      <div className={estilo.osReguaPista} aria-hidden="true">
-        <span
-          className={r.desvio ? estilo.osReguaFioParado : estilo.osReguaFio}
-          style={{ width: `${r.porcento}%` }}
-        />
-      </div>
-
-      {/* As colunas são as da FASE aberta — duas, três ou seis. Com poucas, a
-          largura de cada uma é limitada e a fila fica centrada: dois pontos
-          esticados até as bordas pareciam duas ilhas sem relação, e não dois
-          degraus seguidos. */}
-      <ol
-        className={estilo.osReguaNos}
-        style={{
-          gridTemplateColumns: `repeat(${Math.min(passos.length, 6)}, minmax(0, ${
-            passos.length <= 3 ? '148px' : '1fr'
-          }))`,
-          justifyContent: passos.length <= 3 ? 'center' : undefined,
-        }}
-      >
+      <ol className={estilo.osLinha2Lista}>
         {passos.map((n) => (
           <li key={n.n}>
             <button
               type="button"
               onClick={() => aoEspiar(n.n)}
               aria-pressed={espiando === n.n}
-              className={`${estilo.osNo} ${
+              aria-label={`Passo ${n.n}, ${n.nome}: ${
+                n.estado === 'cumprido' ? 'já cumprido' : n.estado === 'agora' ? 'é onde a ordem está' : 'ainda não'
+              }`}
+              className={`${estilo.osLinha2No} ${
                 n.estado === 'cumprido'
-                  ? estilo.osNoFeito
+                  ? estilo.osLinha2Feito
                   : n.estado === 'agora'
-                    ? estilo.osNoAgora
-                    : estilo.osNoAdiante
-              } ${espiando === n.n ? estilo.osNoEspiado : ''}`}
-              title={n.oQue}
+                    ? estilo.osLinha2Agora
+                    : estilo.osLinha2Adiante
+              } ${espiando === n.n ? estilo.osLinha2Espiado : ''}`}
             >
-              <span className={estilo.osNoNum}>{n.n}</span>
-              <span className={estilo.osNoNome}>{n.nome}</span>
+              <span className={estilo.osLinha2Ponto} aria-hidden="true" />
+              <span className={estilo.osLinha2Texto}>
+                <span className={estilo.osLinha2Nome}>{n.nome}</span>
+                {/* A DATA, ESCRITA. Antes ela só existia no balão do navegador,
+                    que o celular não tem — e é a informação que se procura ao
+                    olhar uma linha do tempo. */}
+                {/* "AINDA NÃO" SÓ NO QUE AINDA NÃO ACONTECEU.
+                    O primeiro desenho escrevia "ainda não" sempre que faltava
+                    data, e passo cumprido nem sempre tem uma: o passo 1
+                    (Orçamento) não tem etapa de máquina nenhuma, então nunca
+                    ganha evento. A linha saía com o ponto VERDE e a palavra
+                    "ainda não" embaixo — a peça se contradizendo em dois
+                    centímetros. O estado manda; a data, quando existe,
+                    acrescenta. */}
+                <span className={estilo.osLinha2Quando}>
+                  {n.quando
+                    ? quando(n.quando)
+                    : n.estado === 'cumprido'
+                      ? 'cumprido'
+                      : n.estado === 'agora'
+                        ? 'acontecendo agora'
+                        : 'ainda não'}
+                </span>
+              </span>
             </button>
           </li>
         ))}
