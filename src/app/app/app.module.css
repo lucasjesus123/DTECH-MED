@@ -48,7 +48,12 @@
   /* ---- tinta ------------------------------------------------------------- */
   --c-tinta:   light-dark(#101014, #F4F3F7);
   --c-tinta-2: light-dark(#4B4B57, #A9A7B4);
-  --c-tinta-3: light-dark(#6E6E7C, #817E90);
+  /* A tinta mais clara das três é a que quase não passou: #6E6E7C dava 4,49:1
+     sobre o chão da página, contra o mínimo de 4,5 da WCAG AA. Errar por um
+     centésimo é errar — e erra exatamente no tema que existe para quem lê no
+     sol. #6A6A78 dá 4,76:1 e continua sendo a terceira tinta, sem disputar com
+     a segunda. O valor escuro passa folgado e fica como está. */
+  --c-tinta-3: light-dark(#6A6A78, #817E90);
 
   /* ---- os quatro estados ------------------------------------------------- */
   /* ÂMBAR TEM DOIS PAPÉIS, e no tema claro eles não podem ser a mesma cor.
