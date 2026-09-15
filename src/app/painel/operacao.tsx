@@ -1,5 +1,14 @@
 import Link from 'next/link'
-import { formatarBRL } from '@/lib/dinheiro'
+/**
+ * `formatarBRLCurto` é da casa e já fazia isto certo.
+ *
+ * Havia aqui um `curtoBRL` próprio, com o comentário "'R$ 12,4 mil'". Ele
+ * devolvia `"12.4 mil"`: sem o R$, e com PONTO decimal — em português o
+ * separador é a vírgula, e é vírgula que o resto do sistema escreve. A escala
+ * do gráfico do dinheiro era o único lugar da casa com número em formato
+ * inglês, e ela fica ao lado da tabela que escreve "R$ 12.400,00".
+ */
+import { formatarBRL, formatarBRLCurto } from '@/lib/dinheiro'
 import type {
   FilaDaEtapa,
   LinhaDeAparelho,
@@ -68,10 +77,24 @@ export default function Operacao({
   const entregues12 = movimento.reduce((s, m) => s + m.entregues, 0)
   const acumulo = abertas12 - entregues12
   const emFila = filas.reduce((s, f) => s + f.n, 0)
+  /**
+   * A MEDIANA DOS MESES — e ela era a MÉDIA.
+   *
+   * O cartão diz "mediana dos meses com entrega" e o parágrafo logo abaixo
+   * argumenta, com todas as letras, *"É a mediana, não a média. Um aparelho
+   * parado 210 dias esperando peça importada não descreve o serviço da casa;
+   * na média ele levanta o mês inteiro."*
+   *
+   * E a conta era `soma / quantidade` — exatamente a média que o texto
+   * recusa. Cada `p.dias` já é a mediana DAQUELE mês (o `percentile_cont(0.5)`
+   * de `prazoMensal`), mas a média de medianas não é mediana: basta um mês
+   * atípico para o número subir, que é o efeito que a tela promete não ter.
+   *
+   * Agora é a mediana de verdade dos meses medidos. Ordenar doze números custa
+   * nada e o cartão passa a dizer o que ele mostra.
+   */
   const comPrazo = prazo.filter((p) => p.dias !== null)
-  const prazoTipico = comPrazo.length
-    ? Math.round((comPrazo.reduce((s, p) => s + (p.dias ?? 0), 0) / comPrazo.length) * 10) / 10
-    : null
+  const prazoTipico = mediana(comPrazo.map((p) => p.dias ?? 0))
 
   return (
     <>
@@ -117,7 +140,10 @@ export default function Operacao({
         </div>
       </div>
 
-      <div className={estilo.resumo3 ? `${estilo.resumo} ${estilo.resumo3}` : estilo.resumo}>
+      {/* A condição aqui era `estilo.resumo3 ? … : …` — um ternário que
+          testava se a CLASSE DE CSS existe, o que é sempre verdade. Parecia
+          uma decisão de layout e não era nenhuma: são três cartões, sempre. */}
+      <div className={`${estilo.resumo} ${estilo.resumo3}`}>
         <Indicador
           rotulo="Do balcão à entrega"
           valor={prazoTipico === null ? '—' : `${prazoTipico} dias`}
@@ -353,7 +379,7 @@ export default function Operacao({
             titulo="Faturado e recebido em cada um dos últimos meses"
             rotuloA="faturado"
             rotuloB="recebido"
-            formatar={curtoBRL}
+            formatar={formatarBRLCurto}
           />
           <Base
             cabecalho={['Mês', 'Faturado', 'Recebido', 'Diferença']}
@@ -639,9 +665,22 @@ function rotuloMes(mes: string): string {
     .replace('.', '')
 }
 
-/** 'R$ 12,4 mil' — na escala, o valor cheio não cabe. */
-function curtoBRL(centavos: number): string {
-  const reais = centavos / 100
-  if (reais >= 1000) return `${Math.round(reais / 100) / 10} mil`
-  return String(Math.round(reais))
+/**
+ * A MEDIANA de uma lista de números — o valor do meio.
+ *
+ * Par devolve a média dos dois centrais, que é a convenção. Lista vazia
+ * devolve `null`: mediana de conjunto vazio não é zero, é ausência de medida,
+ * e zero ali diria "entregamos no mesmo dia" para uma casa que não entregou
+ * nada.
+ *
+ * `[...n]` porque `sort` ordena no lugar: sem a cópia, esta função reordenaria
+ * o array de quem chamou — o tipo de efeito colateral que só aparece quando
+ * alguém passa a usar a mesma lista para outra coisa.
+ */
+function mediana(n: number[]): number | null {
+  if (n.length === 0) return null
+  const ord = [...n].sort((a, b) => a - b)
+  const meio = Math.floor(ord.length / 2)
+  const v = ord.length % 2 === 1 ? ord[meio]! : (ord[meio - 1]! + ord[meio]!) / 2
+  return Math.round(v * 10) / 10
 }
