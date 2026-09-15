@@ -111,9 +111,43 @@ export default async function Equipamentos({
                       máquina, e não a última ordem. É a máquina que carrega o
                       histórico: o cliente troca de dono, a autoclave continua a
                       mesma. */}
-                  <Link href={`/painel/equipamentos/${e.id}`} className={estilo.catalogoNome}>
-                    {e.marca} {e.modelo}
-                  </Link>
+                  <span className={estilo.catalogoTopo}>
+                    <Link href={`/painel/equipamentos/${e.id}`} className={estilo.catalogoNome}>
+                      {e.marca} {e.modelo}
+                    </Link>
+
+                    {/* CORRIGIR, direto do catálogo.
+                        A correção nasce de bater o olho e ver que a voltagem
+                        está errada — e quem bate o olho está aqui, na grade, e
+                        não dentro do prontuário. O lápis leva à ficha JÁ com o
+                        formulário aberto, do mesmo jeito que a lista de
+                        clientes faz. Mesma dica, mesmo desenho: duas telas que
+                        oferecem a mesma ação devem oferecê-la igual. */}
+                    {podeMexer ? (
+                      <span className={estilo.comDica} data-dica="Corrigir cadastro">
+                        <Link
+                          href={`/painel/equipamentos/${e.id}?editar=1`}
+                          className={estilo.btnIcone}
+                          aria-label={`Corrigir o cadastro de ${e.marca} ${e.modelo}`}
+                        >
+                          <svg
+                            width={15}
+                            height={15}
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden
+                          >
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                        </Link>
+                      </span>
+                    ) : null}
+                  </span>
 
                   <p className={estilo.dica}>
                     {e.numeroSerie ? `nº ${e.numeroSerie}` : 'sem número de série'}

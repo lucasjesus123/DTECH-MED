@@ -8787,3 +8787,14 @@ a.osListaItem:hover { background: var(--sup-1); }
 }
 .btnIconeMudo:hover { border-color: var(--borda-viva); color: var(--txt-2); background: transparent; }
 .btnIcone:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+
+/* O nome do aparelho e o lápis na mesma linha do cartão do catálogo. O nome
+   ocupa o que sobrar; o lápis não encolhe nem desce de linha. */
+.catalogoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.catalogoTopo .catalogoNome { min-width: 0; }
+.catalogoTopo > .comDica { flex: none; }

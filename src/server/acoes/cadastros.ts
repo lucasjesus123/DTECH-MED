@@ -280,6 +280,9 @@ export async function salvarEquipamento(_anterior: Resposta, form: FormData): Pr
     entidadeId: r.id,
   })
   revalidatePath('/painel/equipamentos')
+  // O prontuário também: sem esta linha, a correção salva e a ficha aberta
+  // continua mostrando o valor velho até alguém recarregar na mão.
+  revalidatePath(`/painel/equipamentos/${r.id}`)
 
   /**
    * A FOTO ENTRA NO CADASTRO, E NÃO NUM SEGUNDO PASSO.

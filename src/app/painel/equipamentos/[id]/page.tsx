@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { Papel } from '@/generated/prisma/enums'
-import { exigirPapel } from '@/server/auth/guarda'
+import { exigirPapel, podeVer } from '@/server/auth/guarda'
 import { comEscopo } from '@/lib/db'
 import { formatarBRL } from '@/lib/dinheiro'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
@@ -10,6 +10,8 @@ import { montarTrilha } from '@/server/ordem/trilha'
 import { coberturaDoEquipamento, frasedaCobertura } from '@/server/ordem/garantia'
 import { ROTULO_PERIODICIDADE } from '@/server/preventiva/servico'
 import { ROTULO_DESTINO } from '@/lib/peca-retirada'
+import { listarClientes } from '@/server/consultas/listas'
+import FormularioEquipamento from '../formulario'
 import estilo from '../../painel.module.css'
 
 export const metadata: Metadata = { title: 'Prontuário do equipamento', robots: { index: false } }
@@ -43,8 +45,14 @@ export const dynamic = 'force-dynamic'
  *  4. Todas as ordens, com a trilha de cada uma
  *  5. Que peças já saíram dela
  */
-export default async function Prontuario({ params }: { params: Promise<{ id: string }> }) {
-  const { ctx } = await exigirPapel(
+export default async function Prontuario({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ editar?: string }>
+}) {
+  const { ctx, sessao } = await exigirPapel(
     Papel.ADMIN_EMPRESA,
     Papel.GESTOR,
     Papel.ATENDENTE,
@@ -52,6 +60,18 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
     Papel.FINANCEIRO,
   )
   const { id } = await params
+  const q = await searchParams
+
+  /**
+   * QUEM CORRIGE É QUEM CADASTRA — a mesma linha de `salvarEquipamento`.
+   *
+   * Abrir o prontuário é de quase todo mundo: o motorista precisa reconhecer o
+   * aparelho que vai buscar. Corrigir o cadastro é do técnico para cima, e o
+   * servidor recusa por conta própria de qualquer jeito. Esconder aqui é
+   * conforto, não permissão.
+   */
+  const podeCorrigir = podeVer(sessao.papel, Papel.TECNICO)
+  const editando = podeCorrigir && q.editar === '1'
 
   const eq = await comEscopo(ctx, (tx) =>
     tx.equipamento.findUnique({
@@ -64,6 +84,11 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
         categoria: true,
         voltagem: true,
         acessorios: true,
+        patrimonio: true,
+        anoFabricacao: true,
+        observacoes: true,
+        fotoCaminho: true,
+        clienteId: true,
         criadoEm: true,
         cliente: { select: { id: true, nome: true, cidade: true, uf: true, whatsapp: true } },
         ordens: {
@@ -90,6 +115,11 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
     }),
   )
   if (!eq) notFound()
+
+  // A lista de clientes só é buscada quando o formulário vai aparecer: numa
+  // carteira grande ela é a consulta mais cara desta tela, e quem veio só ler o
+  // prontuário não paga por ela.
+  const clientes = editando ? await listarClientes(ctx) : []
 
   const cobertura = frasedaCobertura(
     await comEscopo(ctx, (tx) => coberturaDoEquipamento(tx, eq.id)),
@@ -151,8 +181,45 @@ export default async function Prontuario({ params }: { params: Promise<{ id: str
           <Link href={`/painel/equipamentos/${eq.id}/rastreabilidade`} className={estilo.btnSec}>
             Quem mexeu neste aparelho
           </Link>
+
+          {/* CORRIGIR O CADASTRO fica aqui, e não numa aba: a correção nasce de
+              olhar a ficha e ver que a voltagem está errada. Quem já está
+              lendo é quem percebe. */}
+          {podeCorrigir ? (
+            <Link
+              href={
+                editando
+                  ? `/painel/equipamentos/${eq.id}`
+                  : `/painel/equipamentos/${eq.id}?editar=1`
+              }
+              className={estilo.btnSec}
+            >
+              {editando ? 'Fechar a correção' : 'Corrigir cadastro'}
+            </Link>
+          ) : null}
         </div>
       </div>
+
+      {editando ? (
+        <FormularioEquipamento
+          clientes={clientes.map((c) => ({ id: c.id, nome: c.nome }))}
+          equipamento={{
+            id: eq.id,
+            clienteId: eq.clienteId,
+            clienteNome: eq.cliente?.nome ?? null,
+            marca: eq.marca,
+            modelo: eq.modelo,
+            numeroSerie: eq.numeroSerie,
+            patrimonio: eq.patrimonio,
+            categoria: eq.categoria,
+            voltagem: eq.voltagem,
+            anoFabricacao: eq.anoFabricacao,
+            acessorios: eq.acessorios,
+            observacoes: eq.observacoes,
+            temFoto: Boolean(eq.fotoCaminho),
+          }}
+        />
+      ) : null}
 
       <div className={estilo.resumo}>
         <div className={estilo.indicador}>
