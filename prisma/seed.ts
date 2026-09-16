@@ -64,6 +64,31 @@ async function main() {
     }
   }
 
+  /**
+   * A PAPELADA DAS EMPRESAS QUE JÁ EXISTEM.
+   *
+   * `garantirMoldesPadrao` roda na criação da empresa — resolve daqui para a
+   * frente. Mas a DTECH MED de produção foi criada antes dos moldes existirem,
+   * e ela não vai ser criada de novo: sem este passo, ela ficaria para sempre
+   * sem contrato e sem promissória, e o defeito só apareceria no dia em que um
+   * hospital pedisse o contrato.
+   *
+   * Roda no caminho SEM `--demo` de propósito: é o caminho de produção, e é lá
+   * que a empresa antiga está. É idempotente — procura pelo nome e só cria o
+   * que falta —, então rodar a semeadura de novo não duplica nem sobrescreve o
+   * molde que alguém editou à mão.
+   */
+  const empresas = await comEscopo(SUPER, (tx) =>
+    tx.tenant.findMany({ select: { id: true, nome: true } }),
+  )
+  for (const e of empresas) {
+    const criados = await comEscopo(
+      { tenantId: e.id, userId: null, ehSuperAdmin: true },
+      (tx) => garantirMoldesPadrao(tx, e.id, 'Semeadura'),
+    )
+    if (criados) console.log(`  ${e.nome}: ${criados} modelo(s) de documento criado(s).`)
+  }
+
   if (!comDemo) {
     console.log('\nPronto. Para popular dados de exemplo, rode com --demo\n')
     return
