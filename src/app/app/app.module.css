@@ -150,7 +150,7 @@
 .grav {
   display: block;
   font-family: var(--f-mono);
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -167,7 +167,7 @@
   font-weight: 600;
   color: var(--c-tinta-2);
 }
-.cabLinha .mono { font-size: 11px; letter-spacing: .1em; }
+.cabLinha .mono { font-size: var(--t-2xs); letter-spacing: .1em; }
 
 .voltar {
   display: inline-flex;
@@ -184,7 +184,7 @@
 
 .mono {
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   letter-spacing: .08em;
   color: var(--c-tinta-3);
 }
@@ -214,7 +214,7 @@
 .rodape {
   padding: 8px 16px 4px;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   color: var(--c-tinta-3);
 }
 
@@ -294,7 +294,7 @@
 .resumoProximaRot {
   display: block;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -400,7 +400,7 @@
   background: var(--c-agora-chao);
   border-bottom: 1px solid var(--c-agora-linha);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .15em;
   text-transform: uppercase;
@@ -447,7 +447,7 @@
   align-items: center;
   padding: 10px 16px;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .14em;
 }
@@ -501,7 +501,7 @@
 .paRecadoRot {
   display: block;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -525,7 +525,7 @@
 
 .paHora, .paHoraAtrasada {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .05em;
 }
@@ -709,7 +709,7 @@ details[open] > .paResumo { border-bottom: 1px solid var(--c-linha); }
   gap: 8px;
   padding: 14px 16px;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .13em;
   text-transform: uppercase;
@@ -743,7 +743,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
 .feitasLista li:last-child, .vemItem:last-child { border-bottom: 0; }
 .feitasTipo, .vemCliente { font-weight: 700; color: var(--c-tinta); }
 .feitasCliente { color: var(--c-tinta-2); }
-.feitasQuem { margin-left: auto; font-size: 12px; color: var(--c-tinta-3); }
+.feitasQuem { margin-left: auto; font-size: var(--t-2xs); color: var(--c-tinta-3); }
 .vemNota { padding: 12px 16px; font-size: 13px; line-height: 1.5; color: var(--c-tinta-3); }
 .vemTudo {
   display: block;
@@ -770,7 +770,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
 .campo {
   display: grid;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -820,7 +820,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   font-weight: 700;
   color: var(--c-feito);
 }
-.geo { font-family: var(--f-mono); font-size: 11px; color: var(--c-tinta-3); }
+.geo { font-family: var(--f-mono); font-size: var(--t-2xs); color: var(--c-tinta-3); }
 
 /* ---- fotos --------------------------------------------------------------- */
 .gradeFotos {
@@ -902,7 +902,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   gap: 10px;
   margin-bottom: 8px;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .13em;
   color: var(--c-tinta-3);
@@ -942,7 +942,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   letter-spacing: -0.01em;
   color: var(--c-tinta);
 }
-.agConta { font-family: var(--f-mono); font-size: 11px; color: var(--c-tinta-3); }
+.agConta { font-family: var(--f-mono); font-size: var(--t-2xs); color: var(--c-tinta-3); }
 .agLista { list-style: none; display: grid; gap: 8px; }
 .agItem {
   display: grid;
@@ -954,7 +954,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   border-radius: var(--r-sm);
 }
 .agItemAtrasado { border-color: var(--c-atraso); }
-.agHora { font-family: var(--f-mono); font-size: 12px; font-weight: 700; color: var(--c-tinta-2); }
+.agHora { font-family: var(--f-mono); font-size: var(--t-2xs); font-weight: 700; color: var(--c-tinta-2); }
 .agCliente { font-size: 14.5px; font-weight: 700; color: var(--c-tinta); }
 .agEtapa { grid-column: 2; font-size: 12.5px; color: var(--c-tinta-3); }
 .agDetalhe { grid-column: 2; font-size: 12.5px; color: var(--c-tinta-2); }
@@ -1002,7 +1002,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
 /* Nota de rodapé é nota de rodapé. Em maiúsculas monoespaçadas ela competia
    com os selos de estado, que são os únicos que podem gritar aqui. */
 .atualizando {
-  font-size: 12px;
+  font-size: var(--t-2xs);
   line-height: 1.45;
   color: var(--c-tinta-3);
   text-align: center;
@@ -1045,7 +1045,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
   padding: 10px 6px;
   color: var(--c-tinta-3);
   text-decoration: none;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .02em;
   -webkit-tap-highlight-color: transparent;
@@ -1082,7 +1082,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
 }
 .temaCampoTitulo {
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -1103,7 +1103,7 @@ details[open] > .feitasResumo::before, details[open] > .vemResumo::before { tran
 .temaCampoOpcao, .temaCampoAtiva {
   min-height: 46px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--r);
   background: transparent;
   color: var(--c-tinta-2);
   font-family: inherit;

@@ -192,6 +192,11 @@
      ("CLIENTES ATENDIDOS", "DE GARANTIA", o rótulo de cada campo). Doze é o
      piso que as diretrizes de acessibilidade tratam como texto pequeno
      aceitável; abaixo disso é decoração. */
+  /* O degrau da etiqueta maiúscula. Declarado na RAIZ para valer no painel,
+     no aplicativo de campo e no portal do cliente — ver a nota longa em
+     `painel.module.css`: eram seis tamanhos diferentes para o mesmo papel,
+     medidos na tela, o menor deles em 9px. */
+  --t-2xs:  0.75rem;   /* 12px — ver a nota de `--t-xs` logo abaixo */
   --t-xs:   0.75rem;
   --t-sm:   0.8125rem;
   --t-base: 1rem;
@@ -296,10 +301,10 @@ body {
 }
 
 ::selection { background: var(--vio); color: var(--sobre-vio); }
-:focus-visible { outline: 2px solid var(--vio-claro); outline-offset: 3px; border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--vio-claro); outline-offset: 3px; border-radius: var(--r); }
 ::-webkit-scrollbar { width: 11px; height: 11px; }
 ::-webkit-scrollbar-track { background: var(--bg-1); }
-::-webkit-scrollbar-thumb { background: var(--borda); border: 3px solid var(--bg-1); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--borda); border: 3px solid var(--bg-1); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--vio-forte); }
 
 h1, h2, h3, h4 { margin: 0; line-height: 1.04; font-weight: 700; }
@@ -350,7 +355,7 @@ button { font: inherit; color: inherit; }
 /* Selo de etapa */
 .selo-etapa {
   display: inline-flex; align-items: center; gap: var(--s2);
-  padding: 3px 9px; border-radius: 3px;
+  padding: 3px 9px; border-radius: var(--r);
   font-family: var(--f-mono); font-size: var(--t-xs); font-weight: 600;
   letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
   border: 1px solid transparent;

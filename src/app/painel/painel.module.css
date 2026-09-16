@@ -371,6 +371,32 @@
 }
 
 .app {
+  /* =====================================================================
+     A ESCALA TIPOGRÁFICA — e o degrau que faltava nela
+     =====================================================================
+     Medido no navegador, varrendo nove telas do painel e contando o que cada
+     elemento REALMENTE renderiza: dezesseis tamanhos de fonte diferentes, e
+     250 elementos abaixo do menor degrau declarado. Havia `9px`, `9.5px`,
+     `10px`, `10.5px`, `11px` e `12px` cravados à mão, cada etiqueta maiúscula
+     escolhendo o seu.
+
+     Seis variações para o mesmo papel não é nuance, é falta de decisão — e
+     9px, numa etiqueta que já vem em maiúscula e com espaçamento aberto, é
+     pequeno demais para se ler de relance.
+
+     `--t-2xs` é o degrau que faltava: UM tamanho para a etiqueta maiúscula, o
+     rótulo de bloco, o selo. Quem precisava de 9, 9.5, 10, 10.5 ou 11 usa ele.
+
+     ELE VALE 12px, E NÃO 11, e isso não é arredondamento. O `globals.css` já
+     tinha decidido, por escrito, ao subir `--t-xs` de 11 para 12: "onze é o
+     degrau em que a legenda começa a ser adivinhada em vez de lida — e as
+     nossas legendas carregam informação que importa". A primeira versão deste
+     token nasceu em 11px e teria desfeito aquela decisão em 83 lugares de uma
+     vez. Doze é o piso que as diretrizes de acessibilidade tratam como texto
+     pequeno aceitável; abaixo disso é decoração, e etiqueta aqui não é
+     decoração.
+     ===================================================================== */
+  --t-2xs:  0.75rem;    /* 12px — a etiqueta maiúscula, e só ela */
   --t-xs:   0.8125rem;  /* 13px — era 12 */
   --t-sm:   0.875rem;   /* 14px — era 13 */
   --t-base: 1rem;
@@ -441,7 +467,7 @@
   gap: 2px;
 }
 .crachaPapel {
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -462,7 +488,7 @@
 .latNav { display: grid; gap: var(--s4); }
 
 .latGrupo {
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -522,7 +548,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 20px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vio-claro);
 }
 .latItemAtivo .latIcone { color: var(--vio-claro); }
@@ -555,14 +581,14 @@
   gap: 2px;
   margin: 0 var(--s3);
   padding: 3px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--casca-2);
 }
 .temaOpcao,
 .temaOpcaoAtiva {
   min-height: 28px;
   border: 0;
-  border-radius: 99px;
+  border-radius: 999px;
   background: transparent;
   color: var(--casca-txt-2);
   font-family: var(--f-texto);
@@ -731,11 +757,11 @@
 .buscaTecla {
   flex-shrink: 0;
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   line-height: 1;
   padding: 3px 5px;
   border: 1px solid var(--borda);
-  border-radius: 4px;
+  border-radius: var(--r);
   color: var(--txt-3);
   background: var(--sup-2);
 }
@@ -759,7 +785,7 @@
 .buscaGrupo {
   margin: var(--s2) var(--s2) var(--s1);
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--txt-3);
@@ -799,13 +825,13 @@
   margin-top: var(--s2);
   padding: var(--s2) var(--s3) 0;
   border-top: 1px solid var(--borda);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 .buscaRodape kbd {
   font-family: var(--f-texto);
   border: 1px solid var(--borda);
-  border-radius: 3px;
+  border-radius: var(--r);
   padding: 1px 4px;
 }
 
@@ -852,7 +878,7 @@
   max-width: 100%;
 }
 .selosCab > .tag {
-  font-size: 11px;
+  font-size: var(--t-2xs);
   padding: 6px 12px;
   white-space: normal;
   text-align: right;
@@ -1130,7 +1156,7 @@
   height: 12px;
   transform: translateX(-50%) rotate(45deg);
   background: var(--vio-forte);
-  border-radius: 2px;
+  border-radius: var(--r);
 }
 /* O degrau aberto é chapado de cobalto, e tudo dentro dele vira branco — a cor
    da etapa não sobrevive sobre o próprio cobalto. `.degrauNota` saiu daqui
@@ -1219,7 +1245,7 @@
 
 .degrauMeta {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   letter-spacing: .02em;
   color: var(--txt-3);
   line-height: 1.35;
@@ -1240,7 +1266,7 @@
    sempre na mesma altura, porque a grade já iguala a altura dos oito. */
 .degrauBarra {
   height: 3px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--e-trilho);
   overflow: hidden;
   margin-top: auto;
@@ -1250,7 +1276,7 @@
   display: block;
   height: 100%;
   width: var(--parte, 0%);
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--sc);
 }
 .degrauAtivo .degrauBarra { background: color-mix(in oklab, var(--sobre-vio) 28%, transparent); }
@@ -1286,7 +1312,7 @@
   background: var(--espera-veu);
   color: var(--espera);
   font-family: var(--f-mono);
-  font-size: 9px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -1386,11 +1412,11 @@
 }
 .selo {
   padding: 3px 8px;
-  border-radius: 3px;
+  border-radius: var(--r);
   background: var(--vio-veu-2);
   border: 1px solid var(--vio-borda);
   font-family: var(--f-texto);
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1417,7 +1443,7 @@
   padding-top: var(--s3);
   border-top: 1px solid var(--borda);
   font-family: var(--f-texto);
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 .atrasado {
@@ -1794,7 +1820,7 @@
   background: var(--sup);
   border-bottom: 1px solid var(--borda);
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -1861,9 +1887,9 @@
 .tag {
   display: inline-block;
   padding: 3px 8px;
-  border-radius: 3px;
+  border-radius: var(--r);
   font-family: var(--f-texto);
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1929,7 +1955,7 @@
 }
 .blocoTitulo {
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -1948,7 +1974,7 @@
 .par { display: grid; gap: 3px; min-width: 0; }
 .parRot {
   font-family: var(--f-texto);
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--txt-3);
@@ -2023,7 +2049,7 @@
 .eventoTitulo { font-size: var(--t-sm); font-weight: 600; color: var(--txt); }
 .eventoQuando {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   white-space: nowrap;
 }
@@ -2035,7 +2061,7 @@
      mínimo de 4,5:1, e a varredura pegou os 17 nós de uma vez. Ironia à
      parte, era justamente a impressão digital do evento, a prova de que a
      linha do tempo não foi adulterada, que ninguém conseguia ler. */
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   margin-top: 4px;
   overflow-wrap: anywhere;
@@ -2095,7 +2121,7 @@
   display: grid;
   gap: 5px;
   font-family: var(--f-texto);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -2566,7 +2592,7 @@
   right: 0;
   top: calc(var(--s4) + 11px);
   height: 3px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--borda-viva);
   min-width: 620px;
 }
@@ -2574,7 +2600,7 @@
 .trilhaFioParado {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   transition: width 420ms var(--ease);
 }
 /* --------------------------------------------------------------------------
@@ -2708,8 +2734,8 @@
 .trilhaNoAdiante:hover,
 .trilhaNoAgora:hover { transform: scale(1.12); }
 
-.trilhaNum { font-size: 9.5px; font-weight: 600; line-height: 1; }
-.trilhaNoAgora .trilhaNum { font-size: 12px; font-weight: 700; }
+.trilhaNum { font-size: var(--t-2xs); font-weight: 600; line-height: 1; }
+.trilhaNoAgora .trilhaNum { font-size: var(--t-2xs); font-weight: 700; }
 
 .trilhaFaseNome {
   font-size: var(--t-xs);
@@ -2718,7 +2744,7 @@
   letter-spacing: 0.02em;
 }
 .trilhaFaseQuem {
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   line-height: 1.3;
 }
@@ -2757,14 +2783,14 @@
 }
 .trilhaMiniFio {
   height: 4px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--borda-viva);
   overflow: hidden;
 }
 .trilhaMiniCheio {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: linear-gradient(to right, var(--vio-forte), var(--vio));
 }
 .trilhaMiniParado { display: block; height: 100%; background: var(--alerta); }
@@ -2773,7 +2799,7 @@
   justify-content: space-between;
   gap: var(--s3);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   font-variant-numeric: tabular-nums;
 }
@@ -2850,7 +2876,7 @@
   border: 1px solid var(--vio-borda);
   color: var(--vio-claro);
   font-family: var(--f-texto);
-  font-size: 9px;
+  font-size: var(--t-2xs);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   pointer-events: none;
@@ -2942,7 +2968,7 @@
 }
 .telaFio {
   height: 5px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--borda-viva);
   overflow: hidden;
   margin: var(--s3) 0;
@@ -3075,7 +3101,7 @@
   padding-top: var(--s3);
   border-top: 1px solid var(--borda);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   color: var(--txt-2);
   font-variant-numeric: tabular-nums;
 }
@@ -3595,7 +3621,7 @@
 
 .audSelo {
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -3630,7 +3656,7 @@
    de quem fez, e precisam ser puláveis pelo olho quando não interessam. */
 .audPapel {
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--txt-3);
@@ -3859,7 +3885,7 @@
   top: 7px;
   bottom: 7px;
   width: 3px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--vio-claro);
   box-shadow: 0 0 12px 0 var(--vio-claro);
 }
@@ -4659,7 +4685,7 @@
   padding: 1px 6px;
   border: 1px solid var(--borda-viva);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   letter-spacing: .03em;
 }
 
@@ -4735,14 +4761,14 @@
 .grafRotulo {
   fill: var(--txt-3);
   font-family: var(--f-texto);
-  font-size: 11px;
+  font-size: var(--t-2xs);
 }
 /* Os valores da escala, no gutter da esquerda. Tabulares porque estão
    empilhados um sobre o outro e precisam alinhar pela vírgula. */
 .grafEscala {
   fill: var(--txt-3);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -4758,7 +4784,7 @@
 .grafPonto {
   width: 11px;
   height: 11px;
-  border-radius: 3px;
+  border-radius: var(--r);
   display: inline-block;
 }
 .grafPontoEntra { background: var(--vio); }
@@ -4942,7 +4968,7 @@
    "Nenhum arquivo selecionado" ao lado, texto que sobra numa célula. O `input`
    fica escondido atrás dele e continua alcançável pelo Tab. */
 .fotoCatBotao {
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   color: var(--vio-claro);
   cursor: pointer;
@@ -4955,7 +4981,7 @@
 .fotoCatBotao:focus-within {
   outline: 2px solid var(--vio);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--r);
 }
 
 /* =========================================================================
@@ -4979,7 +5005,7 @@
 .calGrade th {
   padding: 6px 4px;
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -5028,7 +5054,7 @@
   padding: 10px;
 }
 .calGradeSemana th {
-  font-size: 12px;
+  font-size: var(--t-2xs);
   padding: 8px 10px;
   color: var(--txt-2);
 }
@@ -5042,7 +5068,7 @@
   margin-bottom: 5px;
   padding: 6px 9px;
   border-radius: var(--r);
-  font-size: 12px;
+  font-size: var(--t-2xs);
   line-height: 1.35;
   border-left-width: 3px;
 }
@@ -5115,8 +5141,8 @@
   display: block;
   margin-bottom: 2px;
   padding: 2px 5px;
-  border-radius: 3px;
-  font-size: 10.5px;
+  border-radius: var(--r);
+  font-size: var(--t-2xs);
   line-height: 1.25;
   text-decoration: none;
   border-left: 2px solid transparent;
@@ -5176,7 +5202,7 @@
 .calPonto {
   width: 11px;
   height: 11px;
-  border-radius: 3px;
+  border-radius: var(--r);
   display: inline-block;
 }
 .calPontoRua { background: var(--vio); }
@@ -5198,10 +5224,10 @@
   list-style: none;
   cursor: pointer;
   padding: 2px 5px;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   color: var(--txt-3);
-  border-radius: 3px;
+  border-radius: var(--r);
 }
 .calMais > summary::-webkit-details-marker { display: none; }
 .calMais > summary:hover { color: var(--vio-claro); background: var(--vio-veu); }
@@ -5532,7 +5558,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .leituraTitulo {
   margin: 0 0 4px;
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -5602,7 +5628,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   padding: 1px 7px;
   background: var(--vio-veu-2);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--vio-claro);
@@ -5772,7 +5798,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .dinRotulo {
   display: block;
   font-family: var(--f-texto);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .09em;
   text-transform: uppercase;
@@ -5782,7 +5808,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   position: absolute;
   top: var(--s3);
   right: var(--s4);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .09em;
   color: var(--txt-3);
@@ -5981,7 +6007,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   padding: 1px 7px;
   background: var(--vio-veu-2);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--vio-claro);
@@ -6095,7 +6121,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   padding: 1px 8px;
   background: var(--sup-2);
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--txt-3);
 }
@@ -6159,7 +6185,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   padding: 1px 7px;
   border: 1px solid var(--borda);
   border-radius: 999px;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 .quadroEtapa { color: var(--txt-2); }
@@ -6257,7 +6283,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   border-radius: 999px;
   background: var(--sup);
   border: 1px solid var(--borda);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -6325,7 +6351,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   color: var(--vio-claro);
 }
 .agChipConta {
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 500;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -6359,7 +6385,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   color: var(--vio-claro);
 }
 .agDiaSemana {
-  font-size: 9px;
+  font-size: var(--t-2xs);
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--txt-3);
@@ -6376,7 +6402,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
   border-radius: 999px;
   background: var(--sup);
   border: 1px solid var(--borda);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-variant-numeric: tabular-nums;
   color: var(--txt-3);
 }
@@ -6507,14 +6533,14 @@ a.calNumero:hover, a.calNumero:focus-visible {
 .giroBarra {
   display: block;
   height: 8px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--borda-viva);
   overflow: hidden;
 }
 .giroBarra > span {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: linear-gradient(to right, var(--vio-forte), var(--vio));
 }
 
@@ -6673,7 +6699,7 @@ a.calNumero:hover, a.calNumero:focus-visible {
 
 .calMiniDia {
   aspect-ratio: 1;
-  border-radius: 3px;
+  border-radius: var(--r);
   background: var(--bg-1);
   border: 1px solid transparent;
   display: block;
@@ -6828,7 +6854,7 @@ button.janelaX {
 .janelaJaTitulo {
   margin: 0 0 var(--s2);
   font-family: var(--f-texto);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
@@ -6851,7 +6877,7 @@ button.janelaX {
 .janelaJaItem:hover { border-color: var(--vio); background: var(--vio-veu); }
 .janelaJaNome { font-weight: 600; }
 .janelaJaAtraso {
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -6963,7 +6989,7 @@ button.janelaX {
    ========================================================================== */
 .grafValor {
   fill: var(--txt-2);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -7025,7 +7051,7 @@ button.janelaX {
   gap: 7px;
   margin: 0 0 var(--s3);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 500;
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -7071,7 +7097,7 @@ button.janelaX {
   background: var(--sup-2);
   color: var(--txt-2);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 500;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -7105,7 +7131,7 @@ button.janelaX {
   border-radius: var(--r-pill, 999px);
   border: 1px solid transparent;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -7243,7 +7269,7 @@ button.janelaX {
   gap: var(--s3);
   margin-bottom: 5px;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 500;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -7258,7 +7284,7 @@ button.janelaX {
 }
 .heroiTaxaTrilho {
   height: 6px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--e-trilho);
   overflow: hidden;
 }
@@ -7266,7 +7292,7 @@ button.janelaX {
   display: block;
   height: 100%;
   width: var(--parte, 0%);
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--marca);
 }
 
@@ -7360,7 +7386,7 @@ button.janelaX {
   border-radius: var(--r-pill, 999px);
   background: var(--sup);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   line-height: 1.2;
   text-decoration: none;
   color: var(--txt-2);
@@ -7386,7 +7412,7 @@ button.janelaX {
   align-items: center;
   padding: 5px 10px;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 
@@ -7453,7 +7479,7 @@ button.janelaX {
   gap: 7px;
   margin: 0 0 var(--s3);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: .17em;
   text-transform: uppercase;
@@ -7464,7 +7490,7 @@ button.janelaX {
    "raio previsão". O brilho só existe no escuro — sobre branco, halo vira
    borrão, e é a mesma regra do número-herói. */
 .seloIaGlifo {
-  font-size: 12px;
+  font-size: var(--t-2xs);
   line-height: 1;
   text-shadow: var(--ai-brilho);
 }
@@ -7483,7 +7509,7 @@ button.janelaX {
   gap: var(--s3);
   margin-bottom: 4px;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--txt-3);
@@ -7497,14 +7523,14 @@ button.janelaX {
 }
 .confiancaTrilho {
   height: 4px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--e-trilho);
   overflow: hidden;
 }
 .confiancaTrilho > i {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--ai);
 }
 .confiancaBase {
@@ -7535,7 +7561,7 @@ button.janelaX {
   background: var(--ai-veu);
   color: var(--ai);
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   line-height: 1.3;
   text-decoration: none;
   white-space: nowrap;
@@ -7565,18 +7591,18 @@ button.janelaX {
 }
 .riscoFaixa {
   font-family: var(--f-mono);
-  font-size: 9px;
+  font-size: var(--t-2xs);
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--txt-3);
 }
 .riscoTrilho {
   height: 4px;
-  border-radius: 99px;
+  border-radius: 999px;
   background: var(--e-trilho);
   overflow: hidden;
 }
-.riscoTrilho > i { display: block; height: 100%; border-radius: 99px; }
+.riscoTrilho > i { display: block; height: 100%; border-radius: 999px; }
 
 .riscoAlto { color: var(--alerta); }
 i.riscoAlto { background: var(--alerta); }
@@ -7603,7 +7629,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .semBaseTitulo {
   margin: 0 0 4px;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -7642,7 +7668,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .previsaoQuem { min-width: 0; }
 .previsaoOs {
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   color: var(--txt);
   text-decoration: none;
@@ -7662,7 +7688,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .previsaoMotivo {
   margin: 3px 0 0;
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   line-height: 1.4;
 }
@@ -7706,7 +7732,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .rastroPessoa strong { color: var(--txt); font-weight: 600; }
 .rastroContagem {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   font-variant-numeric: tabular-nums;
 }
@@ -7752,7 +7778,7 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .rastroQuando {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   font-variant-numeric: tabular-nums;
 }
@@ -7760,7 +7786,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .rastroQuem { color: var(--txt-2); }
 .rastroProvas {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 
@@ -7776,7 +7802,7 @@ i.riscoBaixo { background: var(--txt-3); }
 .rastroSelo {
   color: var(--alerta);
   font-family: var(--f-texto);
-  font-size: 9px;
+  font-size: var(--t-2xs);
   letter-spacing: .1em;
   text-transform: uppercase;
 }
@@ -7970,7 +7996,7 @@ i.riscoBaixo { background: var(--txt-3); }
   height: 20px;
   flex: none;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 800;
   line-height: 1;
   border: 1.5px solid currentColor;
@@ -8010,7 +8036,7 @@ i.riscoBaixo { background: var(--txt-3); }
   padding: 1px 8px;
   border-radius: 999px;
   border: 1px solid transparent;
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -8054,7 +8080,7 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .osFaseItemQuando {
   display: block;
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 .osFaseItemOque {
@@ -8141,12 +8167,12 @@ i.riscoBaixo { background: var(--txt-3); }
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 .osNoNome {
-  font-size: 10px;
+  font-size: var(--t-2xs);
   line-height: 1.2;
   color: var(--txt-3);
   overflow-wrap: anywhere;
@@ -8200,7 +8226,7 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .osPainelQuem {
   font-family: var(--f-texto);
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -8266,8 +8292,39 @@ i.riscoBaixo { background: var(--txt-3); }
 }
 .osEscolhaCartao span { font-size: var(--t-sm); line-height: 1.5; color: var(--txt-2); }
 
-.osLinkBaixo {
+/* ==========================================================================
+   O RODAPÉ DO PAINEL DO PASSO — as ações de EXCEÇÃO
+   --------------------------------------------------------------------------
+   Duas coisas usam esta classe, e as duas são exceção: "o motorista saiu e não
+   apertou no aplicativo" e "alterar o que foi combinado". Nenhuma das duas é o
+   trabalho do passo; as duas precisam existir.
+
+   Elas eram texto sublinhado solto, com `margin-top` e mais nada. Na tela isso
+   virava uma frase órfã pendurada no fim do painel — o dono apontou: "algumas
+   coisas ainda não bem colocadas". Sem separador, o olho não sabe se aquilo é
+   continuação do parágrafo acima ou outra coisa.
+
+   Agora elas moram numa faixa separada por um fio, com o rótulo dizendo o que
+   é aquela faixa. Continuam discretas, que é o peso certo de uma exceção — o
+   que mudou é que agora elas têm lugar em vez de sobra.
+   ========================================================================== */
+.osExcecoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s2) var(--s4);
   margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--borda);
+}
+.osExcecoesRot {
+  font-size: var(--t-2xs);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osLinkBaixo {
   padding: 0;
   border: 0;
   background: transparent;
@@ -8279,6 +8336,7 @@ i.riscoBaixo { background: var(--txt-3); }
   cursor: pointer;
 }
 .osLinkBaixo:hover { color: var(--vio-claro); }
+.osLinkBaixo:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; border-radius: var(--r); }
 
 /* ----- O resumo, sempre à vista ----------------------------------------- */
 .osResumo {
@@ -8290,7 +8348,7 @@ i.riscoBaixo { background: var(--txt-3); }
 @media (max-width: 640px) { .osResumo { grid-template-columns: 1fr; } }
 .osDado { display: grid; gap: 2px; min-width: 0; }
 .osDadoRot {
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -8742,7 +8800,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   left: 50%;
   transform: translateX(-50%) translateY(3px);
   padding: 5px 9px;
-  border-radius: 6px;
+  border-radius: var(--r);
   background: var(--ink);
   color: var(--sup);
   font-family: var(--f-texto);
@@ -8895,7 +8953,7 @@ a.osListaItem:hover { background: var(--sup-1); }
    palavra da frase. */
 .estqSub > .tag + span::before { content: none; margin-right: 0; }
 .estqSub > .tag {
-  font-size: 9px;
+  font-size: var(--t-2xs);
   padding: 2px 6px;
 }
 
@@ -9065,7 +9123,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   background: linear-gradient(150deg, var(--vio), var(--vio-forte));
   color: var(--sobre-vio);
   font-family: var(--f-texto);
-  font-size: 12px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
@@ -9092,7 +9150,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .pessoaNome:focus-visible {
   outline: 2px solid var(--vio);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: var(--r);
 }
 .pessoaEmail {
   font-family: var(--f-mono);
@@ -9202,7 +9260,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   line-height: 1.1;
 }
 .timbreTexto span {
-  font-size: 11px;
+  font-size: var(--t-2xs);
   line-height: 1.45;
   /* Cinza fixo, e não `--txt-3`: esta caixa é papel branco em qualquer tema, e
      o token do texto fraco vira quase branco no escuro — ilegível aqui. */
@@ -9211,7 +9269,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .timbreRegua {
   height: 2px;
   margin: var(--s3) 0 var(--s3);
-  border-radius: 1px;
+  border-radius: var(--r);
 }
 .timbreCorpo { display: grid; gap: 3px; }
 .timbreCorpo strong {
@@ -9222,7 +9280,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 }
 .timbreCorpo span {
   font-family: var(--f-mono);
-  font-size: 10px;
+  font-size: var(--t-2xs);
   color: #6C6079;
 }
 
@@ -9261,7 +9319,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   cursor: pointer;
 }
 .timbreCorPoco::-webkit-color-swatch-wrapper { padding: 0; }
-.timbreCorPoco::-webkit-color-swatch { border: 0; border-radius: 3px; }
+.timbreCorPoco::-webkit-color-swatch { border: 0; border-radius: var(--r); }
 .timbreCorHex {
   font-family: var(--f-mono);
   font-size: var(--t-sm);
@@ -9374,7 +9432,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .calPrevGrade th {
   padding: 4px 2px;
   font-family: var(--f-texto);
-  font-size: 9.5px;
+  font-size: var(--t-2xs);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -9402,7 +9460,7 @@ a.osListaItem:hover { background: var(--sup-1); }
   align-items: center;
   justify-content: space-between;
   font-family: var(--f-mono);
-  font-size: 10.5px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
   line-height: 1;
   margin-bottom: 3px;
@@ -9412,7 +9470,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .calPrevVerNoDia {
   color: var(--txt-3);
   text-decoration: none;
-  font-size: 11px;
+  font-size: var(--t-2xs);
   opacity: 0;
   transition: opacity 140ms var(--ease);
 }
@@ -9427,12 +9485,12 @@ a.osListaItem:hover { background: var(--sup-1); }
   text-align: left;
   border: 0;
   border-left: 3px solid var(--borda-viva);
-  border-radius: 3px;
+  border-radius: var(--r);
   background: var(--sup-2);
   padding: 2px 4px;
   margin-bottom: 2px;
   font: inherit;
-  font-size: 10px;
+  font-size: var(--t-2xs);
   line-height: 1.25;
   color: var(--txt-2);
   cursor: pointer;
@@ -9451,7 +9509,7 @@ a.osListaItem:hover { background: var(--sup-1); }
 .calPrevHora {
   display: block;
   font-family: var(--f-mono);
-  font-size: 9px;
+  font-size: var(--t-2xs);
   color: var(--txt-3);
 }
 .calPrevCliente {
@@ -9929,3 +9987,19 @@ a.osListaItem:hover { background: var(--sup-1); }
   border-radius: 999px;
   background: var(--espera);
 }
+
+/* Os passos da aba "O que já aconteceu" viraram BOTÃO: clicar leva à etapa.
+   Sem este reset eles herdariam borda, fundo e fonte do navegador — e a lista
+   que era uma linha do tempo viraria uma pilha de caixas cinzas. */
+button.osHistNo {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms var(--ease);
+}
+button.osHistNo:hover { background: var(--sup-2); }
+button.osHistNo:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
+.osHist li { list-style: none; }

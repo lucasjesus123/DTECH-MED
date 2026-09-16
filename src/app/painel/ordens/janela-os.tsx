@@ -666,16 +666,16 @@ export default function JanelaOS({
                     }}
                   />
 
-                  <Regua
-                    painel={p}
-                    fase={faseVendo}
-                    espiando={espiando}
-                    aoEspiar={(n) => {
-                      setEspiando((atual) => (atual === n ? null : n))
-                      corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
-                    }}
-                  />
-                </>
+                  {/* A RÉGUA SAIU DAQUI — ela estava desenhada DUAS VEZES.
+                      A aba "O que já aconteceu" já lista os mesmos passos, com
+                      a mesma marca e a mesma data. Duas listas do mesmo fato na
+                      mesma janela é o oposto de "tela por tela": a pessoa lê a
+                      primeira, desconfia, e vai conferir na segunda.
+
+                      Aqui fica o que esta aba promete no nome: o passo de
+                      agora. A lista inteira mora na aba dela, e clicar num
+                      passo lá traz de volta para cá. */}
+                  </>
               ) : null}
               </div>
 
@@ -690,7 +690,17 @@ export default function JanelaOS({
                 {aba === 'cliente' ? <AAbaDoCliente painel={p} /> : null}
               </div>
               <div role="tabpanel" id="ospainel-historia" aria-labelledby="osaba-historia" hidden={aba !== 'historia'}>
-                {aba === 'historia' ? <AAbaDaHistoria painel={p} /> : null}
+                {aba === 'historia' ? (
+                  <AAbaDaHistoria
+                    painel={p}
+                    aoIrAoPasso={(n) => {
+                      // Volta para a aba do trabalho mostrando AQUELE passo.
+                      setEspiando(n)
+                      setAba('agora')
+                      corpo.current?.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  />
+                ) : null}
               </div>
 
               {/* ==========================================================
@@ -892,110 +902,6 @@ function Fases({
           </button>
         </Fragment>
       ))}
-    </div>
-  )
-}
-
-/* ==========================================================================
-   A LINHA DO TEMPO DA FASE — etapa por etapa, de cima para baixo
-   ==========================================================================
-   O dono mandou o print da janela do outro sistema dele e escreveu:
-
-     "QUANDO CLICA NA TELA ABRE ASSIM ISSO QUE EU QUERO INDO ETAPA POR ETAPA"
-
-   O que está no print é uma lista VERTICAL: um ponto cheio para o que já
-   aconteceu, com a data embaixo; um ponto vazio para o que ainda vem. Lê-se de
-   cima para baixo, como se lê qualquer coisa.
-
-   Aqui era uma fileira HORIZONTAL de círculos numerados com o nome embaixo, e
-   ela tinha três defeitos que o print resolve de graça:
-
-     · o nome do passo cabia em duas palavras e quebrava em três linhas;
-     · a data de quando aconteceu não cabia em canto nenhum — ficava só no
-       `title`, que é o balão cinza do navegador, que não existe no celular;
-     · e esse `title` era justamente o que competia com o clique: o dono
-       clicava para ir ao passo e o que aparecia era o balão.
-
-   O balão saiu. A data agora está escrita embaixo do nome, onde se lê.
-
-   CLICAR CONTINUA LEVANDO AO PASSO, que foi o primeiro pedido dele:
-   *"ao clicar em alguma dessas abas possa me jogar para a etapa"*. O clique
-   troca o que está desenhado no corpo e rola para o topo — ver a nota no lugar
-   onde a tira é montada.
-   ========================================================================== */
-function Regua({
-  painel,
-  fase,
-  espiando,
-  aoEspiar,
-}: {
-  painel: PainelDaOrdem
-  fase: number
-  espiando: number | null
-  aoEspiar: (n: number) => void
-}) {
-  const r = painel.roteiro
-  const daFase = r.fases.find((f) => f.n === fase)
-  const passos = r.passos.filter((p) => daFase?.passos.includes(p.n))
-  if (passos.length === 0) return null
-
-  return (
-    <div
-      className={estilo.osLinha2}
-      role="tabpanel"
-      id="osfase-painel"
-      aria-labelledby={`osfase-${fase}`}
-    >
-      <p className={estilo.osLinha2Titulo}>
-        {fase === r.faseAtual ? 'Etapa por etapa' : `O que acontece na fase ${fase}`}
-      </p>
-
-      <ol className={estilo.osLinha2Lista}>
-        {passos.map((n) => (
-          <li key={n.n}>
-            <button
-              type="button"
-              onClick={() => aoEspiar(n.n)}
-              aria-pressed={espiando === n.n}
-              aria-label={`Passo ${n.n}, ${n.nome}: ${
-                n.estado === 'cumprido' ? 'já cumprido' : n.estado === 'agora' ? 'é onde a ordem está' : 'ainda não'
-              }`}
-              className={`${estilo.osLinha2No} ${
-                n.estado === 'cumprido'
-                  ? estilo.osLinha2Feito
-                  : n.estado === 'agora'
-                    ? estilo.osLinha2Agora
-                    : estilo.osLinha2Adiante
-              } ${espiando === n.n ? estilo.osLinha2Espiado : ''}`}
-            >
-              <span className={estilo.osLinha2Ponto} aria-hidden="true" />
-              <span className={estilo.osLinha2Texto}>
-                <span className={estilo.osLinha2Nome}>{n.nome}</span>
-                {/* A DATA, ESCRITA. Antes ela só existia no balão do navegador,
-                    que o celular não tem — e é a informação que se procura ao
-                    olhar uma linha do tempo. */}
-                {/* "AINDA NÃO" SÓ NO QUE AINDA NÃO ACONTECEU.
-                    O primeiro desenho escrevia "ainda não" sempre que faltava
-                    data, e passo cumprido nem sempre tem uma: o passo 1
-                    (Orçamento) não tem etapa de máquina nenhuma, então nunca
-                    ganha evento. A linha saía com o ponto VERDE e a palavra
-                    "ainda não" embaixo — a peça se contradizendo em dois
-                    centímetros. O estado manda; a data, quando existe,
-                    acrescenta. */}
-                <span className={estilo.osLinha2Quando}>
-                  {n.quando
-                    ? quando(n.quando)
-                    : n.estado === 'cumprido'
-                      ? 'cumprido'
-                      : n.estado === 'agora'
-                        ? 'acontecendo agora'
-                        : 'ainda não'}
-                </span>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ol>
     </div>
   )
 }
@@ -1281,19 +1187,25 @@ function Agora({
             </span>
           </label>
 
-          {painel.passos
-            .filter((x) => x.para === 'EM_ROTA_RETIRADA')
-            .map((x) => (
-              <button
-                key={x.para}
-                type="button"
-                className={estilo.osLinkBaixo}
-                disabled={pendente}
-                onClick={() => executar(x.para)}
-              >
-                O motorista saiu e não apertou no aplicativo? Marcar aqui
-              </button>
-            ))}
+          {/* Na mesma faixa de exceções do "combinado": ver `.osExcecoes`. */}
+          {painel.passos.some((x) => x.para === 'EM_ROTA_RETIRADA') ? (
+            <div className={estilo.osExcecoes}>
+              <span className={estilo.osExcecoesRot}>Se algo saiu do normal</span>
+              {painel.passos
+                .filter((x) => x.para === 'EM_ROTA_RETIRADA')
+                .map((x) => (
+                  <button
+                    key={x.para}
+                    type="button"
+                    className={estilo.osLinkBaixo}
+                    disabled={pendente}
+                    onClick={() => executar(x.para)}
+                  >
+                    O motorista saiu e não apertou no aplicativo? Marcar aqui
+                  </button>
+                ))}
+            </div>
+          ) : null}
         </div>
       ) : (
         <>
@@ -1428,13 +1340,18 @@ function Agora({
       {/* O passo 1 é o único que não anda a esteira: ele guarda o que foi
           combinado antes de a ordem existir. Fica aqui embaixo, discreto, e
           disponível o tempo todo — a pergunta "quanto ficou combinado?" volta
-          semanas depois, no meio de qualquer etapa. */}
+          semanas depois, no meio de qualquer etapa.
+
+          Numa FAIXA com rótulo, e não solto: ver a nota de `.osExcecoes`. */}
       {painel.podeCombinar && !painel.propostaOrigem ? (
+        <div className={estilo.osExcecoes}>
+        <span className={estilo.osExcecoesRot}>Fora do passo</span>
         <button type="button" className={estilo.osLinkBaixo} onClick={aoCombinar}>
           {painel.valorPrevioCentavos === null
             ? 'Registrar o que foi combinado com o cliente'
             : `Combinado: ${formatarBRL(painel.valorPrevioCentavos)} — alterar`}
         </button>
+        </div>
       ) : null}
     </div>
   )
@@ -2853,7 +2770,20 @@ function ListaDoCliente({
  * quem está investigando. Aqui é a linha do tempo que a pessoa reconhece — o
  * que aconteceu, quando, e por quem.
  */
-function AAbaDaHistoria({ painel }: { painel: PainelDaOrdem }) {
+function AAbaDaHistoria({
+  painel,
+  aoIrAoPasso,
+}: {
+  painel: PainelDaOrdem
+  /**
+   * Clicar num passo leva ATÉ ELE — pedido do dono: "ao clicar em alguma dessas
+   * abas possa me jogar para a etapa".
+   *
+   * Esta lista é agora a ÚNICA do sistema (a régua da aba do passo era a mesma
+   * coisa desenhada de novo), então é dela que o clique tem de sair.
+   */
+  aoIrAoPasso: (n: number) => void
+}) {
   const passos = painel.roteiro.passos
   return (
     <>
@@ -2864,8 +2794,11 @@ function AAbaDaHistoria({ painel }: { painel: PainelDaOrdem }) {
       ) : null}
       <ol className={estilo.osHist}>
         {passos.map((x) => (
-          <li
-            key={x.n}
+          <li key={x.n}>
+          <button
+            type="button"
+            onClick={() => aoIrAoPasso(x.n)}
+            aria-label={`Passo ${x.n}, ${x.nome} — abrir`}
             className={
               x.estado === 'agora'
                 ? `${estilo.osHistNo} ${estilo.osHistAgora}`
@@ -2899,6 +2832,7 @@ function AAbaDaHistoria({ painel }: { painel: PainelDaOrdem }) {
                 {x.detalhe ? ` · ${x.detalhe}` : ''}
               </p>
             </div>
+          </button>
           </li>
         ))}
       </ol>
