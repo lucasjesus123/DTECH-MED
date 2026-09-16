@@ -39,6 +39,7 @@ import estilo from '../painel.module.css'
  * servidor no meio.
  */
 export default function Copiar({
+  compacto = false,
   endereco,
   quem,
   mensagem,
@@ -55,6 +56,25 @@ export default function Copiar({
    * quebrado, não que a frase é que estava errada.
    */
   mensagem?: string
+  /**
+   * O ENDEREÇO COLAPSA — e por que a regra de cima não vale em toda tela.
+   *
+   * A nota acima diz que o endereço fica visível porque alguém precisa DITAR
+   * por telefone ao motorista na rua. Isso é verdade aqui em Aplicativos, onde
+   * o endereço é `dtechmed.com.br/app` — curto, pronunciável, decorável.
+   *
+   * No Painel do cliente ele é outra coisa: um token de 60 caracteres
+   * aleatórios, `/os/y1SoeZ-s7a3VZMkamOnz14pxQl8A1cm_VqqmZSXC6bU`. Ninguém dita
+   * isso, ninguém confere isso de olho, e ele quebrava em duas linhas em alguns
+   * cartões e uma em outros — era o maior elemento da tela sendo a informação
+   * menos útil dela, e a causa direta de os cartões saírem com alturas
+   * diferentes.
+   *
+   * Compacto, ele vira UMA linha que não quebra, com reticências no fim. Continua
+   * selecionável e continua sendo o endereço de verdade — o que ele deixa de ser
+   * é o protagonista.
+   */
+  compacto?: boolean
 }) {
   const [copiou, setCopiou] = useState<'sim' | 'nao' | null>(null)
 
@@ -76,13 +96,13 @@ export default function Copiar({
 
   return (
     <>
-      <p className={estilo.enderecoApp}>
-        <code>{endereco}</code>
+      <p className={compacto ? estilo.enderecoCurto : estilo.enderecoApp}>
+        <code title={endereco}>{endereco}</code>
       </p>
 
       <div className={estilo.modeloCartaoAcoes}>
         <button type="button" className={estilo.btnSec} onClick={copiar}>
-          {copiou === 'sim' ? 'Copiado' : 'Copiar endereço'}
+          {copiou === 'sim' ? 'Copiado' : compacto ? 'Copiar o link' : 'Copiar endereço'}
         </button>
         <a
           className={estilo.btnSec}
@@ -90,7 +110,7 @@ export default function Copiar({
           target="_blank"
           rel="noreferrer"
         >
-          Mandar no WhatsApp
+          {compacto ? 'WhatsApp' : 'Mandar no WhatsApp'}
         </a>
       </div>
 

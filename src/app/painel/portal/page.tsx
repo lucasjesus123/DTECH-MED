@@ -4,7 +4,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { exigirAba, exigirNivel } from '@/server/auth/guarda'
 import { clientesDoPortal, ordensDoCliente } from '@/server/consultas/portal'
 import { formatarDocumento, formatarTelefone } from '@/lib/documentos'
-import Copiar from '../aplicativos/copiar'
+import Lista from './lista'
 import estilo from '../painel.module.css'
 
 export const metadata: Metadata = { title: 'Painel do cliente', robots: { index: false } }
@@ -270,42 +270,21 @@ function ListaDeOrdens({
       {ordens.length === 0 ? (
         <p className={estilo.vazio}>{vazio}</p>
       ) : (
-        <div className={estilo.duasColunas}>
-          {ordens.map((o) => (
-            <div key={o.id} className={estilo.bloco}>
-              <p className={estilo.blocoTitulo}>
-                O.S. #{String(o.numero).padStart(4, '0')} · {o.equipamento}
-              </p>
-              <p className={estilo.dica} style={{ marginTop: 'calc(var(--s2) * -1)' }}>
-                {o.serie ? `série ${o.serie} · ` : ''}
-                {o.etapaRotulo}
-              </p>
-
-              <div className={estilo.modeloCartaoAcoes}>
-                {/* Aba nova: quem está no telefone com o cliente não pode perder
-                    o lugar no painel no meio da ligação. */}
-                <a href={o.link} target="_blank" rel="noreferrer" className={estilo.btnPrimario}>
-                  Abrir o painel do cliente
-                </a>
-                <Link href={`/painel/ordens/${o.id}`} className={estilo.btnSec}>
-                  Ver a O.S. por dentro
-                </Link>
-              </div>
-
-              {/* O mesmo componente da tela de Aplicativos: copiar o endereço e
-                  mandá-lo pelo WhatsApp. É o que serve quando o cliente diz que
-                  perdeu o link — e reenviar o dele é melhor que criar outro. */}
-              <p className={estilo.blocoTitulo} style={{ marginTop: 'var(--s5)' }}>
-                Mandar o link de novo
-              </p>
-              <Copiar
-                endereco={o.link}
-                quem="Cliente"
-                mensagem={`Oi! Aqui você acompanha a O.S. #${String(o.numero).padStart(4, '0')} do seu ${o.equipamento} na DTECH MED. É só abrir o link — não precisa de senha: ${o.link}`}
-              />
-            </div>
-          ))}
-        </div>
+        /* LISTA E JANELA, como na Central de O.S. Ver a nota longa em
+           `portal/lista.tsx`: isto era uma grade de cartões com seis blocos e
+           quatro botões cada, e a URL de 60 caracteres quebrando em uma ou duas
+           linhas conforme o token — que era a causa direta de os cartões saírem
+           com alturas diferentes. */
+        <Lista
+          ordens={ordens.map((o) => ({
+            id: o.id,
+            numero: o.numero,
+            equipamento: o.equipamento,
+            serie: o.serie,
+            etapaRotulo: o.etapaRotulo,
+            link: o.link,
+          }))}
+        />
       )}
     </section>
   )

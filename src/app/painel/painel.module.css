@@ -10003,3 +10003,62 @@ button.osHistNo {
 button.osHistNo:hover { background: var(--sup-2); }
 button.osHistNo:focus-visible { outline: 2px solid var(--vio); outline-offset: 2px; }
 .osHist li { list-style: none; }
+
+/* O endereço em UMA linha, para onde ele é um token e não um nome.
+   Ver a nota de `compacto` em `aplicativos/copiar.tsx`: em Aplicativos o
+   endereço é curto e se dita por telefone; no Painel do cliente são 60
+   caracteres aleatórios que quebravam em duas linhas num cartão e uma em
+   outro — a causa direta de a grade sair desalinhada. */
+.enderecoCurto {
+  margin: 0 0 var(--s3);
+  padding: 7px 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--borda);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+.enderecoCurto code {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: var(--t-2xs);
+  color: var(--txt-2);
+  user-select: all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   O PAINEL DO CLIENTE — cartões da mesma altura
+   --------------------------------------------------------------------------
+   Ver a nota no `portal/page.tsx`. Eles usavam `.duasColunas`, que alinha por
+   linha: um cartão alto — porque a URL dele quebrou em duas linhas — deixava um
+   buraco do tamanho dele ao lado do vizinho baixo.
+
+   `auto-fill` com `minmax` deixa a grade escolher quantas colunas cabem, e
+   `align-items: stretch` (o padrão) faz todos os cartões de uma linha terem a
+   altura do mais alto. O `1fr` no meio do cartão empurra a fileira de ações
+   para o pé: elas ficam alinhadas entre um cartão e outro mesmo quando o nome
+   do equipamento ocupa duas linhas num deles.
+   ========================================================================== */
+.portalGrade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--s4);
+}
+@media (max-width: 720px) { .portalGrade { grid-template-columns: 1fr; } }
+
+.portalCartao {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--s4);
+  margin: 0;
+}
+.portalAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: end;
+  gap: var(--s2);
+}
+/* O endereço ocupa a fileira inteira acima dos botões, sem empurrá-los. */
+.portalAcoes > p { flex: 1 1 100%; margin: 0 0 2px; }
