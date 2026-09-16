@@ -289,6 +289,34 @@ export default function JanelaOS({
      ===================================================================== */
   const escolhendoComoVem =
     d?.etapa === 'ORDEM_RETIRADA_GERADA' && (p?.passos.some((x) => x.pedeParada === 'RETIRADA') ?? false)
+
+  /**
+   * A BOLA JÁ ESTÁ COM O MOTORISTA — e aí não existe botão grande.
+   *
+   * Este caso já era tratado no painel do passo, e com razão escrita lá: quando
+   * a parada está designada, a corrida JÁ ESTÁ no celular do motorista, e a
+   * tela anda sozinha quando ele aceita. O botão "motorista saiu para a
+   * retirada" é DELE; aqui dentro ele existe só como exceção, para o dia em que
+   * o celular descarregar e ele ligar avisando — e por isso vira um link
+   * discreto no meio do painel.
+   *
+   * Ao levantar a ação principal para o rodapé eu quebrei isso: o rodapé pegava
+   * `passos[0]` sem olhar o contexto e promovia essa exceção ao MAIOR botão da
+   * tela. A janela passou a dizer duas coisas opostas a dois centímetros de
+   * distância — "está no aplicativo de Adriano, esta tela anda sozinha" e,
+   * logo abaixo, um botão azul oferecendo fazer aquilo na mão.
+   *
+   * Aqui o rodapé volta a dizer de quem é a vez. O link de exceção continua
+   * onde sempre esteve, com o peso que ele merece.
+   */
+  const esperandoOMotorista =
+    d?.etapa === 'RETIRADA_AGENDADA' &&
+    (p?.paradasMarcadas.some((x) => x.tipo === 'RETIRADA' && x.motoristaId !== null && !x.fechada) ??
+      false)
+  const motoristaDaVez =
+    p?.paradasMarcadas.find((x) => x.tipo === 'RETIRADA' && x.motoristaId !== null && !x.fechada)
+      ?.motorista ?? null
+
   const primeiro = p?.passos[0] ?? null
   const acaoPrincipal: {
     rotulo: string
@@ -299,7 +327,9 @@ export default function JanelaOS({
     ? null
     : escolhendoComoVem
       ? { rotulo: 'Despachar ›', aoTocar: () => setModo({ tela: 'parada' }) }
-      : primeiro
+      : esperandoOMotorista
+        ? { rotulo: 'Esperando', desligado: true, nota: motoristaDaVez ?? 'o motorista' }
+        : primeiro
         ? primeiro.pedeParada
           ? { rotulo: 'Despachar ›', aoTocar: () => setModo({ tela: 'parada' }) }
           : { rotulo: primeiro.titulo, aoTocar: () => executar(primeiro.para) }
@@ -2848,11 +2878,24 @@ function AAbaDaHistoria({ painel }: { painel: PainelDaOrdem }) {
             <div>
               <p className={estilo.osHistNome}>{x.nome}</p>
               <p className={estilo.osHistQuando}>
+                {/* A MESMA REGRA DA LINHA DO TEMPO DA ABA AO LADO.
+                    Esta aba dizia "ainda não aconteceu" embaixo de um passo
+                    marcado como CUMPRIDO — e a aba "O passo a passo", na mesma
+                    janela e na mesma ordem, dizia "cumprido" para o mesmo
+                    passo. Duas abas da MESMA tela se contradizendo.
+
+                    A causa é a mesma dos dois lados: passo cumprido nem sempre
+                    tem data. O passo 1 (Orçamento) não tem etapa de máquina
+                    nenhuma, então nunca ganha evento; o 2 idem quando a ordem
+                    nasce pelo assistente. O ESTADO manda; a data, quando
+                    existe, acrescenta. */}
                 {x.quando
                   ? `${quando(x.quando)}${x.autor ? ` · ${x.autor}` : ''}`
-                  : x.estado === 'agora'
-                    ? 'é o que está acontecendo agora'
-                    : 'ainda não aconteceu'}
+                  : x.estado === 'cumprido'
+                    ? 'cumprido'
+                    : x.estado === 'agora'
+                      ? 'é o que está acontecendo agora'
+                      : 'ainda não aconteceu'}
                 {x.detalhe ? ` · ${x.detalhe}` : ''}
               </p>
             </div>
