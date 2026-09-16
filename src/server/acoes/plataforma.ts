@@ -7,6 +7,7 @@ import { conferirSenha, hashSenha } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
 import { gravarConfigWhatsapp } from '@/server/plataforma/config'
+import { garantirMoldesPadrao } from '@/server/documentos/moldes-padrao'
 import {
   contextoDe,
   lerSessao,
@@ -141,6 +142,22 @@ export async function criarEmpresa(_anterior: Resposta, form: FormData): Promise
         trocarSenha: true,
       },
     })
+
+    /**
+     * A EMPRESA NASCE COM A PAPELADA DELA.
+     *
+     * Os três moldes — O.S., contrato de prestação e nota promissória — viviam
+     * no bloco `--demo` da semeadura, que cria a empresa de DEMONSTRAÇÃO. Uma
+     * franquia de verdade nasce aqui e não passava por lá: começava sem molde
+     * nenhum, e o contrato saía com o texto genérico de emergência que o
+     * gerador usa quando não há nada cadastrado. Quem descobriria isso seria o
+     * primeiro cliente grande a pedir o contrato antes de liberar a nota.
+     *
+     * Dentro da MESMA transação que criou o tenant e o administrador: empresa
+     * criada e papelada faltando, por uma falha no meio, seria empresa pela
+     * metade. São moldes editáveis — ponto de partida, não peça fixa.
+     */
+    await garantirMoldesPadrao(tx, empresa.id, a.sessao.nome)
 
     return { ok: true as const, id: empresa.id, nome: empresa.nome }
   })

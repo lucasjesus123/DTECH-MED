@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { randomBytes } from 'node:crypto'
+import { garantirMoldesPadrao } from '../src/server/documentos/moldes-padrao'
 import { Prisma } from '../src/generated/prisma/client'
 import { Papel, TipoMovimentoEstoque } from '../src/generated/prisma/enums'
 import { hashDocumento, hashSenha } from '../src/lib/cripto'
@@ -257,103 +258,8 @@ async function semearDemo() {
    * chaves são trocadas na emissão — e a lista delas é conferida contra
    * `VARIAVEIS`, então um nome inventado aqui quebraria a criação, não o PDF.
    */
-  const CORPO_ORDEM_SERVICO = `ORDEM DE SERVIÇO Nº {{os_numero}}
-
-Aberta em {{os_abertura}} · Etapa atual: {{os_etapa}}
-
-1. AS PARTES
-
-PRESTADORA: {{empresa_razao}}, inscrita no CNPJ sob o nº {{empresa_cnpj}}, com
-endereço em {{empresa_endereco}}, telefone {{empresa_telefone}}.
-
-CONTRATANTE: {{cliente_nome}}, inscrita no CPF/CNPJ sob o nº {{cliente_documento}},
-com endereço em {{cliente_endereco}}. Contato: {{cliente_contato}} — {{cliente_telefone}}.
-
-2. O EQUIPAMENTO RECEBIDO
-
-Marca {{equipamento_marca}} · Modelo {{equipamento_modelo}} · Série {{equipamento_serie}}
-Acessórios recebidos junto: {{equipamento_acessorios}}
-
-O equipamento foi recebido nas condições registradas nas fotos de entrada desta
-O.S. A lista de acessórios acima é a que foi conferida na retirada, e é por ela
-que a devolução será conferida.
-
-3. O QUE O CLIENTE RELATOU
-
-{{os_defeito}}
-
-4. O QUE O TÉCNICO ENCONTROU
-
-{{os_diagnostico}}
-
-Responsável técnico: {{os_tecnico}}
-
-5. PRAZO
-
-Prazo previsto para conclusão: {{os_prazo}}.
-
-O prazo corre a partir da aprovação do orçamento pelo CONTRATANTE, e fica
-suspenso enquanto o serviço depender de peça em falta no mercado ou de
-resposta do CONTRATANTE. Qualquer mudança de prazo é comunicada pelo mesmo
-canal em que esta O.S. foi enviada.
-
-6. VALOR E PAGAMENTO
-
-Valor total dos serviços: {{valor_total}} ({{valor_extenso}}).
-Saldo em aberto nesta data: {{valor_aberto}}.
-Forma de pagamento: {{forma_pagamento}}.
-
-Serviço não aprovado pelo CONTRATANTE tem devolução do aparelho no estado em
-que entrou, sem cobrança de mão de obra, ressalvado o custo de avaliação
-quando tiver sido combinado por escrito na abertura desta O.S.
-
-7. GARANTIA
-
-O serviço executado e as peças aplicadas têm garantia de 90 (noventa) dias,
-contados da data de entrega, conforme o art. 26 do Código de Defesa do
-Consumidor. A garantia cobre o que foi consertado e descrito nesta O.S. —
-não cobre defeito novo, mau uso, queda, oscilação da rede elétrica, violação
-do lacre nem intervenção de terceiros.
-
-8. RETIRADA DO EQUIPAMENTO
-
-O equipamento fica à disposição para retirada a partir do aviso de conclusão.
-Passados 90 (noventa) dias do aviso sem retirada, incide diária de armazenagem,
-e o aparelho poderá ser destinado na forma do art. 1.275 do Código Civil, sempre
-mediante notificação prévia do CONTRATANTE.
-
-9. FORO
-
-Fica eleito o foro de {{cidade_foro}} para dirimir as questões oriundas deste
-documento.
-
-{{cidade_foro}}, {{hoje_extenso}}.
-
-
-_______________________________        _______________________________
-{{empresa_nome}}                       {{cliente_nome}}
-Prestadora                             Contratante
-`
-
-  await comEscopo(ctx, async (tx) => {
-    const ja = await tx.modeloDocumento.findFirst({
-      where: { tipo: 'ORDEM_SERVICO', nome: 'Ordem de serviço — padrão DTECH MED' },
-      select: { id: true },
-    })
-    if (ja) return
-    await tx.modeloDocumento.create({
-      data: {
-        tenantId: t.id,
-        nome: 'Ordem de serviço — padrão DTECH MED',
-        tipo: 'ORDEM_SERVICO',
-        descricao:
-          'O documento completo da O.S.: equipamento e acessórios conferidos, relato do cliente, laudo do técnico, prazo, valor, garantia de 90 dias e a regra de aparelho não retirado.',
-        corpo: CORPO_ORDEM_SERVICO,
-        padrao: true,
-        autorNome: 'Semeadura',
-      },
-    })
-  })
+  const criados = await comEscopo(ctx, (tx) => garantirMoldesPadrao(tx, t.id, 'Semeadura'))
+  if (criados) console.log(`  ${criados} modelo(s) de documento criado(s).`)
 
   console.log(`
 Empresa de demonstração pronta.

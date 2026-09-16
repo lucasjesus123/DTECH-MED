@@ -483,7 +483,8 @@ export async function painelDaOrdem(
     .filter((p) => !(extra.viaCorreio && p.para === EtapaOrdem.EM_ROTA_RETIRADA))
     .map((p) => ({
       para: p.para,
-      titulo: p.titulo,
+      // O botão diz o comando quando a transição traz um; senão, o título.
+      titulo: p.comando ?? p.titulo,
       avisaCliente: p.avisaCliente,
       // A retirada pelo correio não tem parada para marcar: o motor dispensa a
       // exigência, e oferecer a janela do calendário aqui seria pedir motorista

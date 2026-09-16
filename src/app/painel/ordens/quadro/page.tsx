@@ -77,7 +77,7 @@ export default async function QuadroDaOS() {
         const destino = colunaDaEtapa.get(p.para)
         return {
           para: p.para,
-          titulo: p.titulo,
+          titulo: p.comando ?? p.titulo,
           colunaDestino: destino?.nome ?? null,
           colunaDestinoId: destino?.id ?? null,
         }

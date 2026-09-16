@@ -21,8 +21,25 @@ export type Transicao = {
   para: EtapaOrdem
   /** Chave do evento e do template de mensagem. Ex.: "ordem.coletada". */
   tipo: string
-  /** Frase que aparece na linha do tempo. */
+  /** Frase que aparece na linha do tempo. Fato consumado, no passado. */
   titulo: string
+  /**
+   * O QUE O BOTÃO DIZ — quando ele não pode dizer o mesmo que a linha do tempo.
+   *
+   * Um `titulo` servia aos dois, e são coisas opostas. A linha do tempo conta o
+   * que ACONTECEU: "Orçamento enviado ao cliente" está no passado e está certo
+   * ali. O botão promete o que VAI acontecer, e no passo do envio ele aparecia
+   * escrito exatamente assim — um botão que se anuncia como fato consumado.
+   *
+   * O dono pediu a palavra que ele usa: *"aprovação de O.S. pelo WhatsApp — em
+   * um botão dentro do sistema dizendo disparar para aprovação"*.
+   *
+   * Opcional de propósito. Onde não houver, o botão continua usando o título —
+   * na maioria das transições ele já está em voz de comando ("Motorista saiu
+   * para a retirada"), e inventar um segundo texto para cada uma seria criar
+   * trinta lugares onde as duas frases podem discordar.
+   */
+  comando?: string
   /** Quem pode executar. SUPER_ADMIN entra por regra separada, abaixo. */
   papeis: Papel[]
   /** Dispara aviso ao cliente no WhatsApp quando a transição acontece. */
@@ -172,6 +189,8 @@ export const TRANSICOES: Transicao[] = [
     para: T.ORCAMENTO_ENVIADO,
     tipo: 'orcamento.enviado',
     titulo: 'Orçamento enviado ao cliente',
+    // O botão fala no futuro; a linha do tempo, no passado. Ver `comando`.
+    comando: 'Disparar para aprovação',
     papeis: GESTAO,
     avisaCliente: true,
     gera: 'ORCAMENTO',

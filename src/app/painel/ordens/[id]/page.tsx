@@ -383,7 +383,7 @@ export default async function Prontuario({
                 ordemId={o.id}
                 passos={passos.slice(1).map((p) => ({
                   para: p.para,
-                  titulo: p.titulo,
+                  titulo: p.comando ?? p.titulo,
                   avisaCliente: p.avisaCliente,
                 }))}
                 parada={paradaParaMarcar}
@@ -844,7 +844,7 @@ export default async function Prontuario({
               ordemId={o.id}
               passos={passos.map((p) => ({
                 para: p.para,
-                titulo: p.titulo,
+                titulo: p.comando ?? p.titulo,
                 avisaCliente: p.avisaCliente,
               }))}
               parada={paradaParaMarcar}
