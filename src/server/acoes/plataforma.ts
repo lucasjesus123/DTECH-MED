@@ -6,6 +6,7 @@ import { Papel } from '@/generated/prisma/enums'
 import { conferirSenha, hashSenha } from '@/lib/cripto'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 import { auditar } from '@/server/auth/guarda'
+import { NIVEL, podeCriarPapel, podeExcluirPapel, podeMexerEm } from '@/server/auth/niveis'
 import { gravarConfigWhatsapp } from '@/server/plataforma/config'
 import { garantirMoldesPadrao } from '@/server/documentos/moldes-padrao'
 import {
@@ -31,15 +32,6 @@ import {
 
 type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
 
-const NIVEL: Record<Papel, number> = {
-  SUPER_ADMIN: 100,
-  ADMIN_EMPRESA: 80,
-  GESTOR: 60,
-  FINANCEIRO: 40,
-  ATENDENTE: 30,
-  TECNICO: 20,
-  MOTORISTA: 10,
-}
 
 async function atorDaSessao() {
   const sessao = await lerSessao()
@@ -287,10 +279,28 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
   const v = d.data
 
-  // Ninguém cria alguém do seu nível ou acima. Sem isso, o primeiro usuário
-  // comprometido escala até o topo em dois cliques.
-  if (NIVEL[v.papel as Papel] >= NIVEL[a.sessao.papel] && a.sessao.papel !== Papel.SUPER_ADMIN) {
-    return { ok: false, motivo: 'Você não pode criar um usuário com perfil igual ou acima do seu.' }
+  /**
+   * NINGUÉM CRIA ALGUÉM ACIMA DE SI — no mesmo nível, cria.
+   *
+   * A regra era "nem no mesmo nível", e ela tinha um efeito que ninguém
+   * escolheu: o administrador da empresa não conseguia nomear OUTRO
+   * administrador. Uma empresa com um administrador só é uma empresa a um
+   * acidente de distância de ficar sem ninguém que possa mexer na equipe —
+   * a pessoa sai, esquece a senha, perde o telefone do segundo fator, e o
+   * jeito de destravar passa a ser ligar para o dono da plataforma.
+   *
+   * O que a regra protege de verdade é a ESCALADA: subir um degrau que você
+   * não tem. Isso continua de pé, e por dois caminhos independentes — este
+   * `>`, e o `schemaUsuario`, que não aceita `SUPER_ADMIN` em campo nenhum.
+   * Um administrador de empresa não vira dono da plataforma nem pedindo com
+   * jeitinho no formulário.
+   *
+   * Criar um par NÃO é ganhar poder sobre ele: editar, desativar e trocar a
+   * senha de alguém do próprio nível continuam recusados logo abaixo. O que
+   * se cria aqui é um igual, e não um subordinado.
+   */
+  if (!podeCriarPapel(a.sessao.papel, v.papel)) {
+    return { ok: false, motivo: 'Você não pode criar um usuário com perfil acima do seu.' }
   }
 
   /**
@@ -336,9 +346,30 @@ export async function salvarUsuario(_anterior: Resposta, form: FormData): Promis
     if (v.id) {
       const alvo = await tx.user.findUnique({ where: { id: v.id }, select: { papel: true } })
       if (!alvo) return { ok: false as const, motivo: 'Usuário não encontrado.' }
-      // Também não se edita alguém acima de si — inclusive para rebaixá-lo.
-      if (NIVEL[alvo.papel] >= NIVEL[a.sessao.papel] && a.sessao.papel !== Papel.SUPER_ADMIN) {
-        return { ok: false as const, motivo: 'Você não pode alterar um usuário de perfil igual ou acima do seu.' }
+      /**
+       * EDITAR É MAIS APERTADO QUE CRIAR, e de propósito.
+       *
+       * Criar um par é acrescentar um igual à casa. Editar um par é outra
+       * coisa: o formulário carrega o campo de senha, e trocar a senha de
+       * alguém derruba as sessões dele e entrega o acesso a quem digitou.
+       * Se administrador pudesse editar administrador, cada um seria dono da
+       * conta do outro — e o segundo administrador que a empresa nomeia
+       * viraria, sem ninguém perceber, um jeito de tomar a conta do primeiro.
+       *
+       * Fica no mesmo nível, então: ninguém edita ninguém do próprio nível,
+       * nem a si mesmo por aqui (a própria senha se troca na Conta, com a
+       * senha atual na mão). Quem resolve o caso de verdade — administrador
+       * que perdeu a senha — é o dono da plataforma, que está acima dos dois.
+       */
+      if (!podeMexerEm(a.sessao.papel, alvo.papel)) {
+        return {
+          ok: false as const,
+          motivo:
+            NIVEL[alvo.papel] === NIVEL[a.sessao.papel]
+              ? 'Esta pessoa tem o mesmo perfil que o seu. Nomear um igual você pode; ' +
+                'mexer na ficha, no perfil ou na senha dele é de quem está acima dos dois.'
+              : 'Você não pode alterar um usuário de perfil acima do seu.',
+        }
       }
 
       await tx.user.update({
@@ -403,8 +434,26 @@ export async function alternarUsuario(userId: string, ativar: boolean): Promise<
   const r = await comEscopo(a.ctx, async (tx) => {
     const alvo = await tx.user.findUnique({ where: { id: userId }, select: { papel: true } })
     if (!alvo) return { ok: false as const, motivo: 'Usuário não encontrado.' }
-    if (NIVEL[alvo.papel] >= NIVEL[a.sessao.papel] && a.sessao.papel !== Papel.SUPER_ADMIN) {
-      return { ok: false as const, motivo: 'Você não pode alterar um usuário de perfil igual ou acima do seu.' }
+    /**
+     * DESATIVAR UM PAR, NÃO — e este é o degrau que a nomeação de outro
+     * administrador tornou real.
+     *
+     * Desativar corta o acesso na hora e derruba as sessões abertas. Entre
+     * iguais, isso é o botão de trancar o outro para fora da empresa; com dois
+     * administradores, ganha quem clicar primeiro. A saída de alguém do quadro
+     * de administradores é decisão de quem está acima dos dois, e é por isso
+     * que a recusa aponta para ele em vez de só dizer não.
+     */
+    if (!podeMexerEm(a.sessao.papel, alvo.papel)) {
+      return {
+        ok: false as const,
+        motivo:
+          NIVEL[alvo.papel] === NIVEL[a.sessao.papel]
+            ? 'Esta pessoa tem o mesmo perfil que o seu. Cortar o acesso de um igual é do ' +
+              'dono da plataforma — é o que impede dois administradores de trancarem um ao ' +
+              'outro para fora.'
+            : 'Você não pode alterar um usuário de perfil acima do seu.',
+      }
     }
     await tx.user.update({
       where: { id: userId },
@@ -790,8 +839,25 @@ export async function excluirUsuario(userId: string): Promise<Resposta> {
     if (alvo.papel === Papel.SUPER_ADMIN) {
       return { ok: false as const, motivo: 'O administrador da plataforma não pode ser excluído.' }
     }
-    if (NIVEL[alvo.papel] >= NIVEL[a.sessao.papel] && a.sessao.papel !== Papel.SUPER_ADMIN) {
-      return { ok: false as const, motivo: 'Você não pode excluir um usuário de perfil igual ou acima do seu.' }
+    /**
+     * AQUI O PAR PASSA — e passa porque não sobra nada para apagar.
+     *
+     * Excluir, nesta casa, só existe para o cadastro recém-criado com o e-mail
+     * errado: logo abaixo, qualquer acesso já feito ou qualquer registro com o
+     * nome da pessoa faz a exclusão virar recusa, com o tamanho do rastro
+     * escrito. Então "excluir um par" não é poder sobre outro administrador —
+     * é desfazer, em minutos, o administrador que você mesmo acabou de digitar
+     * errado.
+     *
+     * Sem isto, quem errasse o e-mail ao nomear um administrador ficaria com um
+     * acesso de nível máximo, inalcançável, e com uma senha provisória viva —
+     * a exclusão bloqueada seria o próprio buraco de segurança.
+     *
+     * Acima do seu nível continua intocável, e o dono da plataforma, acima de
+     * tudo, é recusado pelo nome algumas linhas antes.
+     */
+    if (!podeExcluirPapel(a.sessao.papel, alvo.papel)) {
+      return { ok: false as const, motivo: 'Você não pode excluir um usuário de perfil acima do seu.' }
     }
 
     // Tudo o que carrega o nome dela. Contado de uma vez, para a mensagem poder

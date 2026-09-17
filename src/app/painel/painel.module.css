@@ -1682,6 +1682,26 @@
   box-shadow: 0 0 0 3px var(--vio-veu-2);
 }
 .campo::placeholder { color: var(--txt-3); }
+
+/* O CAMPO QUE SÓ INFORMA.
+   Desligado, ele precisa PARECER desligado antes da pessoa tentar digitar. Sem
+   isto, uma ficha de leitura é uma ficha normal que misteriosamente não aceita
+   texto — e quem clica três vezes num campo branco de borda viva conclui que o
+   sistema travou, não que ele está informando.
+   A moldura some e o fundo se confunde com o papel: vira texto sobre a folha,
+   que é o que o valor realmente é ali. A cor do texto continua a de sempre —
+   o que se desligou foi a escrita, não a leitura. */
+.campo:disabled,
+.selecao:disabled,
+.area:disabled {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+  padding-left: 0;
+}
+/* A seta do seletor também some: ela é a promessa de que há uma lista para
+   abrir, e não há. */
+.selecao:disabled { appearance: none; }
 .selecao { width: auto; min-width: 150px; cursor: pointer; }
 .area {
   width: 100%;
@@ -3298,6 +3318,25 @@
 }
 
 .folhaCorpo { padding: var(--s5); }
+
+/* O CONJUNTO DE CAMPOS QUE SE DESLIGA DE UMA VEZ.
+   `<fieldset disabled>` é o único jeito de apagar um formulário inteiro sem
+   pôr `disabled` em cada campo — e sem esquecer o campo que alguém acrescentar
+   amanhã. Ele vem do navegador com moldura, título e recuo próprios: aqui não
+   se quer nenhum dos três, só o comportamento.
+   `min-inline-size: 0` é o conserto do padrão antigo do fieldset, que se
+   recusa a encolher abaixo do conteúdo e faria a grade estourar a folha no
+   celular. */
+.conjunto {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+/* Desligado, o conjunto inteiro clareia — o cinza é o que diz "isto está aqui
+   para ler", antes de qualquer texto explicar. */
+.conjunto:disabled { opacity: .72; }
 
 /* ==========================================================================
    A VISÃO DA REDE — um cartão por franquia

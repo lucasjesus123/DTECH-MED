@@ -15,10 +15,15 @@ export const dynamic = 'force-dynamic'
  * POR QUE ESTA TELA PRECISAVA EXISTIR
  * ---------------------------------------------------------------------------
  * O servidor já sabia fazer tudo isto: `salvarUsuario` aceita o administrador
- * da empresa desde o primeiro dia, recusa quem tenta criar alguém do próprio
- * nível ou acima, e cria sempre dentro da empresa de quem está pedindo. O que
+ * da empresa desde o primeiro dia, recusa quem tenta criar alguém ACIMA do
+ * próprio nível, e cria sempre dentro da empresa de quem está pedindo. O que
  * faltava era a TELA — e sem ela, quem contratava um técnico precisava pedir
  * ao dono da plataforma para cadastrá-lo.
+ *
+ * O mesmo impedimento valia, até pouco tempo atrás, para o degrau de cima: o
+ * administrador da empresa não conseguia nomear outro administrador, e uma
+ * empresa com um administrador só é uma empresa que fica sem dono do sistema no
+ * dia em que essa pessoa some. Nomear um igual agora pode; mandar nele, não.
  *
  * Numa franquia isso não é inconveniente, é impedimento: o franqueado não
  * consegue montar a própria equipe sem depender do franqueador. E é a diferença
@@ -96,6 +101,7 @@ export default async function PaginaEquipe() {
 
       <Equipe
         papelDeQuemOlha={sessao.papel}
+        idDeQuemOlha={sessao.userId}
         mostrarEmpresa={naRede}
         empresas={empresas}
         usuarios={usuarios.map((u) => ({

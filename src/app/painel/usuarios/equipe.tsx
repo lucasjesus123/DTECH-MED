@@ -3,6 +3,11 @@
 import { useActionState, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { alternarUsuario, excluirUsuario, salvarUsuario } from '@/server/acoes/plataforma'
+/* A MESMA tabela que o servidor usa, e não uma cópia dela. Havia duas, iguais,
+   mantidas por lembrança — e foi preciso mudar as duas no dia em que a regra
+   dos administradores mudou. Uma cópia esquecida não dá erro: dá tela
+   oferecendo o que o servidor recusa. */
+import { nivelDe, podeCriarPapel, podeMexerEm } from '@/server/auth/niveis'
 import Dica from '../dica'
 import Abas from './abas'
 import Ficha, { type Pessoa } from './ficha'
@@ -30,16 +35,6 @@ const PERFIS = [
   { valor: 'MOTORISTA', rotulo: 'Motorista', faz: 'só o aplicativo de rota: retirada e entrega' },
 ] as const
 
-const NIVEL: Record<string, number> = {
-  SUPER_ADMIN: 100,
-  ADMIN_EMPRESA: 80,
-  GESTOR: 60,
-  FINANCEIRO: 40,
-  ATENDENTE: 30,
-  TECNICO: 20,
-  MOTORISTA: 10,
-}
-
 /**
  * A equipe, do lado de quem administra a empresa.
  *
@@ -50,18 +45,43 @@ const NIVEL: Record<string, number> = {
  * tela uma opção que vai ser recusada é ensinar a pessoa a apanhar do sistema:
  * ela preenche o formulário inteiro, clica em criar, e leva um "você não pode".
  *
- * Some da lista, então, o que ela não pode escolher. Some também o botão de
- * desativar de quem está no mesmo nível ou acima — inclusive o dela própria,
- * que é o clique que tranca a pessoa para fora da própria empresa.
+ * Some da lista, então, o que ela não pode escolher.
+ *
+ * ---------------------------------------------------------------------------
+ * NOMEAR UM IGUAL SIM; MEXER NELE, NÃO
+ * ---------------------------------------------------------------------------
+ * O administrador da empresa nomeia OUTRO administrador — era o que faltava, e
+ * é o motivo de "Administrador" agora aparecer no seletor de perfil. Uma
+ * empresa com um administrador só fica sem ninguém que mexa na equipe no dia em
+ * que essa pessoa some.
+ *
+ * O que ele não ganha é poder sobre o igual. A ficha de outro administrador
+ * abre para LER e não para salvar, e o botão de desativar dá lugar a um cadeado:
+ * entre dois iguais, desativar é o clique que tranca o outro para fora da
+ * empresa, e ganharia quem clicasse primeiro. Quem resolve isso é o dono da
+ * plataforma, que está acima dos dois.
+ *
+ * A exclusão é a única exceção, e ela é estreita de propósito: só vale para
+ * quem nunca entrou. É o conserto do e-mail digitado errado há dez minutos — e
+ * sem ela, errar o e-mail ao nomear um administrador deixaria um acesso de
+ * nível máximo, inalcançável, com uma senha provisória viva.
  */
 export default function Equipe({
   usuarios,
   papelDeQuemOlha,
+  idDeQuemOlha,
   mostrarEmpresa = false,
   empresas = [],
 }: {
   usuarios: Pessoa[]
   papelDeQuemOlha: string
+  /**
+   * Quem está olhando, para a lista saber reconhecê-lo na própria lista.
+   *
+   * Sem isto, a linha da própria pessoa é só "mais um do mesmo nível" — e ela
+   * abriria a própria ficha para ler um aviso dizendo "outro administrador".
+   */
+  idDeQuemOlha: string
   /** As franquias onde o dono da plataforma pode cadastrar alguém. */
   empresas?: { id: string; nome: string }[]
   /**
@@ -85,9 +105,16 @@ export default function Equipe({
   const [pendente, iniciar] = useTransition()
   const router = useRouter()
 
-  const meuNivel = NIVEL[papelDeQuemOlha] ?? 0
   const ehDono = papelDeQuemOlha === 'SUPER_ADMIN'
-  const perfisQuePosseCriar = PERFIS.filter((p) => ehDono || NIVEL[p.valor]! < meuNivel)
+  /**
+   * Até onde o seletor de perfil vai: o próprio nível, inclusive.
+   *
+   * O `<=` é o que faz "Administrador" caber na lista de quem é administrador.
+   * Ele espelha o servidor, que recusa só o que está ACIMA — e a lista nunca
+   * chega ao topo de verdade, porque `PERFIS` não tem `SUPER_ADMIN`: não existe
+   * combinação de cliques nesta tela que crie um dono de plataforma.
+   */
+  const perfisQuePosseCriar = PERFIS.filter((p) => podeCriarPapel(papelDeQuemOlha, p.valor))
 
   const termo = busca.trim().toLowerCase()
   const visiveis = termo
@@ -254,7 +281,18 @@ export default function Equipe({
           </thead>
           <tbody>
             {visiveis.map((u) => {
-              const acima = !ehDono && (NIVEL[u.papel] ?? 0) >= meuNivel
+              /* TRÊS SITUAÇÕES, E NÃO UMA.
+                 Era um `acima` só, com `>=`, e ele juntava coisas que agora
+                 precisam de respostas diferentes: quem está ACIMA (intocável),
+                 quem é IGUAL (nomeável, não mexível, apagável enquanto nunca
+                 entrou) e a PRÓPRIA pessoa (que merece ouvir "é você" em vez de
+                 "outro administrador"). */
+              const souEu = u.id === idDeQuemOlha
+              /* Desativar e reativar pedem estar ACIMA — a mesma pergunta que o
+                 servidor faz antes de aceitar. */
+              const naoMexo = !podeMexerEm(papelDeQuemOlha, u.papel)
+              const acimaDeMim = nivelDe(u.papel) > nivelDe(papelDeQuemOlha)
+              const parDeMim = naoMexo && !acimaDeMim && !souEu
               const perfil = PERFIS.find((p) => p.valor === u.papel)
               return (
                 <tr key={u.id} className={u.ativo ? undefined : estilo.linhaArquivada}>
@@ -339,16 +377,33 @@ export default function Equipe({
 
                   <td>
                     <span className={estilo.acoesLinha}>
-                      {acima ? (
+                      {naoMexo ? (
                         /* Quem está no mesmo nível ou acima não se mexe — e o
                            lugar do botão não fica vazio: um desenho apagado
                            diz que a ação existe e por que ela não está aqui.
-                           Buraco na linha faria parecer coluna quebrada. */
-                        <Dica texto="Perfil igual ou acima do seu">
+                           Buraco na linha faria parecer coluna quebrada.
+
+                           O motivo muda conforme quem é: "é você" e "outro
+                           administrador" são recusas diferentes, e dizer as
+                           duas com a mesma frase deixaria a pessoa procurando
+                           um perfil acima do dela que não existe. */
+                        <Dica
+                          texto={
+                            souEu
+                              ? 'É você — desativar a si mesmo é trancar-se para fora'
+                              : parDeMim
+                                ? 'Mesmo perfil que o seu — quem corta o acesso é o dono da plataforma'
+                                : 'Perfil acima do seu'
+                          }
+                        >
                           <span
                             className={`${estilo.btnIcone} ${estilo.btnIconeMudo}`}
                             role="img"
-                            aria-label={`Você não pode alterar o acesso de ${u.nome}`}
+                            aria-label={
+                              souEu
+                                ? 'Você não pode desativar o próprio acesso'
+                                : `Você não pode alterar o acesso de ${u.nome}`
+                            }
                           >
                             <IconeCadeado />
                           </span>
@@ -384,8 +439,15 @@ export default function Equipe({
                           some. Quem já trabalhou tem nome na trilha, e apagar
                           o cadastro apagaria o nome de tudo o que a pessoa
                           fez — o servidor recusa, e este botão nem se
-                          oferece. */}
-                      {!u.ultimoLogin && !acima ? (
+                          oferece.
+
+                          Ele aparece para um IGUAL — o cadeado da coluna ao
+                          lado não vale aqui. É justamente o administrador que
+                          acabou de ser nomeado com o e-mail errado: ninguém
+                          entrou nele, nada carrega o nome dele, e deixá-lo
+                          inapagável seria deixar de pé um acesso de nível
+                          máximo que não dá para alcançar. */}
+                      {!u.ultimoLogin && !acimaDeMim && !souEu ? (
                         <Dica texto="Excluir o cadastro">
                           <button
                             type="button"
@@ -418,8 +480,14 @@ export default function Equipe({
       {aberta ? (
         <Ficha
           pessoa={aberta}
-          perfis={PERFIS}
-          podeTrocarPerfil={ehDono || (NIVEL[aberta.papel] ?? 0) < meuNivel}
+          /* A MESMA lista do cadastro, e não `PERFIS` inteiro: promover alguém
+             a um perfil que o servidor vai recusar é o mesmo tapa, só que na
+             edição. Com o `<=`, o perfil atual de qualquer pessoa editável
+             cabe na lista — inclusive o de um administrador, cuja ficha abre
+             só para ler. */
+          perfis={perfisQuePosseCriar}
+          podeEditar={podeMexerEm(papelDeQuemOlha, aberta.papel)}
+          souEu={aberta.id === idDeQuemOlha}
           aoFechar={() => setAberta(null)}
         />
       ) : null}
@@ -435,6 +503,19 @@ export default function Equipe({
           criado há dez minutos. Depois do primeiro acesso, o nome da pessoa está espalhado pelo
           histórico, e apagar o cadastro apagaria esse nome de tudo o que ela fez.
         </p>
+        {/* A REGRA DOS IGUAIS, ESCRITA ANTES DE ALGUÉM ESBARRAR NELA.
+            Quem acabou de nomear o segundo administrador vai, mais cedo ou mais
+            tarde, tentar abrir a ficha dele. Descobrir ali que não dá é
+            descobrir tarde; aqui, é saber de antemão. */}
+        {!ehDono ? (
+          <p>
+            <strong>Outro administrador</strong> pode ser nomeado por você — e é só isso. A ficha
+            dele abre para ler, não para salvar: mexer na senha de alguém do seu nível seria tomar a
+            conta dele, e desativá-lo seria trancá-lo para fora da empresa. Essas duas são do dono da
+            plataforma. Enquanto ele nunca tiver entrado, o cadastro ainda pode ser excluído — é como
+            se desfaz um e-mail digitado errado.
+          </p>
+        ) : null}
       </div>
 
     </>
