@@ -120,6 +120,16 @@ export default function Formulario({
    */
   const [cliente, setCliente] = useState<{ id: string; nome: string } | null>(null)
 
+  /**
+   * UM PASSO ABRIU UMA SUBTELA E TOMOU A VEZ.
+   *
+   * Hoje é o cadastro rápido de cliente, dentro do passo 2. Enquanto ele está
+   * aberto, o rodapé daqui some — dois "Continuar" na mesma tela é um a mais, e
+   * o de fora avançaria por cima de um cadastro pela metade, conferindo campos
+   * que ninguém está vendo. O passo devolve a vez quando fecha.
+   */
+  const [subtela, setSubtela] = useState(false)
+
   // A marca costuma vir como "Ibramed Neurodyn": a primeira palavra é a marca,
   // o resto é o modelo. Chute útil, e a pessoa corrige em um clique se errar.
   const [marca = '', ...resto] = (lead?.equipamento ?? '').split(' ')
@@ -284,6 +294,7 @@ export default function Formulario({
           contatoInicial={lead?.contato ?? ''}
           cidadeInicial={lead?.cidade ?? ''}
           aoMudarEscolha={setCliente}
+          aoAbrirSubtela={setSubtela}
         />
       </div>
 
@@ -356,6 +367,20 @@ export default function Formulario({
       </div>
 
       {/* ---- O RODAPÉ DO ASSISTENTE ------------------------------------- */}
+      {/**
+       * O `hidden` FICA NUMA CAIXA SEM CLASSE — pelo mesmo motivo dos passos,
+       * e eu caí na armadilha que este arquivo já descrevia vinte linhas acima.
+       *
+       * A primeira versão era `<div className={estilo.acoesForm} hidden>`, e o
+       * rodapé continuava na tela com o cadastro rápido aberto: `[hidden]`
+       * esconde por `display: none` vindo da folha do NAVEGADOR, e `.acoesForm`
+       * é `display: flex`, que ganha por especificidade. O atributo estava lá,
+       * certinho, e não escondia nada — foi o navegador que mostrou, num teste
+       * que perguntou se o "Continuar" estava visível e ouviu "sim".
+       *
+       * Caixa de fora esconde; caixa de dentro arruma.
+       */}
+      <div hidden={subtela}>
       <div className={estilo.acoesForm}>
         {passo > 1 ? (
           <button type="button" className={estilo.btnSec} onClick={() => irPara(passo - 1)} disabled={pendente}>
@@ -396,6 +421,7 @@ export default function Formulario({
             {pendente ? 'Emitindo…' : 'Emitir Ordem de Serviço'}
           </button>
         )}
+      </div>
       </div>
     </form>
   )

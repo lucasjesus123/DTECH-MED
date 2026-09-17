@@ -10101,3 +10101,66 @@ button.osHistNo:focus-visible { outline: 2px solid var(--vio); outline-offset: 2
 }
 /* O endereço ocupa a fileira inteira acima dos botões, sem empurrá-los. */
 .portalAcoes > p { flex: 1 1 100%; margin: 0 0 2px; }
+
+/* ==========================================================================
+   O "+" DO TÍTULO, E A SUBTELA QUE ELE ABRE
+   --------------------------------------------------------------------------
+   Nasceram juntos, no passo do cliente da abertura de O.S.: a dica embaixo do
+   campo mandava usar "o + da lista", e a lista só existe depois que alguém
+   digita. A instrução apontava para um botão que não estava em lugar nenhum.
+
+   O "+" mora no `.blocoTitulo`, que já é `flex` com `space-between` — ele cai
+   sozinho na ponta direita, alinhado com o título da seção. É ali que se
+   procura o que FAZER antes de saber o que digitar.
+   ========================================================================== */
+.btnMais {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--vio-borda);
+  border-radius: 999px;
+  background: var(--vio-veu-2);
+  color: var(--vio-claro);
+  font-family: var(--f-texto);
+  /* Fora da escala de caixa-alta do título: o botão é uma AÇÃO, e ação se lê
+     como frase, não como etiqueta. Sem isto ele herdaria o `letter-spacing` e
+     o `text-transform` do `.blocoTitulo` e viraria mais um rótulo na linha. */
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
+}
+.btnMais:hover,
+.btnMais:focus-visible { background: var(--vio-veu); border-color: var(--vio); }
+
+/* A SUBTELA — um passo dentro do passo.
+   Ela não é uma janela por cima: janela dentro de janela põe duas armadilhas de
+   foco uma sobre a outra, e o Esc passa a ter dois donos. Aqui ela OCUPA o
+   lugar do passo, com o próprio topo e o próprio rodapé, e devolve o lugar ao
+   fechar — que é o mesmo "tela por tela sem sair do pop-up" do resto da casa. */
+.subtela {
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--sup);
+  padding: var(--s5);
+}
+.subtelaTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  margin-bottom: var(--s4);
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--borda);
+}
+.subtelaNome {
+  display: block;
+  font-family: var(--f-display);
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+}

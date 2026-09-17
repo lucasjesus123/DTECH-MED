@@ -19,7 +19,17 @@ import { TERMINAIS } from '@/server/ordem/maquina-estados'
  * completo trafegar de volta ao navegador.
  */
 
-type Resposta = { ok: true; mensagem?: string } | { ok: false; motivo: string }
+/**
+ * O `id` VOLTA NA RESPOSTA, e não é enfeite de API.
+ *
+ * Quem cadastra um cliente pela tela de Clientes não precisa dele — a lista
+ * recarrega e pronto. Quem cadastra DE DENTRO da abertura de O.S. precisa:
+ * sem o id, a tela acabaria de criar o cliente e não teria como dizer "é este
+ * aqui" para a ordem que está sendo aberta. Sobraria procurar de novo pelo
+ * documento recém-digitado — uma segunda ida ao banco para descobrir o que a
+ * primeira acabou de gravar.
+ */
+type Resposta = { ok: true; mensagem?: string; id?: string } | { ok: false; motivo: string }
 
 const PODE_CADASTRAR: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
 
@@ -156,7 +166,7 @@ export async function salvarCliente(_anterior: Resposta, form: FormData): Promis
     entidadeId: r.id,
   })
   revalidatePath('/painel/clientes')
-  return { ok: true, mensagem: v.id ? 'Cadastro atualizado.' : 'Cliente cadastrado.' }
+  return { ok: true, id: r.id, mensagem: v.id ? 'Cadastro atualizado.' : 'Cliente cadastrado.' }
 }
 
 /**

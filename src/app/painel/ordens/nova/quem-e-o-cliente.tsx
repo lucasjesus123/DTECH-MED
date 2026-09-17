@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { acharCliente, type ClienteAchado } from '@/server/acoes/achar-cliente'
+import CadastroRapido from './cadastro-rapido'
 import estilo from '../../painel.module.css'
 
 /**
@@ -51,6 +52,7 @@ export default function QuemEOCliente({
   contatoInicial,
   cidadeInicial,
   aoMudarEscolha,
+  aoAbrirSubtela,
 }: {
   nomeInicial: string
   telefoneInicial: string
@@ -67,6 +69,15 @@ export default function QuemEOCliente({
    * não pôr o pai a renderizar em cascata a cada tecla.
    */
   aoMudarEscolha?: (c: { id: string; nome: string } | null) => void
+  /**
+   * Avisa que este passo abriu uma SUBTELA e tomou a vez.
+   *
+   * O rodapé do assistente ("Voltar" / "Continuar") mora no formulário, um
+   * nível acima. Deixá-lo clicável enquanto o cadastro rápido está aberto seria
+   * oferecer dois "continuar" ao mesmo tempo — e o de cima avançaria por cima
+   * de um cadastro pela metade, conferindo campos que ninguém está vendo.
+   */
+  aoAbrirSubtela?: (aberta: boolean) => void
 }) {
   const [nome, setNome] = useState(nomeInicial)
   const [documento, setDocumento] = useState('')
@@ -88,6 +99,8 @@ export default function QuemEOCliente({
    * cadastrar em outra tela antes. Vazio não responde pergunta nenhuma.
    */
   const [ehNovo, setEhNovo] = useState(false)
+  /** O painel de cadastro rápido está ocupando o passo. */
+  const [cadastrando, setCadastrando] = useState(false)
 
   /** O termo que a busca deve perseguir. Muda no nome E no documento. */
   const [termo, setTermo] = useState('')
@@ -126,6 +139,19 @@ export default function QuemEOCliente({
     return () => clearTimeout(relogio)
   }, [termo, escolhido])
 
+  /**
+   * Abrir e fechar a subtela passa por AQUI, e não por `setCadastrando` solto.
+   *
+   * São sempre duas coisas ao mesmo tempo: o painel aparece E o rodapé do
+   * assistente some. Deixar as duas por conta de quem chama é deixar que um dia
+   * alguém faça só a primeira — e aí o "Continuar" de cima volta a conviver com
+   * o cadastro aberto.
+   */
+  function abrirCadastro(abrir: boolean) {
+    setCadastrando(abrir)
+    aoAbrirSubtela?.(abrir)
+  }
+
   function escolher(c: ClienteAchado) {
     setEhNovo(false)
     setEscolhido(c)
@@ -151,9 +177,51 @@ export default function QuemEOCliente({
     setTermo('')
   }
 
+  /**
+   * ACABOU DE CADASTRAR: o cliente entra na ordem como qualquer outro da
+   * carteira — pelo id, com o endereço montado do jeito que a busca monta.
+   *
+   * O caminho é o MESMO `escolher` da lista de sugestões, de propósito. Um
+   * segundo caminho que também preenche os campos seria um segundo lugar para
+   * esquecer de preencher um deles no dia em que a ficha do cliente ganhar um
+   * campo novo.
+   */
+  function cadastrou(c: ClienteAchado) {
+    abrirCadastro(false)
+    escolher(c)
+  }
+
   return (
     <>
-      <p className={estilo.blocoTitulo}>Quem é o cliente</p>
+      {/* ENQUANTO O CADASTRO ESTÁ ABERTO, ELE É O PASSO — mas os campos da O.S.
+          continuam MONTADOS, escondidos logo abaixo. É deles que sai o
+          `FormData` da ordem: desmontá-los enviaria a O.S. sem nome, sem CPF e
+          sem endereço. É a mesma razão pela qual o assistente esconde os passos
+          em vez de trocá-los. */}
+      {cadastrando ? (
+        <CadastroRapido
+          nomeInicial={nome}
+          whatsappInicial={whatsapp}
+          contatoInicial={contato}
+          cidadeInicial={cidade}
+          aoCadastrar={cadastrou}
+          aoCancelar={() => abrirCadastro(false)}
+        />
+      ) : null}
+
+      <div hidden={cadastrando}>
+      <p className={estilo.blocoTitulo}>
+        Quem é o cliente
+        {/* O "+" QUE ESTAVA FALTANDO.
+            A dica embaixo do campo já mandava usar "o + da lista" — e a lista
+            só existe depois de alguém digitar. Quem abria a tela lia uma
+            instrução apontando para um botão que não estava em lugar nenhum.
+            Aqui ele está desde o primeiro segundo, ao lado do título, que é
+            onde se procura o que fazer antes de saber o que digitar. */}
+        <button type="button" className={estilo.btnMais} onClick={() => abrirCadastro(true)}>
+          <span aria-hidden="true">+</span> Cliente novo
+        </button>
+      </p>
 
       {escolhido ? (
         <p className={estilo.avisoCaixa} role="status">
@@ -208,12 +276,13 @@ export default function QuemEOCliente({
               buscando={buscando}
               termo={nome.trim()}
               aoEscolher={escolher}
-              aoCadastrarNovo={() => setEhNovo(true)}
+              aoCadastrarAgora={() => abrirCadastro(true)}
+              aoSeguirSemCadastrar={() => setEhNovo(true)}
             />
           ) : null}
           <span className={estilo.dica}>
-            Comece a digitar: se ele já for cliente, aparece aqui e o resto se preenche sozinho.
-            Se não for, use o <strong>+</strong> da lista para seguir com um cadastro novo.
+            Comece a digitar: se já for cliente, aparece aqui e o resto se preenche sozinho. Se
+            não for, o <strong>+ Cliente novo</strong> cadastra na hora.
           </span>
         </label>
 
@@ -301,6 +370,7 @@ export default function QuemEOCliente({
           />
         </label>
       </div>
+      </div>
     </>
   )
 }
@@ -320,7 +390,8 @@ function Sugestoes({
   buscando,
   termo,
   aoEscolher,
-  aoCadastrarNovo,
+  aoCadastrarAgora,
+  aoSeguirSemCadastrar,
 }: {
   achados: ClienteAchado[]
   buscando: boolean
@@ -328,7 +399,8 @@ function Sugestoes({
   termo: string
   aoEscolher: (c: ClienteAchado) => void
   /** Ausente no campo do documento: ninguém cadastra um cliente por CPF. */
-  aoCadastrarNovo?: () => void
+  aoCadastrarAgora?: () => void
+  aoSeguirSemCadastrar?: () => void
 }) {
   const nadaEncontrado = !buscando && achados.length === 0
   return (
@@ -362,24 +434,50 @@ function Sugestoes({
           Com resultado na tela, ele diz "nenhum desses, é outro" — o caso de
           dois clientes de nome parecido. Sem resultado, ele é a única linha, e
           responde a pergunta que a lista vazia deixava no ar. */}
-      {aoCadastrarNovo && termo.length > 0 && !buscando ? (
+      {aoCadastrarAgora && termo.length > 0 && !buscando ? (
         <li>
           <button
             type="button"
             className={`${estilo.sugestao} ${estilo.sugestaoNova}`}
             onMouseDown={(e) => {
               e.preventDefault()
-              aoCadastrarNovo()
+              aoCadastrarAgora()
             }}
           >
             <strong>
               <span aria-hidden="true">+ </span>
-              Cadastrar “{termo}” como cliente novo
+              Cadastrar “{termo}” agora
             </strong>
             <span className={estilo.fraco}>
               {nadaEncontrado
-                ? 'Nenhum cliente com esse nome na carteira.'
-                : 'Nenhum dos de cima é ele.'}
+                ? 'Nenhum cliente com esse nome na carteira. Abre a ficha dele aqui mesmo.'
+                : 'Nenhum dos de cima é ele. Abre a ficha dele aqui mesmo.'}
+            </span>
+          </button>
+        </li>
+      ) : null}
+
+      {/* A SAÍDA RÁPIDA, só quando a carteira não tem ninguém com esse nome.
+          Cadastrar direito leva um minuto e nem sempre há um minuto: o cliente
+          está no telefone e o aparelho precisa entrar. Este caminho continua
+          sendo o que sempre foi — o cadastro nasce junto com a ordem, com os
+          campos que a própria O.S. já pergunta.
+          Ele não aparece quando a busca ACHOU alguém: ali a resposta provável é
+          um dos de cima, e oferecer "seguir como novo" ao lado de um homônimo é
+          como nasce cliente duplicado. */}
+      {aoSeguirSemCadastrar && nadaEncontrado && termo.length > 0 ? (
+        <li>
+          <button
+            type="button"
+            className={`${estilo.sugestao} ${estilo.sugestaoNova}`}
+            onMouseDown={(e) => {
+              e.preventDefault()
+              aoSeguirSemCadastrar()
+            }}
+          >
+            <strong>Seguir sem cadastrar agora</strong>
+            <span className={estilo.fraco}>
+              O cadastro nasce junto com a O.S., com o que for preenchido abaixo.
             </span>
           </button>
         </li>
