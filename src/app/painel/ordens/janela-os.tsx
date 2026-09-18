@@ -11,6 +11,7 @@ import {
   declararSemPeca,
   lancarPecaDaOrdem,
   marcarComoEnvioDoCliente,
+  marcarEntregueEmMaos,
   painelDaOrdem,
   salvarCombinado,
   type PainelDaOrdem,
@@ -23,6 +24,7 @@ import Responsavel from './[id]/responsavel'
 import Orcamento from './[id]/orcamento'
 import Cancelar from './[id]/cancelar'
 import Excluir from './[id]/excluir'
+import FotosDeEntrada from './fotos-de-entrada'
 import estilo from '../painel.module.css'
 
 /**
@@ -66,6 +68,7 @@ type Modo =
   | { tela: 'agora' }
   | { tela: 'parada' }
   | { tela: 'envio' }
+  | { tela: 'maos' }
   | { tela: 'combinado' }
 
 type ChaveDeAba = 'agora' | 'ordem' | 'cliente' | 'historia'
@@ -603,6 +606,10 @@ export default function JanelaOS({
                     <Voltando titulo="O cliente é que envia" aoVoltar={() => setModo({ tela: 'agora' })}>
                       <FormularioDeEnvio painel={p} aoEnviar={andou} />
                     </Voltando>
+                  ) : modo.tela === 'maos' ? (
+                    <Voltando titulo="O cliente trouxe o aparelho" aoVoltar={() => setModo({ tela: 'agora' })}>
+                      <FormularioEmMaos painel={p} aoRegistrar={andou} />
+                    </Voltando>
                   ) : modo.tela === 'combinado' ? (
                     <Voltando titulo="O que foi combinado" aoVoltar={() => setModo({ tela: 'agora' })}>
                       <FormularioDoCombinado painel={p} aoSalvar={() => {
@@ -629,6 +636,7 @@ export default function JanelaOS({
                       aoAndar={andou}
                       aoMarcarParada={() => setModo({ tela: 'parada' })}
                       aoEscolherEnvio={() => setModo({ tela: 'envio' })}
+                      aoEscolherMaos={() => setModo({ tela: 'maos' })}
                       aoCombinar={() => setModo({ tela: 'combinado' })}
                       observacao={observacao}
                       setObservacao={setObservacao}
@@ -1024,6 +1032,7 @@ function Agora({
   aoAndar,
   aoMarcarParada,
   aoEscolherEnvio,
+  aoEscolherMaos,
   aoCombinar,
   observacao,
   setObservacao,
@@ -1035,6 +1044,7 @@ function Agora({
   aoAndar: () => void
   aoMarcarParada: () => void
   aoEscolherEnvio: () => void
+  aoEscolherMaos: () => void
   aoCombinar: () => void
   /* ---------------------------------------------------------------------
      O ESTADO DA AÇÃO SUBIU PARA A JANELA, e não é arrumação: é o que permite
@@ -1109,6 +1119,18 @@ function Agora({
 
       <Pendencias painel={painel} />
 
+      {/* AS FOTOS DE ENTRADA, ONDE A ORDEM PARA POR CAUSA DELAS.
+          Só em COLETADO, que é a única etapa cuja saída as exige. Antes ou
+          depois disso o bloco seria mais uma caixa na tela pedindo trabalho que
+          ninguém precisa fazer agora. */}
+      {painel.dossie.etapa === 'COLETADO' ? (
+        <FotosDeEntrada
+          ordemId={painel.dossie.id}
+          jaTem={painel.dossie.fotos.filter((f) => f.categoria === 'RECEBIMENTO').length}
+          aoSubir={aoAndar}
+        />
+      ) : null}
+
       {erro ? (
         <p className={estilo.erro} role="alert">
           {erro}
@@ -1129,6 +1151,19 @@ function Agora({
             <span>
               Correio ou transportadora. O cliente recebe o endereço para onde mandar, e a ordem
               fica aguardando o aparelho chegar.
+            </span>
+          </button>
+          {/* O TERCEIRO CAMINHO, que faltava — e era o mais comum de todos.
+              Os outros dois pedem alguma coisa que o balcão não tem: um
+              motorista com dia e hora, ou um código de rastreio. O cliente que
+              passa na porta e deixa o aparelho não tinha saída nenhuma, e a
+              ordem ficava presa aqui com a máquina em cima da bancada. */}
+          <button type="button" className={estilo.osEscolhaCartao} onClick={aoEscolherMaos}>
+            <strong>O cliente trouxe</strong>
+            <span>
+              O aparelho já está aqui. Pula a retirada inteira e vai direto para a bancada —
+              nenhum motorista é acionado e o cliente não recebe aviso, porque ele acabou de sair
+              daqui.
             </span>
           </button>
         </div>
@@ -1733,12 +1768,12 @@ function Pendencias({ painel }: { painel: PainelDaOrdem }) {
   const d = painel.dossie
   const avisos: string[] = []
 
-  const fotosDeEntrada = d.fotos.filter((f) => f.categoria === 'RECEBIMENTO').length
-  if (d.etapa === 'COLETADO' && fotosDeEntrada < 6) {
-    avisos.push(
-      `Faltam ${6 - fotosDeEntrada} das seis fotos de entrada. Quem tira é o técnico, pelo aplicativo.`,
-    )
-  }
+  /* As fotos de entrada NÃO entram mais nesta lista.
+     Elas tinham aqui a frase "quem tira é o técnico, pelo aplicativo" — dita
+     em cima de uma ordem parada, para quem estava com o aparelho na mão e
+     nenhum botão para resolver. Agora a pendência e a ação moram juntas, no
+     bloco `FotosDeEntrada` logo abaixo do painel: avisar sem oferecer saída é
+     o que fazia esta tela parecer trancada. */
   if (d.etapa === 'EM_ROTA_RETIRADA' && !d.assinaturas.some((s) => s.tipo === 'RETIRADA')) {
     avisos.push('O motorista ainda não colheu a assinatura do cliente no celular.')
   }
@@ -1866,6 +1901,69 @@ function FormularioDeEnvio({
       <div className={estilo.acoesForm}>
         <button type="submit" className={estilo.btn} disabled={pendente}>
           {pendente ? 'Registrando…' : 'Confirmar e avisar o cliente'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+/**
+ * "O CLIENTE TROUXE" — o caminho de balcão.
+ *
+ * Um campo e um botão, e o campo é opcional. É a tela mais curta da janela de
+ * propósito: o aparelho já está na bancada, e tudo o que o sistema precisa
+ * saber é que ele chegou. Pedir dia, hora, motorista ou rastreio aqui seria
+ * pedir dados sobre uma viagem que não houve.
+ *
+ * Quem trouxe fica registrado porque é a única coisa que ninguém mais vai
+ * lembrar depois: "foi o técnico da clínica" ou "foi o motoboy deles" é o que
+ * responde, meses à frente, quem entregou o aparelho na nossa mão.
+ */
+function FormularioEmMaos({
+  painel,
+  aoRegistrar,
+}: {
+  painel: PainelDaOrdem
+  aoRegistrar: () => void
+}) {
+  const [estado, acao, pendente] = useActionState(marcarEntregueEmMaos, inicial)
+
+  useEffect(() => {
+    if (estado.ok) aoRegistrar()
+  }, [estado, aoRegistrar])
+
+  return (
+    <form action={acao} className={estilo.janelaForm}>
+      <input type="hidden" name="ordemId" value={painel.dossie.id} />
+
+      {!estado.ok && estado.motivo ? (
+        <p className={estilo.erro} role="alert">
+          {estado.motivo}
+        </p>
+      ) : null}
+
+      <p className={estilo.texto}>
+        A ordem vai direto para a bancada: <strong>sem retirada, sem motorista e sem correio</strong>.
+        O cliente não recebe aviso — ele acabou de entregar o aparelho na sua mão.
+      </p>
+
+      <label className={estilo.rotulo}>
+        Quem trouxe (opcional)
+        <input
+          className={estilo.campo}
+          name="quemTrouxe"
+          maxLength={120}
+          placeholder="O técnico da clínica, o motoboy, o próprio dono…"
+          autoComplete="off"
+        />
+        <span className={estilo.dica}>
+          Fica na trilha. É a única coisa aqui que ninguém vai lembrar daqui a três meses.
+        </span>
+      </label>
+
+      <div className={estilo.acoesForm}>
+        <button type="submit" className={estilo.btn} disabled={pendente}>
+          {pendente ? 'Registrando…' : 'Recebi o aparelho — mandar para a bancada'}
         </button>
       </div>
     </form>

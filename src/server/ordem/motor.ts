@@ -275,7 +275,7 @@ export async function avancarOrdem(
  */
 async function conferirPreCondicoes(
   tx: Transacao,
-  ordem: { id: string; viaCorreio: boolean },
+  ordem: { id: string; viaCorreio: boolean; entregueEmMaos: boolean },
   t: Transicao,
 ): Promise<string | null> {
   if (!t.exige?.length) return null
@@ -311,7 +311,10 @@ async function conferirPreCondicoes(
          * A dispensa vale só para a IDA. Na volta o aparelho é nosso e sai
          * daqui: alguém dirige, e a parada de entrega continua obrigatória.
          */
-        if (regra === 'PARADA_DE_RETIRADA' && ordem.viaCorreio) break
+        /* Não há parada quando não há viagem. O correio dispensa porque quem
+           dirige é o carteiro; a entrega em mãos dispensa porque o aparelho já
+           atravessou a porta antes de a ordem existir. */
+        if (regra === 'PARADA_DE_RETIRADA' && (ordem.viaCorreio || ordem.entregueEmMaos)) break
         const n = await tx.agendamento.count({
           where: { ordemId, tipo, status: { in: ['PENDENTE', 'ATRIBUIDO', 'EM_ROTA', 'CONCLUIDO'] } },
         })

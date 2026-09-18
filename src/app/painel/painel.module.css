@@ -10164,3 +10164,67 @@ button.osHistNo:focus-visible { outline: 2px solid var(--vio); outline-offset: 2
   letter-spacing: -.02em;
   color: var(--txt);
 }
+
+/* ==========================================================================
+   AS FOTOS DE ENTRADA, NA CENTRAL
+   --------------------------------------------------------------------------
+   A exigência das seis fotos sempre esteve certa; errado estava o LUGAR de
+   cumpri-la. Só o aplicativo do técnico fotografava, e a janela da central
+   dizia "quem tira é o técnico, pelo aplicativo" em cima de uma ordem parada —
+   com o aparelho no balcão, na frente de quem lia a frase.
+
+   O bloco tem moldura porque ele é uma PENDÊNCIA com ação dentro, e não mais
+   um parágrafo do painel. A contagem fica à direita do título, no mesmo lugar
+   onde o resto da casa põe contagem.
+   ========================================================================== */
+.osFotos {
+  margin-top: var(--s4);
+  padding: var(--s4);
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r-lg);
+  background: var(--papel);
+}
+.osFotosTitulo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin: 0 0 var(--s2);
+  font-family: var(--f-texto);
+  font-size: var(--t-2xs);
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--txt-3);
+}
+.osFotosConta {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: var(--t-sm);
+  color: var(--txt-2);
+}
+
+/* O RÓTULO É O BOTÃO.
+   Um `<input type="file">` cru é feio em todo navegador e, no celular, não
+   deixa claro que abre a câmera. O input fica escondido dentro deste rótulo,
+   que continua sendo o alvo do clique e do teclado — trocar por um `<button>`
+   que dispara o input por código perderia isso de graça. */
+.osFotosBotao {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s3);
+  padding: 8px 14px;
+  border: 1px solid var(--borda-viva);
+  border-radius: var(--r);
+  background: var(--sup);
+  color: var(--txt);
+  font-family: var(--f-texto);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 200ms var(--ease), background 200ms var(--ease);
+}
+.osFotosBotao:hover { border-color: var(--vio); background: var(--vio-veu); }
+.osFotosBotao:focus-within { outline: 2px solid var(--vio-claro); outline-offset: 3px; }
+.osFotosBotao[aria-disabled='true'] { opacity: .6; cursor: progress; }

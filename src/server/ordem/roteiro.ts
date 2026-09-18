@@ -59,6 +59,17 @@ export type PassoDoRoteiro = {
   etapas: E[]
   /** A redação alternativa de quando o cliente é que envia o aparelho. */
   envio?: { nome: string; oQue: string; quem: string }
+  /**
+   * A redação de quando o cliente TROUXE o aparelho na mão.
+   *
+   * Aqui os passos 4 e 5 não acontecem — não houve dia, não houve motorista,
+   * não houve viagem. Eles continuam na régua, porque tirar passos faria a
+   * contagem de 11 mudar conforme a ordem e ninguém saberia mais em que
+   * número está; o que eles não podem é continuar escritos como "dia e
+   * motorista" e "motorista a caminho", que seriam duas linhas marcadas como
+   * cumpridas descrevendo uma viagem que nunca existiu.
+   */
+  emMaos?: { nome: string; oQue: string; quem: string }
 }
 
 /**
@@ -102,6 +113,11 @@ export const ROTEIRO: readonly PassoDoRoteiro[] = [
       quem: 'cliente',
       oQue: 'O cliente foi avisado de para onde mandar. A ordem espera o aparelho chegar na assistência.',
     },
+    emMaos: {
+      nome: 'Sem retirada',
+      quem: '—',
+      oQue: 'Não houve retirada: o cliente trouxe o aparelho até a assistência.',
+    },
   },
   {
     n: 5,
@@ -114,6 +130,11 @@ export const ROTEIRO: readonly PassoDoRoteiro[] = [
       quem: 'transportadora',
       oQue: 'O aparelho foi despachado pelo cliente e está a caminho da assistência.',
     },
+    emMaos: {
+      nome: 'Sem viagem',
+      quem: '—',
+      oQue: 'Não houve viagem: o aparelho chegou pela porta, na mão do cliente.',
+    },
   },
   {
     n: 6,
@@ -125,6 +146,11 @@ export const ROTEIRO: readonly PassoDoRoteiro[] = [
       nome: 'Despachado',
       quem: 'cliente',
       oQue: 'O aparelho saiu do cliente pelo correio ou transportadora, com o código de rastreio registrado.',
+    },
+    emMaos: {
+      nome: 'Entregue em mãos',
+      quem: 'cliente',
+      oQue: 'O cliente trouxe o aparelho até aqui. Ele já está na casa — falta dar entrada na bancada.',
     },
   },
   {
@@ -233,9 +259,10 @@ export type Roteiro = {
 export function montarRoteiro(
   etapaAtual: E,
   eventos: ReadonlyArray<{ para: E; criadoEm: Date; autorNome: string | null }>,
-  opcoes?: { viaCorreio?: boolean },
+  opcoes?: { viaCorreio?: boolean; entregueEmMaos?: boolean },
 ): Roteiro {
   const viaCorreio = opcoes?.viaCorreio ?? false
+  const entregueEmMaos = opcoes?.entregueEmMaos ?? false
 
   // O PRIMEIRO evento de cada etapa. Uma ordem que volta para trás — o
   // orçamento devolvido ao técnico é o caso de toda semana — passa duas vezes
@@ -265,7 +292,11 @@ export function montarRoteiro(
     const visitadas = p.etapas.filter((e) => marcos.has(e))
     const entrada = visitadas.length ? marcos.get(visitadas[0]!)! : null
     const dentroDoPasso = p.etapas.includes(etapaAtual) && !saiuDoCaminho
-    const redacao = viaCorreio && p.envio ? p.envio : p
+    /* Três redações possíveis e uma só escolhida. `entregueEmMaos` vem antes
+       porque as duas marcas são mutuamente exclusivas no banco, e se um dia
+       deixarem de ser, a verdade mais recente — o aparelho está aqui — é a que
+       a tela deve contar. */
+    const redacao = (entregueEmMaos && p.emMaos) || (viaCorreio && p.envio) || p
 
     return {
       n: p.n,

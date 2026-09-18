@@ -3768,6 +3768,7 @@ export const OrdemScalarFieldEnum = {
   origem: 'origem',
   viaCorreio: 'viaCorreio',
   codigoRastreio: 'codigoRastreio',
+  entregueEmMaos: 'entregueEmMaos',
   atendenteId: 'atendenteId',
   tecnicoId: 'tecnicoId',
   tecnicoAceitouEm: 'tecnicoAceitouEm',

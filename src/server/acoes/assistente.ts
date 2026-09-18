@@ -151,6 +151,8 @@ export type PainelDaOrdem = {
   diagnostico: string | null
   /** O cliente é que despacha o aparelho: não há motorista na ida. */
   viaCorreio: boolean
+  /** O cliente trouxe o aparelho na mão — não houve retirada nem correio. */
+  entregueEmMaos: boolean
   codigoRastreio: string | null
   valorPrevioCentavos: number | null
   condicaoCombinada: string | null
@@ -330,6 +332,7 @@ export async function painelDaOrdem(
           etapa: true,
           prioridade: true,
           viaCorreio: true,
+          entregueEmMaos: true,
           codigoRastreio: true,
           valorPrevioCentavos: true,
           condicaoCombinada: true,
@@ -480,7 +483,10 @@ export async function painelDaOrdem(
      * clicar na errada manda ao cliente um aviso dizendo que alguém está a
      * caminho da porta dele.
      */
-    .filter((p) => !(extra.viaCorreio && p.para === EtapaOrdem.EM_ROTA_RETIRADA))
+    .filter(
+      (p) =>
+        !((extra.viaCorreio || extra.entregueEmMaos) && p.para === EtapaOrdem.EM_ROTA_RETIRADA),
+    )
     .map((p) => ({
       para: p.para,
       // O botão diz o comando quando a transição traz um; senão, o título.
@@ -490,7 +496,9 @@ export async function painelDaOrdem(
       // exigência, e oferecer a janela do calendário aqui seria pedir motorista
       // para uma viagem que ninguém vai fazer.
       pedeParada:
-        tipoQuePede(p.exige) === 'RETIRADA' && extra.viaCorreio ? null : tipoQuePede(p.exige),
+        tipoQuePede(p.exige) === 'RETIRADA' && (extra.viaCorreio || extra.entregueEmMaos)
+          ? null
+          : tipoQuePede(p.exige),
     }))
 
   const pedindo = passos.filter((p) => p.pedeParada !== null)
@@ -703,13 +711,14 @@ export async function painelDaOrdem(
       roteiro: montarRoteiro(
         extra.etapa,
         extra.eventos.map((e) => ({ para: e.etapaNova, criadoEm: e.criadoEm, autorNome: e.autorNome })),
-        { viaCorreio: extra.viaCorreio },
+        { viaCorreio: extra.viaCorreio, entregueEmMaos: extra.entregueEmMaos },
       ),
       etapaRotulo: ROTULO_ETAPA[extra.etapa],
       prioridade: extra.prioridade === 'ALTA' ? 'ALTA' : 'NORMAL',
       defeitoRelatado: extra.defeitoRelatado,
       diagnostico: extra.diagnostico,
       viaCorreio: extra.viaCorreio,
+      entregueEmMaos: extra.entregueEmMaos,
       codigoRastreio: extra.codigoRastreio,
       valorPrevioCentavos: extra.valorPrevioCentavos,
       condicaoCombinada: extra.condicaoCombinada,
@@ -925,6 +934,104 @@ export async function marcarComoEnvioDoCliente(
     // dizendo "vem pelo correio" enquanto continua parada esperando motorista.
     await comEscopo(a.ctx, (tx) =>
       tx.ordem.update({ where: { id: v.ordemId }, data: { viaCorreio: false } }),
+    )
+    return { ok: false, motivo: r.motivo }
+  }
+
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel')
+  return { ok: true }
+}
+
+/**
+ * "O CLIENTE TROUXE" — a terceira metade do passo 3.
+ *
+ * =============================================================================
+ * POR QUE ELA FALTAVA, E O QUE ISSO CUSTAVA
+ * =============================================================================
+ * As duas saídas que existiam pediam alguma coisa que o balcão não tem. "Nós
+ * buscamos" pede dia, hora e MOTORISTA. "O cliente envia" pede correio e
+ * rastreio. O caso mais comum de uma assistência — o cliente passa na porta,
+ * deixa o aparelho e vai embora — não tinha caminho nenhum.
+ *
+ * O dono descreveu o efeito exato: *"chega na parte da coleta do equipamento,
+ * eu não consigo ir adiante"*. Com o aparelho na bancada, na frente dele, o
+ * sistema exigia escolher um motorista para ir buscá-lo.
+ *
+ * =============================================================================
+ * POR QUE ELA PULA A ROTA INTEIRA
+ * =============================================================================
+ * Porque não houve rota. `RETIRADA_AGENDADA` e depois `COLETADO` seriam duas
+ * linhas na trilha afirmando coisas que não aconteceram — e a trilha desta casa
+ * é o que responde "quem mexeu neste aparelho". Ela vai direto a `COLETADO`,
+ * que é a verdade: o equipamento está conosco.
+ *
+ * =============================================================================
+ * POR QUE ELA NÃO MANDA WHATSAPP
+ * =============================================================================
+ * O cliente acabou de entregar o aparelho na sua mão. "Recebemos seu
+ * equipamento", trinta segundos depois de ele sair da loja, é o robô falando
+ * por falar — e cada mensagem dessas ensina a ignorar a próxima, que pode ser
+ * a do orçamento.
+ */
+export async function marcarEntregueEmMaos(
+  _anterior: unknown,
+  form: FormData,
+): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!CENTRAL.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não define como o aparelho vem.' }
+  }
+
+  const ordemId = String(form.get('ordemId') ?? '')
+  const quemTrouxe = String(form.get('quemTrouxe') ?? '').trim().slice(0, 120)
+  if (!ordemId) return { ok: false, motivo: 'Ordem não informada.' }
+
+  const ordem = await comEscopo(a.ctx, (tx) =>
+    tx.ordem.findUnique({ where: { id: ordemId }, select: { etapa: true } }),
+  )
+  if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+  if (ordem.etapa !== EtapaOrdem.ORDEM_RETIRADA_GERADA) {
+    return {
+      ok: false,
+      motivo: `Esta ordem já passou do ponto de escolher como o aparelho vem — ela está em "${ROTULO_ETAPA[ordem.etapa]}".`,
+    }
+  }
+
+  // A marca antes da transição, pelo mesmo motivo do correio: é ela que faz o
+  // motor dispensar a parada. Gravada depois, a transição seria recusada por
+  // falta de um motorista que ninguém vai escalar.
+  await comEscopo(a.ctx, (tx) =>
+    tx.ordem.update({
+      where: { id: ordemId },
+      // `viaCorreio: false` explícito: as duas são mutuamente exclusivas, e uma
+      // ordem marcada como correio que depois chega na mão tem de parar de
+      // dizer que está a caminho pelos Correios.
+      data: { entregueEmMaos: true, viaCorreio: false, codigoRastreio: null },
+    }),
+  )
+
+  const r = await avancarOrdem(a.ctx, a.ator, {
+    ordemId,
+    para: EtapaOrdem.COLETADO,
+    observacao: quemTrouxe
+      ? `O cliente entregou o aparelho em mãos. Quem trouxe: ${quemTrouxe}.`
+      : 'O cliente entregou o aparelho em mãos.',
+    ip: await ipAtual(),
+  })
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.entregue_em_maos',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    negado: !r.ok,
+    detalhes: r.ok ? { quemTrouxe: quemTrouxe || null } : { motivo: r.motivo },
+  })
+
+  if (!r.ok) {
+    await comEscopo(a.ctx, (tx) =>
+      tx.ordem.update({ where: { id: ordemId }, data: { entregueEmMaos: false } }),
     )
     return { ok: false, motivo: r.motivo }
   }

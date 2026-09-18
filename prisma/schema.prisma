@@ -717,6 +717,21 @@ model Ordem {
   viaCorreio     Boolean    @default(false)
   codigoRastreio String?
 
+  /// O CLIENTE TROUXE O APARELHO NA MÃO — e esse caso não tinha caminho.
+  ///
+  /// Havia dois jeitos de o aparelho chegar: motorista nosso (que exige dia,
+  /// hora e MOTORISTA) ou correio (que exige rastreio). O terceiro é o mais
+  /// comum num balcão — o cliente passa e deixa — e não existia. Quem tentava
+  /// registrar ficava preso em "ordem de retirada gerada" ou marcava uma
+  /// parada de mentira para um motorista que nunca ia sair.
+  ///
+  /// Duas flags e não um enum, e é uma dívida consciente: `viaCorreio` já é
+  /// lida no motor, no roteiro, no calendário e na janela, e trocar as duas por
+  /// um enum de uma vez, com o sistema em produção e o dono travado, é a hora
+  /// errada. Elas são mutuamente exclusivas — quem escreve uma zera a outra —
+  /// e quem for mexer aqui de novo deve unificá-las em `comoChegou`.
+  entregueEmMaos Boolean    @default(false)
+
   atendenteId String?
   atendente   User?   @relation("AtendenteAbertura", fields: [atendenteId], references: [id], onDelete: SetNull)
 

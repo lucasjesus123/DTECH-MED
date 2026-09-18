@@ -1,0 +1,13 @@
+-- O TERCEIRO JEITO DE O APARELHO CHEGAR: o cliente trouxe na mão.
+--
+-- Havia dois, e os dois exigiam alguma coisa que o balcão não tem. "Nós
+-- buscamos" pede dia, hora e MOTORISTA; "o cliente envia" pede o correio e um
+-- rastreio. O caso mais comum de uma assistência — o cliente passa na porta e
+-- deixa o aparelho — não tinha caminho, e a ordem ficava presa em "ordem de
+-- retirada gerada" até alguém marcar uma parada de mentira para um motorista
+-- que nunca sairia.
+--
+-- Aditiva e com `IF NOT EXISTS`: a coluna nasce `false` em todas as ordens que
+-- já existem, que é exatamente a verdade sobre elas — nenhuma chegou assim,
+-- porque até hoje não dava.
+ALTER TABLE "ordens" ADD COLUMN IF NOT EXISTS "entregueEmMaos" BOOLEAN NOT NULL DEFAULT false;

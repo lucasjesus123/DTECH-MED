@@ -138,9 +138,35 @@ export const TRANSICOES: Transicao[] = [
     de: T.RETIRADA_AGENDADA,
     para: T.COLETADO,
     tipo: 'ordem.coletada_correio',
-    titulo: 'Equipamento despachado pelo correio',
+    titulo: 'Chegou — o correio entregou',
+    comando: 'Chegou',
     papeis: CENTRAL,
     avisaCliente: true,
+  },
+  {
+    /**
+     * O CLIENTE TROUXE O APARELHO — e este caminho não existia.
+     *
+     * Os dois caminhos que havia pediam algo que o balcão não tem: "nós
+     * buscamos" pede dia, hora e MOTORISTA; "o cliente envia" pede correio e
+     * rastreio. O caso mais comum de uma assistência — o cliente passa na porta
+     * e deixa — não tinha saída, e a ordem ficava presa em ORDEM_RETIRADA_GERADA.
+     *
+     * Ele pula a rota inteira porque não houve rota: o aparelho JÁ ESTÁ aqui no
+     * instante em que alguém clica. Marcar "agendada" e depois "coletada" seria
+     * escrever na trilha duas coisas que não aconteceram.
+     *
+     * Não avisa o cliente, e é de propósito: ele acabou de entregar o aparelho
+     * na sua mão. Um WhatsApp dizendo "recebemos seu equipamento" trinta
+     * segundos depois de ele sair da loja é o robô falando por falar.
+     */
+    de: T.ORDEM_RETIRADA_GERADA,
+    para: T.COLETADO,
+    tipo: 'ordem.entregue_em_maos',
+    titulo: 'O cliente entregou o aparelho em mãos',
+    comando: 'O cliente trouxe',
+    papeis: CENTRAL,
+    avisaCliente: false,
   },
 
   // ---- 6 e 7: a oficina recebe e diagnostica ------------------------------
