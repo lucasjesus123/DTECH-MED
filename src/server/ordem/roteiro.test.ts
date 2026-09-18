@@ -114,3 +114,74 @@ describe('quando é o cliente que envia', () => {
     expect(dele.passos[7]!.nome).toBe(nossa.passos[7]!.nome)
   })
 })
+
+/**
+ * A ESTEIRA PASSOU A ANDAR PARA TRÁS, e esta régua nasceu sem saber disso.
+ *
+ * Quando só se andava para a frente, "existe evento" e "já passou" eram a mesma
+ * coisa. Com a gestão podendo desfazer um passo, deixaram de ser — e o defeito
+ * apareceu num navegador antes de aparecer aqui: uma ordem que chegou a
+ * "coletado" e voltou continuava imprimindo a data do coletado embaixo de um
+ * passo desenhado como futuro.
+ */
+describe('uma ordem que voltou um passo', () => {
+  const idaEVolta = [
+    evento(E.ORDEM_RETIRADA_GERADA, 1),
+    evento(E.COLETADO, 2),
+    // A volta não apaga o evento da ida: ela é mais uma linha na trilha.
+    evento(E.ORDEM_RETIRADA_GERADA, 3),
+  ]
+
+  it('não imprime data em passo que ainda não chegou', () => {
+    const r = montarRoteiro(E.ORDEM_RETIRADA_GERADA, idaEVolta)
+    for (const p of r.passos) {
+      if (p.estado !== 'adiante') continue
+      expect(p.quando, `o passo ${p.n} está adiante e mostrou data`).toBeNull()
+      expect(p.autor, `o passo ${p.n} está adiante e mostrou autor`).toBeNull()
+    }
+  })
+
+  it('põe a régua de volta no passo de onde o aparelho vem', () => {
+    const r = montarRoteiro(E.ORDEM_RETIRADA_GERADA, idaEVolta)
+    expect(r.atual).toBe(passoDaEtapa(E.ORDEM_RETIRADA_GERADA))
+    expect(r.passos.find((p) => p.n === 6)!.estado).toBe('adiante')
+  })
+
+  it('continua contando a data dos passos que a ordem de fato cumpriu', () => {
+    const r = montarRoteiro(E.ORDEM_RETIRADA_GERADA, idaEVolta)
+    // O passo 2 (abertura) ficou para trás e mantém o que aconteceu nele.
+    expect(r.passos.find((p) => p.n === 3)!.quando).not.toBeNull()
+  })
+})
+
+/**
+ * O TERCEIRO JEITO DE O APARELHO CHEGAR não pode deixar a régua mentindo.
+ *
+ * Os passos 4 e 5 — "dia e motorista" e "motorista a caminho" — são pulados
+ * quando o cliente traz o aparelho na mão. Eles continuam na régua para a
+ * contagem de 11 não mudar conforme a ordem, mas com essa redação seriam duas
+ * linhas marcadas como cumpridas descrevendo uma viagem que nunca existiu.
+ */
+describe('o aparelho que o cliente trouxe em mãos', () => {
+  const eventos = [evento(E.ORDEM_RETIRADA_GERADA, 1), evento(E.COLETADO, 2)]
+
+  it('troca a redação dos passos que não aconteceram', () => {
+    const r = montarRoteiro(E.COLETADO, eventos, { entregueEmMaos: true })
+    expect(r.passos.find((p) => p.n === 4)!.nome).toBe('Sem retirada')
+    expect(r.passos.find((p) => p.n === 5)!.nome).toBe('Sem viagem')
+    expect(r.passos.find((p) => p.n === 6)!.nome).toBe('Entregue em mãos')
+  })
+
+  it('não se confunde com o correio, que tem redação própria', () => {
+    const maos = montarRoteiro(E.COLETADO, eventos, { entregueEmMaos: true })
+    const correio = montarRoteiro(E.COLETADO, eventos, { viaCorreio: true })
+    expect(maos.passos.find((p) => p.n === 6)!.nome).not.toBe(
+      correio.passos.find((p) => p.n === 6)!.nome,
+    )
+  })
+
+  it('deixa a redação normal de pé quando nenhuma marca foi dada', () => {
+    const r = montarRoteiro(E.COLETADO, eventos)
+    expect(r.passos.find((p) => p.n === 4)!.nome).toBe('Dia e motorista')
+  })
+})

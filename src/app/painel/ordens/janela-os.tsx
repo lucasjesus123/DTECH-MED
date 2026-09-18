@@ -12,6 +12,7 @@ import {
   lancarPecaDaOrdem,
   marcarComoEnvioDoCliente,
   marcarEntregueEmMaos,
+  despacharParaTecnico,
   painelDaOrdem,
   salvarCombinado,
   type PainelDaOrdem,
@@ -23,6 +24,7 @@ import Diagnostico from './[id]/diagnostico'
 import Responsavel from './[id]/responsavel'
 import Orcamento from './[id]/orcamento'
 import Cancelar from './[id]/cancelar'
+import DesfazerPasso from './[id]/desfazer-passo'
 import Excluir from './[id]/excluir'
 import FotosDeEntrada from './fotos-de-entrada'
 import estilo from '../painel.module.css'
@@ -765,6 +767,18 @@ export default function JanelaOS({
                       >
                         Editar
                       </button>
+                      {/* VOLTAR vem ANTES de cancelar, e a ordem importa.
+                          Quem clicou errado procura primeiro o jeito de
+                          desfazer; achar "Cancelar esta ordem" antes é achar
+                          uma saída que resolve o problema destruindo a ordem
+                          inteira — e alguém vai clicar nela. */}
+                      {p.podeVoltar ? (
+                        <DesfazerPasso
+                          ordemId={d!.id}
+                          deOnde={p.etapaRotulo}
+                          aoDesfazer={() => void recarregar()}
+                        />
+                      ) : null}
                       {p.podeCancelar ? <Cancelar ordemId={d!.id} /> : null}
                       {p.podeExcluir ? <Excluir ordemId={d!.id} /> : null}
                     </>
@@ -1129,6 +1143,15 @@ function Agora({
           jaTem={painel.dossie.fotos.filter((f) => f.categoria === 'RECEBIMENTO').length}
           aoSubir={aoAndar}
         />
+      ) : null}
+
+      {/* PARA QUEM VAI ESTE APARELHO.
+          A bancada é uma fila comum e a ordem já aparece no aplicativo de todos
+          os técnicos — o que faltava era a central poder dizer de quem ela é, e
+          VER que já está lá. Sem isso a tela parecia parada justamente quando o
+          trabalho já tinha mudado de mão. */}
+      {painel.despacho ? (
+        <Despacho ordemId={painel.dossie.id} despacho={painel.despacho} aoDespachar={aoAndar} />
       ) : null}
 
       {erro ? (
@@ -1904,6 +1927,110 @@ function FormularioDeEnvio({
         </button>
       </div>
     </form>
+  )
+}
+
+/**
+ * PARA QUEM VAI ESTE APARELHO — o despacho para a bancada.
+ *
+ * =============================================================================
+ * O QUE ELE MUDA, JÁ QUE A FILA É COMPARTILHADA
+ * =============================================================================
+ * Toda ordem coletada já aparece no aplicativo de TODOS os técnicos: a oficina
+ * é uma fila comum, de propósito, e isso não muda. O que faltava era dizer DE
+ * QUEM é o aparelho — e a diferença não é enfeite: o aceite do técnico recusa
+ * quem tenta assumir uma ordem que já tem dono. Despachar é a trava que impede
+ * dois técnicos de abrirem a mesma máquina.
+ *
+ * Na central resolve o que fazia a tela parecer travada: nada dizia que o
+ * trabalho já tinha mudado de mão.
+ *
+ * =============================================================================
+ * DEPOIS DO ACEITE, NÃO SE TROCA POR AQUI
+ * =============================================================================
+ * O aceite é uma foto com hora — a fronteira entre o que chegou assim e o que
+ * aconteceu aqui dentro. Passar a ordem a outro técnico por cima dela deixaria
+ * o aparelho no nome de quem nunca o viu, com a foto de entrada tirada por
+ * outro. O servidor recusa, e aqui o seletor nem se oferece.
+ */
+function Despacho({
+  ordemId,
+  despacho,
+  aoDespachar,
+}: {
+  ordemId: string
+  despacho: NonNullable<PainelDaOrdem['despacho']>
+  aoDespachar: () => void
+}) {
+  const [erro, setErro] = useState<string | null>(null)
+  const [pendente, iniciar] = useTransition()
+
+  const jaAceitou = despacho.aceitouEm !== null
+
+  function despachar(tecnicoId: string) {
+    if (!tecnicoId) return
+    setErro(null)
+    iniciar(async () => {
+      const r = await despacharParaTecnico(ordemId, tecnicoId)
+      if (!r.ok) return setErro(r.motivo)
+      aoDespachar()
+    })
+  }
+
+  return (
+    <div className={estilo.osFotos}>
+      <p className={estilo.osFotosTitulo}>
+        Quem vai mexer
+        {despacho.atualNome ? (
+          <span className={estilo.osFotosConta}>
+            {jaAceitou ? `${despacho.atualNome} · assumiu` : `${despacho.atualNome} · no app dele`}
+          </span>
+        ) : (
+          <span className={estilo.osFotosConta}>na fila da oficina</span>
+        )}
+      </p>
+
+      {erro ? (
+        <p className={estilo.erro} role="alert">
+          {erro}
+        </p>
+      ) : null}
+
+      <p className={estilo.dica} style={{ marginTop: 0 }}>
+        {jaAceitou
+          ? `${despacho.atualNome} já assumiu o aparelho na bancada, com a foto de entrada. Para passá-lo a outro, desfaça o passo.`
+          : despacho.atualNome
+            ? `Está no aplicativo de ${despacho.atualNome}. Só ele consegue assumir este aparelho — dá para trocar enquanto ninguém encostou nele.`
+            : 'Esta ordem já aparece no aplicativo de todos os técnicos. Escolher um deixa o aparelho no nome dele, e impede que outro assuma por engano.'}
+      </p>
+
+      {!jaAceitou && despacho.tecnicos.length > 0 ? (
+        <select
+          className={estilo.selecao}
+          value={despacho.atualId ?? ''}
+          disabled={pendente}
+          onChange={(e) => despachar(e.target.value)}
+          aria-label="Despachar para o técnico"
+          style={{ marginTop: 'var(--s3)' }}
+        >
+          <option value="" disabled>
+            {pendente ? 'Despachando…' : 'Escolher o técnico'}
+          </option>
+          {despacho.tecnicos.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.nome}
+            </option>
+          ))}
+        </select>
+      ) : null}
+
+      {!jaAceitou && despacho.tecnicos.length === 0 ? (
+        <p className={estilo.dica}>
+          Nenhum técnico cadastrado ainda. Sem um, o aparelho fica na fila comum — cadastre em{' '}
+          <strong>Equipe</strong>.
+        </p>
+      ) : null}
+    </div>
   )
 }
 

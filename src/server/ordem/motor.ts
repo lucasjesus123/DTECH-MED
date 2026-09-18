@@ -605,3 +605,178 @@ export async function verificarIntegridade(
     return { integra: true, total: eventos.length }
   })
 }
+
+/**
+ * VOLTAR UM PASSO — a correção de quem clicou no botão errado.
+ *
+ * =============================================================================
+ * POR QUE ISTO PRECISOU EXISTIR
+ * =============================================================================
+ * A esteira só andava para a frente. Um clique errado — "recebido" antes de o
+ * aparelho chegar, "faturado" na ordem do vizinho — ficava de pé para sempre, e
+ * a única saída era cancelar a ordem e abrir outra, perdendo a numeração, os
+ * documentos e o histórico. O dono descreveu assim: *"chega na parte de coleta,
+ * eu não consigo trazer de volta"*.
+ *
+ * =============================================================================
+ * O QUE ELA NÃO FAZ, E É O MAIS IMPORTANTE
+ * =============================================================================
+ * **Não apaga nada.** Voltar é um evento NOVO, encadeado por hash ao anterior,
+ * exatamente como qualquer avanço. A trilha continua contando que a ordem
+ * esteve em "recebido" às 14h03 e que às 14h05 alguém a trouxe de volta, com
+ * nome e motivo escritos. Reescrever o passado num sistema cuja razão de
+ * existir é responder "quem mexeu neste aparelho" seria destruir a coisa toda.
+ *
+ * **Não desfaz o que saiu.** O WhatsApp já foi entregue no celular do cliente e
+ * o PDF já existe; nenhum dos dois volta atrás por um clique aqui. Por isso
+ * esta ação não enfileira aviso nenhum — mandar uma segunda mensagem
+ * corrigindo a primeira é decisão de quem está falando com o cliente, não de um
+ * motor. A tela diz isso antes de o botão ser apertado.
+ *
+ * **Não pula para onde a ordem nunca esteve.** Ela volta EXATAMENTE para a
+ * etapa de onde o último evento veio. É por isso que ela não é um buraco na
+ * máquina de estados: não existe caminho daqui para uma etapa adiante, e
+ * portanto ninguém "corrige" uma ordem para depois das seis fotos, da
+ * assinatura ou da fatura quitada. Um passo, para trás, para um lugar onde ela
+ * comprovadamente já esteve.
+ *
+ * =============================================================================
+ * O MARCO DE TEMPO VOLTA A SER NULO
+ * =============================================================================
+ * `coletadaEm`, `recebidaEm`, `faturadaEm` são os campos que o dossiê e os
+ * relatórios leem. Deixá-los preenchidos depois de desfazer faria a ordem
+ * afirmar que foi coletada às 14h03 enquanto está, de novo, esperando ser
+ * coletada — e essa data sairia em documento. O campo é limpo; o evento que o
+ * criou continua na trilha, com a hora original.
+ */
+export async function voltarUmPasso(
+  ctx: ContextoAcesso,
+  ator: Ator,
+  pedido: { ordemId: string; motivo: string; ip?: string | null },
+): Promise<ResultadoTransicao> {
+  return comEscopo(ctx, async (tx) => {
+    const ordem = await tx.ordem.findUnique({
+      where: { id: pedido.ordemId },
+      select: { id: true, tenantId: true, etapa: true },
+    })
+    if (!ordem) return { ok: false, motivo: 'Ordem não encontrada.' }
+
+    const ultimo = await tx.eventoOrdem.findFirst({
+      where: { ordemId: ordem.id },
+      orderBy: { sequencia: 'desc' },
+      select: { sequencia: true, hash: true, etapaAnterior: true, etapaNova: true, titulo: true },
+    })
+    if (!ultimo) {
+      return { ok: false, motivo: 'Esta ordem não tem histórico — não há passo para desfazer.' }
+    }
+    /**
+     * O último evento tem de ser o que PÔS a ordem onde ela está.
+     *
+     * Se não for, alguém mexeu na etapa por fora do motor, e voltar "um passo"
+     * levaria a ordem para um lugar que não é de onde ela veio. Recusar é mais
+     * honesto que adivinhar.
+     */
+    if (ultimo.etapaNova !== ordem.etapa) {
+      return {
+        ok: false,
+        motivo: 'O histórico não bate com a etapa atual desta ordem. Chame quem cuida do sistema.',
+      }
+    }
+    if (!ultimo.etapaAnterior) {
+      return { ok: false, motivo: 'Este é o primeiro passo da ordem — não há para onde voltar.' }
+    }
+
+    const destino = ultimo.etapaAnterior
+    const sequencia = ultimo.sequencia + 1
+    const criadoEm = new Date()
+    const payload = {
+      observacao: pedido.motivo,
+      desfez: { etapa: ordem.etapa, titulo: ultimo.titulo, sequencia: ultimo.sequencia },
+    }
+
+    const hash = hashEvento({
+      ordemId: ordem.id,
+      sequencia,
+      etapaNova: destino,
+      tipo: 'ordem.passo_desfeito',
+      autorId: ator.id,
+      criadoEm,
+      payload,
+      hashAnterior: ultimo.hash,
+    })
+
+    const evento = await tx.eventoOrdem.create({
+      data: {
+        tenantId: ordem.tenantId,
+        ordemId: ordem.id,
+        sequencia,
+        etapaAnterior: ordem.etapa,
+        etapaNova: destino,
+        tipo: 'ordem.passo_desfeito',
+        titulo: `Passo desfeito — voltou de "${ultimo.titulo}"`,
+        descricao: pedido.motivo,
+        autorId: ator.id,
+        autorNome: ator.nome,
+        autorPapel: ator.papel,
+        payload,
+        hash,
+        hashAnterior: ultimo.hash,
+        /**
+         * O CLIENTE NÃO VÊ ESTA LINHA, e é a escolha mais difícil daqui.
+         *
+         * O portal dele conta a história do conserto, e "passo desfeito" é
+         * conversa de dentro de casa: um clique errado corrigido em dois
+         * minutos vira, na tela dele, a impressão de que algo deu errado com o
+         * aparelho. O que ele viu foi o aviso da etapa errada — e quem
+         * conserta isso é uma mensagem de gente, não uma linha a mais.
+         *
+         * A linha existe, com nome, hora e motivo, na trilha interna e na
+         * auditoria. Ela não desaparece; ela só não vira notícia.
+         */
+        visivelCliente: false,
+        ip: pedido.ip ?? null,
+        criadoEm,
+      },
+      select: { id: true },
+    })
+
+    await tx.ordem.update({
+      where: { id: ordem.id },
+      data: { etapa: destino, ...limparMarcoDe(ordem.etapa), ...limparComoChegou(destino) },
+    })
+
+    return { ok: true, etapa: destino, eventoId: evento.id, sequencia }
+  })
+}
+
+/**
+ * VOLTAR PARA "COMO O APARELHO VEM" DESFAZ A RESPOSTA.
+ *
+ * O primeiro teste desta função no navegador mostrou o defeito: desfeito o
+ * passo, a ordem voltava para a escolha — e a escolha vinha mutilada. Dos três
+ * cartões só sobrava "o cliente trouxe", porque `entregueEmMaos` continuava
+ * marcado; a ordem afirmava ter chegado em mãos estando, de novo, esperando
+ * para ser buscada. Com `viaCorreio` daria no mesmo, com o rastreio de um
+ * pacote que ninguém postou.
+ *
+ * `ORDEM_RETIRADA_GERADA` é exatamente a etapa em que a pergunta "como o
+ * aparelho vem?" está em aberto. Voltar para ela é reabrir a pergunta, e uma
+ * pergunta reaberta não pode chegar com a resposta antiga presa nela.
+ */
+function limparComoChegou(destino: EtapaOrdem): Record<string, boolean | null> {
+  if (destino !== EtapaOrdem.ORDEM_RETIRADA_GERADA) return {}
+  return { viaCorreio: false, entregueEmMaos: false, codigoRastreio: null }
+}
+
+/**
+ * Apaga o marco de tempo da etapa que está sendo desfeita.
+ *
+ * Espelho exato de `marcosDe`: o que aquela função escreve, esta apaga. Dois
+ * mapas com as mesmas chaves seriam dois lugares para esquecer de acrescentar a
+ * etapa nova de amanhã — por isso ela LÊ o mesmo mapa, através de uma chamada
+ * com uma data qualquer, e só troca o valor por nulo.
+ */
+function limparMarcoDe(etapa: EtapaOrdem): Record<string, null> {
+  const campos = Object.keys(marcosDe(etapa, new Date()))
+  return Object.fromEntries(campos.map((c) => [c, null]))
+}

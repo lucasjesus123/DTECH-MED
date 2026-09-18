@@ -298,15 +298,33 @@ export function montarRoteiro(
        a tela deve contar. */
     const redacao = (entregueEmMaos && p.emMaos) || (viaCorreio && p.envio) || p
 
+    // O passo 1 não tem etapa: ele já aconteceu quando a ordem existe.
+    const estado =
+      p.n < atual || p.etapas.length === 0 ? 'cumprido' : p.n === atual ? 'agora' : 'adiante'
+
     return {
       n: p.n,
       nome: redacao.nome,
       quem: redacao.quem,
       oQue: redacao.oQue,
-      // O passo 1 não tem etapa: ele já aconteceu quando a ordem existe.
-      estado: p.n < atual || p.etapas.length === 0 ? 'cumprido' : p.n === atual ? 'agora' : 'adiante',
-      quando: entrada?.quando ?? null,
-      autor: entrada?.quem ?? null,
+      estado,
+      /**
+       * PASSO ADIANTE NÃO TEM DATA — nem quando o histórico tem uma.
+       *
+       * Esta régua nasceu numa esteira que só andava para a frente, e ali
+       * "existe evento" e "já passou" eram a mesma coisa. Desde que a gestão
+       * pode voltar um passo, não são: uma ordem que chegou a "coletado" e
+       * voltou continua tendo o evento do coletado na trilha — corretamente,
+       * porque aconteceu — e a régua imprimia essa data embaixo de um passo
+       * desenhado como futuro. Data em passo que ainda não chegou é a régua se
+       * contradizendo na mesma linha.
+       *
+       * O evento não some: a aba do histórico conta a ida e conta a volta, com
+       * nome, hora e motivo. O que não se faz é fingir que o passo à frente já
+       * tem dia marcado.
+       */
+      quando: estado === 'adiante' ? null : (entrada?.quando ?? null),
+      autor: estado === 'adiante' ? null : (entrada?.quem ?? null),
       // Só o passo em que a ordem está mostra a etapa exata: nos cumpridos a
       // etapa já passou, e nos adiante ela ainda não existe.
       detalhe: dentroDoPasso ? ROTULO_ETAPA[etapaAtual] : null,

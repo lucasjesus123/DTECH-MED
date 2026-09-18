@@ -22,7 +22,7 @@ import {
   type AgendaDeMotorista,
   type ParadaMarcada,
 } from '@/server/consultas/listas'
-import { avancarOrdem } from '@/server/ordem/motor'
+import { avancarOrdem, voltarUmPasso } from '@/server/ordem/motor'
 import { movimentar } from '@/server/estoque/servico'
 import { dossieDaOrdem, type Dossie } from './acompanhar'
 import { fichaDoCliente, type FichaDoCliente } from '@/server/consultas/ficha-do-cliente'
@@ -163,9 +163,27 @@ export type PainelDaOrdem = {
   paradasMarcadas: ParadaMarcadaNaOrdem[]
   /** Para trocar o motorista de uma parada já marcada. */
   motoristasDaCasa: Array<{ id: string; nome: string }>
+  /**
+   * O despacho do aparelho para a bancada. Nulo fora de COLETADO, que é a única
+   * etapa em que a pergunta "para quem vai isto?" está em aberto.
+   */
+  despacho: {
+    tecnicos: Array<{ id: string; nome: string }>
+    atualId: string | null
+    atualNome: string | null
+    aceitouEm: string | null
+  } | null
   /** Quem pode mexer na rota. Só ela vê os controles da parada. */
   podeMexerNaRota: boolean
   podeCancelar: boolean
+  /**
+   * Dá para trazer esta ordem de volta um passo.
+   *
+   * Gestão, e só quando existe passo anterior para voltar — a ordem recém-aberta
+   * não tem de onde. O motor confere de novo e recusa por conta própria;
+   * esconder aqui é conforto, não permissão.
+   */
+  podeVoltar: boolean
   /** Só a gestão vê o caminho de apagar. O servidor recusa de novo por conta própria. */
   podeExcluir: boolean
   /** Só quem pode mexer em dinheiro vê e edita o combinado. */
@@ -277,7 +295,7 @@ type Resposta<T = undefined> =
   | { ok: false; motivo: string }
 
 const CENTRAL: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR, Papel.ATENDENTE]
-/** Quem decide — e cancelar é decisão, não atendimento. */
+/** Quem decide — e cancelar é decisão, não atendimento. Desfazer também. */
 const GESTAO: Papel[] = [Papel.SUPER_ADMIN, Papel.ADMIN_EMPRESA, Papel.GESTOR]
 /** Quem emite fatura e dá baixa. A mesma lista da tela do Financeiro. */
 const FINANCEIRO: Papel[] = [...GESTAO, Papel.FINANCEIRO]
@@ -333,6 +351,8 @@ export async function painelDaOrdem(
           prioridade: true,
           viaCorreio: true,
           entregueEmMaos: true,
+          tecnicoAceitouEm: true,
+          tecnico: { select: { nome: true } },
           codigoRastreio: true,
           valorPrevioCentavos: true,
           condicaoCombinada: true,
@@ -569,10 +589,38 @@ export async function painelDaOrdem(
       }
     : null
 
+  /**
+   * O DESPACHO PARA A BANCADA acontece em COLETADO, e não no passo 7.
+   *
+   * O passo 7 já escolhia o técnico responsável — mas só depois de o aparelho
+   * ter dado entrada, e a entrada exige as seis fotos. Quem tinha a máquina no
+   * balcão via uma ordem parada sem nada dizendo para quem ela ia, e o dono
+   * pediu exatamente isto: *"eu preciso despachar o equipamento para o técnico,
+   * e o técnico já recebendo no aplicativo dele"*.
+   */
+  const noDespacho = extra.etapa === EtapaOrdem.COLETADO && CENTRAL.includes(sessao.papel)
+
   const [tecnicosDaCasa, pecasComPreco] = await Promise.all([
-    NO_PASSO_7 && podeAgendar ? tecnicosDaEmpresa(ctx) : Promise.resolve([]),
+    (NO_PASSO_7 && podeAgendar) || noDespacho ? tecnicosDaEmpresa(ctx) : Promise.resolve([]),
     NO_PASSO_7 ? listarPecas(ctx) : Promise.resolve([]),
   ])
+
+  /**
+   * Quem está com o aparelho, e se ele já encostou nele.
+   *
+   * `aceitouEm` é a diferença que decide o texto da tela: despachado é "está no
+   * aplicativo dele"; aceito é "ele já fotografou e assumiu". A segunda não se
+   * desfaz com um clique de despacho, e a tela precisa saber disso antes de
+   * oferecer a troca.
+   */
+  const despacho = noDespacho
+    ? {
+        tecnicos: tecnicosDaCasa.map((t) => ({ id: t.id, nome: t.nome })),
+        atualId: extra.tecnicoId,
+        atualNome: extra.tecnico?.nome ?? null,
+        aceitouEm: extra.tecnicoAceitouEm ? extra.tecnicoAceitouEm.toISOString() : null,
+      }
+    : null
 
   const responsavel = NO_PASSO_7
     ? {
@@ -643,6 +691,7 @@ export async function painelDaOrdem(
     podeMexerNaRota && paradasVivas.length > 0
       ? (await motoristasDaEmpresa(ctx)).map((m) => ({ id: m.id, nome: m.nome }))
       : []
+
 
   /**
    * A FICHA DO CLIENTE — buscada aqui, e não numa segunda ida da tela.
@@ -727,8 +776,18 @@ export async function painelDaOrdem(
       parada,
       paradasMarcadas,
       motoristasDaCasa,
+      despacho,
       podeMexerNaRota,
       podeCancelar: GESTAO.includes(sessao.papel) && !TERMINAIS.includes(extra.etapa),
+      /**
+       * Voltar VALE inclusive nas etapas terminais, ao contrário de cancelar.
+       *
+       * É justamente ali que o clique errado dói mais: uma ordem cancelada por
+       * engano, ou finalizada na linha de cima da lista, hoje só se conserta
+       * abrindo outra e perdendo a numeração. O que a trava, aqui, é ter
+       * histórico — e não em que etapa a ordem parou.
+       */
+      podeVoltar: GESTAO.includes(sessao.papel) && extra.eventos.length > 1,
       // Sem trava de etapa aqui: quem decide é `podeExcluir`, no servidor, lendo
       // o que a ordem carrega. A etapa é só um dos sete motivos que ele checa.
       podeExcluir: GESTAO.includes(sessao.papel),
@@ -1216,3 +1275,140 @@ const HORA_CAMPO = new Intl.DateTimeFormat('en-GB', {
   minute: '2-digit',
   hour12: false,
 })
+
+// ---------------------------------------------------------------------------
+// Desfazer o último passo, e despachar o aparelho para um técnico
+// ---------------------------------------------------------------------------
+
+/**
+ * VOLTAR UM PASSO NA ESTEIRA.
+ *
+ * O motivo é obrigatório e não é burocracia: esta é a única ação do sistema que
+ * move a ordem para trás, e daqui a seis meses a pergunta na trilha vai ser
+ * "por que esta ordem voltou de faturado?". Sem a frase escrita na hora,
+ * ninguém lembra.
+ *
+ * Só gestão. Um atendente anda a esteira o dia inteiro; trazê-la de volta é
+ * decisão de quem responde pela ordem — e é também o que impede que o desfazer
+ * vire o jeito normal de corrigir pressa.
+ */
+export async function desfazerUltimoPasso(_anterior: unknown, form: FormData): Promise<Resposta> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!GESTAO.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Só a gestão traz uma ordem de volta.' }
+  }
+
+  const ordemId = String(form.get('ordemId') ?? '')
+  const motivo = String(form.get('motivo') ?? '').trim()
+  if (!ordemId) return { ok: false, motivo: 'Ordem não informada.' }
+  if (motivo.length < 5) {
+    return { ok: false, motivo: 'Escreva o motivo — é o que explica esta volta na trilha.' }
+  }
+
+  const r = await voltarUmPasso(a.ctx, a.ator, {
+    ordemId,
+    motivo: motivo.slice(0, 300),
+    ip: await ipAtual(),
+  })
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.passo_desfeito',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    negado: !r.ok,
+    detalhes: r.ok ? { voltouPara: r.etapa, motivo } : { recusa: r.motivo },
+  })
+
+  if (!r.ok) return { ok: false, motivo: r.motivo }
+  revalidatePath('/painel/ordens')
+  revalidatePath('/painel')
+  return { ok: true }
+}
+
+/**
+ * DESPACHAR O APARELHO PARA UM TÉCNICO.
+ *
+ * =============================================================================
+ * O QUE ELE MUDA, JÁ QUE A BANCADA É COMPARTILHADA
+ * =============================================================================
+ * Toda ordem coletada já aparece no aplicativo de TODOS os técnicos — a oficina
+ * é uma fila comum de propósito, e isso não muda aqui. O que faltava era poder
+ * dizer DE QUEM é o aparelho, e a diferença é real: `aceitarOrdemDoTecnico`
+ * recusa quem tenta assumir uma ordem que já tem dono. Despachar não é só um
+ * rótulo; é a trava que impede dois técnicos de abrirem a mesma máquina.
+ *
+ * E na central resolve o que o dono descreveu: a ordem parecia parada porque
+ * nada dizia que ela já estava na mão de alguém.
+ *
+ * =============================================================================
+ * POR QUE SEM TRANSIÇÃO DE ETAPA
+ * =============================================================================
+ * Despachar não move a esteira. O aparelho continua exatamente onde está —
+ * coletado, ou recebido — e quem o move para "em análise" é o técnico, quando
+ * encostar nele. Fazer disto uma etapa criaria um degrau a mais para atravessar
+ * e uma linha a mais na régua dizendo o que já estava dito.
+ */
+export async function despacharParaTecnico(
+  ordemId: string,
+  tecnicoId: string,
+): Promise<Resposta<{ tecnico: string }>> {
+  const a = await atorDaSessao()
+  if (!a) return { ok: false, motivo: 'Sessão expirada. Entre de novo.' }
+  if (!CENTRAL.includes(a.sessao.papel)) {
+    return { ok: false, motivo: 'Seu perfil não despacha aparelho para a bancada.' }
+  }
+  if (!ordemId) return { ok: false, motivo: 'Ordem não informada.' }
+
+  const r = await comEscopo(a.ctx, async (tx) => {
+    const ordem = await tx.ordem.findUnique({
+      where: { id: ordemId },
+      select: { id: true, tecnicoId: true, tecnicoAceitouEm: true },
+    })
+    if (!ordem) return { ok: false as const, motivo: 'Ordem não encontrada.' }
+
+    /**
+     * Tirar o aparelho da mão de quem JÁ ENCOSTOU nele é outra conversa.
+     *
+     * O aceite do técnico é uma foto com hora: a fronteira entre o que chegou
+     * assim e o que aconteceu aqui dentro. Redespachar por cima disso deixaria
+     * a ordem no nome de alguém que nunca viu o aparelho, com a foto de entrada
+     * assinada por outro. Enquanto ninguém aceitou, trocar é livre.
+     */
+    if (ordem.tecnicoAceitouEm && ordem.tecnicoId !== tecnicoId) {
+      return {
+        ok: false as const,
+        motivo:
+          'Este aparelho já foi assumido na bancada, com foto de entrada. Para passá-lo a outro técnico, desfaça o passo ou fale com quem está com ele.',
+      }
+    }
+
+    // O técnico tem de ser desta empresa e ter o papel. O RLS garante a
+    // primeira metade; o papel é conferido aqui, para ninguém "despachar" um
+    // aparelho para o financeiro.
+    const tecnico = await tx.user.findUnique({
+      where: { id: tecnicoId },
+      select: { id: true, nome: true, papel: true, ativo: true },
+    })
+    if (!tecnico) return { ok: false as const, motivo: 'Técnico não encontrado nesta empresa.' }
+    if (tecnico.papel !== Papel.TECNICO) {
+      return { ok: false as const, motivo: `${tecnico.nome} não tem perfil de técnico.` }
+    }
+    if (!tecnico.ativo) {
+      return { ok: false as const, motivo: `O acesso de ${tecnico.nome} está desativado.` }
+    }
+
+    await tx.ordem.update({ where: { id: ordemId }, data: { tecnicoId } })
+    return { ok: true as const, nome: tecnico.nome }
+  })
+  if (!r.ok) return r
+
+  await auditar(a.ctx, a.sessao, {
+    acao: 'ordem.despachada_tecnico',
+    entidade: 'ordem',
+    entidadeId: ordemId,
+    detalhes: { tecnicoId, tecnico: r.nome },
+  })
+  revalidatePath('/painel/ordens')
+  return { ok: true, dados: { tecnico: r.nome } }
+}
