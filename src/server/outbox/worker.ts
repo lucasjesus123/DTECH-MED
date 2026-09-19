@@ -275,9 +275,15 @@ async function enviarAvisoDaEtapa(job: Job) {
      */
     anexarDocumento?: string
   }
-  if (!job.tenantId) throw new Error('Job de WhatsApp sem empresa definida.')
+  // Guardado num `const`, como em `enviarPropostaAoCliente`: a narrowing de
+  // `job.tenantId` se perde no primeiro `await`, e o resto da função precisa
+  // dele como string. Esta é a ÚNICA checagem de empresa desta função — havia
+  // uma segunda, mais abaixo, que nunca podia ser alcançada e ensinava quem
+  // lesse a duvidar de qual das duas valia.
+  const tenantId = job.tenantId
+  if (!tenantId) throw new Error('Job de WhatsApp sem empresa definida.')
 
-  const ctx = { tenantId: job.tenantId, userId: null, ehSuperAdmin: false }
+  const ctx = { tenantId, userId: null, ehSuperAdmin: false }
 
   const dados = await comEscopo(ctx, async (tx) => {
     const o = await tx.ordem.findUnique({
@@ -396,7 +402,7 @@ async function enviarAvisoDaEtapa(job: Job) {
   if (!numero) {
     // Não é falha de sistema: é cadastro incompleto. Repetir não resolve, então
     // registramos e encerramos o job em vez de gastar seis tentativas.
-    await registrarMensagem(job.tenantId, dados.ordemId, {
+    await registrarMensagem(tenantId, dados.ordemId, {
       numero: dados.numeroBruto ?? '',
       corpo: '',
       status: 'FALHOU',
@@ -413,15 +419,8 @@ async function enviarAvisoDaEtapa(job: Job) {
     return
   }
 
-  // Todo trabalho de WhatsApp nasce dentro de uma empresa. Se um chegar sem
-  // ela, o certo é falhar ESTE trabalho com uma frase que se entende — e não
-  // deixar o banco recusar o nulo lá dentro, com um erro que ninguém liga ao
-  // trabalho que o causou.
-  const empresa = job.tenantId
-  if (!empresa) throw new Error('Trabalho de WhatsApp sem empresa; nada foi enviado.')
-
-  const token = await comEscopo({ tenantId: empresa, userId: null, ehSuperAdmin: false }, (tx) =>
-    tokenDaEmpresaNaTx(tx, empresa),
+  const token = await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+    tokenDaEmpresaNaTx(tx, tenantId),
   )
   if (!token) {
     throw new Error('WhatsApp da empresa não está conectado.')
@@ -457,7 +456,7 @@ async function enviarAvisoDaEtapa(job: Job) {
     r = await enviarTexto({ token, numero, texto: corpo })
   }
 
-  await registrarMensagem(job.tenantId, dados.ordemId, {
+  await registrarMensagem(tenantId, dados.ordemId, {
     numero,
     corpo,
     status: 'ENVIADA',
@@ -504,9 +503,11 @@ async function registrarMensagem(
 
 /** Marcador do gerador de PDF, implementado em src/server/documentos. */
 async function gerarDocumento(job: Job) {
-  if (!job.tenantId) throw new Error('Trabalho de documento sem empresa; nada foi gerado.')
+  // Mesmo padrão das outras duas: um `const` que sobrevive aos `await`.
+  const tenantId = job.tenantId
+  if (!tenantId) throw new Error('Trabalho de documento sem empresa; nada foi gerado.')
   const { gerarPdfDaOrdem } = await import('@/server/documentos/gerar')
-  const feito = await gerarPdfDaOrdem(job.payload as never, job.tenantId)
+  const feito = await gerarPdfDaOrdem(job.payload as never, tenantId)
 
   /**
    * O DOCUMENTO QUE SAI SOZINHO É AVISADO AQUI, e não lá no motor.
@@ -523,9 +524,8 @@ async function gerarDocumento(job: Job) {
    */
   const p = job.payload as { ordemId?: string; enviarAoCliente?: boolean }
   if (p.enviarAoCliente && p.ordemId) {
-    const empresa = job.tenantId
-    await comEscopo({ tenantId: empresa, userId: null, ehSuperAdmin: false }, (tx) =>
-      enfileirar(tx, empresa, {
+    await comEscopo({ tenantId, userId: null, ehSuperAdmin: false }, (tx) =>
+      enfileirar(tx, tenantId, {
         tipo: 'whatsapp.enviar',
         prioridade: 2,
         dedupeKey: `zap:doc:${feito.documentoId}`,
