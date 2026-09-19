@@ -312,7 +312,13 @@ async function resumoEm(
     const [fin] = opcoes.comDinheiro
       ? await tx.$queryRaw<Array<{ areceber: bigint; recebido: bigint }>>`
       SELECT
-        coalesce(sum("valorTotalCentavos" - "valorPagoCentavos")
+        -- MULTA E JUROS ENTRAM, e é por isso que este número subiu.
+        -- A forma curta (total menos pago) fazia o Dashboard mostrar menos do
+        -- que o Financeiro na mesma tela e no mesmo instante, porque lá a conta
+        -- sempre somou os dois. O que é devido está definido em aplicarBaixa,
+        -- em lib/dinheiro.ts: total + multa + juros. É essa a forma da casa.
+        coalesce(sum("valorTotalCentavos" + "multaCentavos" + "jurosCentavos"
+                     - "valorPagoCentavos")
                  FILTER (WHERE status IN ('ABERTA','PARCIAL')), 0) AS areceber,
         coalesce(sum("valorPagoCentavos")
                  FILTER (WHERE "quitadaEm" >= date_trunc('month', now())), 0) AS recebido
