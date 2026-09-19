@@ -1,4 +1,5 @@
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
+import { SQL_ETAPAS_ENCERRADAS } from '@/server/consultas/etapas-encerradas'
 import { ROTULO_ETAPA } from '@/server/ordem/maquina-estados'
 
 /**
@@ -179,7 +180,12 @@ export async function ondeEstaParado(ctx: ContextoAcesso): Promise<FilaDaEtapa[]
              count(*) AS n,
              MAX(EXTRACT(EPOCH FROM (now() - "atualizadoEm")) / 86400) AS dias
         FROM ordens
-       WHERE etapa NOT IN ('FINALIZADO', 'CANCELADO')
+       -- DEVOLVIDO_SEM_REPARO entrou nesta lista, e é a mudança que faz o
+       -- número cair: o aparelho que voltou ao cliente sem conserto não é
+       -- trabalho parado em lugar nenhum. Ele era contado aqui e não era
+       -- contado no Dashboard, então as duas telas discordavam sobre quantas
+       -- ordens estão abertas.
+       WHERE etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
        GROUP BY etapa
        ORDER BY n DESC
     `,
