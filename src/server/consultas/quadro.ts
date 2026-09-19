@@ -153,7 +153,26 @@ export async function montarQuadro(ctx: ContextoAcesso): Promise<ColunaDoQuadro[
     colunasDaEmpresa(ctx),
     comEscopo(ctx, (tx) =>
       tx.ordem.findMany({
-        orderBy: [{ prioridade: 'desc' }, { atualizadoEm: 'asc' }],
+        /**
+         * `asc`, E NÃO `desc`, PORQUE A COLUNA É TEXTO E NÃO ENUM.
+         *
+         * `prioridade` é `String` no schema, então o banco ordena pelo
+         * alfabeto, não por importância. Com `desc` vinha NORMAL antes de ALTA
+         * — a fila que a operação usa para decidir o que fazer primeiro
+         * mostrava o urgente por último, e o corte de 500 abaixo descartava
+         * justamente os urgentes.
+         *
+         * Com `asc`, ALTA vem antes de NORMAL. Funciona porque o domínio tem
+         * exatamente estes dois valores, travados por `z.enum(['NORMAL',
+         * 'ALTA'])` em toda escrita — e a ordem alfabética coincide com a
+         * ordem de importância por acaso, não por desenho.
+         *
+         * Se um terceiro valor entrar, o acaso acaba: 'BAIXA' cairia entre os
+         * dois. A ordem de exibição abaixo é por posto explícito e continuaria
+         * certa; o que precisaria mudar é ESTA linha, que decide quem sobrevive
+         * ao corte. O dia de trocar a coluna por um enum do Postgres é esse.
+         */
+        orderBy: [{ prioridade: 'asc' }, { atualizadoEm: 'asc' }],
         take: 500,
         select: {
           id: true,
@@ -194,6 +213,21 @@ export async function montarQuadro(ctx: ContextoAcesso): Promise<ColunaDoQuadro[
       Math.floor((agora.getTime() - o.atualizadoEm.getTime()) / 86400000),
     ),
   }))
+
+  /**
+   * A ORDEM QUE A TELA MOSTRA, POR POSTO EXPLÍCITO.
+   *
+   * O banco já devolveu na ordem certa, mas por coincidência alfabética. Aqui a
+   * intenção fica escrita: urgente primeiro, e entre iguais o que está parado
+   * há mais tempo. Um valor novo de prioridade cai no fim em vez de se misturar
+   * em ordem alfabética no meio da fila.
+   */
+  const POSTO: Record<string, number> = { ALTA: 0, NORMAL: 1 }
+  cartoes.sort(
+    (a, b) =>
+      (POSTO[a.prioridade] ?? 99) - (POSTO[b.prioridade] ?? 99) ||
+      b.diasNaEtapa - a.diasNaEtapa,
+  )
 
   const usadas = new Set<string>()
   const montadas: ColunaDoQuadro[] = colunas.map((c) => {

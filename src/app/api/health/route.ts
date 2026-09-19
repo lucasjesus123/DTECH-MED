@@ -15,6 +15,8 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
+    // prisma-cru: só pergunta se o banco responde. Não lê linha de ninguém e
+    // não tem empresa a que se escopar — é o sinal de vida do contêiner.
     await prisma.$queryRaw`SELECT 1`
     return NextResponse.json({ ok: true }, { headers: { 'Cache-Control': 'no-store' } })
   } catch {

@@ -131,6 +131,39 @@ marcar $? "nenhum catch vazio"
 test "$(grep -rn '\bprisma\.\w' src --include=*.ts --include=*.tsx | grep -v generated | grep -vc 'src/lib/db.ts')" = "0"
 marcar $? "nenhum cliente Prisma sem escopo"
 
+# E A MESMA TRAVA PARA A SINTAXE QUE ELA NÃO ENXERGAVA.
+#
+# A linha acima procura `prisma.` seguido de \w, e \w não casa `$`. Todo acesso
+# cru deste projeto começa com `prisma.$queryRaw` — então a trava devolvia zero
+# e passava sempre, cega justamente para o que existe. Ela vigiava a forma que
+# ninguém usa.
+#
+# O acesso cru tem uso legítimo aqui: as consultas que rodam ANTES de haver uma
+# empresa a que se escopar — resolver o token do portal, achar o dono de um
+# documento, conferir se o banco responde. Essas não podem passar por
+# `comEscopo()` porque descobrir o tenant é o trabalho delas.
+#
+# Por isso a regra não é "proibido", é "declarado": quem precisa do acesso cru
+# escreve `prisma-cru:` com o motivo, nas três linhas acima da chamada. O que
+# aparecer sem declaração reprova. Assim o décimo caso precisa de uma decisão
+# consciente, que é o que a trava deveria ter exigido desde o início.
+#
+# São três linhas, e não uma, porque o motivo raramente cabe em uma só — e uma
+# janela apertada ensina a escrever motivo curto em vez de motivo bom.
+CRUS_SEM_DECLARACAO=0
+while IFS=: read -r arquivo linha _; do
+  [ -z "$arquivo" ] && continue
+  ANTERIOR=$(( linha - 3 ))
+  [ "$ANTERIOR" -lt 1 ] && ANTERIOR=1
+  if ! sed -n "${ANTERIOR},${linha}p" "$arquivo" | grep -q 'prisma-cru:'; then
+    echo "   · acesso cru sem declaração: $arquivo:$linha" >>"$LOGS/prisma-cru.log"
+    CRUS_SEM_DECLARACAO=$(( CRUS_SEM_DECLARACAO + 1 ))
+  fi
+done < <(grep -rn 'prisma\.\$\(queryRaw\|executeRaw\|transaction\)' src --include='*.ts' --include='*.tsx' \
+         | grep -v generated | grep -v 'src/lib/db.ts' | grep -v '\.test\.ts:')
+test "$CRUS_SEM_DECLARACAO" = "0"
+marcar $? "todo acesso cru ao banco está declarado"
+
 echo ""
 echo "═══ FASE 2 · SISTEMA EM USO ═══"
 semear

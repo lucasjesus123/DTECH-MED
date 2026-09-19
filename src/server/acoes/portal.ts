@@ -47,6 +47,8 @@ type Resposta = { ok: true } | { ok: false; motivo: string }
 async function ordemDoToken(token: string) {
   if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null
 
+  // prisma-cru: o cliente chega ao portal sem login, e o token é a única pista
+  // de qual empresa é a ordem. Achar o tenant é o que esta consulta faz.
   const linhas = await prisma.$queryRaw<Array<{ tenant: string | null }>>`
     SELECT app.empresa_do_token(${token}) AS tenant
   `
@@ -320,6 +322,8 @@ export async function responderOrcamento(_anterior: Resposta, form: FormData): P
 async function propostaDoToken(token: string) {
   if (!/^[A-Za-z0-9_-]{20,64}$/.test(token)) return null
 
+  // prisma-cru: mesma razão do token da ordem, agora para o link do orçamento.
+  // Sem sessão, e a empresa sai da própria consulta.
   const linhas = await prisma.$queryRaw<Array<{ tenant: string | null }>>`
     SELECT app.empresa_da_proposta(${token}) AS tenant
   `

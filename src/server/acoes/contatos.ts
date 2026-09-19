@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { Papel } from '@/generated/prisma/enums'
-import { comEscopo } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { env } from '@/lib/env'
 import { auditar, exigirNivel, ipDaRequisicao } from '@/server/auth/guarda'
 
@@ -186,7 +186,12 @@ export async function registrarContato(_anterior: Resposta, form: FormData): Pro
   const criado = await comEscopo(a.ctx, (tx) =>
     tx.lead.create({
       data: {
-        tenantId: a.sessao.tenantId!,
+        // `exigirEmpresa`, e não a exclamação. O Super Admin não tem empresa,
+        // e a exclamação entregava `null` ao banco: erro cru de coluna não
+        // nula, na tela, para o dono da plataforma — numa tela que o menu dele
+        // abre. A função troca a quebra incompreensível por uma frase que diz
+        // o que houve. É o mesmo conserto que a tela do WhatsApp já recebeu.
+        tenantId: exigirEmpresa(a.ctx, 'anotar um contato'),
         nome: v.nome,
         telefone: v.telefone.replace(/\D/g, ''),
         empresa: v.empresa || null,

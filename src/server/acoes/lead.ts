@@ -86,6 +86,8 @@ export async function pedirRetirada(_anterior: RespostaLead, form: FormData): Pr
   }
 
   try {
+    // prisma-cru: formulário do site, preenchido por quem não tem login. A
+    // empresa vem da configuração do site, não de uma sessão.
     const linhas = await prisma.$queryRaw<Array<{ id: string | null }>>`
       SELECT app.registrar_lead(
         ${env.SITE_TENANT_SLUG},

@@ -292,8 +292,13 @@ export async function salvarDiagnostico(form: FormData): Promise<Resposta> {
     .safeParse(Object.fromEntries(form))
   if (!d.success) return { ok: false, motivo: d.error.issues[0]!.message }
 
-  await comEscopo(a.ctx, async (tx) => {
-    await tx.ordem.update({
+  // `updateMany` e não `update`: sob a trava do banco, um id de outra empresa
+  // não existe para esta sessão, e `update` levanta exceção — que chega na tela
+  // como erro do servidor, sem explicação. `updateMany` devolve contagem zero,
+  // e zero vira a frase abaixo. É o mesmo padrão que `contatos.ts` já usa e
+  // documenta.
+  const { count } = await comEscopo(a.ctx, (tx) =>
+    tx.ordem.updateMany({
       where: { id: d.data.ordemId },
       data: {
         diagnostico: d.data.diagnostico,
@@ -301,8 +306,9 @@ export async function salvarDiagnostico(form: FormData): Promise<Resposta> {
         servicoExecutado: d.data.servicoExecutado || undefined,
         testesFinais: d.data.testesFinais || undefined,
       },
-    })
-  })
+    }),
+  )
+  if (count === 0) return { ok: false, motivo: 'Ordem não encontrada.' }
 
   revalidatePath(`/painel/ordens/${d.data.ordemId}`)
   return { ok: true }
@@ -329,16 +335,21 @@ export async function definirResponsavel(form: FormData): Promise<Resposta> {
   const prazo = d.data.prazoPrometido ? new Date(`${d.data.prazoPrometido}T18:00:00-03:00`) : null
   if (prazo && Number.isNaN(prazo.getTime())) return { ok: false, motivo: 'Data de prazo inválida.' }
 
-  await comEscopo(a.ctx, async (tx) => {
-    await tx.ordem.update({
+  // Mesmo motivo do `salvarLaudo` acima: `updateMany` devolve contagem em vez
+  // de levantar exceção quando a trava do banco esconde a linha.
+  const { count } = await comEscopo(a.ctx, (tx) =>
+    tx.ordem.updateMany({
       where: { id: d.data.ordemId },
       data: {
         tecnicoId: d.data.tecnicoId || null,
         prazoPrometido: prazo,
         prioridade: d.data.prioridade,
       },
-    })
-  })
+    }),
+  )
+  // Antes da trilha de propósito: auditar uma alteração que não aconteceu
+  // encheria o rastro de linhas que não descrevem mudança nenhuma.
+  if (count === 0) return { ok: false, motivo: 'Ordem não encontrada.' }
 
   await auditar(a.ctx, a.sessao, {
     acao: 'ordem.responsavel',

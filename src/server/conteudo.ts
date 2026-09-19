@@ -33,6 +33,8 @@ import { CONTEUDO_PADRAO, interpretarConteudo, type Conteudo } from '@/lib/conte
  */
 export const lerConteudo = cache(async (): Promise<Conteudo> => {
   try {
+    // prisma-cru: conteúdo do site institucional, que é público e não pertence
+    // a franquia nenhuma. Quem visita não tem sessão nem empresa.
     const linhas = await prisma.$queryRaw<Array<{ dados: unknown }>>`
       SELECT app.conteudo_publicado() AS dados
     `

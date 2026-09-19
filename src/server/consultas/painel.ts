@@ -1,6 +1,7 @@
 import { EtapaOrdem } from '@/generated/prisma/enums'
 import { formatarBRL } from '@/lib/dinheiro'
 import { comEscopo, type ContextoAcesso, type Transacao } from '@/lib/db'
+import { SQL_ETAPAS_ENCERRADAS } from '@/server/consultas/etapas-encerradas'
 
 /**
  * Consultas do painel.
@@ -107,7 +108,13 @@ async function esteiraEm(
              (avg(extract(epoch FROM (now() - "atualizadoEm"))) / 86400)::float8 AS "mediaDias"
         FROM ordens
        WHERE "tenantId" = ${tenantId}
-         AND etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO','SOLICITACAO_RECEBIDA')
+         AND etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
+         -- SOLICITACAO_RECEBIDA sai daqui, e SÓ daqui, de propósito: a esteira
+         -- começa quando a casa aceita o chamado. Um pedido que chegou pelo
+         -- site e ninguém abriu ainda não está parado em etapa nenhuma — ele
+         -- está na porta. Contá-lo como degrau faria a esteira acusar um
+         -- gargalo que é, na verdade, fila de atendimento.
+         AND etapa <> 'SOLICITACAO_RECEBIDA'
        GROUP BY etapa
     `
 
@@ -140,7 +147,12 @@ async function esteiraEm(
                     LIMIT 1
                  ) u ON true
            WHERE o."tenantId" = ${tenantId}
-             AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO','SOLICITACAO_RECEBIDA')
+             -- O MESMO RECORTE DA CONSULTA DE CONTAGEM, ACIMA. As duas somam o
+             -- mesmo degrau: uma diz quantas ordens, a outra quanto dinheiro.
+             -- Recortes diferentes fariam a esteira mostrar seis aparelhos e o
+             -- valor de sete — e ninguém saberia qual dos dois acreditar.
+             AND o.etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
+             AND o.etapa <> 'SOLICITACAO_RECEBIDA'
            GROUP BY o.etapa
         `
       : []
@@ -312,7 +324,13 @@ async function resumoEm(
     const [fin] = opcoes.comDinheiro
       ? await tx.$queryRaw<Array<{ areceber: bigint; recebido: bigint }>>`
       SELECT
-        coalesce(sum("valorTotalCentavos" - "valorPagoCentavos")
+        -- MULTA E JUROS ENTRAM, e é por isso que este número subiu.
+        -- A forma curta (total menos pago) fazia o Dashboard mostrar menos do
+        -- que o Financeiro na mesma tela e no mesmo instante, porque lá a conta
+        -- sempre somou os dois. O que é devido está definido em aplicarBaixa,
+        -- em lib/dinheiro.ts: total + multa + juros. É essa a forma da casa.
+        coalesce(sum("valorTotalCentavos" + "multaCentavos" + "jurosCentavos"
+                     - "valorPagoCentavos")
                  FILTER (WHERE status IN ('ABERTA','PARCIAL')), 0) AS areceber,
         coalesce(sum("valorPagoCentavos")
                  FILTER (WHERE "quitadaEm" >= date_trunc('month', now())), 0) AS recebido
@@ -324,7 +342,7 @@ async function resumoEm(
              count(*) FILTER (WHERE "prazoPrometido" < now()) AS atrasadas
         FROM ordens
        WHERE "tenantId" = ${tenantId}
-         AND etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
+         AND etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
     `
     const [pec] = await tx.$queryRaw<Array<{ n: bigint }>>`
       SELECT count(*) AS n FROM pecas
@@ -445,7 +463,7 @@ async function alertaEm(
                     LIMIT 1
                  ) u ON true
            WHERE o."tenantId" = ${tenantId}
-             AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
+             AND o.etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
              AND o."prazoPrometido" < now()
            ORDER BY o."prazoPrometido" ASC
         `
@@ -456,7 +474,7 @@ async function alertaEm(
             FROM ordens o
             JOIN clientes c ON c.id = o."clienteId"
            WHERE o."tenantId" = ${tenantId}
-             AND o.etapa NOT IN ('FINALIZADO','CANCELADO','DEVOLVIDO_SEM_REPARO')
+             AND o.etapa NOT IN (${SQL_ETAPAS_ENCERRADAS})
              AND o."prazoPrometido" < now()
            ORDER BY o."prazoPrometido" ASC
         `

@@ -171,3 +171,66 @@ export function aplicarBaixa(entrada: {
 export function liquido(pagoCentavos: number, taxaCentavos: number): number {
   return pagoCentavos - taxaCentavos
 }
+
+/**
+ * OS SUBTOTAIS E O TOTAL DO ORÇAMENTO DO PASSO 1.
+ *
+ * Isto morava dentro de `salvarProposta`, um arquivo `'use server'`, e por isso
+ * não dava para testar sem sessão e sem banco. O teste que existia contornava o
+ * problema redefinindo a fórmula dentro de si — e passava a testar a cópia, não
+ * o que a casa cobra. Aqui a função é pura, e o teste prende o código real.
+ *
+ * Peças e serviços saem separados porque a proposta mostra os dois de forma
+ * distinta ao cliente: peça é o que ele leva, serviço é o que a casa faz.
+ * Deslocamento e taxa contam como serviço.
+ *
+ * ATENÇÃO AO ARREDONDAMENTO, que aqui não é o mesmo do passo 8, e a diferença
+ * não é descuido de nenhum dos dois lados. Esta função arredonda o CENTAVO NO
+ * UNITÁRIO e só então multiplica, para que o total bata com a multiplicação
+ * impressa ao lado na tela do cliente — o teste desta função prende esse caso
+ * com 3 × R$ 0,335. `orcamento.ts` faz o contrário: multiplica primeiro e
+ * arredonda no fim, que é o que `aCentavos` recomenda logo acima.
+ *
+ * As duas escolhas são defensáveis e nenhuma foi reconciliada com a outra. Com
+ * valor unitário quebrado em fração de centavo elas divergem: 0,045 em dez
+ * peças dá 50 centavos aqui e 45 lá. A divergência é anterior a esta extração e
+ * foi preservada de propósito — escolher uma das duas muda o preço de
+ * orçamentos que já estão na rua, e isso é decisão do dono, não efeito
+ * colateral de um teste.
+ */
+export function totalizarItensDaProposta<
+  I extends { tipo: 'PECA' | 'SERVICO' | 'DESLOCAMENTO' | 'TAXA'; quantidade: number; valorUnit: number },
+>(
+  itens: ReadonlyArray<I>,
+  descontoCentavos: number,
+  acrescimoCentavos: number,
+): {
+  linhas: Array<I & { valorTotalCentavos: number }>
+  subtotalPecas: number
+  subtotalServicos: number
+  total: number
+} {
+  const linhas = itens.map((i) => ({
+    ...i,
+    valorTotalCentavos: Math.round(i.valorUnit * 100) * i.quantidade,
+  }))
+  const subtotalPecas = linhas
+    .filter((i) => i.tipo === 'PECA')
+    .reduce((s, i) => s + i.valorTotalCentavos, 0)
+  const subtotalServicos = linhas
+    .filter((i) => i.tipo !== 'PECA')
+    .reduce((s, i) => s + i.valorTotalCentavos, 0)
+  return {
+    linhas,
+    subtotalPecas,
+    subtotalServicos,
+    // O clamp em zero vem de `calcularTotal`, que se declara fonte única da
+    // fórmula. Chamar em vez de repetir é o ponto deste arquivo existir.
+    total: calcularTotal({
+      subtotalPecas,
+      subtotalServicos,
+      desconto: descontoCentavos,
+      acrescimo: acrescimoCentavos,
+    }),
+  }
+}

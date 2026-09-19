@@ -177,16 +177,42 @@ export async function auditar(
 /**
  * Extrai o IP do cliente.
  *
- * Só confia em `x-forwarded-for` quando `TRUST_PROXY` está ligado. Fora disso,
- * o header é campo livre que qualquer um preenche — e um IP forjado na trilha
- * de auditoria é pior que nenhum IP, porque parece confiável.
+ * Só confia nos cabeçalhos de proxy quando `TRUST_PROXY` está ligado. Fora
+ * disso, header é campo livre que qualquer um preenche — e um IP forjado na
+ * trilha de auditoria é pior que nenhum IP, porque parece confiável.
+ *
+ * =============================================================================
+ * A ORDEM ENTRE OS DOIS CABEÇALHOS É O CONSERTO, E NÃO É DETALHE DE ESTILO
+ * =============================================================================
+ * Esta função lia o elemento MAIS À ESQUERDA do `x-forwarded-for`, e o nginx da
+ * frente monta esse cabeçalho com `$proxy_add_x_forwarded_for`, que PRESERVA o
+ * que o cliente mandou e acrescenta o endereço real ATRÁS. As duas metades
+ * estavam certas isoladamente; o contrato entre elas nunca foi escrito.
+ *
+ * Na prática: quem mandasse `X-Forwarded-For: 1.2.3.4` escolhia o próprio IP. A
+ * trilha de auditoria registrava o que o visitante digitou sobre si mesmo, e o
+ * freio de chutes do portal público — que separa os baldes por IP — virava um
+ * balde novo a cada requisição, ou seja, freio nenhum.
+ *
+ * `X-Real-IP` não tem esse problema: os dois proxies o escrevem a partir do
+ * endereço da conexão (`$remote_addr` no nginx, `{remote_host}` no Caddy), e
+ * cliente nenhum consegue acrescentar nada a ele. Por isso ele vem primeiro.
+ *
+ * O `x-forwarded-for` continua como reserva, para o caso de um proxy que só
+ * mande esse — e aí lê-se o ÚLTIMO elemento, que é o que o proxy mais próximo
+ * acrescentou, nunca o primeiro, que é o que o cliente escreveu.
  */
 export function ipDaRequisicao(headers: Headers, confiarNoProxy: boolean): string | null {
   if (confiarNoProxy) {
-    const xff = headers.get('x-forwarded-for')
-    if (xff) return xff.split(',')[0]!.trim()
     const real = headers.get('x-real-ip')
-    if (real) return real.trim()
+    if (real?.trim()) return real.trim()
+
+    const xff = headers.get('x-forwarded-for')
+    if (xff) {
+      const partes = xff.split(',').map((p) => p.trim()).filter(Boolean)
+      const ultimo = partes.at(-1)
+      if (ultimo) return ultimo
+    }
   }
   return null
 }

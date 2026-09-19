@@ -156,6 +156,8 @@ async function abrirPedido(d: {
   tokenHash: string
   ip: string | null
 }): Promise<boolean> {
+  // prisma-cru: recuperação de senha acontece antes de haver sessão, logo antes
+  // de haver empresa. A função no banco é quem decide o que pode ser escrito.
   const linhas = await prisma.$queryRaw<Array<{ ok: boolean }>>`
     SELECT app.criar_recuperacao(
       ${d.userId}, ${d.tenantId ?? ''}, ${d.tokenHash},
@@ -245,6 +247,8 @@ export async function redefinirComToken(entrada: {
 
   const hash = await hashSenha(entrada.senha)
 
+  // prisma-cru: trocar a senha pelo link também roda sem sessão. Quem valida o
+  // token e escolhe o usuário é a função no banco, não esta camada.
   const linhas = await prisma.$queryRaw<Array<{ user_id: string | null }>>`
     SELECT app.usar_recuperacao(${hashToken(entrada.token)}, ${hash}) AS user_id
   `

@@ -173,13 +173,23 @@ export async function fichaDoCliente(
     if (opcoes.podeVerDinheiro) {
       const faturas = await tx.fatura.findMany({
         where: { ordem: { clienteId }, status: { notIn: ['QUITADA', 'CANCELADA'] } },
-        select: { valorTotalCentavos: true, valorPagoCentavos: true, vencimento: true },
+        select: {
+          valorTotalCentavos: true,
+          valorPagoCentavos: true,
+          // Multa e juros entram no que o cliente deve. Sem eles, a ficha
+          // mostrava menos do que a aba de faturas cobra dele.
+          multaCentavos: true,
+          jurosCentavos: true,
+          vencimento: true,
+        },
       })
       const agora = Date.now()
       let emAberto = 0
       let maisAntigo = 0
       for (const f of faturas) {
-        emAberto += f.valorTotalCentavos - f.valorPagoCentavos
+        // Mesma fórmula de `aplicarBaixa` em lib/dinheiro.ts, que é onde este
+        // produto define o que é devido: total + multa + juros, menos o pago.
+        emAberto += f.valorTotalCentavos + f.multaCentavos + f.jurosCentavos - f.valorPagoCentavos
         if (f.vencimento && f.vencimento.getTime() < agora) {
           const dias = Math.floor((agora - f.vencimento.getTime()) / 86_400_000)
           if (dias > maisAntigo) maisAntigo = dias
