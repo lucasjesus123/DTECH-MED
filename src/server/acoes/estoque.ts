@@ -4,11 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { Prisma } from '@/generated/prisma/client'
 import { Papel, TipoMovimentoEstoque } from '@/generated/prisma/enums'
-import { comEscopo, exigirEmpresa, type ContextoAcesso } from '@/lib/db'
+import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { aCentavos } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
-import { contextoDe, lerSessao, type Sessao } from '@/server/auth/sessao'
-import { apagarArquivo, guardarFoto } from '@/server/arquivos/storage'
+import { contextoDe, lerSessao } from '@/server/auth/sessao'
+import { anexarFotoDeCatalogo, apagarAntiga } from '@/server/arquivos/foto-catalogo'
 import { movimentar } from '@/server/estoque/servico'
 
 /**
@@ -245,76 +245,6 @@ export async function lancarMovimento(_anterior: Resposta, form: FormData): Prom
  * A troca APAGA o arquivo anterior. Sem isso, cada correção deixaria um órfão no
  * disco que nada mais referencia — e ninguém percebe até o disco encher.
  */
-/**
- * GRAVA A FOTO DE UM ITEM QUE JÁ EXISTE.
- *
- * Extraída para ser chamada de DOIS lugares: a troca posterior, pelo cartão do
- * catálogo, e o próprio CADASTRO — porque a foto tinha de esperar o item nascer
- * para poder entrar, e "cadastre agora, fotografe depois" é um segundo passo que
- * ninguém dá. O resultado era um catálogo de itens sem foto, que é o mesmo que
- * catálogo nenhum: a foto é o que responde "é esta?".
- *
- * Ela precisa do `id` porque a foto pertence a uma linha. Por isso, no cadastro,
- * ela roda DEPOIS do create — e o que acontece se ela falhar está escrito lá.
- */
-export async function anexarFotoDeCatalogo(
-  // Só o que esta função usa: o escopo da empresa e quem está fazendo. Tipar
-  // pelo retorno inteiro de `atorDaSessao` amarrava a função a um formato que
-  // as outras telas não têm — e cadastros.ts, que também precisa dela, monta a
-  // sessão de um jeito ligeiramente diferente.
-  a: { ctx: ContextoAcesso; sessao: Sessao },
-  tipo: 'peca' | 'equipamento',
-  id: string,
-  arquivo: File,
-): Promise<Resposta> {
-  const tenantId = exigirEmpresa(a.ctx)
-
-  // A LINHA É LIDA ANTES DE GRAVAR O ARQUIVO, e dentro do escopo da empresa.
-  // Assim um id de outra franquia para aqui — em vez de gravar o arquivo, não
-  // achar a linha para atualizar, e deixar um arquivo órfão no disco de quem
-  // nem devia ter conseguido enviar.
-  // Os dois ramos selecionam AS MESMAS colunas de propósito: é só o que esta
-  // função usa, e assim os dois têm o mesmo formato. Trazer `nome` de um lado e
-  // `marca`/`modelo` do outro daria dois tipos diferentes num único `await`, e
-  // o TypeScript reprovaria — com razão, porque o código abaixo não saberia
-  // qual dos dois recebeu.
-  const atual = await comEscopo(a.ctx, (tx) =>
-    tipo === 'peca'
-      ? tx.peca.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } })
-      : tx.equipamento.findUnique({ where: { id }, select: { fotoCaminho: true, fotoCaminhoThumb: true } }),
-  )
-  if (!atual) return { ok: false, motivo: 'Item não encontrado.' }
-
-  const r = await guardarFoto({ tenantId, escopo: `cat-${tipo}-${id}`, arquivo })
-  if (!r.ok) return r
-
-  // `updateMany` e não `update`: o retorno de `update` é a LINHA INTEIRA, e as
-  // duas tabelas têm colunas diferentes — os dois ramos do ternário viram tipos
-  // incompatíveis num único `await`. `updateMany` devolve só a contagem nos
-  // dois casos, que é o que interessa aqui. E o `where` continua passando pelo
-  // escopo da empresa, então ele não alcança linha de outra franquia.
-  const dados = { fotoCaminho: r.caminho, fotoCaminhoThumb: r.caminhoThumb, fotoHash: r.hash }
-  await comEscopo(a.ctx, (tx) =>
-    tipo === 'peca'
-      ? tx.peca.updateMany({ where: { id }, data: dados })
-      : tx.equipamento.updateMany({ where: { id }, data: dados }),
-  )
-
-  // Só depois de a linha apontar para o arquivo novo. Apagar antes deixaria a
-  // tela sem foto nenhuma na janela entre as duas operações.
-  await apagarAntiga(atual.fotoCaminho, atual.fotoCaminhoThumb, r.caminho, r.caminhoThumb)
-
-  await auditar(a.ctx, a.sessao, {
-    acao: 'catalogo.foto',
-    entidade: tipo,
-    entidadeId: id,
-    detalhes: { bytes: r.bytes },
-  })
-  revalidatePath('/painel/estoque')
-  revalidatePath('/painel/equipamentos')
-  return { ok: true }
-}
-
 /** A troca da foto pelo cartão do catálogo. Só confere e delega. */
 export async function salvarFotoDeCatalogo(_anterior: Resposta, form: FormData): Promise<Resposta> {
   const a = await atorDaSessao()
@@ -362,25 +292,6 @@ export async function removerFotoDeCatalogo(tipo: string, id: string): Promise<R
   return { ok: true }
 }
 
-/**
- * Apaga o arquivo que saiu de cena — desde que ele não seja o que entrou.
- *
- * Reenviar a MESMA imagem produz o mesmo hash e, portanto, o mesmo caminho.
- * Sem esta comparação, a limpeza da "antiga" apagaria o arquivo que a linha
- * acabou de passar a referenciar, e a peça ficaria com foto quebrada logo
- * depois de alguém reenviar a foto certa.
- */
-async function apagarAntiga(
-  caminho: string | null,
-  thumb: string | null,
-  novoCaminho: string | null,
-  novoThumb: string | null,
-): Promise<void> {
-  if (caminho && caminho !== novoCaminho) await apagarArquivo(caminho)
-  if (thumb && thumb !== novoThumb) await apagarArquivo(thumb)
-}
-
-// ---------------------------------------------------------------------------
 // FERRAMENTA: sai com alguém, e volta
 // ---------------------------------------------------------------------------
 
