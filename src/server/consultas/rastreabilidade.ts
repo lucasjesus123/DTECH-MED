@@ -1,4 +1,5 @@
 import { EtapaOrdem, Papel } from '@/generated/prisma/enums'
+import { diaLocal } from '@/lib/datas'
 import { comEscopo, type ContextoAcesso } from '@/lib/db'
 
 /**
@@ -188,7 +189,12 @@ export async function rastreabilidade(
        */
       const provasDoDia = new Map<string, Map<string, { um: string; varios: string; n: number }>>()
       const guardar = (quando: Date, um: string, varios: string) => {
-        const dia = quando.toISOString().slice(0, 10)
+        // `diaLocal`, e não `toISOString()`. O instante é gravado em UTC, e o
+        // fatiador de texto entregava o dia de Greenwich: uma foto tirada às
+        // 21h30 de Lajeado já é o dia seguinte lá. A folha datava a prova num
+        // dia em que ela não foi produzida — e ela existe justamente para
+        // responder ao fabricante e à vigilância QUANDO cada prova nasceu.
+        const dia = diaLocal(quando)
         const doDia = provasDoDia.get(dia) ?? new Map()
         const atual = doDia.get(um) ?? { um, varios, n: 0 }
         atual.n++
@@ -265,7 +271,9 @@ export async function rastreabilidade(
        * aconteceu: quando o leitor chega nela, já leu o que ela comprova.
        */
       const ultimaDoDia = new Map<string, number>()
-      passos.forEach((p, i) => ultimaDoDia.set(p.quando.toISOString().slice(0, 10), i))
+      // Mesmo fuso do `guardar` acima, obrigatoriamente: esta chave busca o
+      // balde que aquela criou, e dois fusos diferentes nunca se encontram.
+      passos.forEach((p, i) => ultimaDoDia.set(diaLocal(p.quando), i))
       for (const [dia, i] of ultimaDoDia) {
         const passo = passos[i]
         if (passo) passo.provas = rotulosDoDia(dia)
