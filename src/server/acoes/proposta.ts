@@ -6,7 +6,7 @@ import { Papel, StatusProposta } from '@/generated/prisma/enums'
 import { comEscopo, exigirEmpresa } from '@/lib/db'
 import { novoToken } from '@/lib/cripto'
 import { env } from '@/lib/env'
-import { aCentavos, lerValorBR } from '@/lib/dinheiro'
+import { aCentavos, lerValorBR, totalizarItensDaProposta } from '@/lib/dinheiro'
 import { auditar } from '@/server/auth/guarda'
 import { contextoDe, lerSessao } from '@/server/auth/sessao'
 import { enfileirar } from '@/server/ordem/motor'
@@ -117,17 +117,15 @@ export async function salvarProposta(
 
   // O total é calculado AQUI, e nunca vem do formulário. Preço que chega
   // pronto do navegador é preço que dá para alterar antes de chegar.
-  const calculados = itens.map((i) => ({
-    ...i,
-    valorTotalCentavos: Math.round(i.valorUnit * 100) * i.quantidade,
-  }))
-  const subtotalPecas = calculados
-    .filter((i) => i.tipo === 'PECA')
-    .reduce((s, i) => s + i.valorTotalCentavos, 0)
-  const subtotalServicos = calculados
-    .filter((i) => i.tipo !== 'PECA')
-    .reduce((s, i) => s + i.valorTotalCentavos, 0)
-  const total = Math.max(0, subtotalPecas + subtotalServicos - desconto + acrescimo)
+  //
+  // A aritmética mora em `dinheiro.ts` porque este arquivo é `'use server'` e
+  // nada aqui dentro dá para testar sem sessão e sem banco. Lá ela é pura, e o
+  // teste prende o número que o cliente vê.
+  const { linhas, subtotalPecas, subtotalServicos, total } = totalizarItensDaProposta(
+    itens,
+    desconto,
+    acrescimo,
+  )
 
   /**
    * A VALIDADE PADRÃO É QUINZE DIAS, e não "sem validade".
@@ -223,7 +221,7 @@ export async function salvarProposta(
     }
 
     await tx.propostaItem.createMany({
-      data: calculados.map((i, n) => ({
+      data: linhas.map((i, n) => ({
         tenantId,
         propostaId: propostaId!,
         tipo: i.tipo,
