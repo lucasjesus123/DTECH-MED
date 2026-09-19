@@ -27,6 +27,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
     return new NextResponse('Documento não encontrado', { status: 404 })
   }
 
+  // prisma-cru: descobrir de que empresa é o documento é o trabalho desta
+  // consulta, então ela não pode rodar dentro do escopo que ainda não existe.
   const linhas = await prisma.$queryRaw<Array<{ tenant: string | null }>>`
     SELECT app.empresa_do_documento(${token}) AS tenant
   `
